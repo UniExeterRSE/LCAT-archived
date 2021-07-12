@@ -1,2 +1,6 @@
 body {
 }
+
+#leaflet-map {
+	height: 600px;
+}

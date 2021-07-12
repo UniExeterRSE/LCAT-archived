@@ -10,7 +10,8 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "jquery": "^3.6.0",
-    "leaflet": "^1.7.1"
+    "leaflet": "^1.7.1",
+    "leaflet-css": "^0.1.0"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
