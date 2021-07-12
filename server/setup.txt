@@ -1,0 +1,15 @@
+sudo apt install postgis
+sudo su - postgres
+psql
+create database climate_geo_data;
+\connect climate_geo_data;
+CREATE EXTENSION postgis;
+
+create user climate_geo_data;
+alter user climate_geo_data with encrypted password 'poodles';
+grant all privileges on database climate_geo_data to climate_geo_data;
+
+sudo apt install gdal-bin
+
+ogr2ogr -f "PostgreSQL" PG:"dbname=climate_geo_data user=climate_geo_data password=poodles host=localhost" "Lower_Layer_Super_Output_Areas_(December_2001)_EW_BFE.geojson" -nln lsoa -append
+
