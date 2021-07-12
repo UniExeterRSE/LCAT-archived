@@ -1,0 +1,19 @@
+{
+  "name": "climate-tool",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Then Try This",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "jquery": "^3.6.0",
+    "leaflet": "^1.7.1"
+  },
+  "devDependencies": {
+    "browserify": "^17.0.0",
+    "esmify": "^2.1.1"
+  }
+}
