@@ -23,6 +23,8 @@ function zoom_to_tol(zoom) {
 //console.log(zoom_to_tol(1));  // zoomed out = 0.005
 //console.log(zoom_to_tol(17)); // zoomed in = 0.0001
 
+var selected_lsoa_zones = []
+
 function update_lsoa() {
 	let b = leaflet_map.getBounds();
 	layer_group.clearLayers();
@@ -38,15 +40,40 @@ function update_lsoa() {
 				  L.geoJSON(data, {
 					  onEachFeature: function(feature,layer) {
 
-						  layer.setStyle({'color': '#00b'});
+ 						  if (selected_lsoa_zones.includes(feature.properties.name)) {
+							  layer.setStyle({'color': '#0f0'});
+						  } else {
+							  layer.setStyle({'color': '#00b'})
+						  }
+
+						  
+						  layer.setStyle({
+							  'weight': 0.5
+						  });
+
+						  layer.on('click', function(e) {
+							  layer.setStyle({'color': '#0f0'});
+ 							  if (!selected_lsoa_zones.includes(feature.properties.name)) {
+								  selected_lsoa_zones.push(feature.properties.name)
+								  console.log(selected_lsoa_zones);
+							  }
+						  });
 						  
 						  layer.on('mouseover', function(e) {
-							  layer.setStyle({'color': '#f00'})
+							  layer.bringToFront();
+							  layer.setStyle({'color': '#fff'})
 						  });
 						  layer.on('mouseout', function(e) {
-							  layer.setStyle({'color': '#00b'})
+
+ 							  if (selected_lsoa_zones.includes(feature.properties.name)) {
+								  layer.setStyle({'color': '#0f0'});
+							  } else {
+								  layer.setStyle({'color': '#00b'})
+							  }
+							  
 						  });
-						  layer.bindPopup(feature.properties.name)
+						  
+						  //layer.bindPopup(feature.properties.name)
 					  }
 				  }).addTo(layer_group);	
 			  });
