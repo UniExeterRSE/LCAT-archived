@@ -42,7 +42,6 @@ router.get('/lsoa', function (req, res) {
         result.addRow(row);
     });
     query.on("end", function (result) {
-		console.log(result.rows)
         res.send(result.rows[0].json_build_object);
         res.end();
 		client.end();
