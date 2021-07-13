@@ -1,6 +1,28 @@
 body {
+    box-sizing: border-box;
+    width: 100%;
+    background: #eee;
+    font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+    font-size: 1em;
+    padding: 1em;
+    margin: 0;
+}
+
+@media (min-width: 800px) {
+    body {
+		font-size: 1.2em;
+    }
+}
+
+.map-container {
+	display: flex;
 }
 
 #leaflet-map {
 	height: 600px;
+	flex: 1;
+}
+
+.map-selection {
+	width: 10em;
 }

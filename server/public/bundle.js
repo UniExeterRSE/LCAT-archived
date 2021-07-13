@@ -24223,6 +24223,13 @@ function zoom_to_tol(zoom) {
 
 var selected_lsoa_zones = []
 
+function update_lsoa_list() {
+	$('#selected-list').empty();
+	for (name of selected_lsoa_zones) {
+		$('#selected-list').append($("<li>").html(name));
+	}			 
+}
+
 function update_lsoa() {
 	let b = leaflet_map.getBounds();
 	layer_group.clearLayers();
@@ -24239,36 +24246,33 @@ function update_lsoa() {
 					  onEachFeature: function(feature,layer) {
 
  						  if (selected_lsoa_zones.includes(feature.properties.name)) {
-							  layer.setStyle({'color': '#0f0'});
+							  layer.setStyle({'color': '#7f7'});
 						  } else {
-							  layer.setStyle({'color': '#00b'})
+							  layer.setStyle({'color': '#007'})
 						  }
 
-						  
-						  layer.setStyle({
-							  'weight': 0.5
-						  });
+						  layer.setStyle({'weight': 1});
 
 						  layer.on('click', function(e) {
-							  layer.setStyle({'color': '#0f0'});
  							  if (!selected_lsoa_zones.includes(feature.properties.name)) {
+								  layer.setStyle({'color': '#7f7'});
 								  selected_lsoa_zones.push(feature.properties.name)
-								  console.log(selected_lsoa_zones);
+							  } else {
+								  layer.setStyle({'color': '#007'});
+								  const index = selected_lsoa_zones.indexOf(feature.properties.name);
+								  if (index > -1) {
+									  selected_lsoa_zones.splice(index, 1);
+								  }								  
 							  }
+							  update_lsoa_list();
 						  });
 						  
 						  layer.on('mouseover', function(e) {
 							  layer.bringToFront();
-							  layer.setStyle({'color': '#fff'})
+							  layer.setStyle({'weight': 3});
 						  });
 						  layer.on('mouseout', function(e) {
-
- 							  if (selected_lsoa_zones.includes(feature.properties.name)) {
-								  layer.setStyle({'color': '#0f0'});
-							  } else {
-								  layer.setStyle({'color': '#00b'})
-							  }
-							  
+							  layer.setStyle({'weight': 1});
 						  });
 						  
 						  //layer.bindPopup(feature.properties.name)
