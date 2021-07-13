@@ -24205,19 +24205,38 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(leaflet_map);
 
+var layer_group = L.layerGroup().addTo(leaflet_map);
 
-function load(offs) {
-	$.getJSON("/api/lsoa", {limit: 1, offset: offs}, function(data,status) {
-		console.log(data)
-		L.geoJSON(data, {
-			onEachFeature: function(feature,layer) {
-				layer.bindPopup(feature.properties.name);			
-			}
-		}).addTo(leaflet_map);	
-	});
+leaflet_map.on("moveend", function() { update_lsoa(); });
+
+function update_lsoa() {
+	let b = leaflet_map.getBounds();
+	layer_group.clearLayers();
+	$.getJSON("/api/lsoa",
+			  {
+				  left: b._southWest.lng,
+				  bottom: b._southWest.lat,
+				  right: b._northEast.lng,
+				  top: b._northEast.lat,
+				  zoom: leaflet_map.getZoom()
+			  },
+			  function(data,status) {
+				  console.log(data.features.length);
+				  L.geoJSON(data, {
+					  onEachFeature: function(feature,layer) {
+						  layer.on('mouseover', function(e) {
+							  layer.setStyle({'color': '#f00'})
+						  });
+						  layer.on('mouseout', function(e) {
+							  layer.setStyle({'color': '#00b'})
+						  });
+						  layer.bindPopup(feature.properties.name)
+					  }
+				  }).addTo(layer_group);	
+			  });
 }
 
-load(0);
+update_lsoa();
 
 
 /*

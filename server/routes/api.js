@@ -14,11 +14,16 @@ var conString = "postgres://"+username+":"+password+"@"+host+"/"+database; // Yo
 
 /* GET Postgres JSON data */
 router.get('/lsoa', function (req, res) {
-	console.log(req.query);
+	let zoom = req.query.zoom;
+	let left = req.query.left;
+	let bottom = req.query.bottom;
+	let right = req.query.right;
+	let top = req.query.top;
+
     var client = new Client(conString);
     client.connect();
 	
-	var lsoa_query = `SELECT json_build_object(
+	var lsoa_query = `select json_build_object(
                 'type', 'FeatureCollection',
                 'features', json_agg(json_build_object(
                    'type', 'Feature',
@@ -27,7 +32,9 @@ router.get('/lsoa', function (req, res) {
                                    ST_Transform(ST_Simplify(wkb_geometry,0.001),4326))::json
                    ))
               )
-         	  from lsoa limit `+req.query.limit+` offset `+req.query.offset;
+         	  from lsoa where wkb_geometry && ST_MakeEnvelope(`+left+`, `+bottom+`, `+right+`, `+top+`, 4326);`
+
+	console.log(lsoa_query);
 	
 	var query = client.query(new Query(lsoa_query));
 
