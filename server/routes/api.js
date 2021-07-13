@@ -11,20 +11,32 @@ var host = "localhost:5432"
 var database = "climate_geo_data" // database name
 var conString = "postgres://"+username+":"+password+"@"+host+"/"+database; // Your Database Connection
 
-// Set up your database query to display GeoJSON
-var lsoa_query = `select ST_AsGeoJSON(ST_Transform(wkb_geometry,4326)) from lsoa limit 3;`
 
 /* GET Postgres JSON data */
 router.get('/lsoa', function (req, res) {
+	console.log(req.query);
     var client = new Client(conString);
     client.connect();
-    var query = client.query(new Query(lsoa_query));
-    query.on("row", function (row, result) {
-		console.log(row.st_asgeojson);
-        result.addRow(row.st_asgeojson);
+	
+	var lsoa_query = `SELECT json_build_object(
+                'type', 'FeatureCollection',
+                'features', json_agg(json_build_object(
+                   'type', 'Feature',
+                   'properties', json_build_object('name', lsoa01nm),
+                   'geometry', ST_AsGeoJSON(
+                                   ST_Transform(ST_Simplify(wkb_geometry,0.001),4326))::json
+                   ))
+              )
+         	  from lsoa limit `+req.query.limit+` offset `+req.query.offset;
+	
+	var query = client.query(new Query(lsoa_query));
+
+	query.on("row", function (row, result) {
+        result.addRow(row);
     });
     query.on("end", function (result) {
-        res.send(result.rows[0]);
+		console.log(result.rows)
+        res.send(result.rows[0].json_build_object);
         res.end();
     });
 });

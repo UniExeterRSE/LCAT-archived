@@ -8,16 +8,18 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 }).addTo(leaflet_map);
 
 
-$.getJSON("/api/lsoa", function(data,status) {
-	L.geoJSON(data, {
-		onEachFeature: function(feature,layer) {
-			console.log(feature);
-			//layer.bindPopup(feature.properties.LSOA01NM);			
-		}
-	}).addTo(leaflet_map);	
-});
+function load(offs) {
+	$.getJSON("/api/lsoa", {limit: 1, offset: offs}, function(data,status) {
+		console.log(data)
+		L.geoJSON(data, {
+			onEachFeature: function(feature,layer) {
+				layer.bindPopup(feature.properties.name);			
+			}
+		}).addTo(leaflet_map);	
+	});
+}
 
-
+load(0);
 
 
 /*

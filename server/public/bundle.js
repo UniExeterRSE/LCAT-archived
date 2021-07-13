@@ -24206,24 +24206,20 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 }).addTo(leaflet_map);
 
 
-$.getJSON("/api/lsoa", function(data,status) {
-	console.log(status);
-    console.log(data); // this will show the info it in firebug console
+function load(offs) {
+	$.getJSON("/api/lsoa", {limit: 1, offset: offs}, function(data,status) {
+		console.log(data)
+		L.geoJSON(data, {
+			onEachFeature: function(feature,layer) {
+				layer.bindPopup(feature.properties.name);			
+			}
+		}).addTo(leaflet_map);	
+	});
+}
 
-	L.geoJSON(data, {
-		onEachFeature: function(feature,layer) {
-			console.log(feature);
-			//layer.bindPopup(feature.properties.LSOA01NM);			
-		}
-	}).addTo(leaflet_map);
-	
-});
+load(0);
 
 
-/*L.geoJSON(data.lsoa, {
-    onEachFeature: onEachFeature
-}).addTo(leaflet_map);
-*/
 /*
 var popup = L.popup();
 
