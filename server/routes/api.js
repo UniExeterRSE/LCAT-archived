@@ -4,13 +4,14 @@ var router = express.Router();
 /* PostgreSQL and PostGIS module and connection setup */
 const { Client, Query } = require('pg')
 
-// Setup connection
-var username = "climate_geo_data" // sandbox username
-var password = "poodles" // read only privileges on our table
-var host = "localhost:5432"
-var database = "climate_geo_data" // database name
-var conString = "postgres://"+username+":"+password+"@"+host+"/"+database; // Your Database Connection
+require('dotenv').config()
 
+// Setup connection
+var username = process.env.DB_USER
+var password = process.env.DB_PASS
+var host = process.env.DB_HOST
+var database = process.env.DB_DATABASE
+var conString = "postgres://"+username+":"+password+"@"+host+"/"+database; // Your Database Connection
 
 /* GET Postgres JSON data */
 router.get('/lsoa', function (req, res) {
@@ -34,8 +35,6 @@ router.get('/lsoa', function (req, res) {
               )
          	  from lsoa where wkb_geometry && ST_MakeEnvelope(`+left+`, `+bottom+`, `+right+`, `+top+`, 4326);`
 
-	console.log(lsoa_query);
-	
 	var query = client.query(new Query(lsoa_query));
 
 	query.on("row", function (row, result) {
