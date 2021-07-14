@@ -28,7 +28,7 @@ router.get('/lsoa', function (req, res) {
                 'type', 'FeatureCollection',
                 'features', json_agg(json_build_object(
                    'type', 'Feature',
-                   'properties', json_build_object('name', lsoa01nm),
+                   'properties', json_build_object('name', lsoa01nm, 'zone', zone),
                    'geometry', ST_AsGeoJSON(
                                    ST_Transform(ST_Simplify(wkb_geometry,`+tolerance+`),4326))::json
                    ))
@@ -46,6 +46,16 @@ router.get('/lsoa', function (req, res) {
 		client.end();
     });
 });
+
+router.get('/future', function (req, res) {
+	let zones = req.query.zones; // array of zone ids
+	let data_type = req.query.data_type; // temp etc...
+
+	
+
+
+});
+
 
 router.get('/ping', function (req, res) {
     res.send();
