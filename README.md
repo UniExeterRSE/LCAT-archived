@@ -13,10 +13,11 @@ To run:
 
     $ npm start
 
-### Client (only needed for development):
+### Building the client (only needed for development):
 
     $ cd public
     $ npm install
+	$ browserify -p esmify src/index.js -o bundle.js
 
 ## Setting up the PostGIS database
 
@@ -46,3 +47,14 @@ Create a .env file in server and add the login info:
 
     $ ogr2ogr -f "PostgreSQL" PG:"dbname=climate_geo_data user=climate_geo_data password=<insert password here> host=localhost" "MyData.geojson" -nln lsoa -append
 
+### Backing up and restoring the whole database:
+
+    pg_dump -h localhost -U climate_geo_data -W climate_geo_data > climate_geo_data_bak.sql
+
+    psql -h localhost -U climate_geo_data -d climate_geo_data <  climate_geo_data_bak.sql
+
+## Setting up systemd to run the server automatically
+
+* Make a symlink from `climate-tool/server/` to `/var/www/climate-tool`
+* Copy `ubuntu/climate-tool.service` to `/etc/systemd/system/`
+* Start with `sudo service climate-tool start` and set it to run after reboot via `sudo systemtl enable climate-tool`.
