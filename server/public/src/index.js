@@ -72,7 +72,7 @@ $("#graph-type").on("change",update_graph);
 function update_graph() {
 	zones = []
 	for (let zone of lsoa_zones) {
-		if (!zones.includes(zone.tile)) {			
+		if (zone.tile!=undefined && !zones.includes(zone.tile)) {			
 			zones.push(zone.tile)
 		}
 	}
