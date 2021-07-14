@@ -1,0 +1,15 @@
+[Unit]
+Description=Climate data tool
+After=network.target
+
+[Service]
+Environment=NODE_PORT=3000
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/climate-tool
+ExecStart=/var/www/climate-tool/bin/www
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
