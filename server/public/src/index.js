@@ -77,14 +77,18 @@ function update_graph() {
 		}
 	}
 		
-	$.getJSON("/api/future",
-			  {
-				  zones: zones,
-				  data_type: $("#graph-type").val()
-			  },
-			  function (data,status) {
-				  redraw_graph(data);
-			  });	
+	if (zones.length>0) {
+		$.getJSON("/api/future",
+				  {
+					  zones: zones,
+					  data_type: $("#graph-type").val()
+				  },
+				  function (data,status) {
+					  redraw_graph(data);
+				  });
+	} else {
+		$("#graph").empty();
+	}
 }
 
 function update_lsoa_list() {
