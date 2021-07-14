@@ -12,13 +12,27 @@
   <body>
     <article>
       <section class="map-container">
-	<div id="leaflet-map"></div>
-	<div class="map-selection">
-	  <h2>Selection</h2>
-	  <ul id="selected-list"></ul>
-	</div>
+		<div id="leaflet-map"></div>
+		<div class="map-selection">
+		  <h2>Selection</h2>
+		  <ul id="selected-list"></ul>
+		</div>
       </section>
-	  
+
+	  <section class="graph-container">
+		<select id="graph-type">
+		  <option value="daily_precip">Daily precipitation</option>
+		  <option value="mean_temp">Mean temperature</option>
+		  <option value="max_temp">Max temperature</option>
+		  <option value="min_temp">Min temperature</option>
+		  <option value="mean_windspeed">Mean windspeed</option>
+		  <option value="max_windspeed">Max windspeed</option>
+		  <option value="min_windspeed">Min windspeed</option>
+		</select>
+		
+		<div id="graph"></div>
+		
+	  </section>
     </article>
     
     <script src="bundle.js"></script>

@@ -47,12 +47,25 @@ router.get('/lsoa', function (req, res) {
     });
 });
 
+// return list of yearly averages for a data type
 router.get('/future', function (req, res) {
-	let zones = req.query.zones; // array of zone ids
-	let data_type = req.query.data_type; // temp etc...
+	let zones = req.query.zones; 
+	let data_type = req.query.data_type;
 
+    var client = new Client(conString);
+    client.connect();
+		
+	var q=`select year,avg(value) from future_year_avg where zone in (`+zones.join()+`) and type='`+data_type+`' group by zone, year`;
+	var query = client.query(new Query(q));
 	
-
+	query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+        res.send(result.rows);
+        res.end();
+		client.end();
+    });
 
 });
 
