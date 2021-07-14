@@ -24270,7 +24270,9 @@ $("#graph-type").on("change",update_graph);
 function update_graph() {
 	zones = []
 	for (let zone of lsoa_zones) {
-		zones.push(zone.tile)
+		if (!zones.includes(zone.tile)) {			
+			zones.push(zone.tile)
+		}
 	}
 		
 	$.getJSON("/api/future",
