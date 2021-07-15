@@ -17,6 +17,9 @@ body {
 
 select {
     font-family: 'nunito',Arial,Helvetica,sans-serif;
+	border: none;
+	background: #ffbc42;
+	margin-left: 0.5em;
 }
 
 h1, h2, h3 {
