@@ -1,5 +1,6 @@
 *.*~
 .env
+config.yml
 package-lock.json
 yarn.lock
 yarn-error.log

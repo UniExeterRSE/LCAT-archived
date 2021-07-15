@@ -1,11 +1,27 @@
+@font-face {
+  font-family: 'nunito';
+  src: local('nunito'),
+        url('../fonts/NunitoSans-Regular.ttf');
+}
+
 body {
     box-sizing: border-box;
     width: 100%;
-    background: #eee;
-    font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+    background: #e6e6e6;
+	color: #42273b;
+    font-family: 'nunito',Arial,Helvetica,sans-serif;
     font-size: 1em;
     padding: 1em;
     margin: 0;
+}
+
+select {
+    font-family: 'nunito',Arial,Helvetica,sans-serif;
+	border: none;
+	background: #ffbc42;
+	margin-left: 0.5em;
+	margin-top: 0.5em;
+	font-size: 1em;
 }
 
 h1, h2, h3 {
@@ -15,6 +31,8 @@ h1, h2, h3 {
 @media (min-width: 800px) {
     body {
 		font-size: 1.2em;
+		padding-left: 10em;
+		padding-right: 10em;
     }
 }
 
@@ -29,4 +47,18 @@ h1, h2, h3 {
 
 .map-selection {
 	width: 10em;
+}
+
+.graph-container {
+	/*border: 1px solid #42273b;*/
+	background: #b0cacc;
+}
+
+#graph {
+	margin-top: 1em;
+}
+
+.title{
+	width: 100%;
+	text-align: center;
 }

@@ -28,7 +28,7 @@ router.get('/lsoa', function (req, res) {
                 'type', 'FeatureCollection',
                 'features', json_agg(json_build_object(
                    'type', 'Feature',
-                   'properties', json_build_object('name', lsoa01nm),
+                   'properties', json_build_object('name', lsoa01nm, 'zone', zone),
                    'geometry', ST_AsGeoJSON(
                                    ST_Transform(ST_Simplify(wkb_geometry,`+tolerance+`),4326))::json
                    ))
@@ -46,6 +46,29 @@ router.get('/lsoa', function (req, res) {
 		client.end();
     });
 });
+
+// return list of yearly averages for a data type
+router.get('/future', function (req, res) {
+	let zones = req.query.zones; 
+	let data_type = req.query.data_type;
+
+    var client = new Client(conString);
+    client.connect();
+		
+	var q=`select year,avg(value) from future_year_avg where zone in (`+zones.join()+`) and type='`+data_type+`' group by year order by year`;
+	var query = client.query(new Query(q));
+	
+	query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+        res.send(result.rows);
+        res.end();
+		client.end();
+    });
+
+});
+
 
 router.get('/ping', function (req, res) {
     res.send();
