@@ -20,6 +20,8 @@ select {
 	border: none;
 	background: #ffbc42;
 	margin-left: 0.5em;
+	margin-top: 0.5em;
+	font-size: 1em;
 }
 
 h1, h2, h3 {
