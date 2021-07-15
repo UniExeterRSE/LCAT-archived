@@ -119,7 +119,6 @@ function redraw_graph(graph_data,scale) {
 	
 	for (let year of graph_data) {
 		let dec = Math.floor((year.year%2000)/10);
-		console.log(dec);
 		if (decades[dec]==undefined) {
 			decades[dec]=[year.avg]
 		} else {
@@ -127,14 +126,10 @@ function redraw_graph(graph_data,scale) {
 		}
 	}
 
-	console.log(decades);
-
 	for (let dec of Object.keys(decades)) {
 		decades[dec]=arr2avg(decades[dec])
 	}
 	
-	console.log(decades);
-
 	let minimum = 999999;
 	let maximum = 0;
 
@@ -237,15 +232,19 @@ function update_lsoa() {
 
 						  if (lsoa_zones_include(feature.properties.name,lsoa_zones)) {
 							  layer.setStyle({'color': highlight_col});
+							  layer.setStyle({'fillOpacity': 0.5});
 						  } else {
 							  layer.setStyle({'color': zone_col})
+							  layer.setStyle({'fillOpacity': 0.02});
 						  }
 
 						  layer.setStyle({'weight': 1});
+						  layer.setStyle({'opacity': 1});
 
 						  layer.on('click', function(e) {
  							  if (!lsoa_zones_include(feature.properties.name,lsoa_zones)) {
 								  layer.setStyle({'color': highlight_col});
+								  layer.setStyle({'fillOpacity': 0.5});
 								  lsoa_zones.push({
 									  name: feature.properties.name,
 									  tile: feature.properties.zone
@@ -253,6 +252,7 @@ function update_lsoa() {
 							  } else {
 								  layer.setStyle({'color': zone_col});
 								  lsoa_zones=remove_lsoa_zone(feature.properties.name,lsoa_zones);
+								  layer.setStyle({'fillOpacity': 0.02});
 							  }
 							  update_lsoa_list();
 						  });
