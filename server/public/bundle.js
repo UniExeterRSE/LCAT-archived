@@ -24475,30 +24475,29 @@ class LSOAZones {
     layer.setStyle({
       'opacity': 1
     });
-    let that = this;
-    layer.on('click', function (e) {
-      if (!that.include(feature.properties.name)) {
+    layer.on('click', () => {
+      if (!this.include(feature.properties.name)) {
         layer.setStyle({
-          'color': that.highlight_col
+          'color': this.highlight_col
         });
         layer.setStyle({
           'fillOpacity': 0.5
         });
-        that.zones.push({
+        this.zones.push({
           name: feature.properties.name,
           tile: feature.properties.zone
         });
       } else {
         layer.setStyle({
-          'color': that.zone_col
+          'color': this.zone_col
         });
-        that.remove(feature.properties.name);
+        this.remove(feature.properties.name);
         layer.setStyle({
           'fillOpacity': 0.02
         });
       }
 
-      that.update_list();
+      this.update_list();
     });
     layer.on('mouseover', function (e) {
       layer.bringToFront();
@@ -24530,20 +24529,19 @@ class LSOAZones {
 
   update(leaflet_map) {
     let b = leaflet_map.getBounds();
-    let that = this;
     $.getJSON("/api/lsoa", {
       left: b._southWest.lng,
       bottom: b._southWest.lat,
       right: b._northEast.lng,
       top: b._northEast.lat,
       tolerance: zoom_to_tol(leaflet_map.getZoom())
-    }, function (data, status) {
+    }, (data, status) => {
       L.geoJSON(data, {
-        onEachFeature: function (feature, layer) {
-          that.make_zone(feature, layer);
+        onEachFeature: (feature, layer) => {
+          this.make_zone(feature, layer);
         }
-      }).addTo(that.layer_buffer[that.current_layer_buffer]);
-      that.swap_buffers(leaflet_map);
+      }).addTo(this.layer_buffer[this.current_layer_buffer]);
+      this.swap_buffers(leaflet_map);
     });
   }
 
