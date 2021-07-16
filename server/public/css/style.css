@@ -7,7 +7,7 @@
 body {
     box-sizing: border-box;
     width: 100%;
-    background: #e6e6e6;
+    background: white;
 	color: #42273b;
     font-family: 'nunito',Arial,Helvetica,sans-serif;
     font-size: 1em;
@@ -18,7 +18,7 @@ body {
 select {
     font-family: 'nunito',Arial,Helvetica,sans-serif;
 	border: none;
-	background: #4C9F70;
+	background: #e6e6e6;
 	margin-left: 0.5em;
 	margin-top: 0.5em;
 	font-size: 1em;
@@ -53,7 +53,6 @@ select {
 	margin-top: 1em;
 	width: 100%;
 	margin-left: 0;
-	background: #b0cacc;
 }
 
 @media (min-width: 1000px) {
@@ -72,13 +71,13 @@ select {
 
 .map-selection li {
 	list-style-type: none;
-	border-bottom: 2px solid #4c9f70;
+	border-bottom: 2px solid #ffbc42;
 	margin-right: 1em;
 }
 
 .graph-container {
 	/*border: 1px solid #42273b;*/
-	background: #b0cacc;
+	background: #e6e6e6
 }
 
 #graph {
