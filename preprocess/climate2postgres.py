@@ -83,6 +83,7 @@ def create_tables():
         cur.execute(q)
         conn.commit()
 
+# load all data straight, a lot...
 def load_data():    
     for data_type in types:
         for zone in range(1,nzones+1):
@@ -108,6 +109,9 @@ def load_data():
                 print(data_type+" "+str(zone))
                 conn.commit()
 
+# average daily data into yearly - much more usable
+# needs:
+# create table future_year_avg (zone int, year int, type varchar, value real);
 def avg_data():    
     for data_type in types:
         for col in avg_data_cols(data_type):
@@ -126,9 +130,35 @@ def avg_data():
                         cur.execute(q)
                         conn.commit()
 
+# average daily data into winter/summer months
+# needs:
+# create table future_winter_avg (zone int, year int, type varchar, value real);
+# create table future_summer_avg (zone int, year int, type varchar, value real);
+def avg_data_seasonal():    
+    for data_type in types:
+        for col in avg_data_cols(data_type):
+            if col not in ["id", "date", "zone"]:
+                for zone in range(1,nzones+1):
+                    for year in range(2021,2099):
+                        for season in [["winter",[12,1,2]],
+                                       ["summer",[6,7,8]]]:
+                            season_name=season[0]
+                            months=season[1]
+                            q=f"select avg({col}) from {data_type} where zone={zone} and extract(year from date)={year} and extract(month from date) in ({months.join()})"
+                            cur.execute(q)
+                            r = cur.fetchone()
+                            avg = r[0]
+                            output_col = output_avg_cols[data_type][col]
+                            
+                            q=f"insert into future_{season_name}_avg (zone, year, type, value) values ('{zone}','{year}','{output_col}','{avg}')"
+                            print(q)
+                            
+                            cur.execute(q)
+                            conn.commit()
 
-# create table future_year_avg (zone int, year int, type varchar, value real);
+
                         
 #create_tables()
 #nuke_tables()
-avg_data()    
+#avg_data()    
+avg_data_seasonal()    
