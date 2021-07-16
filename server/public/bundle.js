@@ -24202,7 +24202,22 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.update_graph = update_graph;
+exports.no_data = void 0;
 
+// Copyright (C) 2021 Then Try This
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 const $ = require("jquery");
 
 const svgUtil = require("./svg.js");
@@ -24223,6 +24238,7 @@ const no_data = `<svg viewBox="0 0 240 80" xmlns="http://www.w3.org/2000/svg">
   </style>
   <text x="100" y="35" class="heavy">No Data</text>
 </svg>`;
+exports.no_data = no_data;
 
 function render_graph(decades, scale) {
   var svg = new svgUtil.SVG(800, 200);
@@ -24304,7 +24320,8 @@ function update_graph(lsoa_zones) {
   let zones = [];
 
   for (let zone of lsoa_zones) {
-    if (zone.tile != undefined && !zones.includes(zone.tile)) {
+    // keep duplicates for weighted averaging
+    if (zone.tile != undefined) {
       zones.push(zone.tile);
     }
   }
@@ -24322,6 +24339,21 @@ function update_graph(lsoa_zones) {
 }
 
 },{"./svg.js":6,"jquery":1}],4:[function(require,module,exports){
+// Copyright (C) 2021 Then Try This
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 const $ = require("jquery")
 const L = require("leaflet")
 const zones = require("./lsoa.js")
@@ -24341,18 +24373,6 @@ $("#graph").html(graph.no_data)
 z.update(leaflet_map)
 
 
-/*
-  var popup = L.popup();
-
-function onMapClick(e) {
-	console.log(e.latlng);
-    popup
-        .setLatLng(e.latlng)
-        .setContent("You clicked the map at " + e.latlng.toString())
-        .openOn(leaflet_map);
-}
-leaflet_map.on('click', onMapClick);
-*/
 
 },{"./graph.js":3,"./lsoa.js":5,"jquery":1,"leaflet":2}],5:[function(require,module,exports){
 "use strict";
@@ -24362,6 +24382,20 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.LSOAZones = void 0;
 
+// Copyright (C) 2021 Then Try This
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 const $ = require("jquery");
 
 const L = require("leaflet");
@@ -24525,6 +24559,20 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.SVG = void 0;
 
+// Copyright (C) 2021 Then Try This
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class SVG {
   constructor(w, h) {
     this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

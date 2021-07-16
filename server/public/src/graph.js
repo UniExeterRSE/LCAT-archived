@@ -111,7 +111,8 @@ var graph_scale=8;
 function update_graph(lsoa_zones) {
 	let zones = []
 	for (let zone of lsoa_zones) {
-		if (zone.tile!=undefined && !zones.includes(zone.tile)) {			
+		// keep duplicates for weighted averaging
+		if (zone.tile!=undefined) {			
 			zones.push(zone.tile)
 		}
 	}
@@ -131,4 +132,4 @@ function update_graph(lsoa_zones) {
 }
 
 
-export { update_graph }
+export { update_graph, no_data }

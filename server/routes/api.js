@@ -69,8 +69,12 @@ router.get('/future', function (req, res) {
 
     var client = new Client(conString);
     client.connect();
-		
-	var q=`select year,avg(value) from future_year_avg where zone in (`+zones.join()+`) and type='`+data_type+`' group by year order by year`;
+
+	//console.log(zones);
+	
+	var q=`select year,avg(value) from future_year_avg 
+           where zone in (`+zones.join()+`) and 
+           type='`+data_type+`' group by year order by year`;
 	var query = client.query(new Query(q));
 	
 	query.on("row", function (row, result) {
