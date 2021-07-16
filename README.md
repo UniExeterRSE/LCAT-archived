@@ -2,6 +2,8 @@
 
 A tool for connecting together scientific information across climate, health and policy in Cornwall.
 
+You can try the [beta version here](http://climate-tool.thentrythis.org/).
+
 ## Installing
 
 ### Server
