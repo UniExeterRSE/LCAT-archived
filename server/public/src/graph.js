@@ -82,17 +82,17 @@ function render_graph(decades_arr,scale) {
 
 	let data_type=$("#graph-type").val()
 	if(data_type=="daily_precip") {
-		svg.add_sideways_text(40,graph_height-20,"Millimetres per day");		
+		svg.add_sideways_text(30,graph_height-50,"Millimetres per day");		
 	}
 	if(data_type=="mean_temp" ||
 	   data_type=="max_temp" ||
 	   data_type=="min_temp") {
-		svg.add_sideways_text(40,graph_height-20,"Degrees celsius");		
+		svg.add_sideways_text(30,graph_height-50,"Degrees celsius");		
 	}
 	if(data_type=="mean_windspeed" ||
 	   data_type=="max_windspeed" ||
 	   data_type=="min_windspeed") {
-		svg.add_sideways_text(40,graph_height-20,"Metres per second");		
+		svg.add_sideways_text(30,graph_height-50,"Metres per second");		
 	}
 	return svg
 }
