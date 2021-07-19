@@ -140,11 +140,11 @@ def avg_data_seasonal():
             if col not in ["id", "date", "zone"]:
                 for zone in range(1,nzones+1):
                     for year in range(2021,2099):
-                        for season in [["winter",[12,1,2]],
-                                       ["summer",[6,7,8]]]:
+                        for season in [["winter",["12","1","2"]],
+                                       ["summer",["6","7","8"]]]:
                             season_name=season[0]
-                            months=season[1]
-                            q=f"select avg({col}) from {data_type} where zone={zone} and extract(year from date)={year} and extract(month from date) in ({months.join()})"
+                            months=",".join(season[1])
+                            q=f"select avg({col}) from {data_type} where zone={zone} and extract(year from date)={year} and extract(month from date) in ({months})"
                             cur.execute(q)
                             r = cur.fetchone()
                             avg = r[0]
