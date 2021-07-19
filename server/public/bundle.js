@@ -24361,12 +24361,17 @@ const graph = require("./graph.js")
 
 var leaflet_map = L.map('leaflet-map').setView([50.26123046875, -5.052745342254639], 10);
 
+var baseMaps = {
+	"Terrain": L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}),
+	"OpenStreetMap": L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}),
+    "Toner": L.tileLayer("http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}),
+    "Watercolor":L.tileLayer("http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'})
+};
+
+L.control.layers(baseMaps).addTo(leaflet_map);
+L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}).addTo(leaflet_map);
+
 const z = new zones.LSOAZones(leaflet_map)
-
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(leaflet_map);
-
 leaflet_map.on("moveend", function() { z.update(leaflet_map); });
 $("#graph-type").on("change",function() { graph.update_graph(z.zones) })
 $("#graph").html(graph.no_data)
@@ -24475,30 +24480,29 @@ class LSOAZones {
     layer.setStyle({
       'opacity': 1
     });
-    let that = this;
-    layer.on('click', function (e) {
-      if (!that.include(feature.properties.name)) {
+    layer.on('click', () => {
+      if (!this.include(feature.properties.name)) {
         layer.setStyle({
-          'color': that.highlight_col
+          'color': this.highlight_col
         });
         layer.setStyle({
           'fillOpacity': 0.5
         });
-        that.zones.push({
+        this.zones.push({
           name: feature.properties.name,
           tile: feature.properties.zone
         });
       } else {
         layer.setStyle({
-          'color': that.zone_col
+          'color': this.zone_col
         });
-        that.remove(feature.properties.name);
+        this.remove(feature.properties.name);
         layer.setStyle({
           'fillOpacity': 0.02
         });
       }
 
-      that.update_list();
+      this.update_list();
     });
     layer.on('mouseover', function (e) {
       layer.bringToFront();
@@ -24530,20 +24534,19 @@ class LSOAZones {
 
   update(leaflet_map) {
     let b = leaflet_map.getBounds();
-    let that = this;
     $.getJSON("/api/lsoa", {
       left: b._southWest.lng,
       bottom: b._southWest.lat,
       right: b._northEast.lng,
       top: b._northEast.lat,
       tolerance: zoom_to_tol(leaflet_map.getZoom())
-    }, function (data, status) {
+    }, (data, status) => {
       L.geoJSON(data, {
-        onEachFeature: function (feature, layer) {
-          that.make_zone(feature, layer);
+        onEachFeature: (feature, layer) => {
+          this.make_zone(feature, layer);
         }
-      }).addTo(that.layer_buffer[that.current_layer_buffer]);
-      that.swap_buffers(leaflet_map);
+      }).addTo(this.layer_buffer[this.current_layer_buffer]);
+      this.swap_buffers(leaflet_map);
     });
   }
 
