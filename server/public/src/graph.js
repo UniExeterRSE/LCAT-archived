@@ -31,40 +31,68 @@ const no_data = `<svg viewBox="0 0 240 80" xmlns="http://www.w3.org/2000/svg">
   <text x="100" y="35" class="heavy">No Data</text>
 </svg>`
 
-function render_graph(decades,scale) {
-	var svg = new svgUtil.SVG(800,200);
-	let graph_width = 650;
-	let graph_height = 200;
-	let bar_width = graph_width/Object.keys(decades).length;
+const graph_width = 650;
+const graph_height = 270;
+const winter_col = "#a4f9c8"
+const summer_col = "#4c9f70"
 
-	// draw the bars
-	let x=100
-	for (let dec of Object.keys(decades)) {
-		svg.add_bar(x,170,bar_width-2,decades[dec]*scale,"20"+dec+"0",decades[dec]);
-		x+=bar_width;
+function render_graph(decades_arr,scale) {
+	var svg = new svgUtil.SVG(800,300);
+	// assume decades list all are the same size
+	let bar_width = graph_width/Object.keys(decades_arr[0]).length;
+
+	if (decades_arr.length==1) {
+		// draw the bars
+		let x=100
+		for (let dec of Object.keys(decades_arr[0])) {
+			svg.add_bar(x,graph_height,bar_width-2,decades_arr[0][dec]*scale,
+						"20"+dec+"0",decades_arr[0][dec],summer_col);
+			x+=bar_width;
+		}
+	} else {
+		let x=100
+		for (let dec of Object.keys(decades_arr[0])) {
+			svg.add_2bar(x,graph_height,bar_width-2,
+						 decades_arr[0][dec]*scale,
+						 decades_arr[1][dec]*scale,
+						 "20"+dec+"0",
+						 decades_arr[0][dec],
+						 decades_arr[1][dec],
+						 winter_col,
+						 summer_col);
+			x+=bar_width;
+		}
 	}
 
-	svg.add_line(90,175,790,175,1,"#000")
-	svg.add_line(90,175,90,5,1,"#000")
+	if (decades_arr.length==2) {
+		svg.add_rect(540,0,80,30,summer_col);
+		svg.add_rect(640,0,80,30,winter_col);
+		
+		svg.add_text(545,20,18,"Summer");
+		svg.add_text(650,20,18,"Winter");
+	}
+	
+	svg.add_line(90,graph_height+5,790,graph_height+5,1,"#000")
+	svg.add_line(90,graph_height+5,90,5,1,"#000")
 
 	for (let i=0; i<5; i++) {
 		let p = i*(graph_height/5);
-		svg.add_text(50,(graph_height-p)-55,""+(p/scale));		
+		svg.add_text(46,(graph_height-p),15,""+(p/scale).toFixed(2));		
 	}
 
 	let data_type=$("#graph-type").val()
 	if(data_type=="daily_precip") {
-		svg.add_sideways_text(40,150,"Millimetres per day");		
+		svg.add_sideways_text(40,graph_height-20,"Millimetres per day");		
 	}
 	if(data_type=="mean_temp" ||
 	   data_type=="max_temp" ||
 	   data_type=="min_temp") {
-		svg.add_sideways_text(40,150,"Degrees celsius");		
+		svg.add_sideways_text(40,graph_height-20,"Degrees celsius");		
 	}
 	if(data_type=="mean_windspeed" ||
 	   data_type=="max_windspeed" ||
 	   data_type=="min_windspeed") {
-		svg.add_sideways_text(40,150,"Metres per second");		
+		svg.add_sideways_text(40,graph_height-20,"Metres per second");		
 	}
 	return svg
 }
@@ -90,25 +118,38 @@ function calculate_decades(graph_data) {
 	return decades
 }
 
-function redraw_graph(graph_data,scale) {
-	let decades = calculate_decades(graph_data)
-	
+function calc_scale(graph_data,height) {
 	// get the min/max for eventual graph scaling
 	let minimum = 999999;
 	let maximum = 0;
 
-	for (let dec of Object.keys(decades)) {
-		if (minimum>decades[dec]) minimum = decades[dec]
-		if (maximum<decades[dec]) maximum = decades[dec]
+	for (let decades of graph_data) {
+		for (let dec of Object.keys(decades)) {
+			if (minimum>decades[dec]) minimum = decades[dec]
+			if (maximum<decades[dec]) maximum = decades[dec]
+		}
 	}
-	
-	$("#graph").empty();
-	$("#graph").append(render_graph(decades,scale).svg);
+	return height/maximum
 }
 
-var graph_scale=8;
+function redraw_graph(graph_data) {
+	let decades = calculate_decades(graph_data)
 
-function update_graph(lsoa_zones) {
+	$("#graph").empty();
+	$("#graph").append(render_graph([decades],
+									calc_scale([decades],graph_height-50)).svg);
+}
+
+function redraw_graph_seasonal(winter_data,summer_data) {
+	let winter_decades = calculate_decades(winter_data)
+	let summer_decades = calculate_decades(summer_data)
+		
+	$("#graph").empty();
+	$("#graph").append(render_graph([winter_decades,summer_decades],
+									calc_scale([winter_decades,summer_decades],graph_height-50)).svg);
+}
+
+function update_graph(lsoa_zones,time) {
 	let zones = []
 	for (let zone of lsoa_zones) {
 		// keep duplicates for weighted averaging
@@ -116,18 +157,40 @@ function update_graph(lsoa_zones) {
 			zones.push(zone.tile)
 		}
 	}
-		
-	if (zones.length>0) {
+	
+	if (zones.length==0) {
+		$("#graph").html(no_data);
+		return
+	}
+
+	console.log(time);
+	
+	if (time=="yearly") {
 		$.getJSON("/api/future",
 				  {
+					  table: "future_year_avg",
 					  zones: zones,
 					  data_type: $("#graph-type").val()
 				  },
-				  function (data,status) {
-					  redraw_graph(data,graph_scale);
+				  (data,status) => { redraw_graph(data); });
+	} else {	
+		$.getJSON("/api/future",
+				  {
+					  table: "future_winter_avg",
+					  zones: zones,
+					  data_type: $("#graph-type").val()
+				  },
+				  (winter_data,status) => {
+					  $.getJSON("/api/future",
+								{
+									table: "future_summer_avg",
+									zones: zones,
+									data_type: $("#graph-type").val()
+								},
+								(summer_data,status) => {									
+									redraw_graph_seasonal(winter_data,summer_data);
+								});
 				  });
-	} else {
-		$("#graph").html(no_data);
 	}
 }
 

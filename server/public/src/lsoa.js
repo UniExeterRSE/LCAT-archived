@@ -61,7 +61,7 @@ class LSOAZones {
 		for (let zone of this.zones) {
 			$('#selected-list').append($("<li>").html(zone.name));
 		}
-		graph.update_graph(this.zones);
+		graph.update_graph(this.zones,$("#graph-time").val());
 	}
 
 	make_zone(feature,layer) {		

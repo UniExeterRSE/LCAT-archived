@@ -24239,40 +24239,60 @@ const no_data = `<svg viewBox="0 0 240 80" xmlns="http://www.w3.org/2000/svg">
   <text x="100" y="35" class="heavy">No Data</text>
 </svg>`;
 exports.no_data = no_data;
+const graph_width = 650;
+const graph_height = 270;
+const winter_col = "#a4f9c8";
+const summer_col = "#4c9f70";
 
-function render_graph(decades, scale) {
-  var svg = new svgUtil.SVG(800, 200);
-  let graph_width = 650;
-  let graph_height = 200;
-  let bar_width = graph_width / Object.keys(decades).length; // draw the bars
+function render_graph(decades_arr, scale) {
+  var svg = new svgUtil.SVG(800, 300); // assume decades list all are the same size
 
-  let x = 100;
+  let bar_width = graph_width / Object.keys(decades_arr[0]).length;
 
-  for (let dec of Object.keys(decades)) {
-    svg.add_bar(x, 170, bar_width - 2, decades[dec] * scale, "20" + dec + "0", decades[dec]);
-    x += bar_width;
+  if (decades_arr.length == 1) {
+    // draw the bars
+    let x = 100;
+
+    for (let dec of Object.keys(decades_arr[0])) {
+      svg.add_bar(x, graph_height, bar_width - 2, decades_arr[0][dec] * scale, "20" + dec + "0", decades_arr[0][dec], summer_col);
+      x += bar_width;
+    }
+  } else {
+    let x = 100;
+
+    for (let dec of Object.keys(decades_arr[0])) {
+      svg.add_2bar(x, graph_height, bar_width - 2, decades_arr[0][dec] * scale, decades_arr[1][dec] * scale, "20" + dec + "0", decades_arr[0][dec], decades_arr[1][dec], winter_col, summer_col);
+      x += bar_width;
+    }
   }
 
-  svg.add_line(90, 175, 790, 175, 1, "#000");
-  svg.add_line(90, 175, 90, 5, 1, "#000");
+  if (decades_arr.length == 2) {
+    svg.add_rect(540, 0, 80, 30, summer_col);
+    svg.add_rect(640, 0, 80, 30, winter_col);
+    svg.add_text(545, 20, 18, "Summer");
+    svg.add_text(650, 20, 18, "Winter");
+  }
+
+  svg.add_line(90, graph_height + 5, 790, graph_height + 5, 1, "#000");
+  svg.add_line(90, graph_height + 5, 90, 5, 1, "#000");
 
   for (let i = 0; i < 5; i++) {
     let p = i * (graph_height / 5);
-    svg.add_text(50, graph_height - p - 55, "" + p / scale);
+    svg.add_text(46, graph_height - p, 15, "" + (p / scale).toFixed(2));
   }
 
   let data_type = $("#graph-type").val();
 
   if (data_type == "daily_precip") {
-    svg.add_sideways_text(40, 150, "Millimetres per day");
+    svg.add_sideways_text(40, graph_height - 20, "Millimetres per day");
   }
 
   if (data_type == "mean_temp" || data_type == "max_temp" || data_type == "min_temp") {
-    svg.add_sideways_text(40, 150, "Degrees celsius");
+    svg.add_sideways_text(40, graph_height - 20, "Degrees celsius");
   }
 
   if (data_type == "mean_windspeed" || data_type == "max_windspeed" || data_type == "min_windspeed") {
-    svg.add_sideways_text(40, 150, "Metres per second");
+    svg.add_sideways_text(40, graph_height - 20, "Metres per second");
   }
 
   return svg;
@@ -24299,24 +24319,35 @@ function calculate_decades(graph_data) {
   return decades;
 }
 
-function redraw_graph(graph_data, scale) {
-  let decades = calculate_decades(graph_data); // get the min/max for eventual graph scaling
-
+function calc_scale(graph_data, height) {
+  // get the min/max for eventual graph scaling
   let minimum = 999999;
   let maximum = 0;
 
-  for (let dec of Object.keys(decades)) {
-    if (minimum > decades[dec]) minimum = decades[dec];
-    if (maximum < decades[dec]) maximum = decades[dec];
+  for (let decades of graph_data) {
+    for (let dec of Object.keys(decades)) {
+      if (minimum > decades[dec]) minimum = decades[dec];
+      if (maximum < decades[dec]) maximum = decades[dec];
+    }
   }
 
-  $("#graph").empty();
-  $("#graph").append(render_graph(decades, scale).svg);
+  return height / maximum;
 }
 
-var graph_scale = 8;
+function redraw_graph(graph_data) {
+  let decades = calculate_decades(graph_data);
+  $("#graph").empty();
+  $("#graph").append(render_graph([decades], calc_scale([decades], graph_height - 50)).svg);
+}
 
-function update_graph(lsoa_zones) {
+function redraw_graph_seasonal(winter_data, summer_data) {
+  let winter_decades = calculate_decades(winter_data);
+  let summer_decades = calculate_decades(summer_data);
+  $("#graph").empty();
+  $("#graph").append(render_graph([winter_decades, summer_decades], calc_scale([winter_decades, summer_decades], graph_height - 50)).svg);
+}
+
+function update_graph(lsoa_zones, time) {
   let zones = [];
 
   for (let zone of lsoa_zones) {
@@ -24326,15 +24357,35 @@ function update_graph(lsoa_zones) {
     }
   }
 
-  if (zones.length > 0) {
+  if (zones.length == 0) {
+    $("#graph").html(no_data);
+    return;
+  }
+
+  console.log(time);
+
+  if (time == "yearly") {
     $.getJSON("/api/future", {
+      table: "future_year_avg",
       zones: zones,
       data_type: $("#graph-type").val()
-    }, function (data, status) {
-      redraw_graph(data, graph_scale);
+    }, (data, status) => {
+      redraw_graph(data);
     });
   } else {
-    $("#graph").html(no_data);
+    $.getJSON("/api/future", {
+      table: "future_winter_avg",
+      zones: zones,
+      data_type: $("#graph-type").val()
+    }, (winter_data, status) => {
+      $.getJSON("/api/future", {
+        table: "future_summer_avg",
+        zones: zones,
+        data_type: $("#graph-type").val()
+      }, (summer_data, status) => {
+        redraw_graph_seasonal(winter_data, summer_data);
+      });
+    });
   }
 }
 
@@ -24372,9 +24423,22 @@ L.control.layers(baseMaps).addTo(leaflet_map);
 L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}).addTo(leaflet_map);
 
 const z = new zones.LSOAZones(leaflet_map)
-leaflet_map.on("moveend", function() { z.update(leaflet_map); });
-$("#graph-type").on("change",function() { graph.update_graph(z.zones) })
+
+leaflet_map.on("moveend", () => {
+	z.update(leaflet_map);
+});
+
+$("#graph-type").on("change",() => {
+	graph.update_graph(z.zones,$("#graph-time").val())
+})
+
+$("#graph-time").on("change",() => {
+	console.log($("#graph-time").val());
+	graph.update_graph(z.zones,$("#graph-time").val())
+})
+
 $("#graph").html(graph.no_data)
+
 z.update(leaflet_map)
 
 
@@ -24454,7 +24518,7 @@ class LSOAZones {
       $('#selected-list').append($("<li>").html(zone.name));
     }
 
-    graph.update_graph(this.zones);
+    graph.update_graph(this.zones, $("#graph-time").val());
   }
 
   make_zone(feature, layer) {
@@ -24584,32 +24648,6 @@ class SVG {
     this.svg.setAttributeNS(null, 'viewBox', '0 0 ' + w + ' ' + h);
   }
 
-  add_bar(x, y, w, h, label, v) {
-    var c = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    c.setAttributeNS(null, 'x', x);
-    c.setAttributeNS(null, 'y', y - h);
-    c.setAttributeNS(null, 'width', w);
-    c.setAttributeNS(null, 'height', h);
-    c.setAttributeNS(null, 'fill', "#4c9f70");
-    this.svg.appendChild(c);
-    var c = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    var myText = document.createTextNode(label);
-    c.setAttributeNS(null, 'x', x + 10);
-    c.setAttributeNS(null, 'y', y + 30);
-    c.setAttributeNS(null, 'fill', "#42273b");
-    c.setAttribute("font-size", "25");
-    c.appendChild(myText);
-    this.svg.appendChild(c);
-    var c = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    var myText = document.createTextNode("" + v.toFixed(2));
-    c.setAttributeNS(null, 'x', x + 20);
-    c.setAttributeNS(null, 'y', y - h + 20);
-    c.setAttributeNS(null, 'fill', "#42273b");
-    c.setAttribute("font-size", "15");
-    c.appendChild(myText);
-    this.svg.appendChild(c);
-  }
-
   add_line(x1, y1, x2, y2, w, s) {
     var c = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     c.setAttributeNS(null, 'x1', x1);
@@ -24620,13 +24658,13 @@ class SVG {
     this.svg.appendChild(c);
   }
 
-  add_text(x, y, t) {
+  add_text(x, y, s, t) {
     var c = document.createElementNS("http://www.w3.org/2000/svg", "text");
     var myText = document.createTextNode(t);
-    c.setAttributeNS(null, 'x', x + 10);
-    c.setAttributeNS(null, 'y', y + 30);
+    c.setAttributeNS(null, 'x', x);
+    c.setAttributeNS(null, 'y', y);
     c.setAttributeNS(null, 'fill', "#42273b");
-    c.setAttribute("font-size", "15");
+    c.setAttribute("font-size", s);
     c.appendChild(myText);
     this.svg.appendChild(c);
   }
@@ -24641,6 +24679,65 @@ class SVG {
     c.setAttribute("transform", "translate(" + x + "," + y + ") rotate(-90)");
     c.appendChild(myText);
     this.svg.appendChild(c);
+  }
+
+  add_bar(x, y, w, h, label, v, col) {
+    var c = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    c.setAttributeNS(null, 'x', x);
+    c.setAttributeNS(null, 'y', y - h);
+    c.setAttributeNS(null, 'width', w);
+    c.setAttributeNS(null, 'height', h);
+    c.setAttributeNS(null, 'fill', col);
+    this.svg.appendChild(c);
+    this.add_text(x + 10, y + 30, "25", label);
+    this.add_text(x + 20, y - h + 20, "15", "" + v.toFixed(2));
+  }
+
+  add_rect(x, y, w, h, col) {
+    var c = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    c.setAttributeNS(null, 'x', x);
+    c.setAttributeNS(null, 'y', y);
+    c.setAttributeNS(null, 'width', w);
+    c.setAttributeNS(null, 'height', h);
+    c.setAttributeNS(null, 'fill', col);
+    this.svg.appendChild(c);
+  }
+
+  add_2bar(x, y, w, h, h2, label, v, v2, col, col1) {
+    let a = h;
+    let b = h2;
+    let av = v;
+    let bv = v2;
+    let ca = col; // winter
+
+    let cb = col1; // summer
+
+    if (v < v2) {
+      a = h2;
+      b = h;
+      av = v2;
+      bv = v;
+      ca = "#4c9f70";
+      cb = "#a4f9c8";
+    }
+
+    var c = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    c.setAttributeNS(null, 'x', x);
+    c.setAttributeNS(null, 'y', y - a);
+    c.setAttributeNS(null, 'width', w);
+    c.setAttributeNS(null, 'height', a);
+    c.setAttributeNS(null, 'fill', ca);
+    this.svg.appendChild(c);
+    this.add_text(x + 20, y - a + 20, 15, "" + av.toFixed(2));
+    var c = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    c.setAttributeNS(null, 'x', x);
+    c.setAttributeNS(null, 'y', y - b);
+    c.setAttributeNS(null, 'width', w);
+    c.setAttributeNS(null, 'height', b);
+    c.setAttributeNS(null, 'fill', cb);
+    this.svg.appendChild(c);
+    this.add_text(x + 20, y - b + 20, 15, "" + bv.toFixed(2));
+    this.add_text(x + 10, y + 30, 25, label);
   }
 
 }

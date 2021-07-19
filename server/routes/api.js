@@ -66,13 +66,14 @@ router.get('/lsoa', function (req, res) {
 router.get('/future', function (req, res) {
 	let zones = req.query.zones; 
 	let data_type = req.query.data_type;
+	let table = req.query.table; 
 
     var client = new Client(conString);
     client.connect();
 
 	//console.log(zones);
 	
-	var q=`select year,avg(value) from future_year_avg 
+	var q=`select year,avg(value) from `+table+` 
            where zone in (`+zones.join()+`) and 
            type='`+data_type+`' group by year order by year`;
 	var query = client.query(new Query(q));

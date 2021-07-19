@@ -22,32 +22,6 @@ class SVG {
 		this.svg.setAttributeNS(null, 'viewBox', '0 0 '+w+' '+h)
 	}
 
-	add_bar(x,y,w,h,label,v) {
-		var c = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-		c.setAttributeNS(null, 'x', x)
-		c.setAttributeNS(null, 'y', y-h)
-		c.setAttributeNS(null, 'width', w)
-		c.setAttributeNS(null, 'height', h)
-		c.setAttributeNS(null, 'fill', "#4c9f70")
-		this.svg.appendChild(c)
-		var c = document.createElementNS("http://www.w3.org/2000/svg", "text");
-		var myText = document.createTextNode(label);
-		c.setAttributeNS(null, 'x', x+10)
-		c.setAttributeNS(null, 'y', y+30)
-		c.setAttributeNS(null, 'fill', "#42273b")
-		c.setAttribute("font-size", "25");
-		c.appendChild(myText);
-		this.svg.appendChild(c);		
-		var c = document.createElementNS("http://www.w3.org/2000/svg", "text");
-		var myText = document.createTextNode(""+v.toFixed(2));
-		c.setAttributeNS(null, 'x', x+20)
-		c.setAttributeNS(null, 'y', y-h+20)
-		c.setAttributeNS(null, 'fill', "#42273b")
-		c.setAttribute("font-size", "15");
-		c.appendChild(myText);
-		this.svg.appendChild(c);		
-	}
-
  	add_line(x1,y1,x2,y2,w,s) {
 		var c = document.createElementNS('http://www.w3.org/2000/svg', 'line')
 		c.setAttributeNS(null, 'x1', x1)
@@ -58,13 +32,13 @@ class SVG {
 		this.svg.appendChild(c)
 	}
 
-	add_text(x,y,t) {
+	add_text(x,y,s,t) {
 		var c = document.createElementNS("http://www.w3.org/2000/svg", "text");
 		var myText = document.createTextNode(t);
-		c.setAttributeNS(null, 'x', x+10)
-		c.setAttributeNS(null, 'y', y+30)
+		c.setAttributeNS(null, 'x', x)
+		c.setAttributeNS(null, 'y', y)
 		c.setAttributeNS(null, 'fill', "#42273b")
-		c.setAttribute("font-size", "15");
+		c.setAttribute("font-size", s);
 		c.appendChild(myText);
 		this.svg.appendChild(c);		
 	}
@@ -80,6 +54,67 @@ class SVG {
 		c.appendChild(myText);
 		this.svg.appendChild(c);		
 	}
+
+	add_bar(x,y,w,h,label,v,col) {
+		var c = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+		c.setAttributeNS(null, 'x', x)
+		c.setAttributeNS(null, 'y', y-h)
+		c.setAttributeNS(null, 'width', w)
+		c.setAttributeNS(null, 'height', h)
+		c.setAttributeNS(null, 'fill', col)
+		this.svg.appendChild(c)
+
+		this.add_text(x+10,y+30,"25",label);
+		this.add_text(x+20,y-h+20,"15",""+v.toFixed(2));
+	}
+
+	add_rect(x,y,w,h,col) {
+		var c = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+		c.setAttributeNS(null, 'x', x)
+		c.setAttributeNS(null, 'y', y)
+		c.setAttributeNS(null, 'width', w)
+		c.setAttributeNS(null, 'height', h)
+		c.setAttributeNS(null, 'fill', col)
+		this.svg.appendChild(c)
+	}
+	
+	add_2bar(x,y,w,h,h2,label,v,v2,col,col1) {
+		let a=h
+		let b=h2
+		let av=v;
+		let bv=v2;
+		let ca=col // winter
+		let cb=col1 // summer
+		if (v<v2) {
+			a=h2
+			b=h
+			av=v2
+			bv=v
+			ca="#4c9f70"
+			cb="#a4f9c8"
+		}
+
+		var c = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+		c.setAttributeNS(null, 'x', x)
+		c.setAttributeNS(null, 'y', y-a)
+		c.setAttributeNS(null, 'width', w)
+		c.setAttributeNS(null, 'height', a)
+		c.setAttributeNS(null, 'fill', ca)
+		this.svg.appendChild(c)
+		this.add_text(x+20,y-a+20,15,""+av.toFixed(2));
+
+		var c = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+		c.setAttributeNS(null, 'x', x)
+		c.setAttributeNS(null, 'y', y-b)
+		c.setAttributeNS(null, 'width', w)
+		c.setAttributeNS(null, 'height', b)
+		c.setAttributeNS(null, 'fill', cb)
+		this.svg.appendChild(c)
+		this.add_text(x+20,y-b+20,15,""+bv.toFixed(2));
+
+		this.add_text(x+10,y+30,25,label);
+	}
+
 }
 
 export { SVG }
