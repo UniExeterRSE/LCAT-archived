@@ -24410,6 +24410,10 @@ const L = require("leaflet")
 const zones = require("./lsoa.js")
 const graph = require("./graph.js")
 
+/*const dagreD3 = require("dagre-d3")
+const d3 = require("d3")
+const graphlibDot = require("graphlib-dot")*/
+
 var leaflet_map = L.map('leaflet-map').setView([50.26123046875, -5.052745342254639], 10);
 
 var baseMaps = {
@@ -24442,6 +24446,56 @@ $("#graph").html(graph.no_data)
 z.update(leaflet_map)
 
 
+/*
+var svg = d3.select("#mapsvg"),
+    inner = d3.select("#mapsvg g"),
+    zoom = d3.zoom().on("zoom", function() {
+	inner.attr("transform", d3.event.transform);
+    });
+svg.call(zoom);
+
+
+
+var render = dagreD3.render();
+var g;
+function draw() {
+    try {
+		g = graphlibDot.read(`digraph { 
+1 [label="one"]
+2 [label="two"]
+1 -> 2
+}`);
+    } catch (e) {
+		throw e;
+    }
+    if (!g.graph().hasOwnProperty("marginx") &&
+        !g.graph().hasOwnProperty("marginy")) {
+		g.graph().marginx = 20;
+		g.graph().marginy = 20;
+    }
+	
+    g.graph().rankdir = "LR";
+    
+    g.graph().transition = function(selection) {
+		return selection.transition().duration(500);
+    };
+    
+    d3.select("#mapsvg g").call(render, g);
+	   
+    const { width, height } = d3.select("svg g").node().getBBox()
+    console.log([width,height])
+    if (width && height) {
+	let svgn=d3.select("#mapsvg").node()
+		const scale = Math.min(svgn.clientWidth / width, svgn.clientHeight / height) * 0.95
+		zoom.scaleTo(svg, scale)
+		zoom.translateTo(svg, width / 2, height / 2)
+    }
+}
+
+
+
+draw()
+*/
 
 },{"./graph.js":3,"./lsoa.js":5,"jquery":1,"leaflet":2}],5:[function(require,module,exports){
 "use strict";
@@ -24481,6 +24535,30 @@ function zoom_to_tol(zoom) {
   return lerp(0.001, 0.000001, t);
 }
 
+function stringify_list(l) {
+  if (l.length == 0) return "";
+  if (l.length == 1) return "" + l[0];
+  if (l.length == 2) return l[0] + " and " + l[1];
+  let c = 0;
+  let ret = "";
+
+  for (let v of l) {
+    if (c == l.length - 1) {
+      ret += " and " + v;
+    } else {
+      if (c == l.length - 2) {
+        ret += v;
+      } else {
+        ret += v + ", ";
+      }
+    }
+
+    c += 1;
+  }
+
+  return ret;
+}
+
 class LSOAZones {
   constructor(leaflet_map) {
     this.zones = [];
@@ -24513,9 +24591,19 @@ class LSOAZones {
 
   update_list() {
     $('#selected-list').empty();
+    let zone_names = [];
 
     for (let zone of this.zones) {
+      zone_names.push(zone.name);
       $('#selected-list').append($("<li>").html(zone.name));
+    }
+
+    if (zone_names.length > 0) {
+      $("#results").css("display", "block");
+      $("#projected-regions").html(stringify_list(zone_names));
+      $("#adaption-regions").html(stringify_list(zone_names));
+    } else {
+      $("#results").css("display", "none");
     }
 
     graph.update_graph(this.zones, $("#graph-time").val());

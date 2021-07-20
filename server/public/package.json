@@ -9,7 +9,9 @@
   "author": "Then Try This",
   "license": "GPL-3.0-or-later",
   "dependencies": {
+    "dagre-d3": "^0.6.4",
     "express": "^4.17.1",
+    "graphlib-dot": "^0.6.4",
     "jquery": "^3.6.0",
     "leaflet": "^1.7.1"
   },

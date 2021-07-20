@@ -24,6 +24,15 @@ select {
 	font-size: 1em;
 }
 
+button {
+    font-family: 'nunito',Arial,Helvetica,sans-serif;
+	border: none;
+	background: #a4b3cd;
+	margin-left: 0.5em;
+	margin-top: 0.5em;
+	font-size: 1em;
+}
+
 @media (min-width: 1000px) {
     body {
 		font-size: 1.2em;
@@ -104,5 +113,57 @@ select {
 }
 
 .dropdown:hover .dropdown-content {
-  display: block;
+	display: block;
+}
+
+#graph-csv {
+	font-size: 0.75em;
+}
+
+#results {
+	margin-top: 1em;
+	display: none;
+	font-size: 1.2em;
+}
+
+.network {
+	width: 100%;
+	height: 10em;
+	border-radius: 1em;
+	border: 1px dashed black;
+	text-align: center;
+	line-height: 10em;
+	font-size: 1.0em;
+}
+
+#results span {
+	padding-left: 0.25em;
+	padding-right: 0.25em;
+	background-color: #a4b3cd;
+	border-radius: 5px;
+}
+
+#health-impacts {
+	padding: 0 !important;
+	background: none !important;
+	font-weight: bold;
+}
+
+.outputs {
+	display: flex;
+	flex-direction: row;
+}
+
+.outputs button {
+	width: 50%;
+	margin: 1em;
+	padding: 1em;
+	background: #a4b3cd;
+	border-radius: 5px;
+	border: none;
+    font-size: 1em;	
+}
+
+.outputs button:hover {
+	background: #ffbc42;
 }

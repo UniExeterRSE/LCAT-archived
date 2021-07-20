@@ -18,6 +18,10 @@ const L = require("leaflet")
 const zones = require("./lsoa.js")
 const graph = require("./graph.js")
 
+/*const dagreD3 = require("dagre-d3")
+const d3 = require("d3")
+const graphlibDot = require("graphlib-dot")*/
+
 var leaflet_map = L.map('leaflet-map').setView([50.26123046875, -5.052745342254639], 10);
 
 var baseMaps = {
@@ -50,3 +54,53 @@ $("#graph").html(graph.no_data)
 z.update(leaflet_map)
 
 
+/*
+var svg = d3.select("#mapsvg"),
+    inner = d3.select("#mapsvg g"),
+    zoom = d3.zoom().on("zoom", function() {
+	inner.attr("transform", d3.event.transform);
+    });
+svg.call(zoom);
+
+
+
+var render = dagreD3.render();
+var g;
+function draw() {
+    try {
+		g = graphlibDot.read(`digraph { 
+1 [label="one"]
+2 [label="two"]
+1 -> 2
+}`);
+    } catch (e) {
+		throw e;
+    }
+    if (!g.graph().hasOwnProperty("marginx") &&
+        !g.graph().hasOwnProperty("marginy")) {
+		g.graph().marginx = 20;
+		g.graph().marginy = 20;
+    }
+	
+    g.graph().rankdir = "LR";
+    
+    g.graph().transition = function(selection) {
+		return selection.transition().duration(500);
+    };
+    
+    d3.select("#mapsvg g").call(render, g);
+	   
+    const { width, height } = d3.select("svg g").node().getBBox()
+    console.log([width,height])
+    if (width && height) {
+	let svgn=d3.select("#mapsvg").node()
+		const scale = Math.min(svgn.clientWidth / width, svgn.clientHeight / height) * 0.95
+		zoom.scaleTo(svg, scale)
+		zoom.translateTo(svg, width / 2, height / 2)
+    }
+}
+
+
+
+draw()
+*/

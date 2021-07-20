@@ -26,7 +26,28 @@ function zoom_to_tol(zoom) {
 	let t = zoom/18;
 	return lerp(0.001,0.000001,t);
 }
-	
+
+function stringify_list(l) {
+	if (l.length==0) return ""
+	if (l.length==1) return ""+l[0]
+	if (l.length==2) return l[0]+" and "+l[1]
+	let c=0
+	let ret=""
+	for (let v of l) {
+		if (c==l.length-1) {
+			ret+=" and "+v
+		} else {
+			if (c==l.length-2) {
+				ret+=v
+			} else {
+				ret+=v+", "
+			}			
+		}
+		c+=1
+	}
+	return ret
+}
+
 class LSOAZones {
 	constructor(leaflet_map) {
 		this.zones = []
@@ -57,11 +78,22 @@ class LSOAZones {
 	}
 
 	update_list() {
-		$('#selected-list').empty();
+		$('#selected-list').empty()
+		let zone_names=[]
 		for (let zone of this.zones) {
-			$('#selected-list').append($("<li>").html(zone.name));
+			zone_names.push(zone.name)
+			$('#selected-list').append($("<li>").html(zone.name))
 		}
-		graph.update_graph(this.zones,$("#graph-time").val());
+
+		if (zone_names.length>0) {
+			$("#results").css("display","block")			
+			$("#projected-regions").html(stringify_list(zone_names))
+			$("#adaption-regions").html(stringify_list(zone_names))
+		} else {
+			$("#results").css("display","none")
+		}
+		
+		graph.update_graph(this.zones,$("#graph-time").val())
 	}
 
 	make_zone(feature,layer) {		
