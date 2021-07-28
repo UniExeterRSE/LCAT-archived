@@ -17,6 +17,7 @@ const $ = require("jquery")
 const L = require("leaflet")
 const zones = require("./lsoa.js")
 const graph = require("./graph.js")
+const adapt = require("./adaptation_finder.js")
 
 /*const dagreD3 = require("dagre-d3")
 const d3 = require("d3")
@@ -53,6 +54,42 @@ $("#graph").html(graph.no_data)
 
 z.update(leaflet_map)
 
+
+let ad = new adapt.AdaptationFinder(adapt.the_trends)
+
+const load = async () => {
+	await ad.loadVariables($("#search-data").val(),
+						   [4,5,6],
+						   2021,
+						   parseInt($("#search-year").val()))
+	console.log("loading complete")
+	let active = ad.calcActiveTrends()
+	$("#results").css("display","block")
+	$("#results-list").empty();
+	for (let t of active) {
+		$("#results-list").append($("<h2>").html(t.variable_name+" "+t.operator))		
+		$("#results-list").append($("<p>").html("Impacts found for "+t.sector+"/"+t.subsector))		
+		let el = $("#results-list").append($("<ul>"))
+		for (let impact of t.impacts) {
+			let refs = []
+			let c = 1
+			for (let ref of impact.references) {
+				refs.push("<a href='"+ref+"'>REF#"+c+"</a>")
+				c+=1
+			}
+			el.append($("<li>").html("<b>"+impact.type+"</b> "+impact.description+" "+refs.join(", ")))
+		}
+		$("#results-list").append($("<p>").html("Adaptations"))		
+		el = $("#results-list").append($("<ul>"))
+		for (let adaptation of t.adaptations) {
+			el.append($("<li>").html(adaptation.description))
+		}
+		
+	}}
+
+$("#search").click(() => {
+	load()
+})
 
 /*
 var svg = d3.select("#mapsvg"),

@@ -43,7 +43,9 @@ router.get('/lsoa', function (req, res) {
                 'type', 'FeatureCollection',
                 'features', json_agg(json_build_object(
                    'type', 'Feature',
-                   'properties', json_build_object('name', lsoa01nm, 'zone', zone),
+                   'properties', json_build_object('name', lsoa01nm, 
+                                                   'zone', zone, 
+                                                   'imdscore', imdscore),
                    'geometry', ST_AsGeoJSON(
                                    ST_Transform(ST_Simplify(wkb_geometry,`+tolerance+`),4326))::json
                    ))

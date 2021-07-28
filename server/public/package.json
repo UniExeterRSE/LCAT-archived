@@ -9,6 +9,7 @@
   "author": "Then Try This",
   "license": "GPL-3.0-or-later",
   "dependencies": {
+    "colormap": "^2.3.2",
     "dagre-d3": "^0.6.4",
     "express": "^4.17.1",
     "graphlib-dot": "^0.6.4",

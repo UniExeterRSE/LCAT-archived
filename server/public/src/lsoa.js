@@ -16,6 +16,7 @@
 const $ = require("jquery")
 const L = require("leaflet")
 const graph = require("./graph.js")
+const colormap = require('colormap')
 
 // helpers for map geometry
 function lerp(a,b,t) {
@@ -50,14 +51,38 @@ function stringify_list(l) {
 
 class LSOAZones {
 	constructor(leaflet_map) {
+		this.map = leaflet_map
 		this.zones = []
-		this.layer_buffer = [L.layerGroup().addTo(leaflet_map),
-							 L.layerGroup().addTo(leaflet_map)];
+		this.layer_buffer = [L.layerGroup().addTo(this.map),
+							 L.layerGroup().addTo(this.map)];
 		this.current_layer_buffer=0;
 		this.other_layer_buffer=1;
 
+		let cols = colormap({
+			colormap: 'cool',
+			nshades: 100,
+			format: 'hex',
+			alpha: 0.5
+		})
+
+		this.cols = cols;
+		this.score_adjust=0.7;
+		
+		var legend = L.control({position: 'bottomleft'});
+		legend.onAdd = (map) => {
+			var div = L.DomUtil.create('div', 'info legend')
+			div.innerHTML += '<h3>Index of Multiple Deprivation Score</h3>'
+			for (let i = 1; i < 100; i+=10) {
+				div.innerHTML += 					
+				'<div class="key" style="background:' + cols[i] + '"></div> '+(i*this.score_adjust).toFixed(0)+"<br>"
+					
+			}
+			return div;
+		}
+		legend.addTo(this.map)
+		
 		this.highlight_col = "#ffbc42"
-		this.zone_col = "#42273b"
+		//this.zone_col = "#42273b"
 	}
 
 	include(name,zones) {
@@ -97,32 +122,48 @@ class LSOAZones {
 	}
 
 	make_zone(feature,layer) {		
+		let col = this.cols[Math.round(feature.properties.imdscore/this.score_adjust)]
+
 		if (this.include(feature.properties.name)) {
-			layer.setStyle({'color': this.highlight_col});
-			layer.setStyle({'fillOpacity': 0.5});
+			layer.setStyle({
+				'fillColor': this.highlight_col,
+				'fillOpacity': 0.75
+			});
 		} else {
-			layer.setStyle({'color': this.zone_col})
-			layer.setStyle({'fillOpacity': 0.02});
+			layer.setStyle({
+				'fillColor': col,
+				'fillOpacity': 0.5
+			});
 		}
 		
-		layer.setStyle({'weight': 1});
-		layer.setStyle({'opacity': 1});
+		layer.setStyle({
+			'color': "#42273b",
+			'weight': 1,
+			'opacity': 1
+		});
 		
 		layer.on('click', () => {
  			if (!this.include(feature.properties.name)) {
-				layer.setStyle({'color': this.highlight_col});
-				layer.setStyle({'fillOpacity': 0.5});
+				layer.setStyle({
+					'fillColor': this.highlight_col,
+					'fillOpacity': 0.75
+				});
 				this.zones.push({
 					name: feature.properties.name,
 					tile: feature.properties.zone
 				})
 			} else {
-				layer.setStyle({'color': this.zone_col});
+				layer.setStyle({
+					'fillColor': col,
+					'fillOpacity': 0.5
+				});
 				this.remove(feature.properties.name);
-				layer.setStyle({'fillOpacity': 0.02});
 			}
 			this.update_list();
 		});
+
+		layer.bindTooltip(feature.properties.name+"<br>IMD Score: "+feature.properties.imdscore).addTo(this.map);
+
 		
 		layer.on('mouseover', function(e) {
 			layer.bringToFront();

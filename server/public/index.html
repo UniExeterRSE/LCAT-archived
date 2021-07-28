@@ -17,7 +17,7 @@
       <section class="map-container">
 		<div id="leaflet-map"></div>
 		<div class="map-selection">
-		  <h2>Regions</h2>
+		  <h2>Lower Layer Super Output Areas (LSOA)</h2>
 		  <ul id="selected-list"></ul>
 		</div>
       </section>
@@ -53,19 +53,47 @@
 		<button id="graph-csv">Download CSV</button>
 		
 	  </section>
+<!--
+	  <section id="search-adaptations">
+		Compare 2021
+		<select id="search-data">
+		  <option value="future_year_avg">Whole year averages</option>
+		  <option value="future_summer_avg">Summer averages</option>
+		  <option value="future_winter_avg">Winter averages</option>
+		</select>
+		with: 
+		<select id="search-year">
+		  <option value="2030">2030</option>
+		  <option value="2040">2040</option>
+		  <option value="2050">2050</option>
+		  <option value="2060">2060</option>
+		  <option value="2070">2070</option>
+		  <option value="2080">2080</option>
+		  <option value="2090">2090</option>
+		</select>
+		
+		<button id="search">Search adaptations</button>	 
 	  
+		<section id="results">
+		  <div id="results-list">
+		  </div>
+		</section>
+-->
+		
 	  <section id="results">
+		
 
+		
 		<p>The research indicates that we would expect the projected
 		climate change in <span id="projected-regions"></span> to
 		result in <span id="health-impacts">more heart disease and
 			more lung disease</span>.</p>
 		
 		<div class="network">		  
-<!--		  <svg id="mapsvg" width=100% height=600>
+		  <svg id="mapsvg" width=100% height=600>
 			<g/>
 		  </svg>
-		</div>-->
+		</div>
 
 		  Climate -> Health
 		</div>
@@ -83,9 +111,9 @@
 		</section>
 		
 	  </section>
-
  
     </article>
+
     
     <script src="bundle.js"></script>
     
