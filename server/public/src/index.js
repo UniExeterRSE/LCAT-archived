@@ -91,14 +91,14 @@ $("#search").click(() => {
 	load()
 })
 
-/*
+######################################
+
 var svg = d3.select("#mapsvg"),
     inner = d3.select("#mapsvg g"),
     zoom = d3.zoom().on("zoom", function() {
 	inner.attr("transform", d3.event.transform);
     });
 svg.call(zoom);
-
 
 
 var render = dagreD3.render();
@@ -137,7 +137,5 @@ function draw() {
     }
 }
 
-
-
 draw()
-*/
+
