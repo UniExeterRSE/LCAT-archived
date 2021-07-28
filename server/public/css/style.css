@@ -167,3 +167,27 @@ button {
 .outputs button:hover {
 	background: #ffbc42;
 }
+
+.legend {
+    font-family: 'nunito',Arial,Helvetica,sans-serif;
+    font-size: 1em;
+	background: rgba(255,255,255,0.8);
+	padding: 0.5em;
+	padding-left: 2em;
+	border-radius: 5px;
+}
+
+.legend h3 {
+	font-size: 0.9em;
+	transform: rotate(-90deg);
+	position: absolute;
+	top: 7em;
+	left: -6.5em;
+	white-space: nowrap;
+}
+
+.key {
+	display: inline-block;
+	width: 3em;
+	height: 1em;
+}
