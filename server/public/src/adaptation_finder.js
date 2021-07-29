@@ -1,8 +1,10 @@
 const $ = require("jquery")
+const utils = require("./utils")
 
 // two values for a specific variable to use for comparisons
 class ClimateVariable {
-	constructor (variable_name,reference,value) {
+	constructor (table,variable_name,reference,value) {
+		this.table=table
 		this.variable_name=variable_name
 		this.reference=reference
 		this.value=value
@@ -11,20 +13,22 @@ class ClimateVariable {
 
 // a cause is a trigger that can be set off by different variables
 class Cause {
-	constructor (variable_name,operator,threshold) {
+	constructor (table,variable_name,operator,threshold) {		
+		this.table=table
 		this.variable_name=variable_name
 		this.operator=operator
 		this.threshold=threshold
 		switch(variable_name) {
-		case "mean_windspeed": this.image="image/wind.svg"
-		case "mean_temperature": this.image="image/temp.svg"
-		case "daily_precip": this.image="image/rain.svg"
+		case "mean_windspeed": this.image="images/wind.svg"; break;
+		case "mean_temperature": this.image="images/temp.svg"; break; 
+		case "daily_precip": this.image="images/rain.svg"; break;
 		default: console.log("no svg for "+variable_name)
 		}
 	}
 
 	isActive(variable) {
-		if (variable.variable_name==this.variable_name) {			
+		if (variable.variable_name == this.variable_name &&
+			variable.table == this.table) {			
 			switch (this.operator) {
 			case "increase":
 				if (variable.reference<variable.value)
@@ -68,79 +72,87 @@ class Adaptation {
 	}
 }
 
-// operators:
-//
-//   increase
-//   decrease
-//   less-than
-//   greater-than
-//   ...
 
+// trends connect together causes/impacts and adaptions
 class Trend {
-	constructor (cause,impacts,adaptations,sector,subsector,trend,priority) {
+	constructor (cause,impacts,adaptations,priority) {
 		this.cause=cause		
 		this.impacts=impacts
 		this.adaptations=adaptations
-
-		// metadata
-		this.sector=sector
-		this.subsector=subsector
-		this.trend=trend
 		this.priority=priority
 	}
-
 }
 
 class AdaptationFinder {
-	constructor (trends) {
-		this.trends = trends
+	constructor (causes,impacts,adaptions,trends) {
+		this.causes=causes
+		this.impacts=impacts
+		this.adaptions=adaptions
+		this.trends=trends
 		this.variables = []
+		this.tables = [
+//			"future_year_avg",
+			"future_summer_avg",
+			"future_winter_avg"
+		]
 		this.variable_names = [
 			"daily_precip",
-			"mean_temp",
-			"max_temp",
-			"min_temp",
-			"mean_windspeed",
-			"max_windspeed",
-			"min_windspeed"
+//			"mean_temp",
+			//"max_temp",
+			//"min_temp",
+//			"mean_windspeed",
+			//"max_windspeed",
+			//"min_windspeed"
 		]
 	}
 
-	addVariable(variable_name,yearly_data,reference_year,value_year) {
+	addVariable(table,variable_name,decade_data,reference_decade,value_decade) {
 		let y = 0
-		let ref,val
-		for (let d of yearly_data) {
-			if (d.year==reference_year) ref=d.avg
-			if (d.year==value_year) val=d.avg
-		}
+		let ref=decade_data[reference_decade]
+		let val=decade_data[value_decade]
 
+		if (val>ref) {
+			console.log(table+" "+variable_name+" rising "+ref.toFixed(2)+" -> "+val.toFixed(2))
+		} else {
+			console.log(table+" "+variable_name+" falling "+ref.toFixed(2)+" -> "+val.toFixed(2))
+		}
+		
 		if (ref!=undefined && val!=undefined) {
-			this.variables.push(new ClimateVariable(variable_name,ref,val))
+			this.variables.push(new ClimateVariable(table,variable_name,ref,val))
 		}		
 	}
 
-	async loadVariables(table,zones,reference_year,value_year) {
+	async loadVariables(zones,reference_decade,value_decade) {
+		// todo cache these so we don't need to reload all zones
 		this.variables = []
-		for (let variable_name of this.variable_names) {		
-			await $.getJSON(
-				"/api/future",
-				{
-					table: table,
-					zones: zones,
-					data_type: variable_name
-				},
-				(data,status) => {
-					console.log("loaded "+variable_name)
-					this.addVariable(variable_name,data,reference_year,value_year)
-				})
-		}		
+		for (let table of this.tables) {			
+			for (let variable_name of this.variable_names) {		
+				await $.getJSON(
+					"/api/future",
+					{
+						table: table,
+						zones: zones,
+						data_type: variable_name
+					},
+					(data,status) => {
+						this.addVariable(
+							table,
+							variable_name,
+							utils.calculate_decades(data),
+							reference_decade,
+							value_decade)
+					})
+			}
+		}
 	}
 	
-	calcActiveTrends() {
+	async calcActiveTrends(zones,reference_decade,value_decade) {
+		await this.loadVariables(zones,reference_decade,value_decade)
 		let active_trends = []
 		for (let trend of this.trends) {
+			let cause = this.causes[trend.cause]
 			for (let variable of this.variables) {
-				if (trend.cause.isActive(variable)) {
+				if (cause.isActive(variable)) {
 					console.log(variable.variable_name+" is "+cause.operator)
 					active_trends.push(trend)
 				}
@@ -150,30 +162,36 @@ class AdaptationFinder {
 	}
 }
 
-const the_trends = [
-	new Trend(new Cause("mean_windspeed", "increase", 0),
-				[new Impact("Sector",
-							"Increased wind speed leads to decreased cycling. More people use public transport networks.",
-							["https://dx.doi.org/10.1186/1476-069x-11-12"]),
-				 new Impact("Health and Wellbeing",
-							"More people get sick, as contact increases.",
-							["https://dx.doi.org/10.1186/1476-069x-11-12"])],
-				[new Adaptation("This is an adaptation",["Example 1","Example 2"])],
-				"Transport",
-				"Active Transport",
-				"Rising",
-				"High"),
-	new Trend(new Cause("daily_precip", "increase", 0),
-				[new Impact("Sector",
-							"Increased precipitation leads to decreased cycling.",
-							["https://dx.doi.org/10.1186/1476-069x-11-12",
-							 "https://doi.org/10.1016/j.amepre.2006.08.027"])],
-				[new Adaptation("Another adaption",["Example 1","Example 2"])],
-				"Transport",
-				"Active Transport",
-				"Rising",
-				"High")
-	]
+////////////////////////////////////////////////////
+// some fake data
 
+const the_causes = {
+	0: new Cause("future_year_avg", "mean_windspeed", "increase", 0),
+	1: new Cause("future_winter_avg", "daily_precip", "increase", 0)
+}
+
+const the_impacts = {
+	0: new Impact("Transport/Active Transport",
+				  "Increased wind speed leads to decreased cycling. More people use public transport networks.",
+				  ["https://dx.doi.org/10.1186/1476-069x-11-12"]),
+	1: new Impact("Health and Wellbeing",
+				  "More people get sick, as contact increases.",
+				  ["https://dx.doi.org/10.1186/1476-069x-11-12"]),
+	2: new Impact("Transport/Active Transport",
+				  "Increased precipitation leads to decreased cycling.",
+				  ["https://dx.doi.org/10.1186/1476-069x-11-12",
+				   "https://doi.org/10.1016/j.amepre.2006.08.027"]),
+}
+			  
+const the_adaptations = {
+	0: new Adaptation("This is an adaptation",["Example 1","Example 2"]),
+	1: new Adaptation("Another adaption",["Example 1","Example 2"]),
+}
+
+const the_trends = [
+	new Trend(0,[0,1],0,"High"),
+	new Trend(1,[2],1,"High"),
+]
  				 
-export { AdaptationFinder, the_trends }
+export { AdaptationFinder,
+		 the_trends, the_causes, the_impacts, the_adaptations }

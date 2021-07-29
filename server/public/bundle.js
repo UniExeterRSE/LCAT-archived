@@ -66443,13 +66443,16 @@ module.exports = zipObject;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.the_trends = exports.AdaptationFinder = void 0;
+exports.the_adaptations = exports.the_impacts = exports.the_causes = exports.the_trends = exports.AdaptationFinder = void 0;
 
-const $ = require("jquery"); // two values for a specific variable to use for comparisons
+const $ = require("jquery");
+
+const utils = require("./utils"); // two values for a specific variable to use for comparisons
 
 
 class ClimateVariable {
-  constructor(variable_name, reference, value) {
+  constructor(table, variable_name, reference, value) {
+    this.table = table;
     this.variable_name = variable_name;
     this.reference = reference;
     this.value = value;
@@ -66459,20 +66462,24 @@ class ClimateVariable {
 
 
 class Cause {
-  constructor(variable_name, operator, threshold) {
+  constructor(table, variable_name, operator, threshold) {
+    this.table = table;
     this.variable_name = variable_name;
     this.operator = operator;
     this.threshold = threshold;
 
     switch (variable_name) {
       case "mean_windspeed":
-        this.image = "image/wind.svg";
+        this.image = "images/wind.svg";
+        break;
 
       case "mean_temperature":
-        this.image = "image/temp.svg";
+        this.image = "images/temp.svg";
+        break;
 
       case "daily_precip":
-        this.image = "image/rain.svg";
+        this.image = "images/rain.svg";
+        break;
 
       default:
         console.log("no svg for " + variable_name);
@@ -66480,7 +66487,7 @@ class Cause {
   }
 
   isActive(variable) {
-    if (variable.variable_name == this.variable_name) {
+    if (variable.variable_name == this.variable_name && variable.table == this.table) {
       switch (this.operator) {
         case "increase":
           if (variable.reference < variable.value) return true;
@@ -66524,71 +66531,79 @@ class Adaptation {
     this.examples = examples;
   }
 
-} // operators:
-//
-//   increase
-//   decrease
-//   less-than
-//   greater-than
-//   ...
+} // trends connect together causes/impacts and adaptions
 
 
 class Trend {
-  constructor(cause, impacts, adaptations, sector, subsector, trend, priority) {
+  constructor(cause, impacts, adaptations, priority) {
     this.cause = cause;
     this.impacts = impacts;
-    this.adaptations = adaptations; // metadata
-
-    this.sector = sector;
-    this.subsector = subsector;
-    this.trend = trend;
+    this.adaptations = adaptations;
     this.priority = priority;
   }
 
 }
 
 class AdaptationFinder {
-  constructor(trends) {
+  constructor(causes, impacts, adaptions, trends) {
+    this.causes = causes;
+    this.impacts = impacts;
+    this.adaptions = adaptions;
     this.trends = trends;
     this.variables = [];
-    this.variable_names = ["daily_precip", "mean_temp", "max_temp", "min_temp", "mean_windspeed", "max_windspeed", "min_windspeed"];
+    this.tables = [//			"future_year_avg",
+    "future_summer_avg", "future_winter_avg"];
+    this.variable_names = ["daily_precip" //			"mean_temp",
+    //"max_temp",
+    //"min_temp",
+    //			"mean_windspeed",
+    //"max_windspeed",
+    //"min_windspeed"
+    ];
   }
 
-  addVariable(variable_name, yearly_data, reference_year, value_year) {
+  addVariable(table, variable_name, decade_data, reference_decade, value_decade) {
     let y = 0;
-    let ref, val;
+    let ref = decade_data[reference_decade];
+    let val = decade_data[value_decade];
 
-    for (let d of yearly_data) {
-      if (d.year == reference_year) ref = d.avg;
-      if (d.year == value_year) val = d.avg;
+    if (val > ref) {
+      console.log(table + " " + variable_name + " rising " + ref.toFixed(2) + " -> " + val.toFixed(2));
+    } else {
+      console.log(table + " " + variable_name + " falling " + ref.toFixed(2) + " -> " + val.toFixed(2));
     }
 
     if (ref != undefined && val != undefined) {
-      this.variables.push(new ClimateVariable(variable_name, ref, val));
+      this.variables.push(new ClimateVariable(table, variable_name, ref, val));
     }
   }
 
-  async loadVariables(table, zones, reference_year, value_year) {
+  async loadVariables(zones, reference_decade, value_decade) {
+    // todo cache these so we don't need to reload all zones
     this.variables = [];
 
-    for (let variable_name of this.variable_names) {
-      await $.getJSON("/api/future", {
-        table: table,
-        zones: zones,
-        data_type: variable_name
-      }, (data, status) => {
-        console.log("loaded " + variable_name);
-        this.addVariable(variable_name, data, reference_year, value_year);
-      });
+    for (let table of this.tables) {
+      for (let variable_name of this.variable_names) {
+        await $.getJSON("/api/future", {
+          table: table,
+          zones: zones,
+          data_type: variable_name
+        }, (data, status) => {
+          this.addVariable(table, variable_name, utils.calculate_decades(data), reference_decade, value_decade);
+        });
+      }
     }
   }
 
-  calcActiveTrends() {
+  async calcActiveTrends(zones, reference_decade, value_decade) {
+    await this.loadVariables(zones, reference_decade, value_decade);
     let active_trends = [];
 
     for (let trend of this.trends) {
+      let cause = this.causes[trend.cause];
+
       for (let variable of this.variables) {
-        if (trend.cause.isActive(variable)) {
+        if (cause.isActive(variable)) {
           console.log(variable.variable_name + " is " + cause.operator);
           active_trends.push(trend);
         }
@@ -66598,13 +66613,31 @@ class AdaptationFinder {
     return active_trends;
   }
 
-}
+} ////////////////////////////////////////////////////
+// some fake data
+
 
 exports.AdaptationFinder = AdaptationFinder;
-const the_trends = [new Trend(new Cause("mean_windspeed", "increase", 0), [new Impact("Sector", "Increased wind speed leads to decreased cycling. More people use public transport networks.", ["https://dx.doi.org/10.1186/1476-069x-11-12"]), new Impact("Health and Wellbeing", "More people get sick, as contact increases.", ["https://dx.doi.org/10.1186/1476-069x-11-12"])], [new Adaptation("This is an adaptation", ["Example 1", "Example 2"])], "Transport", "Active Transport", "Rising", "High"), new Trend(new Cause("daily_precip", "increase", 0), [new Impact("Sector", "Increased precipitation leads to decreased cycling.", ["https://dx.doi.org/10.1186/1476-069x-11-12", "https://doi.org/10.1016/j.amepre.2006.08.027"])], [new Adaptation("Another adaption", ["Example 1", "Example 2"])], "Transport", "Active Transport", "Rising", "High")];
+const the_causes = {
+  0: new Cause("future_year_avg", "mean_windspeed", "increase", 0),
+  1: new Cause("future_winter_avg", "daily_precip", "increase", 0)
+};
+exports.the_causes = the_causes;
+const the_impacts = {
+  0: new Impact("Transport/Active Transport", "Increased wind speed leads to decreased cycling. More people use public transport networks.", ["https://dx.doi.org/10.1186/1476-069x-11-12"]),
+  1: new Impact("Health and Wellbeing", "More people get sick, as contact increases.", ["https://dx.doi.org/10.1186/1476-069x-11-12"]),
+  2: new Impact("Transport/Active Transport", "Increased precipitation leads to decreased cycling.", ["https://dx.doi.org/10.1186/1476-069x-11-12", "https://doi.org/10.1016/j.amepre.2006.08.027"])
+};
+exports.the_impacts = the_impacts;
+const the_adaptations = {
+  0: new Adaptation("This is an adaptation", ["Example 1", "Example 2"]),
+  1: new Adaptation("Another adaption", ["Example 1", "Example 2"])
+};
+exports.the_adaptations = the_adaptations;
+const the_trends = [new Trend(0, [0, 1], 0, "High"), new Trend(1, [2], 1, "High")];
 exports.the_trends = the_trends;
 
-},{"jquery":603}],847:[function(require,module,exports){
+},{"./utils":852,"jquery":603}],847:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66631,15 +66664,7 @@ const $ = require("jquery");
 
 const svgUtil = require("./svg.js");
 
-function arr2avg(arr) {
-  let ret = 0;
-
-  for (let v of arr) {
-    ret += v;
-  }
-
-  return ret / arr.length;
-}
+const utils = require("./utils.js");
 
 const no_data = `<svg viewBox="0 0 240 80" xmlns="http://www.w3.org/2000/svg">
   <style>
@@ -66707,27 +66732,6 @@ function render_graph(decades_arr, scale) {
   return svg;
 }
 
-function calculate_decades(graph_data) {
-  let decades = {}; // collect values for each decade
-
-  for (let year of graph_data) {
-    let dec = Math.floor(year.year % 2000 / 10);
-
-    if (decades[dec] == undefined) {
-      decades[dec] = [year.avg];
-    } else {
-      decades[dec].push(year.avg);
-    }
-  } // average them together
-
-
-  for (let dec of Object.keys(decades)) {
-    decades[dec] = arr2avg(decades[dec]);
-  }
-
-  return decades;
-}
-
 function calc_scale(graph_data, height) {
   // get the min/max for eventual graph scaling
   let minimum = 999999;
@@ -66744,14 +66748,14 @@ function calc_scale(graph_data, height) {
 }
 
 function redraw_graph(graph_data) {
-  let decades = calculate_decades(graph_data);
+  let decades = utils.calculate_decades(graph_data);
   $("#graph").empty();
   $("#graph").append(render_graph([decades], calc_scale([decades], graph_height - 50)).svg);
 }
 
 function redraw_graph_seasonal(winter_data, summer_data) {
-  let winter_decades = calculate_decades(winter_data);
-  let summer_decades = calculate_decades(summer_data);
+  let winter_decades = utils.calculate_decades(winter_data);
+  let summer_decades = utils.calculate_decades(summer_data);
   $("#graph").empty();
   $("#graph").append(render_graph([winter_decades, summer_decades], calc_scale([winter_decades, summer_decades], graph_height - 50)).svg);
 }
@@ -66770,8 +66774,6 @@ function update_graph(lsoa_zones, time) {
     $("#graph").html(no_data);
     return;
   }
-
-  console.log(time);
 
   if (time == "yearly") {
     $.getJSON("/api/future", {
@@ -66798,7 +66800,7 @@ function update_graph(lsoa_zones, time) {
   }
 }
 
-},{"./svg.js":851,"jquery":603}],848:[function(require,module,exports){
+},{"./svg.js":851,"./utils.js":852,"jquery":603}],848:[function(require,module,exports){
 // Copyright (C) 2021 Then Try This
 //
 // This program is free software: you can redistribute it and/or modify
@@ -66832,26 +66834,31 @@ var baseMaps = {
 L.control.layers(baseMaps).addTo(leaflet_map);
 L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}).addTo(leaflet_map);
 
-const z = new zones.LSOAZones(leaflet_map)
+async function setup() {
+	const z = new zones.LSOAZones(leaflet_map)
+	const net = new network.Network()
 
-leaflet_map.on("moveend", () => {
-	z.update(leaflet_map);
-});
+	await net.loadData()
 
-$("#graph-type").on("change",() => {
-	graph.update_graph(z.zones,$("#graph-time").val())
-})
+	leaflet_map.on("moveend", () => {
+		z.update(leaflet_map,net);
+	});
 
-$("#graph-time").on("change",() => {
-	console.log($("#graph-time").val());
-	graph.update_graph(z.zones,$("#graph-time").val())
-})
+	$("#graph-type").on("change",() => {
+		graph.update_graph(z.zones,$("#graph-time").val())
+	})
 
-$("#graph").html(graph.no_data)
+	$("#graph-time").on("change",() => {
+		console.log($("#graph-time").val());
+		graph.update_graph(z.zones,$("#graph-time").val())
+	})
 
-z.update(leaflet_map)
+	$("#graph").html(graph.no_data)
 
+	z.update(leaflet_map,net)
+}
 
+setup()
 
 },{"./graph.js":847,"./lsoa.js":849,"./network.js":850,"jquery":603,"leaflet":604}],849:[function(require,module,exports){
 "use strict";
@@ -66973,7 +66980,7 @@ class LSOAZones {
     this.zones = new_zones;
   }
 
-  update_list() {
+  update_list(net) {
     $('#selected-list').empty();
     let zone_names = [];
 
@@ -66986,7 +66993,13 @@ class LSOAZones {
       $("#results").css("display", "block");
       $("#projected-regions").html(stringify_list(zone_names));
       $("#adaption-regions").html(stringify_list(zone_names));
-      network.buildTestGraph();
+      let tiles = [];
+
+      for (let z of this.zones) {
+        tiles.push(z.tile);
+      }
+
+      net.buildGraph(tiles);
     } else {
       $("#results").css("display", "none");
     }
@@ -66994,7 +67007,7 @@ class LSOAZones {
     graph.update_graph(this.zones, $("#graph-time").val());
   }
 
-  make_zone(feature, layer) {
+  make_zone(feature, layer, net) {
     let col = this.cols[Math.round(feature.properties.imdscore / this.score_adjust)];
 
     if (this.include(feature.properties.name)) {
@@ -67032,7 +67045,7 @@ class LSOAZones {
         this.remove(feature.properties.name);
       }
 
-      this.update_list();
+      this.update_list(net);
     });
     layer.bindTooltip(feature.properties.name + "<br>IMD Score: " + feature.properties.imdscore).addTo(this.map);
     layer.on('mouseover', function (e) {
@@ -67063,7 +67076,7 @@ class LSOAZones {
     }
   }
 
-  update(leaflet_map) {
+  update(leaflet_map, net) {
     let b = leaflet_map.getBounds();
     $.getJSON("/api/lsoa", {
       left: b._southWest.lng,
@@ -67074,7 +67087,7 @@ class LSOAZones {
     }, (data, status) => {
       L.geoJSON(data, {
         onEachFeature: (feature, layer) => {
-          this.make_zone(feature, layer);
+          this.make_zone(feature, layer, net);
         }
       }).addTo(this.layer_buffer[this.current_layer_buffer]);
       this.swap_buffers(leaflet_map);
@@ -67091,7 +67104,7 @@ exports.LSOAZones = LSOAZones;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.buildTestGraph = buildTestGraph;
+exports.Network = void 0;
 
 // Copyright (C) 2021 Then Try This
 //
@@ -67113,15 +67126,7 @@ const adapt = require("./adaptation_finder.js");
 
 const dagreD3 = require("dagre-d3");
 
-const d3 = require("d3"); // Create the input graph
-
-
-var g = new dagreD3.graphlib.Graph({
-  compound: true
-}).setGraph({}).setDefaultEdgeLabel(function () {
-  return {};
-});
-g.graph().rankdir = "LR";
+const d3 = require("d3");
 
 function fetchSvg(url) {
   return new Promise((resolve, reject) => {
@@ -67132,217 +67137,153 @@ function fetchSvg(url) {
 } // Cause -> Impact -> Adaptation
 
 
-async function buildTestGraph() {
-  let rain_svg = await fetchSvg("images/rain.svg");
-  let wind_svg = await fetchSvg("images/wind.svg");
-  let temp_svg = await fetchSvg("images/temp.svg");
-  let at_svg = await fetchSvg("images/active-transport.svg");
-  g.setNode("a", {
-    label: rain_svg,
-    labelType: 'svg'
-  });
-  g.setNode('b', {
-    labelType: 'html',
-    label: '<b>Increased precipitation</b> leads to decreased cycling.'
-  });
-  g.setEdge('a', 'b', {
-    labelType: "html",
-    label: "<span style='color:green'>+</span>"
-  });
-  g.nodes().forEach(function (v) {
-    var node = g.node(v); // Round the corners of the nodes
+class Network {
+  constructor() {
+    this.ad = new adapt.AdaptationFinder(adapt.the_causes, adapt.the_impacts, adapt.the_adaptations, adapt.the_trends);
+    this.existing_nodes = []; // Create the input graph
 
-    node.rx = node.ry = 5;
-  }); // Create the renderer
-
-  var render = new dagreD3.render(); // Set up an SVG group so that we can translate the final graph.
-
-  var svg = d3.select("#mapsvg"),
-      svgGroup = svg.append("g");
-  var svg = d3.select("#mapsvg"),
-      inner = d3.select("#mapsvg g"),
-      zoom = d3.zoom().on("zoom", function () {
-    inner.attr("transform", d3.event.transform);
-  });
-  svg.call(zoom); // Run the renderer. This is what draws the final graph.
-
-  render(d3.select("#mapsvg g"), g); // Center the graph
-
-  const {
-    width,
-    height
-  } = d3.select("#mapsvg g").node().getBBox();
-  console.log([width, height]);
-
-  if (width && height) {
-    let svgn = d3.select("#mapsvg").node();
-    const scale = Math.min(svgn.clientWidth / width, svgn.clientHeight / height) * 0.95;
-    zoom.scaleTo(svg, scale);
-    zoom.translateTo(svg, width / 2, height / 2);
+    this.graph = new dagreD3.graphlib.Graph({
+      compound: true
+    }).setGraph({}).setDefaultEdgeLabel(function () {
+      return {};
+    });
+    this.graph.graph().rankdir = "LR";
   }
 
-  console.log("network done...");
-}
+  async loadData() {
+    this.svg_cache = {};
 
-async function buildGraph2() {
-  let rain_svg = await fetchSvg("images/rain.svg");
-  let wind_svg = await fetchSvg("images/wind.svg");
-  let temp_svg = await fetchSvg("images/temp.svg");
-  let at_svg = await fetchSvg("images/active-transport.svg");
-  g.setNode("a", {
-    label: rain_svg,
-    labelType: 'svg'
-  });
-  g.setNode('b', {
-    labelType: 'html',
-    label: '<b>Increased precipitation</b> leads to decreased cycling.'
-  });
-  g.setNode("c", {
-    label: wind_svg,
-    labelType: 'svg'
-  });
-  g.setNode('d', {
-    labelType: 'html',
-    label: '<b>Increased wind speed</b> leads to decreased cycling. <br>More people use public transport networks.'
-  });
-  g.setNode("e", {
-    label: at_svg,
-    labelType: 'svg'
-  });
-  g.setNode('f', {
-    label: 'Something else'
-  });
-  g.setNode("g", {
-    label: temp_svg,
-    labelType: 'svg'
-  });
-  g.setNode('l', {
-    label: 'Adaptation X'
-  });
-  g.setNode("x", {
-    label: rain_svg.cloneNode(true),
-    labelType: 'svg'
-  });
-  g.setNode('h', {
-    labelType: 'html',
-    label: '<b>Increased wind speed</b> leads to decreased cycling. <br>More people use public transport networks.'
-  });
-  g.setNode("y", {
-    label: wind_svg.cloneNode(true),
-    labelType: 'svg'
-  });
-  g.setNode("i", {
-    label: at_svg.cloneNode(true),
-    labelType: 'svg'
-  });
-  g.setNode('j', {
-    labelType: 'html',
-    label: '<b>Increased wind speed</b> leads to decreased cycling. <br>More people use public transport networks.'
-  });
-  g.setNode("k", {
-    label: at_svg.cloneNode(true),
-    labelType: 'svg'
-  });
-  g.setEdge('a', 'b', {
-    labelType: "html",
-    label: "<span style='color:green'>+</span>"
-  });
-  g.setEdge('b', 'e', {
-    labelType: "html",
-    label: "<span style='color:red'>-</span>"
-  });
-  g.setEdge('c', 'd', {
-    labelType: "html",
-    label: "<span style='color:green'>+</span>"
-  });
-  g.setEdge('d', 'e', {
-    labelType: "html",
-    label: "<span style='color:red'>-</span>"
-  });
-  g.setEdge('e', 'f');
-  g.setEdge('f', 'g');
-  g.setEdge('g', 'f');
-  g.setEdge('x', 'h');
-  g.setEdge('h', 'i');
-  g.setEdge('i', 'f');
-  g.setEdge('y', 'j');
-  g.setEdge('j', 'k');
-  g.setEdge('k', 'f');
-  g.setEdge('f', 'l');
-  console.log(dagreD3.graphlib.json.write(g));
-  g.nodes().forEach(function (v) {
-    var node = g.node(v); // Round the corners of the nodes
-
-    node.rx = node.ry = 5;
-  }); // Create the renderer
-
-  var render = new dagreD3.render(); // Set up an SVG group so that we can translate the final graph.
-
-  var svg = d3.select("mapsvg"),
-      svgGroup = svg.append("g");
-  var svg = d3.select("#mapsvg"),
-      inner = d3.select("#mapsvg g"),
-      zoom = d3.zoom().on("zoom", function () {
-    inner.attr("transform", d3.event.transform);
-  });
-  svg.call(zoom); // Run the renderer. This is what draws the final graph.
-
-  render(d3.select("svg g"), g); // Center the graph
-
-  const {
-    width,
-    height
-  } = d3.select("svg g").node().getBBox();
-  console.log([width, height]);
-
-  if (width && height) {
-    let svgn = d3.select("#mapsvg").node();
-    const scale = Math.min(svgn.clientWidth / width, svgn.clientHeight / height) * 0.95;
-    zoom.scaleTo(svg, scale);
-    zoom.translateTo(svg, width / 2, height / 2);
+    for (let c of Object.keys(this.ad.causes)) {
+      let cause = this.ad.causes[c];
+      this.svg_cache[cause.image] = await fetchSvg(cause.image);
+    }
   }
-} ///////////////////
 
+  addCause(cause_id) {
+    let cause_name = "cause" + cause_id;
+    let cause = this.ad.causes[cause_id];
 
-let ad = new adapt.AdaptationFinder(adapt.the_trends);
+    if (!this.existing_nodes.includes(cause_name)) {
+      this.graph.setNode(cause_name, {
+        label: this.svg_cache[cause.image],
+        labelType: 'svg'
+      });
+      this.existing_nodes.push(cause_name);
+    }
 
-const load = async () => {
-  await ad.loadVariables($("#search-data").val(), [4, 5, 6], 2021, parseInt($("#search-year").val()));
-  console.log("loading complete");
-  let active = ad.calcActiveTrends();
-  console.log(active);
-  $("#results").css("display", "block");
-  $("#results-list").empty();
+    return cause;
+  }
 
-  for (let t of active) {
-    $("#results-list").append($("<h2>").html(t.variable_name + " " + t.operator));
-    $("#results-list").append($("<p>").html("Impacts found for " + t.sector + "/" + t.subsector));
-    let el = $("#results-list").append($("<ul>"));
+  addImpact(impact_id) {
+    let impact_name = "impact" + impact_id;
+    let impact = this.ad.impacts[impact_id];
 
-    for (let impact of t.impacts) {
-      let refs = [];
-      let c = 1;
+    if (!this.existing_nodes.includes(impact_name)) {
+      this.graph.setNode(impact_name, {
+        label: "<b>" + impact.type + "</b><br>" + impact.description,
+        labelType: 'html'
+      });
+      this.existing_nodes.push(impact_name);
+    }
 
-      for (let ref of impact.references) {
-        refs.push("<a href='" + ref + "'>REF#" + c + "</a>");
-        c += 1;
+    return impact;
+  }
+
+  addToCauseToImpact(cause_id, impact_id) {
+    let cause = this.addCause(cause_id);
+    let impact = this.addImpact(impact_id);
+    let label = "<span style='color:green'>+</span>";
+
+    if (cause.operator == "decrease" || cause.operator == "less-than") {
+      label = "<span style='color:red'>-</span>";
+    }
+
+    this.graph.setEdge("cause" + cause_id, "impact" + impact_id, {
+      labelType: "html",
+      label: label
+    });
+  }
+
+  async buildGraph(tiles) {
+    let active_trends = await this.ad.calcActiveTrends(tiles, 2, 9);
+    this.existing_nodes = [];
+
+    for (let trend of active_trends) {
+      let cause_id = trend.cause;
+
+      for (let impact_id of trend.impacts) {
+        this.addToCauseToImpact(cause_id, impact_id);
       }
-
-      el.append($("<li>").html("<b>" + impact.type + "</b> " + impact.description + " " + refs.join(", ")));
     }
 
-    $("#results-list").append($("<p>").html("Adaptations"));
-    el = $("#results-list").append($("<ul>"));
+    console.log(dagreD3.graphlib.json.write(this.graph));
+    this.graph.nodes().forEach(v => {
+      var node = this.graph.node(v); // Round the corners of the nodes
 
-    for (let adaptation of t.adaptations) {
-      el.append($("<li>").html(adaptation.description));
+      node.rx = node.ry = 5;
+    }); // Create the renderer
+
+    var render = new dagreD3.render(); // Set up an SVG group so that we can translate the final graph.
+
+    var svg = d3.select("#mapsvg"),
+        svgGroup = svg.append("g");
+    var svg = d3.select("#mapsvg"),
+        inner = d3.select("#mapsvg g"),
+        zoom = d3.zoom().on("zoom", function () {
+      inner.attr("transform", d3.event.transform);
+    });
+    svg.call(zoom); // Run the renderer. This is what draws the final graph.
+
+    render(d3.select("#mapsvg g"), this.graph); // Center the graph
+
+    const {
+      width,
+      height
+    } = d3.select("#mapsvg g").node().getBBox();
+    console.log([width, height]);
+
+    if (width && height) {
+      let svgn = d3.select("#mapsvg").node();
+      const scale = Math.min(svgn.clientWidth / width, svgn.clientHeight / height) * 0.95;
+      zoom.scaleTo(svg, scale);
+      zoom.translateTo(svg, width / 2, height / 2);
     }
   }
-};
+
+}
+/*
+const load = async () => {
+	
+	$("#results").css("display","block")
+	$("#results-list").empty();
+	for (let t of active) {
+		$("#results-list").append($("<h2>").html(t.variable_name+" "+t.operator))		
+		$("#results-list").append($("<p>").html("Impacts found for "+t.sector+"/"+t.subsector))		
+		let el = $("#results-list").append($("<ul>"))
+		for (let impact of t.impacts) {
+			let refs = []
+			let c = 1
+			for (let ref of impact.references) {
+				refs.push("<a href='"+ref+"'>REF#"+c+"</a>")
+				c+=1
+			}
+			el.append($("<li>").html("<b>"+impact.type+"</b> "+impact.description+" "+refs.join(", ")))
+		}
+		$("#results-list").append($("<p>").html("Adaptations"))		
+		el = $("#results-list").append($("<ul>"))
+		for (let adaptation of t.adaptations) {
+			el.append($("<li>").html(adaptation.description))
+		}
+		
+	}}
 
 $("#search").click(() => {
-  load();
-});
+	load()
+})
+*/
+
+
+exports.Network = Network;
 
 },{"./adaptation_finder.js":846,"d3":524,"dagre-d3":525,"jquery":603}],851:[function(require,module,exports){
 "use strict";
@@ -67469,5 +67410,58 @@ class SVG {
 }
 
 exports.SVG = SVG;
+
+},{}],852:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.calculate_decades = calculate_decades;
+
+// Copyright (C) 2021 Then Try This
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+function arr2avg(arr) {
+  let ret = 0;
+
+  for (let v of arr) {
+    ret += v;
+  }
+
+  return ret / arr.length;
+}
+
+function calculate_decades(graph_data) {
+  let decades = {}; // collect values for each decade
+
+  for (let year of graph_data) {
+    let dec = Math.floor(year.year % 2000 / 10);
+
+    if (decades[dec] == undefined) {
+      decades[dec] = [year.avg];
+    } else {
+      decades[dec].push(year.avg);
+    }
+  } // average them together
+
+
+  for (let dec of Object.keys(decades)) {
+    decades[dec] = arr2avg(decades[dec]);
+  }
+
+  return decades;
+}
 
 },{}]},{},[848]);

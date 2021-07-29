@@ -103,7 +103,7 @@ class LSOAZones {
 		this.zones=new_zones;
 	}
 
-	update_list() {
+	update_list(net) {
 		$('#selected-list').empty()
 		let zone_names=[]
 		for (let zone of this.zones) {
@@ -115,7 +115,11 @@ class LSOAZones {
 			$("#results").css("display","block")			
 			$("#projected-regions").html(stringify_list(zone_names))
 			$("#adaption-regions").html(stringify_list(zone_names))
-			network.buildTestGraph();
+			let tiles = []
+			for (let z of this.zones) {
+				tiles.push(z.tile)
+			}
+			net.buildGraph(tiles);
 		} else {
 			$("#results").css("display","none")
 		}
@@ -123,7 +127,7 @@ class LSOAZones {
 		graph.update_graph(this.zones,$("#graph-time").val())
 	}
 
-	make_zone(feature,layer) {		
+	make_zone(feature,layer,net) {		
 		let col = this.cols[Math.round(feature.properties.imdscore/this.score_adjust)]
 
 		if (this.include(feature.properties.name)) {
@@ -161,7 +165,7 @@ class LSOAZones {
 				});
 				this.remove(feature.properties.name);
 			}
-			this.update_list();
+			this.update_list(net);
 		});
 
 		layer.bindTooltip(feature.properties.name+"<br>IMD Score: "+feature.properties.imdscore).addTo(this.map);
@@ -193,7 +197,7 @@ class LSOAZones {
 		}
 	}
 	
-	update(leaflet_map) {
+	update(leaflet_map,net) {
 		let b = leaflet_map.getBounds();
 		
 		$.getJSON(
@@ -208,7 +212,7 @@ class LSOAZones {
 			(data,status) => {
 				L.geoJSON(data, {
 					onEachFeature: (feature,layer) => {
-						this.make_zone(feature,layer)
+						this.make_zone(feature,layer,net)
 					}
 				}).addTo(this.layer_buffer[this.current_layer_buffer]);
 				

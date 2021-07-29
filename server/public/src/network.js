@@ -18,13 +18,6 @@ const adapt = require("./adaptation_finder.js")
 const dagreD3 = require("dagre-d3")
 const d3 = require("d3")
 
-// Create the input graph
-var g = new dagreD3.graphlib.Graph({compound:true})
-	.setGraph({})
-	.setDefaultEdgeLabel(function() { return {}; });
-
-g.graph().rankdir = "LR"
-
 function fetchSvg(url) {
     return new Promise((resolve, reject) => {
 		$.get(url, svg => {
@@ -35,147 +28,127 @@ function fetchSvg(url) {
 
 // Cause -> Impact -> Adaptation
 
-async function buildTestGraph() {
-	let rain_svg = await fetchSvg("images/rain.svg")
-	let wind_svg = await fetchSvg("images/wind.svg")
-	let temp_svg = await fetchSvg("images/temp.svg")
-	let at_svg = await fetchSvg("images/active-transport.svg")
+class Network {
 
-	g.setNode("a", {label: rain_svg, labelType: 'svg'});
-	g.setNode('b', {labelType: 'html', label: '<b>Increased precipitation</b> leads to decreased cycling.'});
+	constructor() {
+		this.ad = new adapt.AdaptationFinder(
+			adapt.the_causes,
+			adapt.the_impacts,
+			adapt.the_adaptations,
+			adapt.the_trends
+		)
 
- 	g.setEdge('a', 'b', { labelType: "html", label: "<span style='color:green'>+</span>"});
+		this.existing_nodes=[]
 
-	g.nodes().forEach(function(v) {
-		var node = g.node(v);
-		// Round the corners of the nodes
-		node.rx = node.ry = 5;
-	});
-
-	// Create the renderer
-	var render = new dagreD3.render();
-
-	// Set up an SVG group so that we can translate the final graph.
-	var svg = d3.select("#mapsvg"),
-		svgGroup = svg.append("g");
-
-	var svg = d3.select("#mapsvg"),
-		inner = d3.select("#mapsvg g"),
-		zoom = d3.zoom().on("zoom", function() {
-			inner.attr("transform", d3.event.transform);
-		});
-	svg.call(zoom);
-
-	// Run the renderer. This is what draws the final graph.
-	render(d3.select("#mapsvg g"), g);
-
-	// Center the graph
-
-    const { width, height } = d3.select("#mapsvg g").node().getBBox()
-    console.log([width,height])
-    if (width && height) {
-		let svgn=d3.select("#mapsvg").node()
-		const scale = Math.min(svgn.clientWidth / width, svgn.clientHeight / height) * 0.95
-		zoom.scaleTo(svg, scale)
-		zoom.translateTo(svg, width / 2, height / 2)
+		// Create the input graph
+		this.graph = new dagreD3.graphlib.Graph({compound:true})
+			.setGraph({})
+			.setDefaultEdgeLabel(function() { return {}; });
+		
+		this.graph.graph().rankdir = "LR"
 	}
-	console.log("network done...")
-
-}
-
-async function buildGraph2() {
-	let rain_svg = await fetchSvg("images/rain.svg")
-	let wind_svg = await fetchSvg("images/wind.svg")
-	let temp_svg = await fetchSvg("images/temp.svg")
-	let at_svg = await fetchSvg("images/active-transport.svg")
-
-	g.setNode("a", {label: rain_svg, labelType: 'svg'});
-	g.setNode('b', {labelType: 'html', label: '<b>Increased precipitation</b> leads to decreased cycling.'});
-
-	g.setNode("c", {label: wind_svg, labelType: 'svg'});
-	g.setNode('d', {labelType: 'html', label: '<b>Increased wind speed</b> leads to decreased cycling. <br>More people use public transport networks.'});
-	g.setNode("e", {label: at_svg, labelType: 'svg'});
-	g.setNode('f', {label: 'Something else'});
-	g.setNode("g", {label: temp_svg, labelType: 'svg'});
-	g.setNode('l', {label: 'Adaptation X'});
-
-	g.setNode("x", {label: rain_svg.cloneNode(true), labelType: 'svg'});
-	g.setNode('h', {labelType: 'html', label: '<b>Increased wind speed</b> leads to decreased cycling. <br>More people use public transport networks.'});
-	g.setNode("y", {label: wind_svg.cloneNode(true), labelType: 'svg'});
-
-	g.setNode("i", {label: at_svg.cloneNode(true), labelType: 'svg'});
-	g.setNode('j', {labelType: 'html', label: '<b>Increased wind speed</b> leads to decreased cycling. <br>More people use public transport networks.'});
-	g.setNode("k", {label: at_svg.cloneNode(true), labelType: 'svg'});
 	
-	g.setEdge('a', 'b', { labelType: "html", label: "<span style='color:green'>+</span>"});
-	g.setEdge('b', 'e', { labelType: "html", label: "<span style='color:red'>-</span>"});
-	g.setEdge('c', 'd', { labelType: "html", label: "<span style='color:green'>+</span>"});
-	g.setEdge('d', 'e', { labelType: "html", label: "<span style='color:red'>-</span>"});
-	g.setEdge('e', 'f');
-	g.setEdge('f', 'g');
-	g.setEdge('g', 'f');
-
-	g.setEdge('x', 'h');
-	g.setEdge('h', 'i');
-	g.setEdge('i', 'f');
-
-	g.setEdge('y', 'j');
-	g.setEdge('j', 'k');
-	g.setEdge('k', 'f');
-
-	g.setEdge('f', 'l');
-
-	console.log(dagreD3.graphlib.json.write(g))
-
-	
-	g.nodes().forEach(function(v) {
-		var node = g.node(v);
-		// Round the corners of the nodes
-		node.rx = node.ry = 5;
-	});
-
-	// Create the renderer
-	var render = new dagreD3.render();
-
-	// Set up an SVG group so that we can translate the final graph.
-	var svg = d3.select("mapsvg"),
-		svgGroup = svg.append("g");
-
-	var svg = d3.select("#mapsvg"),
-		inner = d3.select("#mapsvg g"),
-		zoom = d3.zoom().on("zoom", function() {
-			inner.attr("transform", d3.event.transform);
-		});
-	svg.call(zoom);
-
-	// Run the renderer. This is what draws the final graph.
-	render(d3.select("svg g"), g);
-
-	// Center the graph
-    const { width, height } = d3.select("svg g").node().getBBox()
-    console.log([width,height])
-    if (width && height) {
-		let svgn=d3.select("#mapsvg").node()
-		const scale = Math.min(svgn.clientWidth / width, svgn.clientHeight / height) * 0.95
-		zoom.scaleTo(svg, scale)
-		zoom.translateTo(svg, width / 2, height / 2)
+	async loadData() {
+		this.svg_cache = {}
+		for (let c of Object.keys(this.ad.causes)) {
+			let cause=this.ad.causes[c]
+			this.svg_cache[cause.image]=await fetchSvg(cause.image)
+		}
 	}
 
+	addCause(cause_id) {
+		let cause_name = "cause"+cause_id
+		let cause = this.ad.causes[cause_id]			
+		if (!this.existing_nodes.includes(cause_name)) {
+			this.graph.setNode(cause_name, {
+				label: this.svg_cache[cause.image],
+				labelType: 'svg'
+			});
+			this.existing_nodes.push(cause_name)
+		}
+		return cause
+	}
+
+	addImpact(impact_id) {
+		let impact_name = "impact"+impact_id
+		let impact = this.ad.impacts[impact_id]			
+		if (!this.existing_nodes.includes(impact_name)) {
+			this.graph.setNode(impact_name, {
+				label: "<b>"+impact.type+"</b><br>"+impact.description,
+				labelType: 'html'
+			});
+			this.existing_nodes.push(impact_name)
+		}
+		return impact
+	}
+	
+	addToCauseToImpact(cause_id,impact_id) {
+		let cause = this.addCause(cause_id)
+		let impact = this.addImpact(impact_id)
+
+		let label="<span style='color:green'>+</span>"
+		if (cause.operator == "decrease" ||
+			cause.operator == "less-than") {
+			label="<span style='color:red'>-</span>"			
+		}
+		
+		this.graph.setEdge("cause"+cause_id, "impact"+impact_id, {
+			labelType: "html",
+			label: label
+		});
+	}
+	
+	async buildGraph(tiles) {
+		let active_trends = await this.ad.calcActiveTrends(tiles,2,9)
+		this.existing_nodes=[]
+				
+		for (let trend of active_trends) {
+			let cause_id = trend.cause;
+			for (let impact_id of trend.impacts) {
+				this.addToCauseToImpact(cause_id,impact_id)
+			}
+		}
+
+		console.log(dagreD3.graphlib.json.write(this.graph))
+	
+		this.graph.nodes().forEach(v => {
+			var node = this.graph.node(v);
+			// Round the corners of the nodes
+			node.rx = node.ry = 5;
+		});
+		
+		// Create the renderer
+		var render = new dagreD3.render();
+		
+		// Set up an SVG group so that we can translate the final graph.
+		var svg = d3.select("#mapsvg"),
+			svgGroup = svg.append("g");
+		
+		var svg = d3.select("#mapsvg"),
+			inner = d3.select("#mapsvg g"),
+			zoom = d3.zoom().on("zoom", function() {
+				inner.attr("transform", d3.event.transform);
+			});
+		svg.call(zoom);
+		
+		// Run the renderer. This is what draws the final graph.
+		render(d3.select("#mapsvg g"), this.graph);
+		
+		// Center the graph
+		const { width, height } = d3.select("#mapsvg g").node().getBBox()
+		console.log([width,height])
+		if (width && height) {
+			let svgn=d3.select("#mapsvg").node()
+			const scale = Math.min(svgn.clientWidth / width, svgn.clientHeight / height) * 0.95
+			zoom.scaleTo(svg, scale)
+			zoom.translateTo(svg, width / 2, height / 2)
+		}
+		
+	}
 }
 
-///////////////////
-
-let ad = new adapt.AdaptationFinder(adapt.the_trends)
-
+/*
 const load = async () => {
-	await ad.loadVariables($("#search-data").val(),
-						   [4,5,6],
-						   2021,
-						   parseInt($("#search-year").val()))
-	console.log("loading complete")
-	let active = ad.calcActiveTrends()
-
-	console.log(active)
 	
 	$("#results").css("display","block")
 	$("#results-list").empty();
@@ -203,5 +176,6 @@ const load = async () => {
 $("#search").click(() => {
 	load()
 })
+*/
 
-export { buildTestGraph }
+export { Network }

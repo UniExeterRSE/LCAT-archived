@@ -15,14 +15,7 @@
 
 const $ = require("jquery")
 const svgUtil = require("./svg.js")
-
-function arr2avg(arr) {
-	let ret=0;
-	for (let v of arr) {
-		ret+=v;
-	}
-	return ret/arr.length
-}
+const utils = require("./utils.js")
 
 const no_data = `<svg viewBox="0 0 240 80" xmlns="http://www.w3.org/2000/svg">
   <style>
@@ -97,27 +90,6 @@ function render_graph(decades_arr,scale) {
 	return svg
 }
 
-function calculate_decades(graph_data) {
-	let decades = {};
-
-	// collect values for each decade
-	for (let year of graph_data) {
-		let dec = Math.floor((year.year%2000)/10);
-		if (decades[dec]==undefined) {
-			decades[dec]=[year.avg]
-		} else {
-			decades[dec].push(year.avg)
-		}
-	}
-
-	// average them together
-	for (let dec of Object.keys(decades)) {
-		decades[dec]=arr2avg(decades[dec])
-	}
-
-	return decades
-}
-
 function calc_scale(graph_data,height) {
 	// get the min/max for eventual graph scaling
 	let minimum = 999999;
@@ -133,7 +105,7 @@ function calc_scale(graph_data,height) {
 }
 
 function redraw_graph(graph_data) {
-	let decades = calculate_decades(graph_data)
+	let decades = utils.calculate_decades(graph_data)
 
 	$("#graph").empty();
 	$("#graph").append(render_graph([decades],
@@ -141,8 +113,8 @@ function redraw_graph(graph_data) {
 }
 
 function redraw_graph_seasonal(winter_data,summer_data) {
-	let winter_decades = calculate_decades(winter_data)
-	let summer_decades = calculate_decades(summer_data)
+	let winter_decades = utils.calculate_decades(winter_data)
+	let summer_decades = utils.calculate_decades(summer_data)
 		
 	$("#graph").empty();
 	$("#graph").append(render_graph([winter_decades,summer_decades],
@@ -163,8 +135,6 @@ function update_graph(lsoa_zones,time) {
 		return
 	}
 
-	console.log(time);
-	
 	if (time=="yearly") {
 		$.getJSON("/api/future",
 				  {

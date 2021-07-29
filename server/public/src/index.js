@@ -31,23 +31,28 @@ var baseMaps = {
 L.control.layers(baseMaps).addTo(leaflet_map);
 L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}).addTo(leaflet_map);
 
-const z = new zones.LSOAZones(leaflet_map)
+async function setup() {
+	const z = new zones.LSOAZones(leaflet_map)
+	const net = new network.Network()
 
-leaflet_map.on("moveend", () => {
-	z.update(leaflet_map);
-});
+	await net.loadData()
 
-$("#graph-type").on("change",() => {
-	graph.update_graph(z.zones,$("#graph-time").val())
-})
+	leaflet_map.on("moveend", () => {
+		z.update(leaflet_map,net);
+	});
 
-$("#graph-time").on("change",() => {
-	console.log($("#graph-time").val());
-	graph.update_graph(z.zones,$("#graph-time").val())
-})
+	$("#graph-type").on("change",() => {
+		graph.update_graph(z.zones,$("#graph-time").val())
+	})
 
-$("#graph").html(graph.no_data)
+	$("#graph-time").on("change",() => {
+		console.log($("#graph-time").val());
+		graph.update_graph(z.zones,$("#graph-time").val())
+	})
 
-z.update(leaflet_map)
+	$("#graph").html(graph.no_data)
 
+	z.update(leaflet_map,net)
+}
 
+setup()
