@@ -39,13 +39,14 @@ class Network {
 		)
 
 		this.existing_nodes=[]
-
-		// Create the input graph
-		this.graph = new dagreD3.graphlib.Graph({compound:true})
-			.setGraph({})
-			.setDefaultEdgeLabel(function() { return {}; });
-		
-		this.graph.graph().rankdir = "LR"
+		this.style = "simple"
+		this.render = new dagreD3.render();
+		let svg = d3.select("#mapsvg")
+		let inner = d3.select("#mapsvg g")
+		this.zoom = d3.zoom().on("zoom", function() {
+			inner.attr("transform", d3.event.transform);
+		});
+		svg.call(this.zoom);
 	}
 	
 	async loadData() {
@@ -61,7 +62,7 @@ class Network {
 		let cause = this.ad.causes[cause_id]			
 		if (!this.existing_nodes.includes(cause_name)) {
 			this.graph.setNode(cause_name, {
-				label: `<div class="net-impact">
+				label: `<div class="net-node-simple">
                           <img src="`+cause.image+`"><br> 
 			           `+cause.description+`
 		                </div>`,
@@ -76,20 +77,34 @@ class Network {
 		let impact_name = "impact"+impact_id
 		let impact = this.ad.impacts[impact_id]			
 
-		let refs = "<ol>"		
-		for (let ref of impact.references) {
-			refs+="<li><a href="+ref+">"+ref+"</a></li> "
-		}
-		refs+="</ol>"
-		
 		if (!this.existing_nodes.includes(impact_name)) {
-			this.graph.setNode(impact_name, {
-				label: `<div class="net-impact">
-                          <img src="`+impact.image+`"><br> 
-			           `+impact.short_description+`
-		                </div>`,
-				labelType: 'html'
-			});
+			if (this.style=="simple") {
+				this.graph.setNode(impact_name, {
+					label: `<div class="net-node-simple">
+                              <img src="`+impact.image+`"><br> 
+                              `+impact.short_description+`
+		                     </div>`,
+					labelType: 'html'
+				});
+			} else {
+				let refs = "<ol>"		
+				for (let ref of impact.references) {
+					refs+="<li><a href="+ref+">"+ref+"</a></li> "
+				}
+				refs+="</ol>"
+		
+				this.graph.setNode(impact_name, {
+					label: `<div class="net-node-complex">
+                              <div class="net-node-image-holder">
+                                 <img src="`+impact.image+`"><br>
+                              </div> 
+                              <b>Impact: `+impact.type+`</b><br>
+                              `+impact.description+`<br>
+                              `+refs+`
+		                     </div>`,
+					labelType: 'html'
+				});
+			}
 			this.existing_nodes.push(impact_name)
 		}
 		return impact
@@ -99,22 +114,29 @@ class Network {
 		let adapt_name = "adapt"+adapt_id
 		let adapt = this.ad.adaptations[adapt_id]			
 		if (!this.existing_nodes.includes(adapt_name)) {
-			this.graph.setNode(adapt_name, {
-				label: adapt.short_description,
-				labelType: 'html'
-			});
-			this.existing_nodes.push(adapt_name)
-
-			// add the examples
-			/*let n=0
-			for (let example of adapt.examples) {				
-				this.graph.setNode(adapt_name+n, {
-					label: example,
+			if (this.style=="simple") {
+				this.graph.setNode(adapt_name, {
+					label: adapt.short_description,
 					labelType: 'html'
 				});
-				this.graph.setEdge(adapt_name, adapt_name+n)
-				n+=1
-			}*/
+			} else {
+				// add the examples
+				let exs=""
+				if (adapt.examples.length>0) {
+					exs+="<br><ol>"
+					for (let example of adapt.examples) {				
+						exs+="<li>"+example+"</li>"
+					}
+					exs+="</ol>"
+				}
+
+				this.graph.setNode(adapt_name, {
+					label: `<b>Adaption</b><br>`+adapt.description+exs,
+					labelType: 'html'
+				});
+			}
+			this.existing_nodes.push(adapt_name)
+
 		}
 		return adapt
 	}
@@ -150,7 +172,19 @@ class Network {
 		this.graph.setEdge("impact"+impact_id,"adapt"+adaptation_id);
 	}
 	
-	async buildGraph(tiles) {
+	async buildGraph(style,tiles) {
+		let svg = d3.select("#mapsvg")
+		svg.call(this.zoom.transform,d3.zoomIdentity)
+
+		this.graph = new dagreD3.graphlib.Graph({compound:true})
+			.setGraph({})
+			.setDefaultEdgeLabel(function() { return {}; });
+		
+		this.graph.graph().rankdir = "LR"		
+		this.style=style
+
+		console.log("making "+style)
+		
 		let active_trends = await this.ad.calcActiveTrends(tiles,2,9)
 		this.existing_nodes=[]
 
@@ -161,9 +195,11 @@ class Network {
 			for (let impact_id of trend.impacts) {
  				this.addToCauseToImpact(cause_id,impact_id)
 				this.addToImpactToSecondary(impact_id)
-				/*for (let adapt_id of trend.adaptations) {
-					this.addToImpactToAdaptation(impact_id, adapt_id)
-				}*/
+				if (this.style=="complex") {
+					for (let adapt_id of trend.adaptations) {
+						this.addToImpactToAdaptation(impact_id, adapt_id)
+					}
+				}
 			}
 		}
 
@@ -175,22 +211,8 @@ class Network {
 			node.rx = node.ry = 5;
 		});
 		
-		// Create the renderer
-		var render = new dagreD3.render();
-		
-		// Set up an SVG group so that we can translate the final graph.
-		var svg = d3.select("#mapsvg"),
-			svgGroup = svg.append("g");
-		
-		var svg = d3.select("#mapsvg"),
-			inner = d3.select("#mapsvg g"),
-			zoom = d3.zoom().on("zoom", function() {
-				inner.attr("transform", d3.event.transform);
-			});
-		svg.call(zoom);
-		
 		// Run the renderer. This is what draws the final graph.
-		render(d3.select("#mapsvg g"), this.graph);
+		this.render(d3.select("#mapsvg g"), this.graph);
 		
 		// Center the graph
 		const { width, height } = d3.select("#mapsvg g").node().getBBox()
@@ -198,42 +220,11 @@ class Network {
 		if (width && height) {
 			let svgn=d3.select("#mapsvg").node()
 			const scale = Math.min(svgn.clientWidth / width, svgn.clientHeight / height) * 0.95
-			zoom.scaleTo(svg, scale)
-			zoom.translateTo(svg, width / 2, height / 2)
+			this.zoom.scaleTo(svg, scale)
+			this.zoom.translateTo(svg, width / 2, height / 2)
 		}
 		
 	}
 }
-
-/*
-const load = async () => {
-	
-	$("#results").css("display","block")
-	$("#results-list").empty();
-	for (let t of active) {
-		$("#results-list").append($("<h2>").html(t.variable_name+" "+t.operator))		
-		$("#results-list").append($("<p>").html("Impacts found for "+t.sector+"/"+t.subsector))		
-		let el = $("#results-list").append($("<ul>"))
-		for (let impact of t.impacts) {
-			let refs = []
-			let c = 1
-			for (let ref of impact.references) {
-				refs.push("<a href='"+ref+"'>REF#"+c+"</a>")
-				c+=1
-			}
-			el.append($("<li>").html("<b>"+impact.type+"</b> "+impact.description+" "+refs.join(", ")))
-		}
-		$("#results-list").append($("<p>").html("Adaptations"))		
-		el = $("#results-list").append($("<ul>"))
-		for (let adaptation of t.adaptations) {
-			el.append($("<li>").html(adaptation.description))
-		}
-		
-	}}
-
-$("#search").click(() => {
-	load()
-})
-*/
 
 export { Network }

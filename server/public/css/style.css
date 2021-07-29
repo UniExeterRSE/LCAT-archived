@@ -223,9 +223,26 @@ g span {
   fill: none;
 }
 
-.net-impact {
+.net-node-simple {
 	width: 180px;
 	height: 150px;
 	text-align: center;
 }
 
+.net-node-complex {
+	width: 300px;
+	height: 300px;
+	text-align: center;
+	white-space: normal;
+	text-align: left;
+}
+
+.net-node-complex ol {
+	font-size: 0.75em;
+	padding-inline-start: 20px;
+}
+
+.net-node-image-holder {
+	width: 100%;
+	text-align: center;	
+}

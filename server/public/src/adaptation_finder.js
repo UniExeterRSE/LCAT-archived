@@ -72,7 +72,11 @@ class Impact {
 class Adaptation {
 	constructor (short_description,description,examples) {
 		this.short_description=short_description
-		this.description=description
+		if (description=="") {
+			this.description=short_description
+		} else {
+			this.description=description
+		}
 		this.examples=examples		
 	}
 }
