@@ -17,11 +17,7 @@ const $ = require("jquery")
 const L = require("leaflet")
 const zones = require("./lsoa.js")
 const graph = require("./graph.js")
-const adapt = require("./adaptation_finder.js")
-
-/*const dagreD3 = require("dagre-d3")
-const d3 = require("d3")
-const graphlibDot = require("graphlib-dot")*/
+const network = require("./network.js")
 
 var leaflet_map = L.map('leaflet-map').setView([50.26123046875, -5.052745342254639], 10);
 
@@ -55,89 +51,3 @@ $("#graph").html(graph.no_data)
 z.update(leaflet_map)
 
 
-let ad = new adapt.AdaptationFinder(adapt.the_trends)
-
-const load = async () => {
-	await ad.loadVariables($("#search-data").val(),
-						   [4,5,6],
-						   2021,
-						   parseInt($("#search-year").val()))
-	console.log("loading complete")
-	let active = ad.calcActiveTrends()
-	$("#results").css("display","block")
-	$("#results-list").empty();
-	for (let t of active) {
-		$("#results-list").append($("<h2>").html(t.variable_name+" "+t.operator))		
-		$("#results-list").append($("<p>").html("Impacts found for "+t.sector+"/"+t.subsector))		
-		let el = $("#results-list").append($("<ul>"))
-		for (let impact of t.impacts) {
-			let refs = []
-			let c = 1
-			for (let ref of impact.references) {
-				refs.push("<a href='"+ref+"'>REF#"+c+"</a>")
-				c+=1
-			}
-			el.append($("<li>").html("<b>"+impact.type+"</b> "+impact.description+" "+refs.join(", ")))
-		}
-		$("#results-list").append($("<p>").html("Adaptations"))		
-		el = $("#results-list").append($("<ul>"))
-		for (let adaptation of t.adaptations) {
-			el.append($("<li>").html(adaptation.description))
-		}
-		
-	}}
-
-$("#search").click(() => {
-	load()
-})
-
-/*
-var svg = d3.select("#mapsvg"),
-    inner = d3.select("#mapsvg g"),
-    zoom = d3.zoom().on("zoom", function() {
-	inner.attr("transform", d3.event.transform);
-    });
-svg.call(zoom);
-
-
-
-var render = dagreD3.render();
-var g;
-function draw() {
-    try {
-		g = graphlibDot.read(`digraph { 
-1 [label="one"]
-2 [label="two"]
-1 -> 2
-}`);
-    } catch (e) {
-		throw e;
-    }
-    if (!g.graph().hasOwnProperty("marginx") &&
-        !g.graph().hasOwnProperty("marginy")) {
-		g.graph().marginx = 20;
-		g.graph().marginy = 20;
-    }
-	
-    g.graph().rankdir = "LR";
-    
-    g.graph().transition = function(selection) {
-		return selection.transition().duration(500);
-    };
-    
-    d3.select("#mapsvg g").call(render, g);
-	   
-    const { width, height } = d3.select("svg g").node().getBBox()
-    console.log([width,height])
-    if (width && height) {
-	let svgn=d3.select("#mapsvg").node()
-		const scale = Math.min(svgn.clientWidth / width, svgn.clientHeight / height) * 0.95
-		zoom.scaleTo(svg, scale)
-		zoom.translateTo(svg, width / 2, height / 2)
-    }
-}
-
-
-
-draw()
-*/
