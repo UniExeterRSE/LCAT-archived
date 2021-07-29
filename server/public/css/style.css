@@ -222,3 +222,10 @@ g span {
   stroke-width: 1.5px;
   fill: none;
 }
+
+.net-impact {
+	width: 180px;
+	height: 150px;
+	text-align: center;
+}
+

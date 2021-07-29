@@ -60,7 +60,7 @@ class LSOAZones {
 		this.other_layer_buffer=1;
 
 		let cols = colormap({
-			colormap: 'cool',
+			colormap: 'winter',
 			nshades: 100,
 			format: 'hex',
 			alpha: 0.5

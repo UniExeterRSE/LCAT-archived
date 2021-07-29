@@ -13,19 +13,20 @@ class ClimateVariable {
 
 // a cause is a trigger that can be set off by different variables
 class Cause {
-	constructor (table,variable_name,operator,threshold) {		
+	constructor (description,table,variable_name,operator,threshold) {		
+		this.description=description
 		this.table=table
 		this.variable_name=variable_name
 		this.operator=operator
 		this.threshold=threshold
 		switch(variable_name) {
 		case "mean_windspeed": this.image="images/wind.svg"; break;
-		case "mean_temperature": this.image="images/temp.svg"; break; 
+		case "mean_temp": this.image="images/temp.svg"; break; 
 		case "daily_precip": this.image="images/rain.svg"; break;
 		default: console.log("no svg for "+variable_name)
 		}
 	}
-
+	
 	isActive(variable) {
 		if (variable.variable_name == this.variable_name &&
 			variable.table == this.table) {			
@@ -58,15 +59,19 @@ class Cause {
 }
 
 class Impact {
-	constructor (type,description,references) {
+	constructor (type,short_description,description,references,image,secondary_impact) {
 		this.type=type
+		this.short_description=short_description
 		this.description=description
 		this.references=references
+		this.image=image
+		this.secondary_impact=secondary_impact
 	}
 }
 
 class Adaptation {
-	constructor (description,examples) {
+	constructor (short_description,description,examples) {
+		this.short_description=short_description
 		this.description=description
 		this.examples=examples		
 	}
@@ -84,20 +89,20 @@ class Trend {
 }
 
 class AdaptationFinder {
-	constructor (causes,impacts,adaptions,trends) {
+	constructor (causes,impacts,adaptations,trends) {
 		this.causes=causes
 		this.impacts=impacts
-		this.adaptions=adaptions
+		this.adaptations=adaptations
 		this.trends=trends
 		this.variables = []
 		this.tables = [
-//			"future_year_avg",
+			"future_year_avg",
 			"future_summer_avg",
 			"future_winter_avg"
 		]
 		this.variable_names = [
 			"daily_precip",
-//			"mean_temp",
+			"mean_temp",
 			//"max_temp",
 			//"min_temp",
 //			"mean_windspeed",
@@ -151,6 +156,10 @@ class AdaptationFinder {
 		let active_trends = []
 		for (let trend of this.trends) {
 			let cause = this.causes[trend.cause]
+			if (cause==undefined) {
+				console.log("no cause found for id: "+trend.cause)
+			}
+			
 			for (let variable of this.variables) {
 				if (cause.isActive(variable)) {
 					console.log(variable.variable_name+" is "+cause.operator)
@@ -166,31 +175,67 @@ class AdaptationFinder {
 // some fake data
 
 const the_causes = {
-	0: new Cause("future_year_avg", "mean_windspeed", "increase", 0),
-	1: new Cause("future_winter_avg", "daily_precip", "increase", 0)
+	0: new Cause("Windspeed increases","future_year_avg", "mean_windspeed", "increase", 0),
+	1: new Cause("Rainfall increases","future_winter_avg", "daily_precip", "increase", 0),
+	2: new Cause("Temperatures rise","future_year_avg", "mean_temp", "increase", 0)
 }
 
 const the_impacts = {
-	0: new Impact("Transport/Active Transport",
-				  "Increased wind speed leads to decreased cycling. More people use public transport networks.",
-				  ["https://dx.doi.org/10.1186/1476-069x-11-12"]),
-	1: new Impact("Health and Wellbeing",
-				  "More people get sick, as contact increases.",
-				  ["https://dx.doi.org/10.1186/1476-069x-11-12"]),
-	2: new Impact("Transport/Active Transport",
-				  "Increased precipitation leads to decreased cycling.",
-				  ["https://dx.doi.org/10.1186/1476-069x-11-12",
-				   "https://doi.org/10.1016/j.amepre.2006.08.027"]),
+	0: new Impact(
+		"Transport/Active Transport",
+		"Decreased cycling",
+		"Increased wind speed leads to decreased cycling. More people use public transport networks.",
+		["https://dx.doi.org/10.1186/1476-069x-11-12"],
+		"images/active-transport.svg",
+		1
+	),
+	1: new Impact(
+		"Health and Wellbeing",
+		"More illness",
+		"More people get sick, as contact increases.",
+		["https://dx.doi.org/10.1186/1476-069x-11-12"],
+		"images/active-transport.svg"
+	),
+	2: new Impact(
+		"Transport/Active Transport",
+		"Decreased cycling",
+		"Increased precipitation leads to decreased cycling.",
+		["https://dx.doi.org/10.1186/1476-069x-11-12",
+		 "https://doi.org/10.1016/j.amepre.2006.08.027"],
+		"images/active-transport.svg",
+		1
+	),
+	3: new Impact(
+		"Transport/Active Transport",
+		"More flooding",
+		"Increased precipitation means more flooding on roads.",
+		["https://dx.doi.org/10.1186/1476-069x-11-12"],
+		"images/active-transport.svg",
+		2
+	),
+	4: new Impact(
+		"Transport/Active Transport",
+		"Tires melt",
+		"Increased temperature means tires melt in the heat.",
+		["https://dx.doi.org/10.1186/1476-069x-11-12"],
+		"images/active-transport.svg",
+		1
+	),
 }
 			  
 const the_adaptations = {
-	0: new Adaptation("This is an adaptation",["Example 1","Example 2"]),
-	1: new Adaptation("Another adaption",["Example 1","Example 2"]),
+	0: new Adaptation("Plant trees","",["Example 1","Example 2"]),
+	1: new Adaptation("Cycle to work scheme","",["Example 1","Example 2"]),
+	2: new Adaptation("Build more drains","",["Some example of this"]),
+	3: new Adaptation("Build more railways","",[]),
+	4: new Adaptation("Build more bicycle lanes","",[]),
 }
 
 const the_trends = [
-	new Trend(0,[0,1],0,"High"),
-	new Trend(1,[2],1,"High"),
+	new Trend(0,[0,1],[0],"High"),
+	new Trend(1,[2],[1,4,3],"High"),
+	new Trend(1,[3],[0],"High"),
+	new Trend(2,[4],[3],"Low")
 ]
  				 
 export { AdaptationFinder,

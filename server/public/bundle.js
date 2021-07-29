@@ -66462,7 +66462,8 @@ class ClimateVariable {
 
 
 class Cause {
-  constructor(table, variable_name, operator, threshold) {
+  constructor(description, table, variable_name, operator, threshold) {
+    this.description = description;
     this.table = table;
     this.variable_name = variable_name;
     this.operator = operator;
@@ -66473,7 +66474,7 @@ class Cause {
         this.image = "images/wind.svg";
         break;
 
-      case "mean_temperature":
+      case "mean_temp":
         this.image = "images/temp.svg";
         break;
 
@@ -66517,16 +66518,20 @@ class Cause {
 }
 
 class Impact {
-  constructor(type, description, references) {
+  constructor(type, short_description, description, references, image, secondary_impact) {
     this.type = type;
+    this.short_description = short_description;
     this.description = description;
     this.references = references;
+    this.image = image;
+    this.secondary_impact = secondary_impact;
   }
 
 }
 
 class Adaptation {
-  constructor(description, examples) {
+  constructor(short_description, description, examples) {
+    this.short_description = short_description;
     this.description = description;
     this.examples = examples;
   }
@@ -66545,16 +66550,14 @@ class Trend {
 }
 
 class AdaptationFinder {
-  constructor(causes, impacts, adaptions, trends) {
+  constructor(causes, impacts, adaptations, trends) {
     this.causes = causes;
     this.impacts = impacts;
-    this.adaptions = adaptions;
+    this.adaptations = adaptations;
     this.trends = trends;
     this.variables = [];
-    this.tables = [//			"future_year_avg",
-    "future_summer_avg", "future_winter_avg"];
-    this.variable_names = ["daily_precip" //			"mean_temp",
-    //"max_temp",
+    this.tables = ["future_year_avg", "future_summer_avg", "future_winter_avg"];
+    this.variable_names = ["daily_precip", "mean_temp" //"max_temp",
     //"min_temp",
     //			"mean_windspeed",
     //"max_windspeed",
@@ -66602,6 +66605,10 @@ class AdaptationFinder {
     for (let trend of this.trends) {
       let cause = this.causes[trend.cause];
 
+      if (cause == undefined) {
+        console.log("no cause found for id: " + trend.cause);
+      }
+
       for (let variable of this.variables) {
         if (cause.isActive(variable)) {
           console.log(variable.variable_name + " is " + cause.operator);
@@ -66619,22 +66626,28 @@ class AdaptationFinder {
 
 exports.AdaptationFinder = AdaptationFinder;
 const the_causes = {
-  0: new Cause("future_year_avg", "mean_windspeed", "increase", 0),
-  1: new Cause("future_winter_avg", "daily_precip", "increase", 0)
+  0: new Cause("Windspeed increases", "future_year_avg", "mean_windspeed", "increase", 0),
+  1: new Cause("Rainfall increases", "future_winter_avg", "daily_precip", "increase", 0),
+  2: new Cause("Temperatures rise", "future_year_avg", "mean_temp", "increase", 0)
 };
 exports.the_causes = the_causes;
 const the_impacts = {
-  0: new Impact("Transport/Active Transport", "Increased wind speed leads to decreased cycling. More people use public transport networks.", ["https://dx.doi.org/10.1186/1476-069x-11-12"]),
-  1: new Impact("Health and Wellbeing", "More people get sick, as contact increases.", ["https://dx.doi.org/10.1186/1476-069x-11-12"]),
-  2: new Impact("Transport/Active Transport", "Increased precipitation leads to decreased cycling.", ["https://dx.doi.org/10.1186/1476-069x-11-12", "https://doi.org/10.1016/j.amepre.2006.08.027"])
+  0: new Impact("Transport/Active Transport", "Decreased cycling", "Increased wind speed leads to decreased cycling. More people use public transport networks.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/active-transport.svg", 1),
+  1: new Impact("Health and Wellbeing", "More illness", "More people get sick, as contact increases.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/active-transport.svg"),
+  2: new Impact("Transport/Active Transport", "Decreased cycling", "Increased precipitation leads to decreased cycling.", ["https://dx.doi.org/10.1186/1476-069x-11-12", "https://doi.org/10.1016/j.amepre.2006.08.027"], "images/active-transport.svg", 1),
+  3: new Impact("Transport/Active Transport", "More flooding", "Increased precipitation means more flooding on roads.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/active-transport.svg", 2),
+  4: new Impact("Transport/Active Transport", "Tires melt", "Increased temperature means tires melt in the heat.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/active-transport.svg", 1)
 };
 exports.the_impacts = the_impacts;
 const the_adaptations = {
-  0: new Adaptation("This is an adaptation", ["Example 1", "Example 2"]),
-  1: new Adaptation("Another adaption", ["Example 1", "Example 2"])
+  0: new Adaptation("Plant trees", "", ["Example 1", "Example 2"]),
+  1: new Adaptation("Cycle to work scheme", "", ["Example 1", "Example 2"]),
+  2: new Adaptation("Build more drains", "", ["Some example of this"]),
+  3: new Adaptation("Build more railways", "", []),
+  4: new Adaptation("Build more bicycle lanes", "", [])
 };
 exports.the_adaptations = the_adaptations;
-const the_trends = [new Trend(0, [0, 1], 0, "High"), new Trend(1, [2], 1, "High")];
+const the_trends = [new Trend(0, [0, 1], [0], "High"), new Trend(1, [2], [1, 4, 3], "High"), new Trend(1, [3], [0], "High"), new Trend(2, [4], [3], "Low")];
 exports.the_trends = the_trends;
 
 },{"./utils":852,"jquery":603}],847:[function(require,module,exports){
@@ -66934,7 +66947,7 @@ class LSOAZones {
     this.current_layer_buffer = 0;
     this.other_layer_buffer = 1;
     let cols = colormap({
-      colormap: 'cool',
+      colormap: 'winter',
       nshades: 100,
       format: 'hex',
       alpha: 0.5
@@ -67165,8 +67178,11 @@ class Network {
 
     if (!this.existing_nodes.includes(cause_name)) {
       this.graph.setNode(cause_name, {
-        label: this.svg_cache[cause.image],
-        labelType: 'svg'
+        label: `<div class="net-impact">
+                          <img src="` + cause.image + `"><br> 
+			           ` + cause.description + `
+		                </div>`,
+        labelType: 'html'
       });
       this.existing_nodes.push(cause_name);
     }
@@ -67177,16 +67193,51 @@ class Network {
   addImpact(impact_id) {
     let impact_name = "impact" + impact_id;
     let impact = this.ad.impacts[impact_id];
+    let refs = "<ol>";
+
+    for (let ref of impact.references) {
+      refs += "<li><a href=" + ref + ">" + ref + "</a></li> ";
+    }
+
+    refs += "</ol>";
 
     if (!this.existing_nodes.includes(impact_name)) {
       this.graph.setNode(impact_name, {
-        label: "<b>" + impact.type + "</b><br>" + impact.description,
+        label: `<div class="net-impact">
+                          <img src="` + impact.image + `"><br> 
+			           ` + impact.short_description + `
+		                </div>`,
         labelType: 'html'
       });
       this.existing_nodes.push(impact_name);
     }
 
     return impact;
+  }
+
+  addAdaptation(adapt_id) {
+    let adapt_name = "adapt" + adapt_id;
+    let adapt = this.ad.adaptations[adapt_id];
+
+    if (!this.existing_nodes.includes(adapt_name)) {
+      this.graph.setNode(adapt_name, {
+        label: adapt.short_description,
+        labelType: 'html'
+      });
+      this.existing_nodes.push(adapt_name); // add the examples
+
+      /*let n=0
+      for (let example of adapt.examples) {				
+      	this.graph.setNode(adapt_name+n, {
+      		label: example,
+      		labelType: 'html'
+      	});
+      	this.graph.setEdge(adapt_name, adapt_name+n)
+      	n+=1
+      }*/
+    }
+
+    return adapt;
   }
 
   addToCauseToImpact(cause_id, impact_id) {
@@ -67204,15 +67255,35 @@ class Network {
     });
   }
 
+  addToImpactToSecondary(impact_id) {
+    let impact = this.addImpact(impact_id);
+
+    if (impact.secondary_impact != undefined) {
+      let secondary = this.addImpact(impact.secondary_impact);
+      this.graph.setEdge("impact" + impact_id, "impact" + impact.secondary_impact);
+    }
+  }
+
+  addToImpactToAdaptation(impact_id, adaptation_id) {
+    let impact = this.addImpact(impact_id);
+    let adaptation = this.addAdaptation(adaptation_id);
+    this.graph.setEdge("impact" + impact_id, "adapt" + adaptation_id);
+  }
+
   async buildGraph(tiles) {
     let active_trends = await this.ad.calcActiveTrends(tiles, 2, 9);
     this.existing_nodes = [];
+    console.log(active_trends);
 
     for (let trend of active_trends) {
       let cause_id = trend.cause;
 
       for (let impact_id of trend.impacts) {
         this.addToCauseToImpact(cause_id, impact_id);
+        this.addToImpactToSecondary(impact_id);
+        /*for (let adapt_id of trend.adaptations) {
+        	this.addToImpactToAdaptation(impact_id, adapt_id)
+        }*/
       }
     }
 

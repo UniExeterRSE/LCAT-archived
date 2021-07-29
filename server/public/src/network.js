@@ -61,8 +61,11 @@ class Network {
 		let cause = this.ad.causes[cause_id]			
 		if (!this.existing_nodes.includes(cause_name)) {
 			this.graph.setNode(cause_name, {
-				label: this.svg_cache[cause.image],
-				labelType: 'svg'
+				label: `<div class="net-impact">
+                          <img src="`+cause.image+`"><br> 
+			           `+cause.description+`
+		                </div>`,
+				labelType: 'html'
 			});
 			this.existing_nodes.push(cause_name)
 		}
@@ -72,16 +75,50 @@ class Network {
 	addImpact(impact_id) {
 		let impact_name = "impact"+impact_id
 		let impact = this.ad.impacts[impact_id]			
+
+		let refs = "<ol>"		
+		for (let ref of impact.references) {
+			refs+="<li><a href="+ref+">"+ref+"</a></li> "
+		}
+		refs+="</ol>"
+		
 		if (!this.existing_nodes.includes(impact_name)) {
 			this.graph.setNode(impact_name, {
-				label: "<b>"+impact.type+"</b><br>"+impact.description,
+				label: `<div class="net-impact">
+                          <img src="`+impact.image+`"><br> 
+			           `+impact.short_description+`
+		                </div>`,
 				labelType: 'html'
 			});
 			this.existing_nodes.push(impact_name)
 		}
 		return impact
 	}
-	
+
+	addAdaptation(adapt_id) {
+		let adapt_name = "adapt"+adapt_id
+		let adapt = this.ad.adaptations[adapt_id]			
+		if (!this.existing_nodes.includes(adapt_name)) {
+			this.graph.setNode(adapt_name, {
+				label: adapt.short_description,
+				labelType: 'html'
+			});
+			this.existing_nodes.push(adapt_name)
+
+			// add the examples
+			/*let n=0
+			for (let example of adapt.examples) {				
+				this.graph.setNode(adapt_name+n, {
+					label: example,
+					labelType: 'html'
+				});
+				this.graph.setEdge(adapt_name, adapt_name+n)
+				n+=1
+			}*/
+		}
+		return adapt
+	}
+
 	addToCauseToImpact(cause_id,impact_id) {
 		let cause = this.addCause(cause_id)
 		let impact = this.addImpact(impact_id)
@@ -97,15 +134,36 @@ class Network {
 			label: label
 		});
 	}
+
+	addToImpactToSecondary(impact_id) {
+		let impact = this.addImpact(impact_id)
+		if (impact.secondary_impact!=undefined) {
+			let secondary = this.addImpact(impact.secondary_impact)
+			
+			this.graph.setEdge("impact"+impact_id, "impact"+impact.secondary_impact);
+		}
+	}
+
+	addToImpactToAdaptation(impact_id, adaptation_id) {
+		let impact = this.addImpact(impact_id)
+		let adaptation = this.addAdaptation(adaptation_id)		
+		this.graph.setEdge("impact"+impact_id,"adapt"+adaptation_id);
+	}
 	
 	async buildGraph(tiles) {
 		let active_trends = await this.ad.calcActiveTrends(tiles,2,9)
 		this.existing_nodes=[]
-				
+
+		console.log(active_trends)
+		
 		for (let trend of active_trends) {
 			let cause_id = trend.cause;
 			for (let impact_id of trend.impacts) {
-				this.addToCauseToImpact(cause_id,impact_id)
+ 				this.addToCauseToImpact(cause_id,impact_id)
+				this.addToImpactToSecondary(impact_id)
+				/*for (let adapt_id of trend.adaptations) {
+					this.addToImpactToAdaptation(impact_id, adapt_id)
+				}*/
 			}
 		}
 
