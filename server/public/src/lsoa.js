@@ -119,10 +119,9 @@ class LSOAZones {
 			for (let z of this.zones) {
 				tiles.push(z.tile)
 			}
-			net.buildGraph($("#net-type").val(),tiles);
-			$("#net-type").on("change", () => {
-				net.buildGraph($("#net-type").val(),tiles);
-			})
+
+			net.tiles=tiles
+			net.buildGraph();
 
 		} else {
 			$("#results").css("display","none")

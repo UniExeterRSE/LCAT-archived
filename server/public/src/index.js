@@ -50,6 +50,11 @@ async function setup() {
 		graph.update_graph(z.zones,$("#graph-time").val())
 	})
 
+	$("#net-type").on("change", () => {
+		net.style=$("#net-type").val()
+		net.buildGraph();
+	})
+
 	$("#graph").html(graph.no_data)
 
 	z.update(leaflet_map,net)

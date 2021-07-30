@@ -121,12 +121,12 @@ class AdaptationFinder {
 		let ref=decade_data[reference_decade]
 		let val=decade_data[value_decade]
 
-		if (val>ref) {
+/*		if (val>ref) {
 			console.log(table+" "+variable_name+" rising "+ref.toFixed(2)+" -> "+val.toFixed(2))
 		} else {
 			console.log(table+" "+variable_name+" falling "+ref.toFixed(2)+" -> "+val.toFixed(2))
 		}
-		
+*/		
 		if (ref!=undefined && val!=undefined) {
 			this.variables.push(new ClimateVariable(table,variable_name,ref,val))
 		}		
@@ -167,7 +167,7 @@ class AdaptationFinder {
 			
 			for (let variable of this.variables) {
 				if (cause.isActive(variable)) {
-					console.log(variable.variable_name+" is "+cause.operator)
+					//console.log(variable.variable_name+" is "+cause.operator)
 					active_trends.push(trend)
 				}
 			}

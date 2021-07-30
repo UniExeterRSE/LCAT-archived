@@ -66576,12 +66576,12 @@ class AdaptationFinder {
     let y = 0;
     let ref = decade_data[reference_decade];
     let val = decade_data[value_decade];
-
-    if (val > ref) {
-      console.log(table + " " + variable_name + " rising " + ref.toFixed(2) + " -> " + val.toFixed(2));
-    } else {
-      console.log(table + " " + variable_name + " falling " + ref.toFixed(2) + " -> " + val.toFixed(2));
-    }
+    /*		if (val>ref) {
+    			console.log(table+" "+variable_name+" rising "+ref.toFixed(2)+" -> "+val.toFixed(2))
+    		} else {
+    			console.log(table+" "+variable_name+" falling "+ref.toFixed(2)+" -> "+val.toFixed(2))
+    		}
+    */
 
     if (ref != undefined && val != undefined) {
       this.variables.push(new ClimateVariable(table, variable_name, ref, val));
@@ -66618,7 +66618,7 @@ class AdaptationFinder {
 
       for (let variable of this.variables) {
         if (cause.isActive(variable)) {
-          console.log(variable.variable_name + " is " + cause.operator);
+          //console.log(variable.variable_name+" is "+cause.operator)
           active_trends.push(trend);
         }
       }
@@ -66875,6 +66875,11 @@ async function setup() {
 		graph.update_graph(z.zones,$("#graph-time").val())
 	})
 
+	$("#net-type").on("change", () => {
+		net.style=$("#net-type").val()
+		net.buildGraph();
+	})
+
 	$("#graph").html(graph.no_data)
 
 	z.update(leaflet_map,net)
@@ -67021,10 +67026,8 @@ class LSOAZones {
         tiles.push(z.tile);
       }
 
-      net.buildGraph($("#net-type").val(), tiles);
-      $("#net-type").on("change", () => {
-        net.buildGraph($("#net-type").val(), tiles);
-      });
+      net.tiles = tiles;
+      net.buildGraph();
     } else {
       $("#results").css("display", "none");
     }
@@ -67166,14 +67169,9 @@ class Network {
   constructor() {
     this.ad = new adapt.AdaptationFinder(adapt.the_causes, adapt.the_impacts, adapt.the_adaptations, adapt.the_trends);
     this.existing_nodes = [];
+    this.tiles = [];
     this.style = "simple";
     this.render = new dagreD3.render();
-    let svg = d3.select("#mapsvg");
-    let inner = d3.select("#mapsvg g");
-    this.zoom = d3.zoom().on("zoom", function () {
-      inner.attr("transform", d3.event.transform);
-    });
-    svg.call(this.zoom);
   }
 
   async loadData() {
@@ -67316,9 +67314,15 @@ class Network {
     }
   }
 
-  async buildGraph(style, tiles) {
-    let svg = d3.select("#mapsvg");
+  async buildGraph() {
+    // rebuild the lot
     $("#mapsvg g").empty();
+    let svg = d3.select("#mapsvg");
+    let inner = d3.select("#mapsvg g");
+    this.zoom = d3.zoom().on("zoom", function () {
+      inner.attr("transform", d3.event.transform);
+    });
+    svg.call(this.zoom);
     svg.call(this.zoom.transform, d3.zoomIdentity);
     this.graph = new dagreD3.graphlib.Graph({
       compound: true
@@ -67327,9 +67331,7 @@ class Network {
     });
     this.graph.graph().rankdir = "LR";
     this.graph.graph().ranker = "longest-path";
-    this.style = style;
-    console.log("making " + style);
-    let active_trends = await this.ad.calcActiveTrends(tiles, 2, 9);
+    let active_trends = await this.ad.calcActiveTrends(this.tiles, 2, 9);
     this.existing_nodes = [];
 
     for (let trend of active_trends) {
@@ -67345,7 +67347,6 @@ class Network {
       }
     }
 
-    console.log(dagreD3.graphlib.json.write(this.graph));
     this.graph.nodes().forEach(v => {
       var node = this.graph.node(v); // Round the corners of the nodes
 
@@ -67363,6 +67364,7 @@ class Network {
     if (width && height) {
       let svgn = d3.select("#mapsvg").node();
       const scale = Math.min(svgn.clientWidth / width, svgn.clientHeight / height) * 0.95;
+      svg.call(this.zoom.transform, d3.zoomIdentity);
       this.zoom.scaleTo(svg, scale);
       this.zoom.translateTo(svg, width / 2, height / 2);
     }

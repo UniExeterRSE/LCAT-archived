@@ -39,14 +39,9 @@ class Network {
 		)
 
 		this.existing_nodes=[]
+		this.tiles = []
 		this.style = "simple"
 		this.render = new dagreD3.render();
-		let svg = d3.select("#mapsvg")
-		let inner = d3.select("#mapsvg g")
-		this.zoom = d3.zoom().on("zoom", function() {
-			inner.attr("transform", d3.event.transform);
-		});
-		svg.call(this.zoom);
 	}
 	
 	async loadData() {
@@ -177,9 +172,17 @@ class Network {
 		}
 	}
 	
-	async buildGraph(style,tiles) {
-		let svg = d3.select("#mapsvg")
+	async buildGraph() {
+		// rebuild the lot
 		$("#mapsvg g").empty();
+
+		let svg = d3.select("#mapsvg")
+
+		let inner = d3.select("#mapsvg g")
+		this.zoom = d3.zoom().on("zoom", function() {
+			inner.attr("transform", d3.event.transform);
+		});
+		svg.call(this.zoom);
 		svg.call(this.zoom.transform,d3.zoomIdentity)
 
 		this.graph = new dagreD3.graphlib.Graph({compound:true})
@@ -188,11 +191,8 @@ class Network {
 		
 		this.graph.graph().rankdir = "LR"		
 		this.graph.graph().ranker = "longest-path"
-		this.style=style
 
-		console.log("making "+style)
-		
-		let active_trends = await this.ad.calcActiveTrends(tiles,2,9)
+		let active_trends = await this.ad.calcActiveTrends(this.tiles,2,9)
 		this.existing_nodes=[]
 
 		for (let trend of active_trends) {
@@ -206,8 +206,6 @@ class Network {
 			}
 		}
 
-		console.log(dagreD3.graphlib.json.write(this.graph))
-	
 		this.graph.nodes().forEach(v => {
 			var node = this.graph.node(v);
 			// Round the corners of the nodes
@@ -216,13 +214,14 @@ class Network {
 		
 		// Run the renderer. This is what draws the final graph.
 		this.render(d3.select("#mapsvg g"), this.graph);
-		
+	
 		// Center the graph
 		const { width, height } = d3.select("#mapsvg g").node().getBBox()
 		console.log([width,height])
 		if (width && height) {
 			let svgn=d3.select("#mapsvg").node()
 			const scale = Math.min(svgn.clientWidth / width, svgn.clientHeight / height) * 0.95
+			svg.call(this.zoom.transform,d3.zoomIdentity)
 			this.zoom.scaleTo(svg, scale)
 			this.zoom.translateTo(svg, width / 2, height / 2)
 		}
