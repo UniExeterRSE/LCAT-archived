@@ -66518,13 +66518,14 @@ class Cause {
 }
 
 class Impact {
-  constructor(type, short_description, description, references, image, secondary_impact) {
+  constructor(type, short_description, description, references, image, secondary_impacts, adaptations) {
     this.type = type;
     this.short_description = short_description;
     this.description = description;
     this.references = references;
     this.image = image;
-    this.secondary_impact = secondary_impact;
+    this.secondary_impacts = secondary_impacts;
+    this.adaptations = adaptations;
   }
 
 }
@@ -66639,12 +66640,12 @@ const the_causes = {
 };
 exports.the_causes = the_causes;
 const the_impacts = {
-  0: new Impact("Transport/Active Transport", "Decreased cycling", "Increased wind speed leads to decreased cycling. More people use public transport networks.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/active-transport.svg", 1),
-  1: new Impact("Health and Wellbeing", "More illness", "More people get sick, as contact increases.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg"),
-  2: new Impact("Transport/Active Transport", "Decreased cycling", "Increased precipitation leads to decreased cycling.", [], "images/active-transport.svg", 1),
-  3: new Impact("Environmental", "More flooding", "Increased precipitation means more flooding on roads.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg", 2),
-  4: new Impact("Transport", "Tires melt", "Increased temperature means tires melt in the heat.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg"),
-  5: new Impact("Agriculture", "Less crops", "Decreased summer rain means more crop failure.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg", 1)
+  0: new Impact("Transport/Active Transport", "Decreased cycling", "Increased wind speed leads to decreased cycling. More people use public transport networks.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/active-transport.svg", [1], [0]),
+  1: new Impact("Health and Wellbeing", "More illness", "More people get sick, as contact increases.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg", [], [0]),
+  2: new Impact("Transport/Active Transport", "Decreased cycling", "Increased precipitation leads to decreased cycling.", [], "images/active-transport.svg", [1], [1, 4]),
+  3: new Impact("Environmental", "More flooding", "Increased precipitation means more flooding on roads.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg", [2], [0]),
+  4: new Impact("Transport", "Tires melt", "Increased temperature means tires melt in the heat.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg", [], []),
+  5: new Impact("Agriculture", "Less crops", "Decreased summer rain means more crop failure.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg", [1], [])
 };
 exports.the_impacts = the_impacts;
 const the_adaptations = {
@@ -66655,7 +66656,7 @@ const the_adaptations = {
   4: new Adaptation("Build more bicycle lanes", "", [])
 };
 exports.the_adaptations = the_adaptations;
-const the_trends = [new Trend(3, [5], [], "High"), new Trend(0, [0, 1], [0], "High"), new Trend(1, [2], [1, 4], "High"), new Trend(1, [3], [0], "High"), new Trend(2, [4], [], "Low")];
+const the_trends = [new Trend(3, [5], "High"), new Trend(0, [0, 1], "High"), new Trend(1, [2], "High"), new Trend(1, [3], "High"), new Trend(2, [4], "Low")];
 exports.the_trends = the_trends;
 
 },{"./utils":852,"jquery":603}],847:[function(require,module,exports){
@@ -67297,19 +67298,22 @@ class Network {
     });
   }
 
-  addToImpactToSecondary(impact_id) {
+  addToImpactToSecondaries(impact_id) {
     let impact = this.addImpact(impact_id);
 
-    if (impact.secondary_impact != undefined) {
-      let secondary = this.addImpact(impact.secondary_impact);
-      this.graph.setEdge("impact" + impact_id, "impact" + impact.secondary_impact);
+    for (let secondary_id of impact.secondary_impacts) {
+      let secondary = this.addImpact(secondary_id);
+      this.graph.setEdge("impact" + impact_id, "impact" + secondary_id);
     }
   }
 
-  addToImpactToAdaptation(impact_id, adaptation_id) {
+  addToImpactToAdaptations(impact_id) {
     let impact = this.addImpact(impact_id);
-    let adaptation = this.addAdaptation(adaptation_id);
-    this.graph.setEdge("impact" + impact_id, "adapt" + adaptation_id);
+
+    for (let adapt_id of impact.adaptations) {
+      let adaptation = this.addAdaptation(adapt_id);
+      this.graph.setEdge("impact" + impact_id, "adapt" + adapt_id);
+    }
   }
 
   async buildGraph(style, tiles) {
@@ -67333,12 +67337,10 @@ class Network {
 
       for (let impact_id of trend.impacts) {
         this.addToCauseToImpact(cause_id, impact_id);
-        this.addToImpactToSecondary(impact_id);
+        this.addToImpactToSecondaries(impact_id);
 
         if (this.style == "complex") {
-          for (let adapt_id of trend.adaptations) {
-            this.addToImpactToAdaptation(impact_id, adapt_id);
-          }
+          this.addToImpactToAdaptations(impact_id);
         }
       }
     }

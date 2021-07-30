@@ -161,19 +161,20 @@ class Network {
 		});
 	}
 
-	addToImpactToSecondary(impact_id) {
+	addToImpactToSecondaries(impact_id) {
 		let impact = this.addImpact(impact_id)
-		if (impact.secondary_impact!=undefined) {
-			let secondary = this.addImpact(impact.secondary_impact)
-			
-			this.graph.setEdge("impact"+impact_id, "impact"+impact.secondary_impact);
+		for (let secondary_id of impact.secondary_impacts) {		
+			let secondary = this.addImpact(secondary_id)			
+			this.graph.setEdge("impact"+impact_id, "impact"+secondary_id);
 		}
 	}
 
-	addToImpactToAdaptation(impact_id, adaptation_id) {
+	addToImpactToAdaptations(impact_id) {
 		let impact = this.addImpact(impact_id)
-		let adaptation = this.addAdaptation(adaptation_id)		
-		this.graph.setEdge("impact"+impact_id,"adapt"+adaptation_id);
+		for (let adapt_id of impact.adaptations) {
+			let adaptation = this.addAdaptation(adapt_id)		
+			this.graph.setEdge("impact"+impact_id,"adapt"+adapt_id)
+		}
 	}
 	
 	async buildGraph(style,tiles) {
@@ -198,11 +199,9 @@ class Network {
 			let cause_id = trend.cause;
 			for (let impact_id of trend.impacts) {
  				this.addToCauseToImpact(cause_id,impact_id)
-				this.addToImpactToSecondary(impact_id)
+				this.addToImpactToSecondaries(impact_id)
 				if (this.style=="complex") {
-					for (let adapt_id of trend.adaptations) {
-						this.addToImpactToAdaptation(impact_id, adapt_id)
-					}
+					this.addToImpactToAdaptations(impact_id)
 				}
 			}
 		}
