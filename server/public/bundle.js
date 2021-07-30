@@ -67318,12 +67318,6 @@ class Network {
     // rebuild the lot
     $("#mapsvg g").empty();
     let svg = d3.select("#mapsvg");
-    let inner = d3.select("#mapsvg g");
-    this.zoom = d3.zoom().on("zoom", function () {
-      inner.attr("transform", d3.event.transform);
-    });
-    svg.call(this.zoom);
-    svg.call(this.zoom.transform, d3.zoomIdentity);
     this.graph = new dagreD3.graphlib.Graph({
       compound: true
     }).setGraph({}).setDefaultEdgeLabel(function () {
@@ -67351,7 +67345,13 @@ class Network {
       var node = this.graph.node(v); // Round the corners of the nodes
 
       node.rx = node.ry = 5;
-    }); // Run the renderer. This is what draws the final graph.
+    });
+    let inner = d3.select("#mapsvg g");
+    this.zoom = d3.zoom().on("zoom", function () {
+      inner.attr("transform", d3.event.transform);
+    });
+    svg.call(this.zoom);
+    svg.call(this.zoom.transform, d3.zoomIdentity); // Run the renderer. This is what draws the final graph.
 
     this.render(d3.select("#mapsvg g"), this.graph); // Center the graph
 
