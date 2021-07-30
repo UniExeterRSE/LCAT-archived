@@ -225,8 +225,19 @@ g span {
 
 .net-node-simple {
 	width: 180px;
-	height: 150px;
+	height: 180px;
 	text-align: center;
+	text-size: 0.75em;
+	white-space: normal;
+}
+
+.net-node-simple-vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  width: 100%;
 }
 
 .net-node-complex {

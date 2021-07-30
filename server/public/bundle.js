@@ -66633,16 +66633,18 @@ class AdaptationFinder {
 exports.AdaptationFinder = AdaptationFinder;
 const the_causes = {
   0: new Cause("Windspeed increases", "future_year_avg", "mean_windspeed", "increase", 0),
-  1: new Cause("Rainfall increases", "future_winter_avg", "daily_precip", "increase", 0),
-  2: new Cause("Temperatures rise", "future_year_avg", "mean_temp", "increase", 0)
+  1: new Cause("Winter rainfall increases", "future_winter_avg", "daily_precip", "increase", 0),
+  2: new Cause("Temperatures rise", "future_year_avg", "mean_temp", "increase", 0),
+  3: new Cause("Summer rainfall decreases", "future_summer_avg", "daily_precip", "decrease", 0)
 };
 exports.the_causes = the_causes;
 const the_impacts = {
   0: new Impact("Transport/Active Transport", "Decreased cycling", "Increased wind speed leads to decreased cycling. More people use public transport networks.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/active-transport.svg", 1),
-  1: new Impact("Health and Wellbeing", "More illness", "More people get sick, as contact increases.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/active-transport.svg"),
-  2: new Impact("Transport/Active Transport", "Decreased cycling", "Increased precipitation leads to decreased cycling.", ["https://dx.doi.org/10.1186/1476-069x-11-12", "https://doi.org/10.1016/j.amepre.2006.08.027"], "images/active-transport.svg", 1),
-  3: new Impact("Transport/Active Transport", "More flooding", "Increased precipitation means more flooding on roads.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/active-transport.svg", 2),
-  4: new Impact("Transport/Active Transport", "Tires melt", "Increased temperature means tires melt in the heat.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/active-transport.svg", 1)
+  1: new Impact("Health and Wellbeing", "More illness", "More people get sick, as contact increases.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg"),
+  2: new Impact("Transport/Active Transport", "Decreased cycling", "Increased precipitation leads to decreased cycling.", [], "images/active-transport.svg", 1),
+  3: new Impact("Environmental", "More flooding", "Increased precipitation means more flooding on roads.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg", 2),
+  4: new Impact("Transport", "Tires melt", "Increased temperature means tires melt in the heat.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg"),
+  5: new Impact("Agriculture", "Less crops", "Decreased summer rain means more crop failure.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg", 1)
 };
 exports.the_impacts = the_impacts;
 const the_adaptations = {
@@ -66653,7 +66655,7 @@ const the_adaptations = {
   4: new Adaptation("Build more bicycle lanes", "", [])
 };
 exports.the_adaptations = the_adaptations;
-const the_trends = [new Trend(0, [0, 1], [0], "High"), new Trend(1, [2], [1, 4, 3], "High"), new Trend(1, [3], [0], "High"), new Trend(2, [4], [3], "Low")];
+const the_trends = [new Trend(0, [0, 1], [0], "High"), new Trend(1, [2], [1, 4], "High"), new Trend(1, [3], [0], "High"), new Trend(2, [4], [], "Low"), new Trend(3, [5], [], "High")];
 exports.the_trends = the_trends;
 
 },{"./utils":852,"jquery":603}],847:[function(require,module,exports){
@@ -67189,8 +67191,10 @@ class Network {
     if (!this.existing_nodes.includes(cause_name)) {
       this.graph.setNode(cause_name, {
         label: `<div class="net-node-simple">
-                          <img src="` + cause.image + `"><br> 
-			           ` + cause.description + `
+                          <div class="net-node-simple-vertical-center">
+                            <p><img src="` + cause.image + `"><br>                         
+			                ` + cause.description + `</p>
+                          </div>
 		                </div>`,
         labelType: 'html'
       });
@@ -67208,9 +67212,11 @@ class Network {
       if (this.style == "simple") {
         this.graph.setNode(impact_name, {
           label: `<div class="net-node-simple">
-                              <img src="` + impact.image + `"><br> 
-                              ` + impact.short_description + `
-		                     </div>`,
+                              <div class="net-node-simple-vertical-center">
+                                <p><img src="` + impact.image + `"><br> 
+                                ` + impact.short_description + `</p>
+  		                       </div>
+                             </div>`,
           labelType: 'html'
         });
       } else {
@@ -67308,6 +67314,7 @@ class Network {
 
   async buildGraph(style, tiles) {
     let svg = d3.select("#mapsvg");
+    $("#mapsvg g").empty();
     svg.call(this.zoom.transform, d3.zoomIdentity);
     this.graph = new dagreD3.graphlib.Graph({
       compound: true
@@ -67315,11 +67322,11 @@ class Network {
       return {};
     });
     this.graph.graph().rankdir = "LR";
+    this.graph.graph().ranker = "longest-path";
     this.style = style;
     console.log("making " + style);
     let active_trends = await this.ad.calcActiveTrends(tiles, 2, 9);
     this.existing_nodes = [];
-    console.log(active_trends);
 
     for (let trend of active_trends) {
       let cause_id = trend.cause;

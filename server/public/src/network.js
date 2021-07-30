@@ -63,8 +63,10 @@ class Network {
 		if (!this.existing_nodes.includes(cause_name)) {
 			this.graph.setNode(cause_name, {
 				label: `<div class="net-node-simple">
-                          <img src="`+cause.image+`"><br> 
-			           `+cause.description+`
+                          <div class="net-node-simple-vertical-center">
+                            <p><img src="`+cause.image+`"><br>                         
+			                `+cause.description+`</p>
+                          </div>
 		                </div>`,
 				labelType: 'html'
 			});
@@ -81,9 +83,11 @@ class Network {
 			if (this.style=="simple") {
 				this.graph.setNode(impact_name, {
 					label: `<div class="net-node-simple">
-                              <img src="`+impact.image+`"><br> 
-                              `+impact.short_description+`
-		                     </div>`,
+                              <div class="net-node-simple-vertical-center">
+                                <p><img src="`+impact.image+`"><br> 
+                                `+impact.short_description+`</p>
+  		                       </div>
+                             </div>`,
 					labelType: 'html'
 				});
 			} else {
@@ -174,6 +178,7 @@ class Network {
 	
 	async buildGraph(style,tiles) {
 		let svg = d3.select("#mapsvg")
+		$("#mapsvg g").empty();
 		svg.call(this.zoom.transform,d3.zoomIdentity)
 
 		this.graph = new dagreD3.graphlib.Graph({compound:true})
@@ -181,6 +186,7 @@ class Network {
 			.setDefaultEdgeLabel(function() { return {}; });
 		
 		this.graph.graph().rankdir = "LR"		
+		this.graph.graph().ranker = "longest-path"
 		this.style=style
 
 		console.log("making "+style)
@@ -188,8 +194,6 @@ class Network {
 		let active_trends = await this.ad.calcActiveTrends(tiles,2,9)
 		this.existing_nodes=[]
 
-		console.log(active_trends)
-		
 		for (let trend of active_trends) {
 			let cause_id = trend.cause;
 			for (let impact_id of trend.impacts) {

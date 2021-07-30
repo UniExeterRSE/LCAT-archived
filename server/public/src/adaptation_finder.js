@@ -180,8 +180,9 @@ class AdaptationFinder {
 
 const the_causes = {
 	0: new Cause("Windspeed increases","future_year_avg", "mean_windspeed", "increase", 0),
-	1: new Cause("Rainfall increases","future_winter_avg", "daily_precip", "increase", 0),
-	2: new Cause("Temperatures rise","future_year_avg", "mean_temp", "increase", 0)
+	1: new Cause("Winter rainfall increases","future_winter_avg", "daily_precip", "increase", 0),
+	2: new Cause("Temperatures rise","future_year_avg", "mean_temp", "increase", 0),
+	3: new Cause("Summer rainfall decreases","future_summer_avg", "daily_precip", "decrease", 0),
 }
 
 const the_impacts = {
@@ -198,31 +199,37 @@ const the_impacts = {
 		"More illness",
 		"More people get sick, as contact increases.",
 		["https://dx.doi.org/10.1186/1476-069x-11-12"],
-		"images/active-transport.svg"
+		"images/blank.svg"
 	),
 	2: new Impact(
 		"Transport/Active Transport",
 		"Decreased cycling",
 		"Increased precipitation leads to decreased cycling.",
-		["https://dx.doi.org/10.1186/1476-069x-11-12",
-		 "https://doi.org/10.1016/j.amepre.2006.08.027"],
+		[],
 		"images/active-transport.svg",
 		1
 	),
 	3: new Impact(
-		"Transport/Active Transport",
+		"Environmental",
 		"More flooding",
 		"Increased precipitation means more flooding on roads.",
 		["https://dx.doi.org/10.1186/1476-069x-11-12"],
-		"images/active-transport.svg",
+		"images/blank.svg",
 		2
 	),
 	4: new Impact(
-		"Transport/Active Transport",
+		"Transport",
 		"Tires melt",
 		"Increased temperature means tires melt in the heat.",
 		["https://dx.doi.org/10.1186/1476-069x-11-12"],
-		"images/active-transport.svg",
+		"images/blank.svg",
+	),
+	5: new Impact(
+		"Agriculture",
+		"Less crops",
+		"Decreased summer rain means more crop failure.",
+		["https://dx.doi.org/10.1186/1476-069x-11-12"],
+		"images/blank.svg",
 		1
 	),
 }
@@ -237,9 +244,10 @@ const the_adaptations = {
 
 const the_trends = [
 	new Trend(0,[0,1],[0],"High"),
-	new Trend(1,[2],[1,4,3],"High"),
+	new Trend(1,[2],[1,4],"High"),
 	new Trend(1,[3],[0],"High"),
-	new Trend(2,[4],[3],"Low")
+	new Trend(2,[4],[],"Low"),
+	new Trend(3,[5],[],"High"),
 ]
  				 
 export { AdaptationFinder,
