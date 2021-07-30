@@ -66655,7 +66655,7 @@ const the_adaptations = {
   4: new Adaptation("Build more bicycle lanes", "", [])
 };
 exports.the_adaptations = the_adaptations;
-const the_trends = [new Trend(0, [0, 1], [0], "High"), new Trend(1, [2], [1, 4], "High"), new Trend(1, [3], [0], "High"), new Trend(2, [4], [], "Low"), new Trend(3, [5], [], "High")];
+const the_trends = [new Trend(3, [5], [], "High"), new Trend(0, [0, 1], [0], "High"), new Trend(1, [2], [1, 4], "High"), new Trend(1, [3], [0], "High"), new Trend(2, [4], [], "Low")];
 exports.the_trends = the_trends;
 
 },{"./utils":852,"jquery":603}],847:[function(require,module,exports){
@@ -67271,7 +67271,7 @@ class Network {
         }
 
         this.graph.setNode(adapt_name, {
-          label: `<b>Adaption</b><br>` + adapt.description + exs,
+          label: `<b>Adaptation</b><br>` + adapt.description + exs,
           labelType: 'html'
         });
       }

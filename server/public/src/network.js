@@ -135,7 +135,7 @@ class Network {
 				}
 
 				this.graph.setNode(adapt_name, {
-					label: `<b>Adaption</b><br>`+adapt.description+exs,
+					label: `<b>Adaptation</b><br>`+adapt.description+exs,
 					labelType: 'html'
 				});
 			}

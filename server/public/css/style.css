@@ -229,6 +229,7 @@ g span {
 	text-align: center;
 	text-size: 0.75em;
 	white-space: normal;
+	padding-top: 8px;
 }
 
 .net-node-simple-vertical-center {

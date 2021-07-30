@@ -243,11 +243,11 @@ const the_adaptations = {
 }
 
 const the_trends = [
+	new Trend(3,[5],[],"High"),
 	new Trend(0,[0,1],[0],"High"),
 	new Trend(1,[2],[1,4],"High"),
 	new Trend(1,[3],[0],"High"),
 	new Trend(2,[4],[],"Low"),
-	new Trend(3,[5],[],"High"),
 ]
  				 
 export { AdaptationFinder,
