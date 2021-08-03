@@ -127,8 +127,17 @@ button {
 }
 
 #network-holder {
-	border-radius: 1em;
-	border: 1px dashed black;
+	border-radius: 5px;
+	border: 4px solid #a4b3cd;
+}
+
+
+.placeholder {
+	border-radius: 5px;
+	border: 4px solid #a4b3cd;
+	height: 10em;
+	line-height: 10em;
+	text-align: center;
 }
 
 #results span {

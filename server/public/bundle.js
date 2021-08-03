@@ -66961,7 +66961,7 @@ class LSOAZones {
     this.current_layer_buffer = 0;
     this.other_layer_buffer = 1;
     let cols = colormap({
-      colormap: 'winter',
+      colormap: 'cool',
       nshades: 100,
       format: 'hex',
       alpha: 0.5
