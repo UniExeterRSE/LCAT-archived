@@ -69,6 +69,7 @@ def load_connections(fn):
                     t = factors[row[1]]
                     
                     f["impacts"].append(impact_id)
+                    
                     impacts[impact_id] = {
                         "id": impact_id,
                         "from": f["id"],

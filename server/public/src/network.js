@@ -45,7 +45,7 @@ class Network {
 			this.graph.setNode(cause_name, {
 				label: `<div class="net-node-simple">
                           <div class="net-node-simple-vertical-center">
-                            <p><img src="`+cause.image+`"><br>                         
+                            <p><img src="images/blank.svg"><br>                         
 			                `+cause.short+`</p>
                           </div>
 		                </div>`,
@@ -53,7 +53,6 @@ class Network {
 			});
 			this.existing_nodes.push(cause_name)
 		}
-		return cause
 	}
 
 	addFactor(factor) {
@@ -64,7 +63,7 @@ class Network {
 				this.graph.setNode(factor_name, {
 					label: `<div class="net-node-simple">
                               <div class="net-node-simple-vertical-center">
-                                <p><img src="`+factor.image+`"><br> 
+                                <p><img src="images/blank.svg"><br> 
                                 `+factor.short+`</p>
   		                       </div>
                              </div>`,
@@ -82,9 +81,10 @@ class Network {
 				this.graph.setNode(factor_name, {
 					label: `<div class="net-node-complex">
                               <div class="net-node-image-holder">
-                                 <img src="`+factor.image+`"><br>
+                                 <img src="images/blank.svg"><br>
                               </div> 
                               <b>`+factor.short+`</b><br>
+                              `+factor.type+`<br>
                               `+factor.long+`<br>
                               `+refs+`
 		                     </div>`,
@@ -93,7 +93,6 @@ class Network {
 			}
 			this.existing_nodes.push(factor_name)
 		}
-		return factor
 	}
 
 	addImpact(impact) {
@@ -133,10 +132,9 @@ class Network {
 			}
 			this.existing_nodes.push(impact_name)
 		}
-		return impact
 	}
 
-	addAdaptation(adapt_id) {
+/*	addAdaptation(adapt_id) {
 		let adapt_name = "adapt"+adapt_id
 		let adapt = this.ad.adaptations[adapt_id]			
 		if (!this.existing_nodes.includes(adapt_name)) {
@@ -166,59 +164,66 @@ class Network {
 		}
 		return adapt
 	}
-
+*/
 	addToCauseToFactor(cause,factor) {
 		this.addCause(cause)
-		this.addFactor(factor)
 
-		let label="<span style='color:green'>+</span>"
-		if (cause.operator == "decrease" ||
-			cause.operator == "less-than") {
-			label="<span style='color:red'>-</span>"			
-		}
-		
-		this.graph.setEdge("cause"+cause.id, "factor"+factor.id, {
-			labelType: "html",
-			label: label
-		});
+		if (this.style=="complex" || factor.type!="") {
 
-		for (let impact_id of factor.impacts) {			
-			this.addFactorToImpact(factor,this.net.impacts[impact_id],0)
-		}
-	}
+			this.addFactor(factor)
 
-	addFactorToImpact(factor,impact,depth) {
-		if (impact.long!="") {
-			this.addImpact(impact)
-			this.graph.setEdge("factor"+factor.id,"impact"+impact.id);
-		} else {
 			let label="<span style='color:green'>+</span>"
-			if (impact.type == "-") {
+			if (cause.operator == "decrease" ||
+				cause.operator == "less-than") {
 				label="<span style='color:red'>-</span>"			
-			}			
-			this.graph.setEdge("factor"+factor.id,"factor"+impact.to,{
+			}
+			
+			this.graph.setEdge("cause"+cause.id, "factor"+factor.id, {
 				labelType: "html",
 				label: label
 			});
-		}
 
-		let next_factor = this.net.factors[impact.to]
-		this.addFactor(next_factor)
-
-		if (depth<5) {
-			for (let impact_id of next_factor.impacts) {			
-				this.addFactorToImpact(next_factor,this.net.impacts[impact_id],depth+1)
+			for (let impact_id of factor.impacts) {			
+				this.addFactorToImpact(factor,this.net.impacts[impact_id],0)
 			}
 		}
 	}
 
-	addToImpactToAdaptations(impact_id) {
+	addFactorToImpact(factor,impact,depth) {
+		if (this.style=="complex" ||factor.type!="") {
+
+			let next_factor = this.net.factors[impact.to]
+
+			if (this.style=="complex" || next_factor.type!="") {
+
+				let label="<span style='color:green'>+</span>"
+				if (impact.type == "-") {
+					label="<span style='color:red'>-</span>"			
+				}			
+				this.graph.setEdge("factor"+factor.id,"factor"+impact.to,{
+					labelType: "html",
+					label: label
+				});
+								
+				this.addFactor(next_factor)
+				
+				if (depth<5) {
+					for (let impact_id of next_factor.impacts) {			
+						this.addFactorToImpact(next_factor,this.net.impacts[impact_id],depth+1)
+					}
+				}
+			}
+		}
+	}
+
+/*	addToImpactToAdaptations(impact_id) {
 		let impact = this.addImpact(impact_id)
 		for (let adapt_id of impact.adaptations) {
 			let adaptation = this.addAdaptation(adapt_id)		
 			this.graph.setEdge("impact"+impact_id,"adapt"+adapt_id)
 		}
 	}
+*/
 	
 	async buildGraph() {
 		// rebuild the lot
