@@ -34105,23 +34105,66 @@ module.exports = "0.8.5";
 
 },{}],584:[function(require,module,exports){
 module.exports={
-  "name": "esri-leaflet",
-  "description": "Leaflet plugins for consuming ArcGIS Online and ArcGIS Server services.",
-  "version": "3.0.2",
-  "author": "Patrick Arlt <parlt@esri.com> (http://patrickarlt.com)",
+  "_from": "esri-leaflet@^3.0.2",
+  "_id": "esri-leaflet@3.0.2",
+  "_inBundle": false,
+  "_integrity": "sha512-Dr5Ie52yH+gojfnGXdzHGkrgn9U3kp9QKB7xqXZX/mPIE9gKyqC5Er8jRifJx+DTgeM67F+P7F09ZJsIvWbheQ==",
+  "_location": "/esri-leaflet",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "esri-leaflet@^3.0.2",
+    "name": "esri-leaflet",
+    "escapedName": "esri-leaflet",
+    "rawSpec": "^3.0.2",
+    "saveSpec": null,
+    "fetchSpec": "^3.0.2"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/esri-leaflet/-/esri-leaflet-3.0.2.tgz",
+  "_shasum": "368ff662aeb8de21d70d59b362a821b0dcabf6b5",
+  "_spec": "esri-leaflet@^3.0.2",
+  "_where": "/home/dave/code/climate-tool/server/public",
+  "author": {
+    "name": "Patrick Arlt",
+    "email": "parlt@esri.com",
+    "url": "http://patrickarlt.com"
+  },
   "bugs": {
     "url": "https://github.com/esri/esri-leaflet/issues"
   },
+  "bundleDependencies": false,
   "contributors": [
-    "Patrick Arlt <parlt@esri.com> (http://patrickarlt.com)",
-    "John Gravois <jgravois@esri.com> (http://johngravois.com)",
-    "Gavin Rehkemper <grehkemper@esri.com>",
-    "Jacob Wasilkowski <jwasilkowski@esri.com> (https://jwasilgeo.github.io)"
+    {
+      "name": "Patrick Arlt",
+      "email": "parlt@esri.com",
+      "url": "http://patrickarlt.com"
+    },
+    {
+      "name": "John Gravois",
+      "email": "jgravois@esri.com",
+      "url": "http://johngravois.com"
+    },
+    {
+      "name": "Gavin Rehkemper",
+      "email": "grehkemper@esri.com"
+    },
+    {
+      "name": "Jacob Wasilkowski",
+      "email": "jwasilkowski@esri.com",
+      "url": "https://jwasilgeo.github.io"
+    }
   ],
   "dependencies": {
     "@terraformer/arcgis": "^2.0.7",
     "tiny-binary-search": "^1.0.3"
   },
+  "deprecated": false,
+  "description": "Leaflet plugins for consuming ArcGIS Online and ArcGIS Server services.",
   "devDependencies": {
     "@rollup/plugin-json": "^4.0.3",
     "@rollup/plugin-node-resolve": "^7.1.3",
@@ -34159,7 +34202,6 @@ module.exports={
     "profiles/*.js"
   ],
   "homepage": "http://esri.github.io/esri-leaflet",
-  "module": "src/EsriLeaflet.js",
   "jsnext:main": "src/EsriLeaflet.js",
   "jspm": {
     "registry": "npm",
@@ -34176,26 +34218,27 @@ module.exports={
   ],
   "license": "Apache-2.0",
   "main": "dist/esri-leaflet-debug.js",
+  "module": "src/EsriLeaflet.js",
+  "name": "esri-leaflet",
   "peerDependencies": {
     "leaflet": "^1.0.0"
   },
-  "readmeFilename": "README.md",
   "repository": {
     "type": "git",
-    "url": "git@github.com:Esri/esri-leaflet.git"
+    "url": "git+ssh://git@github.com/Esri/esri-leaflet.git"
   },
   "scripts": {
     "build": "rollup -c profiles/debug.js & rollup -c profiles/production.js",
+    "fix": "semistandard --fix",
     "lint": "semistandard | snazzy",
     "prebuild": "mkdirp dist",
+    "precommit": "npm run lint",
     "prepare": "npm run build",
     "pretest": "npm run build",
-    "precommit": "npm run lint",
-    "fix": "semistandard --fix",
     "release": "./scripts/release.sh",
-    "start-watch": "watch \"npm run build\" src",
-    "start": "run-p start-watch serve",
     "serve": "http-server -p 5000 -c-1 -o",
+    "start": "run-p start-watch serve",
+    "start-watch": "watch \"npm run build\" src",
     "test": "npm run lint && karma start",
     "test:ci": "npm run lint && karma start --browsers Chrome_travis_ci"
   },
@@ -34209,7 +34252,8 @@ module.exports={
       "proj4"
     ]
   },
-  "unpkg": "dist/esri-leaflet-debug.js"
+  "unpkg": "dist/esri-leaflet-debug.js",
+  "version": "3.0.2"
 }
 
 },{}],585:[function(require,module,exports){
