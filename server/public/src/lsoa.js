@@ -60,7 +60,7 @@ class LSOAZones {
 		this.other_layer_buffer=1;
 
 		let cols = colormap({
-			colormap: 'cool',
+			colormap: 'bathymetry',
 			nshades: 100,
 			format: 'hex',
 			alpha: 0.5
@@ -136,26 +136,27 @@ class LSOAZones {
 		if (this.include(feature.properties.name)) {
 			layer.setStyle({
 				'fillColor': this.highlight_col,
-				'fillOpacity': 0.75
+				'fillOpacity': 1
 			});
 		} else {
 			layer.setStyle({
 				'fillColor': col,
-				'fillOpacity': 0.5
+				'fillOpacity': 1
 			});
 		}
 		
 		layer.setStyle({
-			'color': "#42273b",
+			'color': "#e6e6e6",
 			'weight': 1,
-			'opacity': 1
+   		        'opacity': 1,
+ 		        'fillOpacity': 1
 		});
 		
 		layer.on('click', () => {
  			if (!this.include(feature.properties.name)) {
 				layer.setStyle({
 					'fillColor': this.highlight_col,
-					'fillOpacity': 0.75
+					'fillOpacity': 1
 				});
 				this.zones.push({
 					name: feature.properties.name,
@@ -164,7 +165,7 @@ class LSOAZones {
 			} else {
 				layer.setStyle({
 					'fillColor': col,
-					'fillOpacity': 0.5
+					'fillOpacity': 1
 				});
 				this.remove(feature.properties.name);
 			}
@@ -174,13 +175,13 @@ class LSOAZones {
 		layer.bindTooltip(feature.properties.name+"<br>IMD Score: "+feature.properties.imdscore).addTo(this.map);
 
 		
-		layer.on('mouseover', function(e) {
-			layer.bringToFront();
-			layer.setStyle({'weight': 3});
-		});
-		layer.on('mouseout', function(e) {
-			layer.setStyle({'weight': 1});
-		});
+	    layer.on('mouseover', function(e) {
+		layer.bringToFront();
+		layer.setStyle({'weight': 3});
+	    });
+	    layer.on('mouseout', function(e) {
+		layer.setStyle({'weight': 1});
+	    });
 		
 		//layer.bindPopup(feature.properties.name)
 	}

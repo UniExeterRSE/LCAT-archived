@@ -18,18 +18,31 @@ const L = require("leaflet")
 const zones = require("./lsoa.js")
 const graph = require("./graph.js")
 const network = require("./network.js")
+const esri = require("esri-leaflet")
 
 var leaflet_map = L.map('leaflet-map').setView([50.26123046875, -5.052745342254639], 10);
 
 var baseMaps = {
-	"Terrain": L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}),
-	"OpenStreetMap": L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}),
+    "Terrain": L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}),
+    "OpenStreetMap": L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}),
     "Toner": L.tileLayer("http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}),
-    "Watercolor":L.tileLayer("http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'})
+    "Watercolor":L.tileLayer("http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'}),
+    "Humanitarian": L.tileLayer("http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {attribution: '©OpenStreetMap contributors. Tiles style by Humanitarian OpenStreetMap Team hosted by OpenStreetMap France. Website and API terms'}),
+    "OS Open Grey": L.tileLayer("https://tiles.arcgis.com/tiles/qHLhLQrcvEnxjtPr/arcgis/rest/services/os_open_greyscale_no_labels/MapServer/tile/{z}/{x}/{y}.png")
+
 };
 
 L.control.layers(baseMaps).addTo(leaflet_map);
-L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}).addTo(leaflet_map);
+//L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}).addTo(leaflet_map);
+
+esri.basemapLayer("Gray").addTo(leaflet_map);
+//esri.basemapLayer('DarkGrayLabels').addTo(leaflet_map);
+esri.basemapLayer('ImageryLabels').addTo(leaflet_map);
+
+
+
+//esri.basemapLayer("HumanGeography").addTo(leaflet_map);
+//esri.basemapLayer('ShadedReliefLabels').addTo(leaflet_map);
 
 async function setup() {
 	const z = new zones.LSOAZones(leaflet_map)

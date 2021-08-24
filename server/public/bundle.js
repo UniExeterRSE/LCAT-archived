@@ -1,4 +1,468 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.geojsonToArcGIS = exports.arcgisToGeoJSON = void 0;
+
+/* @preserve
+* @terraformer/arcgis - v2.0.7 - MIT
+* Copyright (c) 2012-2021 Environmental Systems Research Institute, Inc.
+* Thu Jul 22 2021 13:58:30 GMT-0700 (Pacific Daylight Time)
+*/
+
+/* Copyright (c) 2012-2019 Environmental Systems Research Institute, Inc.
+ * Apache-2.0 */
+var edgeIntersectsEdge = function edgeIntersectsEdge(a1, a2, b1, b2) {
+  var uaT = (b2[0] - b1[0]) * (a1[1] - b1[1]) - (b2[1] - b1[1]) * (a1[0] - b1[0]);
+  var ubT = (a2[0] - a1[0]) * (a1[1] - b1[1]) - (a2[1] - a1[1]) * (a1[0] - b1[0]);
+  var uB = (b2[1] - b1[1]) * (a2[0] - a1[0]) - (b2[0] - b1[0]) * (a2[1] - a1[1]);
+
+  if (uB !== 0) {
+    var ua = uaT / uB;
+    var ub = ubT / uB;
+
+    if (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+var coordinatesContainPoint = function coordinatesContainPoint(coordinates, point) {
+  var contains = false;
+
+  for (var i = -1, l = coordinates.length, j = l - 1; ++i < l; j = i) {
+    if ((coordinates[i][1] <= point[1] && point[1] < coordinates[j][1] || coordinates[j][1] <= point[1] && point[1] < coordinates[i][1]) && point[0] < (coordinates[j][0] - coordinates[i][0]) * (point[1] - coordinates[i][1]) / (coordinates[j][1] - coordinates[i][1]) + coordinates[i][0]) {
+      contains = !contains;
+    }
+  }
+
+  return contains;
+};
+
+var pointsEqual = function pointsEqual(a, b) {
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+var arrayIntersectsArray = function arrayIntersectsArray(a, b) {
+  for (var i = 0; i < a.length - 1; i++) {
+    for (var j = 0; j < b.length - 1; j++) {
+      if (edgeIntersectsEdge(a[i], a[i + 1], b[j], b[j + 1])) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+/* Copyright (c) 2012-2019 Environmental Systems Research Institute, Inc.
+ * Apache-2.0 */
+
+
+var closeRing = function closeRing(coordinates) {
+  if (!pointsEqual(coordinates[0], coordinates[coordinates.length - 1])) {
+    coordinates.push(coordinates[0]);
+  }
+
+  return coordinates;
+}; // determine if polygon ring coordinates are clockwise. clockwise signifies outer ring, counter-clockwise an inner ring
+// or hole. this logic was found at http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-
+// points-are-in-clockwise-order
+
+
+var ringIsClockwise = function ringIsClockwise(ringToTest) {
+  var total = 0;
+  var i = 0;
+  var rLength = ringToTest.length;
+  var pt1 = ringToTest[i];
+  var pt2;
+
+  for (i; i < rLength - 1; i++) {
+    pt2 = ringToTest[i + 1];
+    total += (pt2[0] - pt1[0]) * (pt2[1] + pt1[1]);
+    pt1 = pt2;
+  }
+
+  return total >= 0;
+}; // This function ensures that rings are oriented in the right directions
+// from http://jsperf.com/cloning-an-object/2
+
+
+var shallowClone = function shallowClone(obj) {
+  var target = {};
+
+  for (var i in obj) {
+    // both arcgis attributes and geojson props are just hardcoded keys
+    if (obj.hasOwnProperty(i)) {
+      // eslint-disable-line no-prototype-builtins
+      target[i] = obj[i];
+    }
+  }
+
+  return target;
+};
+/* Copyright (c) 2012-2019 Environmental Systems Research Institute, Inc.
+ * Apache-2.0 */
+
+
+var coordinatesContainCoordinates = function coordinatesContainCoordinates(outer, inner) {
+  var intersects = arrayIntersectsArray(outer, inner);
+  var contains = coordinatesContainPoint(outer, inner[0]);
+
+  if (!intersects && contains) {
+    return true;
+  }
+
+  return false;
+}; // do any polygons in this array contain any other polygons in this array?
+// used for checking for holes in arcgis rings
+
+
+var convertRingsToGeoJSON = function convertRingsToGeoJSON(rings) {
+  var outerRings = [];
+  var holes = [];
+  var x; // iterator
+
+  var outerRing; // current outer ring being evaluated
+
+  var hole; // current hole being evaluated
+  // for each ring
+
+  for (var r = 0; r < rings.length; r++) {
+    var ring = closeRing(rings[r].slice(0));
+
+    if (ring.length < 4) {
+      continue;
+    } // is this ring an outer ring? is it clockwise?
+
+
+    if (ringIsClockwise(ring)) {
+      var polygon = [ring.slice().reverse()]; // wind outer rings counterclockwise for RFC 7946 compliance
+
+      outerRings.push(polygon); // push to outer rings
+    } else {
+      holes.push(ring.slice().reverse()); // wind inner rings clockwise for RFC 7946 compliance
+    }
+  }
+
+  var uncontainedHoles = []; // while there are holes left...
+
+  while (holes.length) {
+    // pop a hole off out stack
+    hole = holes.pop(); // loop over all outer rings and see if they contain our hole.
+
+    var contained = false;
+
+    for (x = outerRings.length - 1; x >= 0; x--) {
+      outerRing = outerRings[x][0];
+
+      if (coordinatesContainCoordinates(outerRing, hole)) {
+        // the hole is contained push it into our polygon
+        outerRings[x].push(hole);
+        contained = true;
+        break;
+      }
+    } // ring is not contained in any outer ring
+    // sometimes this happens https://github.com/Esri/esri-leaflet/issues/320
+
+
+    if (!contained) {
+      uncontainedHoles.push(hole);
+    }
+  } // if we couldn't match any holes using contains we can try intersects...
+
+
+  while (uncontainedHoles.length) {
+    // pop a hole off out stack
+    hole = uncontainedHoles.pop(); // loop over all outer rings and see if any intersect our hole.
+
+    var intersects = false;
+
+    for (x = outerRings.length - 1; x >= 0; x--) {
+      outerRing = outerRings[x][0];
+
+      if (arrayIntersectsArray(outerRing, hole)) {
+        // the hole is contained push it into our polygon
+        outerRings[x].push(hole);
+        intersects = true;
+        break;
+      }
+    }
+
+    if (!intersects) {
+      outerRings.push([hole.reverse()]);
+    }
+  }
+
+  if (outerRings.length === 1) {
+    return {
+      type: 'Polygon',
+      coordinates: outerRings[0]
+    };
+  } else {
+    return {
+      type: 'MultiPolygon',
+      coordinates: outerRings
+    };
+  }
+};
+
+var getId = function getId(attributes, idAttribute) {
+  var keys = idAttribute ? [idAttribute, 'OBJECTID', 'FID'] : ['OBJECTID', 'FID'];
+
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+
+    if (key in attributes && (typeof attributes[key] === 'string' || typeof attributes[key] === 'number')) {
+      return attributes[key];
+    }
+  }
+
+  throw Error('No valid id attribute found');
+};
+
+var arcgisToGeoJSON = function arcgisToGeoJSON(arcgis, idAttribute) {
+  var geojson = {};
+
+  if (arcgis.features) {
+    geojson.type = 'FeatureCollection';
+    geojson.features = [];
+
+    for (var i = 0; i < arcgis.features.length; i++) {
+      geojson.features.push(arcgisToGeoJSON(arcgis.features[i], idAttribute));
+    }
+  }
+
+  if (typeof arcgis.x === 'number' && typeof arcgis.y === 'number') {
+    geojson.type = 'Point';
+    geojson.coordinates = [arcgis.x, arcgis.y];
+
+    if (typeof arcgis.z === 'number') {
+      geojson.coordinates.push(arcgis.z);
+    }
+  }
+
+  if (arcgis.points) {
+    geojson.type = 'MultiPoint';
+    geojson.coordinates = arcgis.points.slice(0);
+  }
+
+  if (arcgis.paths) {
+    if (arcgis.paths.length === 1) {
+      geojson.type = 'LineString';
+      geojson.coordinates = arcgis.paths[0].slice(0);
+    } else {
+      geojson.type = 'MultiLineString';
+      geojson.coordinates = arcgis.paths.slice(0);
+    }
+  }
+
+  if (arcgis.rings) {
+    geojson = convertRingsToGeoJSON(arcgis.rings.slice(0));
+  }
+
+  if (typeof arcgis.xmin === 'number' && typeof arcgis.ymin === 'number' && typeof arcgis.xmax === 'number' && typeof arcgis.ymax === 'number') {
+    geojson.type = 'Polygon';
+    geojson.coordinates = [[[arcgis.xmax, arcgis.ymax], [arcgis.xmin, arcgis.ymax], [arcgis.xmin, arcgis.ymin], [arcgis.xmax, arcgis.ymin], [arcgis.xmax, arcgis.ymax]]];
+  }
+
+  if (arcgis.geometry || arcgis.attributes) {
+    geojson.type = 'Feature';
+    geojson.geometry = arcgis.geometry ? arcgisToGeoJSON(arcgis.geometry) : null;
+    geojson.properties = arcgis.attributes ? shallowClone(arcgis.attributes) : null;
+
+    if (arcgis.attributes) {
+      try {
+        geojson.id = getId(arcgis.attributes, idAttribute);
+      } catch (err) {// don't set an id
+      }
+    }
+  } // if no valid geometry was encountered
+
+
+  if (JSON.stringify(geojson.geometry) === JSON.stringify({})) {
+    geojson.geometry = null;
+  }
+
+  if (arcgis.spatialReference && arcgis.spatialReference.wkid && arcgis.spatialReference.wkid !== 4326) {
+    console.warn('Object converted in non-standard crs - ' + JSON.stringify(arcgis.spatialReference));
+  }
+
+  return geojson;
+};
+/* Copyright (c) 2012-2019 Environmental Systems Research Institute, Inc.
+ * Apache-2.0 */
+// outer rings are clockwise, holes are counterclockwise
+// used for converting GeoJSON Polygons to ArcGIS Polygons
+
+
+exports.arcgisToGeoJSON = arcgisToGeoJSON;
+
+var orientRings = function orientRings(poly) {
+  var output = [];
+  var polygon = poly.slice(0);
+  var outerRing = closeRing(polygon.shift().slice(0));
+
+  if (outerRing.length >= 4) {
+    if (!ringIsClockwise(outerRing)) {
+      outerRing.reverse();
+    }
+
+    output.push(outerRing);
+
+    for (var i = 0; i < polygon.length; i++) {
+      var hole = closeRing(polygon[i].slice(0));
+
+      if (hole.length >= 4) {
+        if (ringIsClockwise(hole)) {
+          hole.reverse();
+        }
+
+        output.push(hole);
+      }
+    }
+  }
+
+  return output;
+}; // This function flattens holes in multipolygons to one array of polygons
+// used for converting GeoJSON Polygons to ArcGIS Polygons
+
+
+var flattenMultiPolygonRings = function flattenMultiPolygonRings(rings) {
+  var output = [];
+
+  for (var i = 0; i < rings.length; i++) {
+    var polygon = orientRings(rings[i]);
+
+    for (var x = polygon.length - 1; x >= 0; x--) {
+      var ring = polygon[x].slice(0);
+      output.push(ring);
+    }
+  }
+
+  return output;
+};
+
+var geojsonToArcGIS = function geojsonToArcGIS(geojson, idAttribute) {
+  idAttribute = idAttribute || 'OBJECTID';
+  var spatialReference = {
+    wkid: 4326
+  };
+  var result = {};
+  var i;
+
+  switch (geojson.type) {
+    case 'Point':
+      result.x = geojson.coordinates[0];
+      result.y = geojson.coordinates[1];
+
+      if (geojson.coordinates[2]) {
+        result.z = geojson.coordinates[2];
+      }
+
+      result.spatialReference = spatialReference;
+      break;
+
+    case 'MultiPoint':
+      result.points = geojson.coordinates.slice(0);
+
+      if (geojson.coordinates[0][2]) {
+        result.hasZ = true;
+      }
+
+      result.spatialReference = spatialReference;
+      break;
+
+    case 'LineString':
+      result.paths = [geojson.coordinates.slice(0)];
+
+      if (geojson.coordinates[0][2]) {
+        result.hasZ = true;
+      }
+
+      result.spatialReference = spatialReference;
+      break;
+
+    case 'MultiLineString':
+      result.paths = geojson.coordinates.slice(0);
+
+      if (geojson.coordinates[0][0][2]) {
+        result.hasZ = true;
+      }
+
+      result.spatialReference = spatialReference;
+      break;
+
+    case 'Polygon':
+      result.rings = orientRings(geojson.coordinates.slice(0));
+
+      if (geojson.coordinates[0][0][2]) {
+        result.hasZ = true;
+      }
+
+      result.spatialReference = spatialReference;
+      break;
+
+    case 'MultiPolygon':
+      result.rings = flattenMultiPolygonRings(geojson.coordinates.slice(0));
+
+      if (geojson.coordinates[0][0][0][2]) {
+        result.hasZ = true;
+      }
+
+      result.spatialReference = spatialReference;
+      break;
+
+    case 'Feature':
+      if (geojson.geometry) {
+        result.geometry = geojsonToArcGIS(geojson.geometry, idAttribute);
+      }
+
+      result.attributes = geojson.properties ? shallowClone(geojson.properties) : {};
+
+      if (geojson.id) {
+        result.attributes[idAttribute] = geojson.id;
+      }
+
+      break;
+
+    case 'FeatureCollection':
+      result = [];
+
+      for (i = 0; i < geojson.features.length; i++) {
+        result.push(geojsonToArcGIS(geojson.features[i], idAttribute));
+      }
+
+      break;
+
+    case 'GeometryCollection':
+      result = [];
+
+      for (i = 0; i < geojson.geometries.length; i++) {
+        result.push(geojsonToArcGIS(geojson.geometries[i], idAttribute));
+      }
+
+      break;
+  }
+
+  return result;
+};
+/* Copyright (c) 2012-2019 Environmental Systems Research Institute, Inc.
+ * Apache-2.0 */
+
+
+exports.geojsonToArcGIS = geojsonToArcGIS;
+
+},{}],2:[function(require,module,exports){
 module.exports={
 	"jet":[{"index":0,"rgb":[0,0,131]},{"index":0.125,"rgb":[0,60,170]},{"index":0.375,"rgb":[5,255,255]},{"index":0.625,"rgb":[255,255,0]},{"index":0.875,"rgb":[250,0,0]},{"index":1,"rgb":[128,0,0]}],
 
@@ -89,7 +553,7 @@ module.exports={
 	"cubehelix": [{"index":0,"rgb":[0,0,0]},{"index":0.07,"rgb":[22,5,59]},{"index":0.13,"rgb":[60,4,105]},{"index":0.2,"rgb":[109,1,135]},{"index":0.27,"rgb":[161,0,147]},{"index":0.33,"rgb":[210,2,142]},{"index":0.4,"rgb":[251,11,123]},{"index":0.47,"rgb":[255,29,97]},{"index":0.53,"rgb":[255,54,69]},{"index":0.6,"rgb":[255,85,46]},{"index":0.67,"rgb":[255,120,34]},{"index":0.73,"rgb":[255,157,37]},{"index":0.8,"rgb":[241,191,57]},{"index":0.87,"rgb":[224,220,93]},{"index":0.93,"rgb":[218,241,142]},{"index":1,"rgb":[227,253,198]}]
 };
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 /*
  * Ben Postlethwaite
  * January 2013
@@ -234,7 +698,7 @@ function rgbaStr (rgba) {
     return 'rgba(' + rgba.join(',') + ')';
 }
 
-},{"./colorScale":1,"lerp":605}],3:[function(require,module,exports){
+},{"./colorScale":2,"lerp":630}],4:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -247,7 +711,7 @@ exports.slice = slice;
 var map = array.map;
 exports.map = map;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -259,7 +723,7 @@ function _default(a, b) {
   return a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
 }
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -281,7 +745,7 @@ exports.bisectLeft = bisectLeft;
 var _default = bisectRight;
 exports.default = _default;
 
-},{"./ascending":4,"./bisector":6}],6:[function(require,module,exports){
+},{"./ascending":5,"./bisector":7}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -327,7 +791,7 @@ function ascendingComparator(f) {
   };
 }
 
-},{"./ascending":4}],7:[function(require,module,exports){
+},{"./ascending":5}],8:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -341,7 +805,7 @@ function _default(x) {
   };
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -370,7 +834,7 @@ function _default(values0, values1, reduce) {
   return values;
 }
 
-},{"./pairs":21}],9:[function(require,module,exports){
+},{"./pairs":22}],10:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -382,7 +846,7 @@ function _default(a, b) {
   return b < a ? -1 : b > a ? 1 : b >= a ? 0 : NaN;
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -399,7 +863,7 @@ function _default(array, f) {
   return v ? Math.sqrt(v) : v;
 }
 
-},{"./variance":33}],11:[function(require,module,exports){
+},{"./variance":34}],12:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -449,7 +913,7 @@ function _default(values, valueof) {
   return [min, max];
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -543,7 +1007,7 @@ function _default() {
   return histogram;
 }
 
-},{"./array":3,"./bisect":5,"./constant":7,"./extent":11,"./identity":13,"./range":24,"./threshold/sturges":30,"./ticks":31}],13:[function(require,module,exports){
+},{"./array":4,"./bisect":6,"./constant":8,"./extent":12,"./identity":14,"./range":25,"./threshold/sturges":31,"./ticks":32}],14:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -555,7 +1019,7 @@ function _default(x) {
   return x;
 }
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -808,7 +1272,7 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-},{"./ascending":4,"./bisect":5,"./bisector":6,"./cross":8,"./descending":9,"./deviation":10,"./extent":11,"./histogram":12,"./max":15,"./mean":16,"./median":17,"./merge":18,"./min":19,"./pairs":21,"./permute":22,"./quantile":23,"./range":24,"./scan":25,"./shuffle":26,"./sum":27,"./threshold/freedmanDiaconis":28,"./threshold/scott":29,"./threshold/sturges":30,"./ticks":31,"./transpose":32,"./variance":33,"./zip":34}],15:[function(require,module,exports){
+},{"./ascending":5,"./bisect":6,"./bisector":7,"./cross":9,"./descending":10,"./deviation":11,"./extent":12,"./histogram":13,"./max":16,"./mean":17,"./median":18,"./merge":19,"./min":20,"./pairs":22,"./permute":23,"./quantile":24,"./range":25,"./scan":26,"./shuffle":27,"./sum":28,"./threshold/freedmanDiaconis":29,"./threshold/scott":30,"./threshold/sturges":31,"./ticks":32,"./transpose":33,"./variance":34,"./zip":35}],16:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -855,7 +1319,7 @@ function _default(values, valueof) {
   return max;
 }
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -887,7 +1351,7 @@ function _default(values, valueof) {
   if (m) return sum / m;
 }
 
-},{"./number":20}],17:[function(require,module,exports){
+},{"./number":21}],18:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -926,7 +1390,7 @@ function _default(values, valueof) {
   return (0, _quantile.default)(numbers.sort(_ascending.default), 0.5);
 }
 
-},{"./ascending":4,"./number":20,"./quantile":23}],18:[function(require,module,exports){
+},{"./ascending":5,"./number":21,"./quantile":24}],19:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -958,7 +1422,7 @@ function _default(arrays) {
   return merged;
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1005,7 +1469,7 @@ function _default(values, valueof) {
   return min;
 }
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1017,7 +1481,7 @@ function _default(x) {
   return x === null ? NaN : +x;
 }
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1042,7 +1506,7 @@ function pair(a, b) {
   return [a, b];
 }
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1059,7 +1523,7 @@ function _default(array, indexes) {
   return permutes;
 }
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1084,7 +1548,7 @@ function _default(values, p, valueof) {
   return value0 + (value1 - value0) * (i - i0);
 }
 
-},{"./number":20}],24:[function(require,module,exports){
+},{"./number":21}],25:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1105,7 +1569,7 @@ function _default(start, stop, step) {
   return range;
 }
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1135,7 +1599,7 @@ function _default(values, compare) {
   if (compare(xj, xj) === 0) return j;
 }
 
-},{"./ascending":4}],26:[function(require,module,exports){
+},{"./ascending":5}],27:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1158,7 +1622,7 @@ function _default(array, i0, i1) {
   return array;
 }
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1185,7 +1649,7 @@ function _default(values, valueof) {
   return sum;
 }
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1208,7 +1672,7 @@ function _default(values, min, max) {
   return Math.ceil((max - min) / (2 * ((0, _quantile.default)(values, 0.75) - (0, _quantile.default)(values, 0.25)) * Math.pow(values.length, -1 / 3)));
 }
 
-},{"../array":3,"../ascending":4,"../number":20,"../quantile":23}],29:[function(require,module,exports){
+},{"../array":4,"../ascending":5,"../number":21,"../quantile":24}],30:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1224,7 +1688,7 @@ function _default(values, min, max) {
   return Math.ceil((max - min) / (3.5 * (0, _deviation.default)(values) * Math.pow(values.length, -1 / 3)));
 }
 
-},{"../deviation":10}],30:[function(require,module,exports){
+},{"../deviation":11}],31:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1236,7 +1700,7 @@ function _default(values) {
   return Math.ceil(Math.log(values.length) / Math.LN2) + 1;
 }
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1293,7 +1757,7 @@ function tickStep(start, stop, count) {
   return stop < start ? -step1 : step1;
 }
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1321,7 +1785,7 @@ function length(d) {
   return d.length;
 }
 
-},{"./min":19}],33:[function(require,module,exports){
+},{"./min":20}],34:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1363,7 +1827,7 @@ function _default(values, valueof) {
   if (m > 1) return sum / (m - 1);
 }
 
-},{"./number":20}],34:[function(require,module,exports){
+},{"./number":21}],35:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1379,7 +1843,7 @@ function _default() {
   return (0, _transpose.default)(arguments);
 }
 
-},{"./transpose":32}],35:[function(require,module,exports){
+},{"./transpose":33}],36:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1389,7 +1853,7 @@ exports.slice = void 0;
 var slice = Array.prototype.slice;
 exports.slice = slice;
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1552,9 +2016,9 @@ function axisLeft(scale) {
   return axis(left, scale);
 }
 
-},{"./array":35,"./identity":37}],37:[function(require,module,exports){
-arguments[4][13][0].apply(exports,arguments)
-},{"dup":13}],38:[function(require,module,exports){
+},{"./array":36,"./identity":38}],38:[function(require,module,exports){
+arguments[4][14][0].apply(exports,arguments)
+},{"dup":14}],39:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1587,7 +2051,7 @@ Object.defineProperty(exports, "axisLeft", {
 
 var _axis = require("./axis");
 
-},{"./axis":36}],39:[function(require,module,exports){
+},{"./axis":37}],40:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2206,9 +2670,9 @@ function brush(dim) {
   return brush;
 }
 
-},{"./constant.js":40,"./event.js":41,"./noevent.js":43,"d3-dispatch":74,"d3-drag":78,"d3-interpolate":234,"d3-selection":353,"d3-transition":480}],40:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],41:[function(require,module,exports){
+},{"./constant.js":41,"./event.js":42,"./noevent.js":44,"d3-dispatch":75,"d3-drag":79,"d3-interpolate":235,"d3-selection":354,"d3-transition":481}],41:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],42:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2222,7 +2686,7 @@ function _default(target, type, selection) {
   this.selection = selection;
 }
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2259,7 +2723,7 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-},{"./brush.js":39}],43:[function(require,module,exports){
+},{"./brush.js":40}],44:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2280,9 +2744,9 @@ function _default() {
   _d3Selection.event.stopImmediatePropagation();
 }
 
-},{"d3-selection":353}],44:[function(require,module,exports){
-arguments[4][35][0].apply(exports,arguments)
-},{"dup":35}],45:[function(require,module,exports){
+},{"d3-selection":354}],45:[function(require,module,exports){
+arguments[4][36][0].apply(exports,arguments)
+},{"dup":36}],46:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2425,9 +2889,9 @@ function _default() {
   return chord;
 }
 
-},{"./math":48,"d3-array":14}],46:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],47:[function(require,module,exports){
+},{"./math":49,"d3-array":15}],47:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],48:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2452,7 +2916,7 @@ var _ribbon = _interopRequireDefault(require("./ribbon"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./chord":45,"./ribbon":49}],48:[function(require,module,exports){
+},{"./chord":46,"./ribbon":50}],49:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2472,7 +2936,7 @@ exports.tau = tau;
 var max = Math.max;
 exports.max = max;
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2574,7 +3038,7 @@ function _default() {
   return ribbon;
 }
 
-},{"./array":44,"./constant":46,"./math":48,"d3-path":249}],50:[function(require,module,exports){
+},{"./array":45,"./constant":47,"./math":49,"d3-path":250}],51:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2593,7 +3057,7 @@ function _default(map) {
   return entries;
 }
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2650,7 +3114,7 @@ var _entries = _interopRequireDefault(require("./entries"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./entries":50,"./keys":52,"./map":53,"./nest":54,"./set":55,"./values":56}],52:[function(require,module,exports){
+},{"./entries":51,"./keys":53,"./map":54,"./nest":55,"./set":56,"./values":57}],53:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2666,7 +3130,7 @@ function _default(map) {
   return keys;
 }
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2757,7 +3221,7 @@ function map(object, f) {
 var _default = map;
 exports.default = _default;
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2865,7 +3329,7 @@ function setMap(map, key, value) {
   map.set(key, value);
 }
 
-},{"./map":53}],55:[function(require,module,exports){
+},{"./map":54}],56:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2915,7 +3379,7 @@ function set(object, f) {
 var _default = set;
 exports.default = _default;
 
-},{"./map":53}],56:[function(require,module,exports){
+},{"./map":54}],57:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2931,7 +3395,7 @@ function _default(map) {
   return values;
 }
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3301,7 +3765,7 @@ function hsl2rgb(h, m1, m2) {
   return (h < 60 ? m1 + (m2 - m1) * h / 60 : h < 180 ? m2 : h < 240 ? m1 + (m2 - m1) * (240 - h) / 60 : m1) * 255;
 }
 
-},{"./define.js":59}],58:[function(require,module,exports){
+},{"./define.js":60}],59:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3374,7 +3838,7 @@ function Cubehelix(h, s, l, opacity) {
   }
 }));
 
-},{"./color.js":57,"./define.js":59,"./math.js":62}],59:[function(require,module,exports){
+},{"./color.js":58,"./define.js":60,"./math.js":63}],60:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3396,7 +3860,7 @@ function extend(parent, definition) {
   return prototype;
 }
 
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3463,7 +3927,7 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-},{"./color.js":57,"./cubehelix.js":58,"./lab.js":61}],61:[function(require,module,exports){
+},{"./color.js":58,"./cubehelix.js":59,"./lab.js":62}],62:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3605,7 +4069,7 @@ function hcl2lab(o) {
   }
 }));
 
-},{"./color.js":57,"./define.js":59,"./math.js":62}],62:[function(require,module,exports){
+},{"./color.js":58,"./define.js":60,"./math.js":63}],63:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3617,7 +4081,7 @@ exports.deg2rad = deg2rad;
 var rad2deg = 180 / Math.PI;
 exports.rad2deg = rad2deg;
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3635,7 +4099,7 @@ function _default(ring) {
   return area;
 }
 
-},{}],64:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3646,7 +4110,7 @@ var array = Array.prototype;
 var slice = array.slice;
 exports.slice = slice;
 
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3658,7 +4122,7 @@ function _default(a, b) {
   return a - b;
 }
 
-},{}],66:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3717,9 +4181,9 @@ function blurY(source, target, r) {
   }
 }
 
-},{}],67:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],68:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],69:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3769,7 +4233,7 @@ function within(p, q, r) {
   return p <= q && q <= r || r <= q && q <= p;
 }
 
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3999,7 +4463,7 @@ function _default() {
   return contours;
 }
 
-},{"./area":63,"./array":64,"./ascending":65,"./constant":67,"./contains":68,"./noop":72,"d3-array":14}],70:[function(require,module,exports){
+},{"./area":64,"./array":65,"./ascending":66,"./constant":68,"./contains":69,"./noop":73,"d3-array":15}],71:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4197,7 +4661,7 @@ function _default() {
   return density;
 }
 
-},{"./array":64,"./blur":66,"./constant":67,"./contours":69,"d3-array":14}],71:[function(require,module,exports){
+},{"./array":65,"./blur":67,"./constant":68,"./contours":70,"d3-array":15}],72:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4222,7 +4686,7 @@ var _density = _interopRequireDefault(require("./density"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./contours":69,"./density":70}],72:[function(require,module,exports){
+},{"./contours":70,"./density":71}],73:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4232,7 +4696,7 @@ exports.default = _default;
 
 function _default() {}
 
-},{}],73:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4341,7 +4805,7 @@ function set(type, name, callback) {
 var _default = dispatch;
 exports.default = _default;
 
-},{}],74:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4358,9 +4822,9 @@ var _dispatch = _interopRequireDefault(require("./dispatch.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./dispatch.js":73}],75:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],76:[function(require,module,exports){
+},{"./dispatch.js":74}],76:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],77:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4566,7 +5030,7 @@ function _default() {
   return drag;
 }
 
-},{"./constant.js":75,"./event.js":77,"./nodrag.js":79,"./noevent.js":80,"d3-dispatch":74,"d3-selection":353}],77:[function(require,module,exports){
+},{"./constant.js":76,"./event.js":78,"./nodrag.js":80,"./noevent.js":81,"d3-dispatch":75,"d3-selection":354}],78:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4593,7 +5057,7 @@ DragEvent.prototype.on = function () {
   return value === this._ ? this : value;
 };
 
-},{}],78:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4628,7 +5092,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./drag.js":76,"./nodrag.js":79}],79:[function(require,module,exports){
+},{"./drag.js":77,"./nodrag.js":80}],80:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4674,9 +5138,9 @@ function yesdrag(view, noclick) {
   }
 }
 
-},{"./noevent.js":80,"d3-selection":353}],80:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"d3-selection":353,"dup":43}],81:[function(require,module,exports){
+},{"./noevent.js":81,"d3-selection":354}],81:[function(require,module,exports){
+arguments[4][44][0].apply(exports,arguments)
+},{"d3-selection":354,"dup":44}],82:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4702,7 +5166,7 @@ function autoType(object) {
 
 var fixtz = new Date("2019-01-01T00:00").getHours() || new Date("2019-07-01T00:00").getHours();
 
-},{}],82:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4730,7 +5194,7 @@ exports.csvFormatRow = csvFormatRow;
 var csvFormatValue = csv.formatValue;
 exports.csvFormatValue = csvFormatValue;
 
-},{"./dsv.js":83}],83:[function(require,module,exports){
+},{"./dsv.js":84}],84:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4905,7 +5369,7 @@ function _default(delimiter) {
   };
 }
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5018,7 +5482,7 @@ var _autoType = _interopRequireDefault(require("./autoType.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./autoType.js":81,"./csv.js":82,"./dsv.js":83,"./tsv.js":85}],85:[function(require,module,exports){
+},{"./autoType.js":82,"./csv.js":83,"./dsv.js":84,"./tsv.js":86}],86:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5046,7 +5510,7 @@ exports.tsvFormatRow = tsvFormatRow;
 var tsvFormatValue = tsv.formatValue;
 exports.tsvFormatValue = tsvFormatValue;
 
-},{"./dsv.js":83}],86:[function(require,module,exports){
+},{"./dsv.js":84}],87:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5094,7 +5558,7 @@ var backInOut = function custom(s) {
 
 exports.backInOut = backInOut;
 
-},{}],87:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5126,7 +5590,7 @@ function bounceInOut(t) {
   return ((t *= 2) <= 1 ? 1 - bounceOut(1 - t) : bounceOut(t - 1) + 1) / 2;
 }
 
-},{}],88:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5148,7 +5612,7 @@ function circleInOut(t) {
   return ((t *= 2) <= 1 ? 1 - Math.sqrt(1 - t * t) : Math.sqrt(1 - (t -= 2) * t) + 1) / 2;
 }
 
-},{}],89:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5170,7 +5634,7 @@ function cubicInOut(t) {
   return ((t *= 2) <= 1 ? t * t * t : (t -= 2) * t * t + 2) / 2;
 }
 
-},{}],90:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5244,7 +5708,7 @@ var elasticInOut = function custom(a, p) {
 
 exports.elasticInOut = elasticInOut;
 
-},{"./math.js":94}],91:[function(require,module,exports){
+},{"./math.js":95}],92:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5268,7 +5732,7 @@ function expInOut(t) {
   return ((t *= 2) <= 1 ? (0, _math.tpmt)(1 - t) : 2 - (0, _math.tpmt)(t - 1)) / 2;
 }
 
-},{"./math.js":94}],92:[function(require,module,exports){
+},{"./math.js":95}],93:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5517,7 +5981,7 @@ var _back = require("./back.js");
 
 var _elastic = require("./elastic.js");
 
-},{"./back.js":86,"./bounce.js":87,"./circle.js":88,"./cubic.js":89,"./elastic.js":90,"./exp.js":91,"./linear.js":93,"./poly.js":95,"./quad.js":96,"./sin.js":97}],93:[function(require,module,exports){
+},{"./back.js":87,"./bounce.js":88,"./circle.js":89,"./cubic.js":90,"./elastic.js":91,"./exp.js":92,"./linear.js":94,"./poly.js":96,"./quad.js":97,"./sin.js":98}],94:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5529,7 +5993,7 @@ function linear(t) {
   return +t;
 }
 
-},{}],94:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5542,7 +6006,7 @@ function tpmt(x) {
   return (Math.pow(2, -10 * x) - 0.0009765625) * 1.0009775171065494;
 }
 
-},{}],95:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5590,7 +6054,7 @@ var polyInOut = function custom(e) {
 
 exports.polyInOut = polyInOut;
 
-},{}],96:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5612,7 +6076,7 @@ function quadInOut(t) {
   return ((t *= 2) <= 1 ? t * t : --t * (2 - t) + 1) / 2;
 }
 
-},{}],97:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5636,7 +6100,7 @@ function sinInOut(t) {
   return (1 - Math.cos(pi * t)) / 2;
 }
 
-},{}],98:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5653,7 +6117,7 @@ function _default(input, init) {
   return fetch(input, init).then(responseBlob);
 }
 
-},{}],99:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5670,7 +6134,7 @@ function _default(input, init) {
   return fetch(input, init).then(responseArrayBuffer);
 }
 
-},{}],100:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5707,7 +6171,7 @@ exports.csv = csv;
 var tsv = dsvParse(_d3Dsv.tsvParse);
 exports.tsv = tsv;
 
-},{"./text.js":104,"d3-dsv":84}],101:[function(require,module,exports){
+},{"./text.js":105,"d3-dsv":85}],102:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5731,7 +6195,7 @@ function _default(input, init) {
   });
 }
 
-},{}],102:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5824,7 +6288,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./blob.js":98,"./buffer.js":99,"./dsv.js":100,"./image.js":101,"./json.js":103,"./text.js":104,"./xml.js":105}],103:[function(require,module,exports){
+},{"./blob.js":99,"./buffer.js":100,"./dsv.js":101,"./image.js":102,"./json.js":104,"./text.js":105,"./xml.js":106}],104:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5842,7 +6306,7 @@ function _default(input, init) {
   return fetch(input, init).then(responseJson);
 }
 
-},{}],104:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5859,7 +6323,7 @@ function _default(input, init) {
   return fetch(input, init).then(responseText);
 }
 
-},{}],105:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5887,7 +6351,7 @@ exports.html = html;
 var svg = parser("image/svg+xml");
 exports.svg = svg;
 
-},{"./text.js":104}],106:[function(require,module,exports){
+},{"./text.js":105}],107:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5931,7 +6395,7 @@ function _default(x, y) {
   return force;
 }
 
-},{}],107:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6053,9 +6517,9 @@ function _default(radius) {
   return force;
 }
 
-},{"./constant":108,"./jiggle":110,"d3-quadtree":263}],108:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],109:[function(require,module,exports){
+},{"./constant":109,"./jiggle":111,"d3-quadtree":264}],109:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],110:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6128,7 +6592,7 @@ var _y = _interopRequireDefault(require("./y"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./center":106,"./collide":107,"./link":111,"./manyBody":112,"./radial":113,"./simulation":114,"./x":115,"./y":116}],110:[function(require,module,exports){
+},{"./center":107,"./collide":108,"./link":112,"./manyBody":113,"./radial":114,"./simulation":115,"./x":116,"./y":117}],111:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6140,7 +6604,7 @@ function _default() {
   return (Math.random() - 0.5) * 1e-6;
 }
 
-},{}],111:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6267,7 +6731,7 @@ function _default(links) {
   return force;
 }
 
-},{"./constant":108,"./jiggle":110,"d3-collection":51}],112:[function(require,module,exports){
+},{"./constant":109,"./jiggle":111,"d3-collection":52}],113:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6402,7 +6866,7 @@ function _default() {
   return force;
 }
 
-},{"./constant":108,"./jiggle":110,"./simulation":114,"d3-quadtree":263}],113:[function(require,module,exports){
+},{"./constant":109,"./jiggle":111,"./simulation":115,"d3-quadtree":264}],114:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6471,7 +6935,7 @@ function _default(radius, x, y) {
   return force;
 }
 
-},{"./constant":108}],114:[function(require,module,exports){
+},{"./constant":109}],115:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6622,7 +7086,7 @@ function _default(nodes) {
   };
 }
 
-},{"d3-collection":51,"d3-dispatch":74,"d3-timer":475}],115:[function(require,module,exports){
+},{"d3-collection":52,"d3-dispatch":75,"d3-timer":476}],116:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6675,7 +7139,7 @@ function _default(x) {
   return force;
 }
 
-},{"./constant":108}],116:[function(require,module,exports){
+},{"./constant":109}],117:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6728,7 +7192,7 @@ function _default(y) {
   return force;
 }
 
-},{"./constant":108}],117:[function(require,module,exports){
+},{"./constant":109}],118:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6761,7 +7225,7 @@ function defaultLocale(definition) {
   return locale;
 }
 
-},{"./locale.js":129}],118:[function(require,module,exports){
+},{"./locale.js":130}],119:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6775,7 +7239,7 @@ function _default(x) {
   return x = (0, _formatDecimal.formatDecimalParts)(Math.abs(x)), x ? x[1] : NaN;
 }
 
-},{"./formatDecimal.js":119}],119:[function(require,module,exports){
+},{"./formatDecimal.js":120}],120:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6801,7 +7265,7 @@ function formatDecimalParts(x, p) {
   return [coefficient.length > 1 ? coefficient[0] + coefficient.slice(2) : coefficient, +x.slice(i + 1)];
 }
 
-},{}],120:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6828,7 +7292,7 @@ function _default(grouping, thousands) {
   };
 }
 
-},{}],121:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6844,7 +7308,7 @@ function _default(numerals) {
   };
 }
 
-},{}],122:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6868,7 +7332,7 @@ function _default(x, p) {
   return i === n ? coefficient : i > n ? coefficient + new Array(i - n + 1).join("0") : i > 0 ? coefficient.slice(0, i) + "." + coefficient.slice(i) : "0." + new Array(1 - i).join("0") + (0, _formatDecimal.formatDecimalParts)(x, Math.max(0, p + i - 1))[0]; // less than 1y!
 }
 
-},{"./formatDecimal.js":119}],123:[function(require,module,exports){
+},{"./formatDecimal.js":120}],124:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6886,7 +7350,7 @@ function _default(x, p) {
   return exponent < 0 ? "0." + new Array(-exponent).join("0") + coefficient : coefficient.length > exponent + 1 ? coefficient.slice(0, exponent + 1) + "." + coefficient.slice(exponent + 1) : coefficient + new Array(exponent - coefficient.length + 2).join("0");
 }
 
-},{"./formatDecimal.js":119}],124:[function(require,module,exports){
+},{"./formatDecimal.js":120}],125:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6933,7 +7397,7 @@ FormatSpecifier.prototype.toString = function () {
   return this.fill + this.align + this.sign + this.symbol + (this.zero ? "0" : "") + (this.width === undefined ? "" : Math.max(1, this.width | 0)) + (this.comma ? "," : "") + (this.precision === undefined ? "" : "." + Math.max(0, this.precision | 0)) + (this.trim ? "~" : "") + this.type;
 };
 
-},{}],125:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6964,7 +7428,7 @@ function _default(s) {
   return i0 > 0 ? s.slice(0, i0) + s.slice(i1 + 1) : s;
 }
 
-},{}],126:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7017,9 +7481,9 @@ var _default = {
 };
 exports.default = _default;
 
-},{"./formatDecimal.js":119,"./formatPrefixAuto.js":122,"./formatRounded.js":123}],127:[function(require,module,exports){
-arguments[4][13][0].apply(exports,arguments)
-},{"dup":13}],128:[function(require,module,exports){
+},{"./formatDecimal.js":120,"./formatPrefixAuto.js":123,"./formatRounded.js":124}],128:[function(require,module,exports){
+arguments[4][14][0].apply(exports,arguments)
+},{"dup":14}],129:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7098,7 +7562,7 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-},{"./defaultLocale.js":117,"./formatSpecifier.js":124,"./locale.js":129,"./precisionFixed.js":130,"./precisionPrefix.js":131,"./precisionRound.js":132}],129:[function(require,module,exports){
+},{"./defaultLocale.js":118,"./formatSpecifier.js":125,"./locale.js":130,"./precisionFixed.js":131,"./precisionPrefix.js":132,"./precisionRound.js":133}],130:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7259,7 +7723,7 @@ function _default(locale) {
   };
 }
 
-},{"./exponent.js":118,"./formatGroup.js":120,"./formatNumerals.js":121,"./formatPrefixAuto.js":122,"./formatSpecifier.js":124,"./formatTrim.js":125,"./formatTypes.js":126,"./identity.js":127}],130:[function(require,module,exports){
+},{"./exponent.js":119,"./formatGroup.js":121,"./formatNumerals.js":122,"./formatPrefixAuto.js":123,"./formatSpecifier.js":125,"./formatTrim.js":126,"./formatTypes.js":127,"./identity.js":128}],131:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7275,7 +7739,7 @@ function _default(step) {
   return Math.max(0, -(0, _exponent.default)(Math.abs(step)));
 }
 
-},{"./exponent.js":118}],131:[function(require,module,exports){
+},{"./exponent.js":119}],132:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7291,7 +7755,7 @@ function _default(step, value) {
   return Math.max(0, Math.max(-8, Math.min(8, Math.floor((0, _exponent.default)(value) / 3))) * 3 - (0, _exponent.default)(Math.abs(step)));
 }
 
-},{"./exponent.js":118}],132:[function(require,module,exports){
+},{"./exponent.js":119}],133:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7308,7 +7772,7 @@ function _default(step, max) {
   return Math.max(0, (0, _exponent.default)(max) - (0, _exponent.default)(step)) + 1;
 }
 
-},{"./exponent.js":118}],133:[function(require,module,exports){
+},{"./exponent.js":119}],134:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7354,7 +7818,7 @@ function add(adder, a, b) {
   adder.t = a - av + (b - bv);
 }
 
-},{}],134:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7442,7 +7906,7 @@ function _default(object) {
   return areaSum * 2;
 }
 
-},{"./adder.js":133,"./math.js":156,"./noop.js":157,"./stream.js":190}],135:[function(require,module,exports){
+},{"./adder.js":134,"./math.js":157,"./noop.js":158,"./stream.js":191}],136:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7646,7 +8110,7 @@ function _default(feature) {
   return lambda0 === Infinity || phi0 === Infinity ? [[NaN, NaN], [NaN, NaN]] : [[lambda0, phi0], [lambda1, phi1]];
 }
 
-},{"./adder.js":133,"./area.js":134,"./cartesian.js":136,"./math.js":156,"./stream.js":190}],136:[function(require,module,exports){
+},{"./adder.js":134,"./area.js":135,"./cartesian.js":137,"./math.js":157,"./stream.js":191}],137:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7696,7 +8160,7 @@ function cartesianNormalizeInPlace(d) {
   d[0] /= l, d[1] /= l, d[2] /= l;
 }
 
-},{"./math.js":156}],137:[function(require,module,exports){
+},{"./math.js":157}],138:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7841,7 +8305,7 @@ function _default(object) {
   return [(0, _math.atan2)(y, x) * _math.degrees, (0, _math.asin)(z / (0, _math.sqrt)(m)) * _math.degrees];
 }
 
-},{"./math.js":156,"./noop.js":157,"./stream.js":190}],138:[function(require,module,exports){
+},{"./math.js":157,"./noop.js":158,"./stream.js":191}],139:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7936,7 +8400,7 @@ function _default() {
   return circle;
 }
 
-},{"./cartesian.js":136,"./constant.js":148,"./math.js":156,"./rotation.js":189}],139:[function(require,module,exports){
+},{"./cartesian.js":137,"./constant.js":149,"./math.js":157,"./rotation.js":190}],140:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8041,7 +8505,7 @@ function clipAntimeridianInterpolate(from, to, direction, stream) {
   }
 }
 
-},{"../math.js":156,"./index.js":143}],140:[function(require,module,exports){
+},{"../math.js":157,"./index.js":144}],141:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8076,7 +8540,7 @@ function _default() {
   };
 }
 
-},{"../noop.js":157}],141:[function(require,module,exports){
+},{"../noop.js":158}],142:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8264,7 +8728,7 @@ function _default(radius) {
   return (0, _index.default)(visible, clipLine, interpolate, smallRadius ? [0, -radius] : [-_math.pi, radius - _math.pi]);
 }
 
-},{"../cartesian.js":136,"../circle.js":138,"../math.js":156,"../pointEqual.js":165,"./index.js":143}],142:[function(require,module,exports){
+},{"../cartesian.js":137,"../circle.js":139,"../math.js":157,"../pointEqual.js":166,"./index.js":144}],143:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8294,7 +8758,7 @@ function _default() {
   };
 }
 
-},{"./rectangle.js":145}],143:[function(require,module,exports){
+},{"./rectangle.js":146}],144:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8441,7 +8905,7 @@ function compareIntersection(a, b) {
   return ((a = a.x)[0] < 0 ? a[1] - _math.halfPi - _math.epsilon : _math.halfPi - a[1]) - ((b = b.x)[0] < 0 ? b[1] - _math.halfPi - _math.epsilon : _math.halfPi - b[1]);
 }
 
-},{"../math.js":156,"../polygonContains.js":166,"./buffer.js":140,"./rejoin.js":146,"d3-array":14}],144:[function(require,module,exports){
+},{"../math.js":157,"../polygonContains.js":167,"./buffer.js":141,"./rejoin.js":147,"d3-array":15}],145:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8512,7 +8976,7 @@ function _default(a, b, x0, y0, x1, y1) {
   return true;
 }
 
-},{}],145:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8704,7 +9168,7 @@ function clipRectangle(x0, y0, x1, y1) {
   };
 }
 
-},{"../math.js":156,"./buffer.js":140,"./line.js":144,"./rejoin.js":146,"d3-array":14}],146:[function(require,module,exports){
+},{"../math.js":157,"./buffer.js":141,"./line.js":145,"./rejoin.js":147,"d3-array":15}],147:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8836,7 +9300,7 @@ function link(array) {
   b.p = a;
 }
 
-},{"../math.js":156,"../pointEqual.js":165}],147:[function(require,module,exports){
+},{"../math.js":157,"../pointEqual.js":166}],148:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8855,9 +9319,9 @@ function _default(a, b) {
   return compose;
 }
 
-},{}],148:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],149:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],150:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8980,7 +9444,7 @@ function _default(object, point) {
   return (object && containsObjectType.hasOwnProperty(object.type) ? containsObjectType[object.type] : containsGeometry)(object, point);
 }
 
-},{"./distance.js":150,"./math.js":156,"./polygonContains.js":166}],150:[function(require,module,exports){
+},{"./distance.js":151,"./math.js":157,"./polygonContains.js":167}],151:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9004,7 +9468,7 @@ function _default(a, b) {
   return (0, _length.default)(object);
 }
 
-},{"./length.js":155}],151:[function(require,module,exports){
+},{"./length.js":156}],152:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9142,9 +9606,9 @@ function graticule10() {
   return graticule()();
 }
 
-},{"./math.js":156,"d3-array":14}],152:[function(require,module,exports){
-arguments[4][13][0].apply(exports,arguments)
-},{"dup":13}],153:[function(require,module,exports){
+},{"./math.js":157,"d3-array":15}],153:[function(require,module,exports){
+arguments[4][14][0].apply(exports,arguments)
+},{"dup":14}],154:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9519,7 +9983,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./area.js":134,"./bounds.js":135,"./centroid.js":137,"./circle.js":138,"./clip/antimeridian.js":139,"./clip/circle.js":141,"./clip/extent.js":142,"./clip/rectangle.js":145,"./contains.js":149,"./distance.js":150,"./graticule.js":151,"./interpolate.js":154,"./length.js":155,"./path/index.js":162,"./projection/albers.js":167,"./projection/albersUsa.js":168,"./projection/azimuthalEqualArea.js":170,"./projection/azimuthalEquidistant.js":171,"./projection/conicConformal.js":173,"./projection/conicEqualArea.js":174,"./projection/conicEquidistant.js":175,"./projection/equalEarth.js":177,"./projection/equirectangular.js":178,"./projection/gnomonic.js":180,"./projection/identity.js":181,"./projection/index.js":182,"./projection/mercator.js":183,"./projection/naturalEarth1.js":184,"./projection/orthographic.js":185,"./projection/stereographic.js":187,"./projection/transverseMercator.js":188,"./rotation.js":189,"./stream.js":190,"./transform.js":191}],154:[function(require,module,exports){
+},{"./area.js":135,"./bounds.js":136,"./centroid.js":138,"./circle.js":139,"./clip/antimeridian.js":140,"./clip/circle.js":142,"./clip/extent.js":143,"./clip/rectangle.js":146,"./contains.js":150,"./distance.js":151,"./graticule.js":152,"./interpolate.js":155,"./length.js":156,"./path/index.js":163,"./projection/albers.js":168,"./projection/albersUsa.js":169,"./projection/azimuthalEqualArea.js":171,"./projection/azimuthalEquidistant.js":172,"./projection/conicConformal.js":174,"./projection/conicEqualArea.js":175,"./projection/conicEquidistant.js":176,"./projection/equalEarth.js":178,"./projection/equirectangular.js":179,"./projection/gnomonic.js":181,"./projection/identity.js":182,"./projection/index.js":183,"./projection/mercator.js":184,"./projection/naturalEarth1.js":185,"./projection/orthographic.js":186,"./projection/stereographic.js":188,"./projection/transverseMercator.js":189,"./rotation.js":190,"./stream.js":191,"./transform.js":192}],155:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9558,7 +10022,7 @@ function _default(a, b) {
   return interpolate;
 }
 
-},{"./math.js":156}],155:[function(require,module,exports){
+},{"./math.js":157}],156:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9624,7 +10088,7 @@ function _default(object) {
   return +lengthSum;
 }
 
-},{"./adder.js":133,"./math.js":156,"./noop.js":157,"./stream.js":190}],156:[function(require,module,exports){
+},{"./adder.js":134,"./math.js":157,"./noop.js":158,"./stream.js":191}],157:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9693,7 +10157,7 @@ function haversin(x) {
   return (x = sin(x / 2)) * x;
 }
 
-},{}],157:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9703,7 +10167,7 @@ exports.default = noop;
 
 function noop() {}
 
-},{}],158:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9766,7 +10230,7 @@ function areaRingEnd() {
 var _default = areaStream;
 exports.default = _default;
 
-},{"../adder.js":133,"../math.js":156,"../noop.js":157}],159:[function(require,module,exports){
+},{"../adder.js":134,"../math.js":157,"../noop.js":158}],160:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9805,7 +10269,7 @@ function boundsPoint(x, y) {
 var _default = boundsStream;
 exports.default = _default;
 
-},{"../noop.js":157}],160:[function(require,module,exports){
+},{"../noop.js":158}],161:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9908,7 +10372,7 @@ function centroidPointRing(x, y) {
 var _default = centroidStream;
 exports.default = _default;
 
-},{"../math.js":156}],161:[function(require,module,exports){
+},{"../math.js":157}],162:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9974,7 +10438,7 @@ PathContext.prototype = {
   result: _noop.default
 };
 
-},{"../math.js":156,"../noop.js":157}],162:[function(require,module,exports){
+},{"../math.js":157,"../noop.js":158}],163:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10054,7 +10518,7 @@ function _default(projection, context) {
   return path.projection(projection).context(context);
 }
 
-},{"../identity.js":152,"../stream.js":190,"./area.js":158,"./bounds.js":159,"./centroid.js":160,"./context.js":161,"./measure.js":163,"./string.js":164}],163:[function(require,module,exports){
+},{"../identity.js":153,"../stream.js":191,"./area.js":159,"./bounds.js":160,"./centroid.js":161,"./context.js":162,"./measure.js":164,"./string.js":165}],164:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10112,7 +10576,7 @@ function lengthPoint(x, y) {
 var _default = lengthStream;
 exports.default = _default;
 
-},{"../adder.js":133,"../math.js":156,"../noop.js":157}],164:[function(require,module,exports){
+},{"../adder.js":134,"../math.js":157,"../noop.js":158}],165:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10187,7 +10651,7 @@ function circle(radius) {
   return "m0," + radius + "a" + radius + "," + radius + " 0 1,1 0," + -2 * radius + "a" + radius + "," + radius + " 0 1,1 0," + 2 * radius + "z";
 }
 
-},{}],165:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10201,7 +10665,7 @@ function _default(a, b) {
   return (0, _math.abs)(a[0] - b[0]) < _math.epsilon && (0, _math.abs)(a[1] - b[1]) < _math.epsilon;
 }
 
-},{"./math.js":156}],166:[function(require,module,exports){
+},{"./math.js":157}],167:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10285,7 +10749,7 @@ function _default(polygon, point) {
   return (angle < -_math.epsilon || angle < _math.epsilon && sum < -_math.epsilon) ^ winding & 1;
 }
 
-},{"./adder.js":133,"./cartesian.js":136,"./math.js":156}],167:[function(require,module,exports){
+},{"./adder.js":134,"./cartesian.js":137,"./math.js":157}],168:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10301,7 +10765,7 @@ function _default() {
   return (0, _conicEqualArea.default)().parallels([29.5, 45.5]).scale(1070).translate([480, 250]).rotate([96, 0]).center([-0.6, 38.7]);
 }
 
-},{"./conicEqualArea.js":174}],168:[function(require,module,exports){
+},{"./conicEqualArea.js":175}],169:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10445,7 +10909,7 @@ function _default() {
   return albersUsa.scale(1070);
 }
 
-},{"../math.js":156,"./albers.js":167,"./conicEqualArea.js":174,"./fit.js":179}],169:[function(require,module,exports){
+},{"../math.js":157,"./albers.js":168,"./conicEqualArea.js":175,"./fit.js":180}],170:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10475,7 +10939,7 @@ function azimuthalInvert(angle) {
   };
 }
 
-},{"../math.js":156}],170:[function(require,module,exports){
+},{"../math.js":157}],171:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10504,7 +10968,7 @@ function _default() {
   return (0, _index.default)(azimuthalEqualAreaRaw).scale(124.75).clipAngle(180 - 1e-3);
 }
 
-},{"../math.js":156,"./azimuthal.js":169,"./index.js":182}],171:[function(require,module,exports){
+},{"../math.js":157,"./azimuthal.js":170,"./index.js":183}],172:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10533,7 +10997,7 @@ function _default() {
   return (0, _index.default)(azimuthalEquidistantRaw).scale(79.4188).clipAngle(180 - 1e-3);
 }
 
-},{"../math.js":156,"./azimuthal.js":169,"./index.js":182}],172:[function(require,module,exports){
+},{"../math.js":157,"./azimuthal.js":170,"./index.js":183}],173:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10558,7 +11022,7 @@ function conicProjection(projectAt) {
   return p;
 }
 
-},{"../math.js":156,"./index.js":182}],173:[function(require,module,exports){
+},{"../math.js":157,"./index.js":183}],174:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10609,7 +11073,7 @@ function _default() {
   return (0, _conic.conicProjection)(conicConformalRaw).scale(109.5).parallels([30, 30]);
 }
 
-},{"../math.js":156,"./conic.js":172,"./mercator.js":183}],174:[function(require,module,exports){
+},{"../math.js":157,"./conic.js":173,"./mercator.js":184}],175:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10651,7 +11115,7 @@ function _default() {
   return (0, _conic.conicProjection)(conicEqualAreaRaw).scale(155.424).center([0, 33.6442]);
 }
 
-},{"../math.js":156,"./conic.js":172,"./cylindricalEqualArea.js":176}],175:[function(require,module,exports){
+},{"../math.js":157,"./conic.js":173,"./cylindricalEqualArea.js":177}],176:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10692,7 +11156,7 @@ function _default() {
   return (0, _conic.conicProjection)(conicEquidistantRaw).scale(131.154).center([0, 13.9389]);
 }
 
-},{"../math.js":156,"./conic.js":172,"./equirectangular.js":178}],176:[function(require,module,exports){
+},{"../math.js":157,"./conic.js":173,"./equirectangular.js":179}],177:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10716,7 +11180,7 @@ function cylindricalEqualAreaRaw(phi0) {
   return forward;
 }
 
-},{"../math.js":156}],177:[function(require,module,exports){
+},{"../math.js":157}],178:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10764,7 +11228,7 @@ function _default() {
   return (0, _index.default)(equalEarthRaw).scale(177.158);
 }
 
-},{"../math.js":156,"./index.js":182}],178:[function(require,module,exports){
+},{"../math.js":157,"./index.js":183}],179:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10787,7 +11251,7 @@ function _default() {
   return (0, _index.default)(equirectangularRaw).scale(152.63);
 }
 
-},{"./index.js":182}],179:[function(require,module,exports){
+},{"./index.js":183}],180:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10849,7 +11313,7 @@ function fitHeight(projection, height, object) {
   }, object);
 }
 
-},{"../path/bounds.js":159,"../stream.js":190}],180:[function(require,module,exports){
+},{"../path/bounds.js":160,"../stream.js":191}],181:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10878,7 +11342,7 @@ function _default() {
   return (0, _index.default)(gnomonicRaw).scale(144.049).clipAngle(60);
 }
 
-},{"../math.js":156,"./azimuthal.js":169,"./index.js":182}],181:[function(require,module,exports){
+},{"../math.js":157,"./azimuthal.js":170,"./index.js":183}],182:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11010,7 +11474,7 @@ function _default() {
   return projection;
 }
 
-},{"../clip/rectangle.js":145,"../identity.js":152,"../math.js":156,"../transform.js":191,"./fit.js":179}],182:[function(require,module,exports){
+},{"../clip/rectangle.js":146,"../identity.js":153,"../math.js":157,"../transform.js":192,"./fit.js":180}],183:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11236,7 +11700,7 @@ function projectionMutator(projectAt) {
   };
 }
 
-},{"../clip/antimeridian.js":139,"../clip/circle.js":141,"../clip/rectangle.js":145,"../compose.js":147,"../identity.js":152,"../math.js":156,"../rotation.js":189,"../transform.js":191,"./fit.js":179,"./resample.js":186}],183:[function(require,module,exports){
+},{"../clip/antimeridian.js":140,"../clip/circle.js":142,"../clip/rectangle.js":146,"../compose.js":148,"../identity.js":153,"../math.js":157,"../rotation.js":190,"../transform.js":192,"./fit.js":180,"./resample.js":187}],184:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11302,7 +11766,7 @@ function mercatorProjection(project) {
   return reclip();
 }
 
-},{"../math.js":156,"../rotation.js":189,"./index.js":182}],184:[function(require,module,exports){
+},{"../math.js":157,"../rotation.js":190,"./index.js":183}],185:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11341,7 +11805,7 @@ function _default() {
   return (0, _index.default)(naturalEarth1Raw).scale(175.295);
 }
 
-},{"../math.js":156,"./index.js":182}],185:[function(require,module,exports){
+},{"../math.js":157,"./index.js":183}],186:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11368,7 +11832,7 @@ function _default() {
   return (0, _index.default)(orthographicRaw).scale(249.5).clipAngle(90 + _math.epsilon);
 }
 
-},{"../math.js":156,"./azimuthal.js":169,"./index.js":182}],186:[function(require,module,exports){
+},{"../math.js":157,"./azimuthal.js":170,"./index.js":183}],187:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11492,7 +11956,7 @@ function resample(project, delta2) {
   };
 }
 
-},{"../cartesian.js":136,"../math.js":156,"../transform.js":191}],187:[function(require,module,exports){
+},{"../cartesian.js":137,"../math.js":157,"../transform.js":192}],188:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11523,7 +11987,7 @@ function _default() {
   return (0, _index.default)(stereographicRaw).scale(250).clipAngle(142);
 }
 
-},{"../math.js":156,"./azimuthal.js":169,"./index.js":182}],188:[function(require,module,exports){
+},{"../math.js":157,"./azimuthal.js":170,"./index.js":183}],189:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11560,7 +12024,7 @@ function _default() {
   return rotate([0, 0, 90]).scale(159.155);
 }
 
-},{"../math.js":156,"./mercator.js":183}],189:[function(require,module,exports){
+},{"../math.js":157,"./mercator.js":184}],190:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11640,7 +12104,7 @@ function _default(rotate) {
   return forward;
 }
 
-},{"./compose.js":147,"./math.js":156}],190:[function(require,module,exports){
+},{"./compose.js":148,"./math.js":157}],191:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11739,7 +12203,7 @@ function _default(object, stream) {
   }
 }
 
-},{}],191:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11789,7 +12253,7 @@ TransformStream.prototype = {
   }
 };
 
-},{}],192:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11807,7 +12271,7 @@ function required(f) {
   return f;
 }
 
-},{}],193:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11833,7 +12297,7 @@ function shuffle(array) {
   return array;
 }
 
-},{}],194:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11928,7 +12392,7 @@ function _default() {
   return cluster;
 }
 
-},{}],195:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11947,7 +12411,7 @@ function _default(x) {
   };
 }
 
-},{}],196:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11966,7 +12430,7 @@ function _default() {
   return nodes;
 }
 
-},{}],197:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11986,7 +12450,7 @@ function _default() {
   return this.eachAfter(count);
 }
 
-},{}],198:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12002,7 +12466,7 @@ function _default() {
   return nodes;
 }
 
-},{}],199:[function(require,module,exports){
+},{}],200:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12032,7 +12496,7 @@ function _default(callback) {
   return this;
 }
 
-},{}],200:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12062,7 +12526,7 @@ function _default(callback) {
   return this;
 }
 
-},{}],201:[function(require,module,exports){
+},{}],202:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12086,7 +12550,7 @@ function _default(callback) {
   return this;
 }
 
-},{}],202:[function(require,module,exports){
+},{}],203:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12188,7 +12652,7 @@ Node.prototype = hierarchy.prototype = {
   copy: node_copy
 };
 
-},{"./ancestors.js":196,"./count.js":197,"./descendants.js":198,"./each.js":199,"./eachAfter.js":200,"./eachBefore.js":201,"./leaves.js":203,"./links.js":204,"./path.js":205,"./sort.js":206,"./sum.js":207}],203:[function(require,module,exports){
+},{"./ancestors.js":197,"./count.js":198,"./descendants.js":199,"./each.js":200,"./eachAfter.js":201,"./eachBefore.js":202,"./leaves.js":204,"./links.js":205,"./path.js":206,"./sort.js":207,"./sum.js":208}],204:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12206,7 +12670,7 @@ function _default() {
   return leaves;
 }
 
-},{}],204:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12229,7 +12693,7 @@ function _default() {
   return links;
 }
 
-},{}],205:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12274,7 +12738,7 @@ function leastCommonAncestor(a, b) {
   return c;
 }
 
-},{}],206:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12290,7 +12754,7 @@ function _default(compare) {
   });
 }
 
-},{}],207:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12310,7 +12774,7 @@ function _default(value) {
   });
 }
 
-},{}],208:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12439,7 +12903,7 @@ var _resquarify = _interopRequireDefault(require("./treemap/resquarify.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./cluster.js":194,"./hierarchy/index.js":202,"./pack/enclose.js":209,"./pack/index.js":210,"./pack/siblings.js":211,"./partition.js":212,"./stratify.js":213,"./tree.js":214,"./treemap/binary.js":215,"./treemap/dice.js":216,"./treemap/index.js":217,"./treemap/resquarify.js":218,"./treemap/slice.js":220,"./treemap/sliceDice.js":221,"./treemap/squarify.js":222}],209:[function(require,module,exports){
+},{"./cluster.js":195,"./hierarchy/index.js":203,"./pack/enclose.js":210,"./pack/index.js":211,"./pack/siblings.js":212,"./partition.js":213,"./stratify.js":214,"./tree.js":215,"./treemap/binary.js":216,"./treemap/dice.js":217,"./treemap/index.js":218,"./treemap/resquarify.js":219,"./treemap/slice.js":221,"./treemap/sliceDice.js":222,"./treemap/squarify.js":223}],210:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12585,7 +13049,7 @@ function encloseBasis3(a, b, c) {
   };
 }
 
-},{"../array.js":193}],210:[function(require,module,exports){
+},{"../array.js":194}],211:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12676,7 +13140,7 @@ function translateChild(k) {
   };
 }
 
-},{"../accessors.js":192,"../constant.js":195,"./siblings.js":211}],211:[function(require,module,exports){
+},{"../accessors.js":193,"../constant.js":196,"./siblings.js":212}],212:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12814,7 +13278,7 @@ function _default(circles) {
   return circles;
 }
 
-},{"./enclose.js":209}],212:[function(require,module,exports){
+},{"./enclose.js":210}],213:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12878,7 +13342,7 @@ function _default() {
   return partition;
 }
 
-},{"./treemap/dice.js":216,"./treemap/round.js":219}],213:[function(require,module,exports){
+},{"./treemap/dice.js":217,"./treemap/round.js":220}],214:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12967,7 +13431,7 @@ function _default() {
   return stratify;
 }
 
-},{"./accessors.js":192,"./hierarchy/index.js":202}],214:[function(require,module,exports){
+},{"./accessors.js":193,"./hierarchy/index.js":203}],215:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13225,7 +13689,7 @@ function _default() {
   return tree;
 }
 
-},{"./hierarchy/index.js":202}],215:[function(require,module,exports){
+},{"./hierarchy/index.js":203}],216:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13280,7 +13744,7 @@ function _default(parent, x0, y0, x1, y1) {
   }
 }
 
-},{}],216:[function(require,module,exports){
+},{}],217:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13301,7 +13765,7 @@ function _default(parent, x0, y0, x1, y1) {
   }
 }
 
-},{}],217:[function(require,module,exports){
+},{}],218:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13413,7 +13877,7 @@ function _default() {
   return treemap;
 }
 
-},{"../accessors.js":192,"../constant.js":195,"./round.js":219,"./squarify.js":222}],218:[function(require,module,exports){
+},{"../accessors.js":193,"../constant.js":196,"./round.js":220,"./squarify.js":223}],219:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13464,7 +13928,7 @@ var _default = function custom(ratio) {
 
 exports.default = _default;
 
-},{"./dice.js":216,"./slice.js":220,"./squarify.js":222}],219:[function(require,module,exports){
+},{"./dice.js":217,"./slice.js":221,"./squarify.js":223}],220:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13479,7 +13943,7 @@ function _default(node) {
   node.y1 = Math.round(node.y1);
 }
 
-},{}],220:[function(require,module,exports){
+},{}],221:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13500,7 +13964,7 @@ function _default(parent, x0, y0, x1, y1) {
   }
 }
 
-},{}],221:[function(require,module,exports){
+},{}],222:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13518,7 +13982,7 @@ function _default(parent, x0, y0, x1, y1) {
   (parent.depth & 1 ? _slice.default : _dice.default)(parent, x0, y0, x1, y1);
 }
 
-},{"./dice.js":216,"./slice.js":220}],222:[function(require,module,exports){
+},{"./dice.js":217,"./slice.js":221}],223:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13607,7 +14071,7 @@ var _default = function custom(ratio) {
 
 exports.default = _default;
 
-},{"./dice.js":216,"./slice.js":220}],223:[function(require,module,exports){
+},{"./dice.js":217,"./slice.js":221}],224:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13648,7 +14112,7 @@ function genericArray(a, b) {
   };
 }
 
-},{"./numberArray.js":237,"./value.js":247}],224:[function(require,module,exports){
+},{"./numberArray.js":238,"./value.js":248}],225:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13675,7 +14139,7 @@ function _default(values) {
   };
 }
 
-},{}],225:[function(require,module,exports){
+},{}],226:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13697,7 +14161,7 @@ function _default(values) {
   };
 }
 
-},{"./basis.js":224}],226:[function(require,module,exports){
+},{"./basis.js":225}],227:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13739,9 +14203,9 @@ function nogamma(a, b) {
   return d ? linear(a, d) : (0, _constant.default)(isNaN(a) ? b : a);
 }
 
-},{"./constant.js":227}],227:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],228:[function(require,module,exports){
+},{"./constant.js":228}],228:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],229:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13786,7 +14250,7 @@ exports.default = _default;
 var cubehelixLong = cubehelix(_color.default);
 exports.cubehelixLong = cubehelixLong;
 
-},{"./color.js":226,"d3-color":60}],229:[function(require,module,exports){
+},{"./color.js":227,"d3-color":61}],230:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13801,7 +14265,7 @@ function _default(a, b) {
   };
 }
 
-},{}],230:[function(require,module,exports){
+},{}],231:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13816,7 +14280,7 @@ function _default(range) {
   };
 }
 
-},{}],231:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13854,7 +14318,7 @@ exports.default = _default;
 var hclLong = hcl(_color.default);
 exports.hclLong = hclLong;
 
-},{"./color.js":226,"d3-color":60}],232:[function(require,module,exports){
+},{"./color.js":227,"d3-color":61}],233:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13892,7 +14356,7 @@ exports.default = _default;
 var hslLong = hsl(_color.default);
 exports.hslLong = hslLong;
 
-},{"./color.js":226,"d3-color":60}],233:[function(require,module,exports){
+},{"./color.js":227,"d3-color":61}],234:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13910,7 +14374,7 @@ function _default(a, b) {
   };
 }
 
-},{"./color.js":226}],234:[function(require,module,exports){
+},{"./color.js":227}],235:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14127,7 +14591,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./array.js":223,"./basis.js":224,"./basisClosed.js":225,"./cubehelix.js":228,"./date.js":229,"./discrete.js":230,"./hcl.js":231,"./hsl.js":232,"./hue.js":233,"./lab.js":235,"./number.js":236,"./numberArray.js":237,"./object.js":238,"./piecewise.js":239,"./quantize.js":240,"./rgb.js":241,"./round.js":242,"./string.js":243,"./transform/index.js":245,"./value.js":247,"./zoom.js":248}],235:[function(require,module,exports){
+},{"./array.js":224,"./basis.js":225,"./basisClosed.js":226,"./cubehelix.js":229,"./date.js":230,"./discrete.js":231,"./hcl.js":232,"./hsl.js":233,"./hue.js":234,"./lab.js":236,"./number.js":237,"./numberArray.js":238,"./object.js":239,"./piecewise.js":240,"./quantize.js":241,"./rgb.js":242,"./round.js":243,"./string.js":244,"./transform/index.js":246,"./value.js":248,"./zoom.js":249}],236:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14155,7 +14619,7 @@ function lab(start, end) {
   };
 }
 
-},{"./color.js":226,"d3-color":60}],236:[function(require,module,exports){
+},{"./color.js":227,"d3-color":61}],237:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14169,7 +14633,7 @@ function _default(a, b) {
   };
 }
 
-},{}],237:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14194,7 +14658,7 @@ function isNumberArray(x) {
   return ArrayBuffer.isView(x) && !(x instanceof DataView);
 }
 
-},{}],238:[function(require,module,exports){
+},{}],239:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14228,7 +14692,7 @@ function _default(a, b) {
   };
 }
 
-},{"./value.js":247}],239:[function(require,module,exports){
+},{"./value.js":248}],240:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14250,7 +14714,7 @@ function piecewise(interpolate, values) {
   };
 }
 
-},{}],240:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14266,7 +14730,7 @@ function _default(interpolator, n) {
   return samples;
 }
 
-},{}],241:[function(require,module,exports){
+},{}],242:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14345,7 +14809,7 @@ exports.rgbBasis = rgbBasis;
 var rgbBasisClosed = rgbSpline(_basisClosed.default);
 exports.rgbBasisClosed = rgbBasisClosed;
 
-},{"./basis.js":224,"./basisClosed.js":225,"./color.js":226,"d3-color":60}],242:[function(require,module,exports){
+},{"./basis.js":225,"./basisClosed.js":226,"./color.js":227,"d3-color":61}],243:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14359,7 +14823,7 @@ function _default(a, b) {
   };
 }
 
-},{}],243:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14444,7 +14908,7 @@ function _default(a, b) {
   });
 }
 
-},{"./number.js":236}],244:[function(require,module,exports){
+},{"./number.js":237}],245:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14479,7 +14943,7 @@ function _default(a, b, c, d, e, f) {
   };
 }
 
-},{}],245:[function(require,module,exports){
+},{}],246:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14581,7 +15045,7 @@ exports.interpolateTransformCss = interpolateTransformCss;
 var interpolateTransformSvg = interpolateTransform(_parse.parseSvg, ", ", ")", ")");
 exports.interpolateTransformSvg = interpolateTransformSvg;
 
-},{"../number.js":236,"./parse.js":246}],246:[function(require,module,exports){
+},{"../number.js":237,"./parse.js":247}],247:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14617,7 +15081,7 @@ function parseSvg(value) {
   return (0, _decompose.default)(value.a, value.b, value.c, value.d, value.e, value.f);
 }
 
-},{"./decompose.js":244}],247:[function(require,module,exports){
+},{"./decompose.js":245}],248:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14655,7 +15119,7 @@ function _default(a, b) {
   return b == null || t === "boolean" ? (0, _constant.default)(b) : (t === "number" ? _number.default : t === "string" ? (c = (0, _d3Color.color)(b)) ? (b = c, _rgb.default) : _string.default : b instanceof _d3Color.color ? _rgb.default : b instanceof Date ? _date.default : (0, _numberArray.isNumberArray)(b) ? _numberArray.default : Array.isArray(b) ? _array.genericArray : typeof b.valueOf !== "function" && typeof b.toString !== "function" || isNaN(b) ? _object.default : _number.default)(a, b);
 }
 
-},{"./array.js":223,"./constant.js":227,"./date.js":229,"./number.js":236,"./numberArray.js":237,"./object.js":238,"./rgb.js":241,"./string.js":243,"d3-color":60}],248:[function(require,module,exports){
+},{"./array.js":224,"./constant.js":228,"./date.js":230,"./number.js":237,"./numberArray.js":238,"./object.js":239,"./rgb.js":242,"./string.js":244,"d3-color":61}],249:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14721,7 +15185,7 @@ function _default(p0, p1) {
   return i;
 }
 
-},{}],249:[function(require,module,exports){
+},{}],250:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14738,7 +15202,7 @@ var _path = _interopRequireDefault(require("./path.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./path.js":250}],250:[function(require,module,exports){
+},{"./path.js":251}],251:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14860,7 +15324,7 @@ Path.prototype = path.prototype = {
 var _default = path;
 exports.default = _default;
 
-},{}],251:[function(require,module,exports){
+},{}],252:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14884,7 +15348,7 @@ function _default(polygon) {
   return area / 2;
 }
 
-},{}],252:[function(require,module,exports){
+},{}],253:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14913,7 +15377,7 @@ function _default(polygon) {
   return k *= 3, [x / k, y / k];
 }
 
-},{}],253:[function(require,module,exports){
+},{}],254:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14941,7 +15405,7 @@ function _default(polygon, point) {
   return inside;
 }
 
-},{}],254:[function(require,module,exports){
+},{}],255:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14957,7 +15421,7 @@ function _default(a, b, c) {
   return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
 }
 
-},{}],255:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15018,7 +15482,7 @@ function _default(points) {
   return hull;
 }
 
-},{"./cross.js":254}],256:[function(require,module,exports){
+},{"./cross.js":255}],257:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15067,7 +15531,7 @@ var _length = _interopRequireDefault(require("./length.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./area.js":251,"./centroid.js":252,"./contains.js":253,"./hull.js":255,"./length.js":257}],257:[function(require,module,exports){
+},{"./area.js":252,"./centroid.js":253,"./contains.js":254,"./hull.js":256,"./length.js":258}],258:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15099,7 +15563,7 @@ function _default(polygon) {
   return perimeter;
 }
 
-},{}],258:[function(require,module,exports){
+},{}],259:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15192,7 +15656,7 @@ function addAll(data) {
   return this;
 }
 
-},{}],259:[function(require,module,exports){
+},{}],260:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15253,7 +15717,7 @@ function _default(x, y) {
   return this;
 }
 
-},{}],260:[function(require,module,exports){
+},{}],261:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15269,7 +15733,7 @@ function _default() {
   return data;
 }
 
-},{}],261:[function(require,module,exports){
+},{}],262:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15281,7 +15745,7 @@ function _default(_) {
   return arguments.length ? this.cover(+_[0][0], +_[0][1]).cover(+_[1][0], +_[1][1]) : isNaN(this._x0) ? undefined : [[this._x0, this._y0], [this._x1, this._y1]];
 }
 
-},{}],262:[function(require,module,exports){
+},{}],263:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15346,7 +15810,7 @@ function _default(x, y, radius) {
   return data;
 }
 
-},{"./quad.js":264}],263:[function(require,module,exports){
+},{"./quad.js":265}],264:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15363,7 +15827,7 @@ var _quadtree = _interopRequireDefault(require("./quadtree.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./quadtree.js":265}],264:[function(require,module,exports){
+},{"./quadtree.js":266}],265:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15379,7 +15843,7 @@ function _default(node, x0, y0, x1, y1) {
   this.y1 = y1;
 }
 
-},{}],265:[function(require,module,exports){
+},{}],266:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15488,7 +15952,7 @@ treeProto.visitAfter = _visitAfter.default;
 treeProto.x = _x.default;
 treeProto.y = _y.default;
 
-},{"./add.js":258,"./cover.js":259,"./data.js":260,"./extent.js":261,"./find.js":262,"./remove.js":266,"./root.js":267,"./size.js":268,"./visit.js":269,"./visitAfter.js":270,"./x.js":271,"./y.js":272}],266:[function(require,module,exports){
+},{"./add.js":259,"./cover.js":260,"./data.js":261,"./extent.js":262,"./find.js":263,"./remove.js":267,"./root.js":268,"./size.js":269,"./visit.js":270,"./visitAfter.js":271,"./x.js":272,"./y.js":273}],267:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15552,7 +16016,7 @@ function removeAll(data) {
   return this;
 }
 
-},{}],267:[function(require,module,exports){
+},{}],268:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15564,7 +16028,7 @@ function _default() {
   return this._root;
 }
 
-},{}],268:[function(require,module,exports){
+},{}],269:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15580,7 +16044,7 @@ function _default() {
   return size;
 }
 
-},{}],269:[function(require,module,exports){
+},{}],270:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15617,7 +16081,7 @@ function _default(callback) {
   return this;
 }
 
-},{"./quad.js":264}],270:[function(require,module,exports){
+},{"./quad.js":265}],271:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15662,7 +16126,7 @@ function _default(callback) {
   return this;
 }
 
-},{"./quad.js":264}],271:[function(require,module,exports){
+},{"./quad.js":265}],272:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15679,7 +16143,7 @@ function _default(_) {
   return arguments.length ? (this._x = _, this) : this._x;
 }
 
-},{}],272:[function(require,module,exports){
+},{}],273:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15696,7 +16160,7 @@ function _default(_) {
   return arguments.length ? (this._y = _, this) : this._y;
 }
 
-},{}],273:[function(require,module,exports){
+},{}],274:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15725,7 +16189,7 @@ var _default = function sourceRandomBates(source) {
 
 exports.default = _default;
 
-},{"./defaultSource":274,"./irwinHall":277}],274:[function(require,module,exports){
+},{"./defaultSource":275,"./irwinHall":278}],275:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15737,7 +16201,7 @@ function _default() {
   return Math.random();
 }
 
-},{}],275:[function(require,module,exports){
+},{}],276:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15762,7 +16226,7 @@ var _default = function sourceRandomExponential(source) {
 
 exports.default = _default;
 
-},{"./defaultSource":274}],276:[function(require,module,exports){
+},{"./defaultSource":275}],277:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15819,7 +16283,7 @@ var _exponential = _interopRequireDefault(require("./exponential"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./bates":273,"./exponential":275,"./irwinHall":277,"./logNormal":278,"./normal":279,"./uniform":280}],277:[function(require,module,exports){
+},{"./bates":274,"./exponential":276,"./irwinHall":278,"./logNormal":279,"./normal":280,"./uniform":281}],278:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15846,7 +16310,7 @@ var _default = function sourceRandomIrwinHall(source) {
 
 exports.default = _default;
 
-},{"./defaultSource":274}],278:[function(require,module,exports){
+},{"./defaultSource":275}],279:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15875,7 +16339,7 @@ var _default = function sourceRandomLogNormal(source) {
 
 exports.default = _default;
 
-},{"./defaultSource":274,"./normal":279}],279:[function(require,module,exports){
+},{"./defaultSource":275,"./normal":280}],280:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15911,7 +16375,7 @@ var _default = function sourceRandomNormal(source) {
 
 exports.default = _default;
 
-},{"./defaultSource":274}],280:[function(require,module,exports){
+},{"./defaultSource":275}],281:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15939,7 +16403,7 @@ var _default = function sourceRandomUniform(source) {
 
 exports.default = _default;
 
-},{"./defaultSource":274}],281:[function(require,module,exports){
+},{"./defaultSource":275}],282:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15955,7 +16419,7 @@ var _default = (0, _colors.default)("7fc97fbeaed4fdc086ffff99386cb0f0027fbf5b176
 
 exports.default = _default;
 
-},{"../colors.js":291}],282:[function(require,module,exports){
+},{"../colors.js":292}],283:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15971,7 +16435,7 @@ var _default = (0, _colors.default)("1b9e77d95f027570b3e7298a66a61ee6ab02a6761d6
 
 exports.default = _default;
 
-},{"../colors.js":291}],283:[function(require,module,exports){
+},{"../colors.js":292}],284:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -15987,7 +16451,7 @@ var _default = (0, _colors.default)("a6cee31f78b4b2df8a33a02cfb9a99e31a1cfdbf6ff
 
 exports.default = _default;
 
-},{"../colors.js":291}],284:[function(require,module,exports){
+},{"../colors.js":292}],285:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16003,7 +16467,7 @@ var _default = (0, _colors.default)("fbb4aeb3cde3ccebc5decbe4fed9a6ffffcce5d8bdf
 
 exports.default = _default;
 
-},{"../colors.js":291}],285:[function(require,module,exports){
+},{"../colors.js":292}],286:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16019,7 +16483,7 @@ var _default = (0, _colors.default)("b3e2cdfdcdaccbd5e8f4cae4e6f5c9fff2aef1e2ccc
 
 exports.default = _default;
 
-},{"../colors.js":291}],286:[function(require,module,exports){
+},{"../colors.js":292}],287:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16035,7 +16499,7 @@ var _default = (0, _colors.default)("e41a1c377eb84daf4a984ea3ff7f00ffff33a65628f
 
 exports.default = _default;
 
-},{"../colors.js":291}],287:[function(require,module,exports){
+},{"../colors.js":292}],288:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16051,7 +16515,7 @@ var _default = (0, _colors.default)("66c2a5fc8d628da0cbe78ac3a6d854ffd92fe5c494b
 
 exports.default = _default;
 
-},{"../colors.js":291}],288:[function(require,module,exports){
+},{"../colors.js":292}],289:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16067,7 +16531,7 @@ var _default = (0, _colors.default)("8dd3c7ffffb3bebadafb807280b1d3fdb462b3de69f
 
 exports.default = _default;
 
-},{"../colors.js":291}],289:[function(require,module,exports){
+},{"../colors.js":292}],290:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16083,7 +16547,7 @@ var _default = (0, _colors.default)("4e79a7f28e2ce1575976b7b259a14fedc949af7aa1f
 
 exports.default = _default;
 
-},{"../colors.js":291}],290:[function(require,module,exports){
+},{"../colors.js":292}],291:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16099,7 +16563,7 @@ var _default = (0, _colors.default)("1f77b4ff7f0e2ca02cd627289467bd8c564be377c27
 
 exports.default = _default;
 
-},{"../colors.js":291}],291:[function(require,module,exports){
+},{"../colors.js":292}],292:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16117,7 +16581,7 @@ function _default(specifier) {
   return colors;
 }
 
-},{}],292:[function(require,module,exports){
+},{}],293:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16138,7 +16602,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],293:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],294:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16159,7 +16623,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],294:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],295:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16180,7 +16644,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],295:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],296:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16201,7 +16665,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],296:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],297:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16222,7 +16686,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],297:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],298:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16243,7 +16707,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],298:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],299:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16264,7 +16728,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],299:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],300:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16285,7 +16749,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],300:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],301:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16306,7 +16770,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],301:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],302:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16855,7 +17319,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./categorical/Accent.js":281,"./categorical/Dark2.js":282,"./categorical/Paired.js":283,"./categorical/Pastel1.js":284,"./categorical/Pastel2.js":285,"./categorical/Set1.js":286,"./categorical/Set2.js":287,"./categorical/Set3.js":288,"./categorical/Tableau10.js":289,"./categorical/category10.js":290,"./diverging/BrBG.js":292,"./diverging/PRGn.js":293,"./diverging/PiYG.js":294,"./diverging/PuOr.js":295,"./diverging/RdBu.js":296,"./diverging/RdGy.js":297,"./diverging/RdYlBu.js":298,"./diverging/RdYlGn.js":299,"./diverging/Spectral.js":300,"./sequential-multi/BuGn.js":303,"./sequential-multi/BuPu.js":304,"./sequential-multi/GnBu.js":305,"./sequential-multi/OrRd.js":306,"./sequential-multi/PuBu.js":307,"./sequential-multi/PuBuGn.js":308,"./sequential-multi/PuRd.js":309,"./sequential-multi/RdPu.js":310,"./sequential-multi/YlGn.js":311,"./sequential-multi/YlGnBu.js":312,"./sequential-multi/YlOrBr.js":313,"./sequential-multi/YlOrRd.js":314,"./sequential-multi/cividis.js":315,"./sequential-multi/cubehelix.js":316,"./sequential-multi/rainbow.js":317,"./sequential-multi/sinebow.js":318,"./sequential-multi/turbo.js":319,"./sequential-multi/viridis.js":320,"./sequential-single/Blues.js":321,"./sequential-single/Greens.js":322,"./sequential-single/Greys.js":323,"./sequential-single/Oranges.js":324,"./sequential-single/Purples.js":325,"./sequential-single/Reds.js":326}],302:[function(require,module,exports){
+},{"./categorical/Accent.js":282,"./categorical/Dark2.js":283,"./categorical/Paired.js":284,"./categorical/Pastel1.js":285,"./categorical/Pastel2.js":286,"./categorical/Set1.js":287,"./categorical/Set2.js":288,"./categorical/Set3.js":289,"./categorical/Tableau10.js":290,"./categorical/category10.js":291,"./diverging/BrBG.js":293,"./diverging/PRGn.js":294,"./diverging/PiYG.js":295,"./diverging/PuOr.js":296,"./diverging/RdBu.js":297,"./diverging/RdGy.js":298,"./diverging/RdYlBu.js":299,"./diverging/RdYlGn.js":300,"./diverging/Spectral.js":301,"./sequential-multi/BuGn.js":304,"./sequential-multi/BuPu.js":305,"./sequential-multi/GnBu.js":306,"./sequential-multi/OrRd.js":307,"./sequential-multi/PuBu.js":308,"./sequential-multi/PuBuGn.js":309,"./sequential-multi/PuRd.js":310,"./sequential-multi/RdPu.js":311,"./sequential-multi/YlGn.js":312,"./sequential-multi/YlGnBu.js":313,"./sequential-multi/YlOrBr.js":314,"./sequential-multi/YlOrRd.js":315,"./sequential-multi/cividis.js":316,"./sequential-multi/cubehelix.js":317,"./sequential-multi/rainbow.js":318,"./sequential-multi/sinebow.js":319,"./sequential-multi/turbo.js":320,"./sequential-multi/viridis.js":321,"./sequential-single/Blues.js":322,"./sequential-single/Greens.js":323,"./sequential-single/Greys.js":324,"./sequential-single/Oranges.js":325,"./sequential-single/Purples.js":326,"./sequential-single/Reds.js":327}],303:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16869,7 +17333,7 @@ function _default(scheme) {
   return (0, _d3Interpolate.interpolateRgbBasis)(scheme[scheme.length - 1]);
 }
 
-},{"d3-interpolate":234}],303:[function(require,module,exports){
+},{"d3-interpolate":235}],304:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16890,7 +17354,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],304:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],305:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16911,7 +17375,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],305:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],306:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16932,7 +17396,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],306:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],307:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16953,7 +17417,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],307:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],308:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16974,7 +17438,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],308:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],309:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -16995,7 +17459,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],309:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],310:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17016,7 +17480,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],310:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],311:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17037,7 +17501,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],311:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],312:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17058,7 +17522,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],312:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],313:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17079,7 +17543,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],313:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],314:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17100,7 +17564,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],314:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],315:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17121,7 +17585,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],315:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],316:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17134,7 +17598,7 @@ function _default(t) {
   return "rgb(" + Math.max(0, Math.min(255, Math.round(-4.54 - t * (35.34 - t * (2381.73 - t * (6402.7 - t * (7024.72 - t * 2710.57))))))) + ", " + Math.max(0, Math.min(255, Math.round(32.49 + t * (170.73 + t * (52.82 - t * (131.46 - t * (176.58 - t * 67.37))))))) + ", " + Math.max(0, Math.min(255, Math.round(81.24 + t * (442.36 - t * (2482.43 - t * (6167.24 - t * (6614.94 - t * 2475.67))))))) + ")";
 }
 
-},{}],316:[function(require,module,exports){
+},{}],317:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17150,7 +17614,7 @@ var _default = (0, _d3Interpolate.interpolateCubehelixLong)((0, _d3Color.cubehel
 
 exports.default = _default;
 
-},{"d3-color":60,"d3-interpolate":234}],317:[function(require,module,exports){
+},{"d3-color":61,"d3-interpolate":235}],318:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17178,7 +17642,7 @@ function _default(t) {
   return c + "";
 }
 
-},{"d3-color":60,"d3-interpolate":234}],318:[function(require,module,exports){
+},{"d3-color":61,"d3-interpolate":235}],319:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17201,7 +17665,7 @@ function _default(t) {
   return c + "";
 }
 
-},{"d3-color":60}],319:[function(require,module,exports){
+},{"d3-color":61}],320:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17214,7 +17678,7 @@ function _default(t) {
   return "rgb(" + Math.max(0, Math.min(255, Math.round(34.61 + t * (1172.33 - t * (10793.56 - t * (33300.12 - t * (38394.49 - t * 14825.05))))))) + ", " + Math.max(0, Math.min(255, Math.round(23.31 + t * (557.33 + t * (1225.33 - t * (3574.96 - t * (1073.77 + t * 707.56))))))) + ", " + Math.max(0, Math.min(255, Math.round(27.2 + t * (3211.1 - t * (15327.97 - t * (27814 - t * (22569.18 - t * 6838.66))))))) + ")";
 }
 
-},{}],320:[function(require,module,exports){
+},{}],321:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17243,7 +17707,7 @@ exports.inferno = inferno;
 var plasma = ramp((0, _colors.default)("0d088710078813078916078a19068c1b068d1d068e20068f2206902406912605912805922a05932c05942e05952f059631059733059735049837049938049a3a049a3c049b3e049c3f049c41049d43039e44039e46039f48039f4903a04b03a14c02a14e02a25002a25102a35302a35502a45601a45801a45901a55b01a55c01a65e01a66001a66100a76300a76400a76600a76700a86900a86a00a86c00a86e00a86f00a87100a87201a87401a87501a87701a87801a87a02a87b02a87d03a87e03a88004a88104a78305a78405a78606a68707a68808a68a09a58b0aa58d0ba58e0ca48f0da4910ea3920fa39410a29511a19613a19814a099159f9a169f9c179e9d189d9e199da01a9ca11b9ba21d9aa31e9aa51f99a62098a72197a82296aa2395ab2494ac2694ad2793ae2892b02991b12a90b22b8fb32c8eb42e8db52f8cb6308bb7318ab83289ba3388bb3488bc3587bd3786be3885bf3984c03a83c13b82c23c81c33d80c43e7fc5407ec6417dc7427cc8437bc9447aca457acb4679cc4778cc4977cd4a76ce4b75cf4c74d04d73d14e72d24f71d35171d45270d5536fd5546ed6556dd7566cd8576bd9586ada5a6ada5b69db5c68dc5d67dd5e66de5f65de6164df6263e06363e16462e26561e26660e3685fe4695ee56a5de56b5de66c5ce76e5be76f5ae87059e97158e97257ea7457eb7556eb7655ec7754ed7953ed7a52ee7b51ef7c51ef7e50f07f4ff0804ef1814df1834cf2844bf3854bf3874af48849f48948f58b47f58c46f68d45f68f44f79044f79143f79342f89441f89540f9973ff9983ef99a3efa9b3dfa9c3cfa9e3bfb9f3afba139fba238fca338fca537fca636fca835fca934fdab33fdac33fdae32fdaf31fdb130fdb22ffdb42ffdb52efeb72dfeb82cfeba2cfebb2bfebd2afebe2afec029fdc229fdc328fdc527fdc627fdc827fdca26fdcb26fccd25fcce25fcd025fcd225fbd324fbd524fbd724fad824fada24f9dc24f9dd25f8df25f8e125f7e225f7e425f6e626f6e826f5e926f5eb27f4ed27f3ee27f3f027f2f227f1f426f1f525f0f724f0f921"));
 exports.plasma = plasma;
 
-},{"../colors.js":291}],321:[function(require,module,exports){
+},{"../colors.js":292}],322:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17264,7 +17728,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],322:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],323:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17285,7 +17749,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],323:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],324:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17306,7 +17770,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],324:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],325:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17327,7 +17791,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],325:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],326:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17348,7 +17812,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],326:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],327:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17369,7 +17833,7 @@ var _default = (0, _ramp.default)(scheme);
 
 exports.default = _default;
 
-},{"../colors.js":291,"../ramp.js":302}],327:[function(require,module,exports){
+},{"../colors.js":292,"../ramp.js":303}],328:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17382,7 +17846,7 @@ exports.map = map;
 var slice = array.slice;
 exports.slice = slice;
 
-},{}],328:[function(require,module,exports){
+},{}],329:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17492,9 +17956,9 @@ function point() {
   return pointish(band.apply(null, arguments).paddingInner(1));
 }
 
-},{"./init":334,"./ordinal":339,"d3-array":14}],329:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],330:[function(require,module,exports){
+},{"./init":335,"./ordinal":340,"d3-array":15}],330:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],331:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17638,7 +18102,7 @@ function continuous(transform, untransform) {
   return transformer()(transform, untransform);
 }
 
-},{"./array":327,"./constant":329,"./number":338,"d3-array":14,"d3-interpolate":234}],331:[function(require,module,exports){
+},{"./array":328,"./constant":330,"./number":339,"d3-array":15,"d3-interpolate":235}],332:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17748,7 +18212,7 @@ function divergingSqrt() {
   return divergingPow.apply(null, arguments).exponent(0.5);
 }
 
-},{"./continuous":330,"./init":334,"./linear":335,"./log":336,"./pow":340,"./sequential":343,"./symlog":345}],332:[function(require,module,exports){
+},{"./continuous":331,"./init":335,"./linear":336,"./log":337,"./pow":341,"./sequential":344,"./symlog":346}],333:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17789,7 +18253,7 @@ function identity(domain) {
   return (0, _linear.linearish)(scale);
 }
 
-},{"./array":327,"./linear":335,"./number":338}],333:[function(require,module,exports){
+},{"./array":328,"./linear":336,"./number":339}],334:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17996,7 +18460,7 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-},{"./band":328,"./diverging":331,"./identity":332,"./linear":335,"./log":336,"./ordinal":339,"./pow":340,"./quantile":341,"./quantize":342,"./sequential":343,"./sequentialQuantile":344,"./symlog":345,"./threshold":346,"./tickFormat":347,"./time":348,"./utcTime":349}],334:[function(require,module,exports){
+},{"./band":329,"./diverging":332,"./identity":333,"./linear":336,"./log":337,"./ordinal":340,"./pow":341,"./quantile":342,"./quantize":343,"./sequential":344,"./sequentialQuantile":345,"./symlog":346,"./threshold":347,"./tickFormat":348,"./time":349,"./utcTime":350}],335:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18039,7 +18503,7 @@ function initInterpolator(domain, interpolator) {
   return this;
 }
 
-},{}],335:[function(require,module,exports){
+},{}],336:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18129,7 +18593,7 @@ function linear() {
   return linearish(scale);
 }
 
-},{"./continuous":330,"./init":334,"./tickFormat":347,"d3-array":14}],336:[function(require,module,exports){
+},{"./continuous":331,"./init":335,"./tickFormat":348,"d3-array":15}],337:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18294,7 +18758,7 @@ function log() {
   return scale;
 }
 
-},{"./continuous":330,"./init":334,"./nice":337,"d3-array":14,"d3-format":128}],337:[function(require,module,exports){
+},{"./continuous":331,"./init":335,"./nice":338,"d3-array":15,"d3-format":129}],338:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18320,7 +18784,7 @@ function _default(domain, interval) {
   return domain;
 }
 
-},{}],338:[function(require,module,exports){
+},{}],339:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18332,7 +18796,7 @@ function _default(x) {
   return +x;
 }
 
-},{}],339:[function(require,module,exports){
+},{}],340:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18400,7 +18864,7 @@ function ordinal() {
   return scale;
 }
 
-},{"./array":327,"./init":334,"d3-collection":51}],340:[function(require,module,exports){
+},{"./array":328,"./init":335,"d3-collection":52}],341:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18461,7 +18925,7 @@ function sqrt() {
   return pow.apply(null, arguments).exponent(0.5);
 }
 
-},{"./continuous":330,"./init":334,"./linear":335}],341:[function(require,module,exports){
+},{"./continuous":331,"./init":335,"./linear":336}],342:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18529,7 +18993,7 @@ function quantile() {
   return _init.initRange.apply(scale, arguments);
 }
 
-},{"./array":327,"./init":334,"d3-array":14}],342:[function(require,module,exports){
+},{"./array":328,"./init":335,"d3-array":15}],343:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18594,7 +19058,7 @@ function quantize() {
   return _init.initRange.apply((0, _linear.linearish)(scale), arguments);
 }
 
-},{"./array":327,"./init":334,"./linear":335,"d3-array":14}],343:[function(require,module,exports){
+},{"./array":328,"./init":335,"./linear":336,"d3-array":15}],344:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18704,7 +19168,7 @@ function sequentialSqrt() {
   return sequentialPow.apply(null, arguments).exponent(0.5);
 }
 
-},{"./continuous":330,"./init":334,"./linear":335,"./log":336,"./pow":340,"./symlog":345}],344:[function(require,module,exports){
+},{"./continuous":331,"./init":335,"./linear":336,"./log":337,"./pow":341,"./symlog":346}],345:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18747,7 +19211,7 @@ function sequentialQuantile() {
   return _init.initInterpolator.apply(scale, arguments);
 }
 
-},{"./continuous":330,"./init":334,"d3-array":14}],345:[function(require,module,exports){
+},{"./continuous":331,"./init":335,"d3-array":15}],346:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18795,7 +19259,7 @@ function symlog() {
   return _init.initRange.apply(scale, arguments);
 }
 
-},{"./continuous":330,"./init":334,"./linear":335}],346:[function(require,module,exports){
+},{"./continuous":331,"./init":335,"./linear":336}],347:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18843,7 +19307,7 @@ function threshold() {
   return _init.initRange.apply(scale, arguments);
 }
 
-},{"./array":327,"./init":334,"d3-array":14}],347:[function(require,module,exports){
+},{"./array":328,"./init":335,"d3-array":15}],348:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -18889,7 +19353,7 @@ function _default(start, stop, count, specifier) {
   return (0, _d3Format.format)(specifier);
 }
 
-},{"d3-array":14,"d3-format":128}],348:[function(require,module,exports){
+},{"d3-array":15,"d3-format":129}],349:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19020,7 +19484,7 @@ function _default() {
   return _init.initRange.apply(calendar(_d3Time.timeYear, _d3Time.timeMonth, _d3Time.timeWeek, _d3Time.timeDay, _d3Time.timeHour, _d3Time.timeMinute, _d3Time.timeSecond, _d3Time.timeMillisecond, _d3TimeFormat.timeFormat).domain([new Date(2000, 0, 1), new Date(2000, 0, 2)]), arguments);
 }
 
-},{"./array":327,"./continuous":330,"./init":334,"./nice":337,"d3-array":14,"d3-time":461,"d3-time-format":454}],349:[function(require,module,exports){
+},{"./array":328,"./continuous":331,"./init":335,"./nice":338,"d3-array":15,"d3-time":462,"d3-time-format":455}],350:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19040,9 +19504,9 @@ function _default() {
   return _init.initRange.apply((0, _time.calendar)(_d3Time.utcYear, _d3Time.utcMonth, _d3Time.utcWeek, _d3Time.utcDay, _d3Time.utcHour, _d3Time.utcMinute, _d3Time.utcSecond, _d3Time.utcMillisecond, _d3TimeFormat.utcFormat).domain([Date.UTC(2000, 0, 1), Date.UTC(2000, 0, 2)]), arguments);
 }
 
-},{"./init":334,"./time":348,"d3-time":461,"d3-time-format":454}],350:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],351:[function(require,module,exports){
+},{"./init":335,"./time":349,"d3-time":462,"d3-time-format":455}],351:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],352:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19060,7 +19524,7 @@ function _default(name) {
   return (0, _select.default)((0, _creator.default)(name).call(document.documentElement));
 }
 
-},{"./creator":352,"./select":360}],352:[function(require,module,exports){
+},{"./creator":353,"./select":361}],353:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19093,7 +19557,7 @@ function _default(name) {
   return (fullname.local ? creatorFixed : creatorInherit)(fullname);
 }
 
-},{"./namespace":357,"./namespaces":358}],353:[function(require,module,exports){
+},{"./namespace":358,"./namespaces":359}],354:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19252,7 +19716,7 @@ var _on = require("./selection/on");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./create":351,"./creator":352,"./local":354,"./matcher":355,"./mouse":356,"./namespace":357,"./namespaces":358,"./point":359,"./select":360,"./selectAll":361,"./selection/index":376,"./selection/on":383,"./selection/style":393,"./selector":395,"./selectorAll":396,"./touch":398,"./touches":399,"./window":400}],354:[function(require,module,exports){
+},{"./create":352,"./creator":353,"./local":355,"./matcher":356,"./mouse":357,"./namespace":358,"./namespaces":359,"./point":360,"./select":361,"./selectAll":362,"./selection/index":377,"./selection/on":384,"./selection/style":394,"./selector":396,"./selectorAll":397,"./touch":399,"./touches":400,"./window":401}],355:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19289,7 +19753,7 @@ Local.prototype = local.prototype = {
   }
 };
 
-},{}],355:[function(require,module,exports){
+},{}],356:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19303,7 +19767,7 @@ function _default(selector) {
   };
 }
 
-},{}],356:[function(require,module,exports){
+},{}],357:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19323,7 +19787,7 @@ function _default(node) {
   return (0, _point.default)(node, event);
 }
 
-},{"./point":359,"./sourceEvent":397}],357:[function(require,module,exports){
+},{"./point":360,"./sourceEvent":398}],358:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19345,7 +19809,7 @@ function _default(name) {
   } : name;
 }
 
-},{"./namespaces":358}],358:[function(require,module,exports){
+},{"./namespaces":359}],359:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19363,7 +19827,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{}],359:[function(require,module,exports){
+},{}],360:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19385,7 +19849,7 @@ function _default(node, event) {
   return [event.clientX - rect.left - node.clientLeft, event.clientY - rect.top - node.clientTop];
 }
 
-},{}],360:[function(require,module,exports){
+},{}],361:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19399,7 +19863,7 @@ function _default(selector) {
   return typeof selector === "string" ? new _index.Selection([[document.querySelector(selector)]], [document.documentElement]) : new _index.Selection([[selector]], _index.root);
 }
 
-},{"./selection/index":376}],361:[function(require,module,exports){
+},{"./selection/index":377}],362:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19413,7 +19877,7 @@ function _default(selector) {
   return typeof selector === "string" ? new _index.Selection([document.querySelectorAll(selector)], [document.documentElement]) : new _index.Selection([selector == null ? [] : selector], _index.root);
 }
 
-},{"./selection/index":376}],362:[function(require,module,exports){
+},{"./selection/index":377}],363:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19432,7 +19896,7 @@ function _default(name) {
   });
 }
 
-},{"../creator":352}],363:[function(require,module,exports){
+},{"../creator":353}],364:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19493,7 +19957,7 @@ function _default(name, value) {
   return this.each((value == null ? fullname.local ? attrRemoveNS : attrRemove : typeof value === "function" ? fullname.local ? attrFunctionNS : attrFunction : fullname.local ? attrConstantNS : attrConstant)(fullname, value));
 }
 
-},{"../namespace":357}],364:[function(require,module,exports){
+},{"../namespace":358}],365:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19508,7 +19972,7 @@ function _default() {
   return this;
 }
 
-},{}],365:[function(require,module,exports){
+},{}],366:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19603,7 +20067,7 @@ function _default(name, value) {
   return this.each((typeof value === "function" ? classedFunction : value ? classedTrue : classedFalse)(names, value));
 }
 
-},{}],366:[function(require,module,exports){
+},{}],367:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19627,7 +20091,7 @@ function _default(deep) {
   return this.select(deep ? selection_cloneDeep : selection_cloneShallow);
 }
 
-},{}],367:[function(require,module,exports){
+},{}],368:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19759,7 +20223,7 @@ function _default(value, key) {
   return update;
 }
 
-},{"../constant":350,"./enter":372,"./index":376}],368:[function(require,module,exports){
+},{"../constant":351,"./enter":373,"./index":377}],369:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19771,7 +20235,7 @@ function _default(value) {
   return arguments.length ? this.property("__data__", value) : this.node().__data__;
 }
 
-},{}],369:[function(require,module,exports){
+},{}],370:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19813,7 +20277,7 @@ function _default(type, params) {
   return this.each((typeof params === "function" ? dispatchFunction : dispatchConstant)(type, params));
 }
 
-},{"../window":400}],370:[function(require,module,exports){
+},{"../window":401}],371:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19831,7 +20295,7 @@ function _default(callback) {
   return this;
 }
 
-},{}],371:[function(require,module,exports){
+},{}],372:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19843,7 +20307,7 @@ function _default() {
   return !this.node();
 }
 
-},{}],372:[function(require,module,exports){
+},{}],373:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19886,7 +20350,7 @@ EnterNode.prototype = {
   }
 };
 
-},{"./index":376,"./sparse":392}],373:[function(require,module,exports){
+},{"./index":377,"./sparse":393}],374:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19904,7 +20368,7 @@ function _default() {
   return new _index.Selection(this._exit || this._groups.map(_sparse.default), this._parents);
 }
 
-},{"./index":376,"./sparse":392}],374:[function(require,module,exports){
+},{"./index":377,"./sparse":393}],375:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19932,7 +20396,7 @@ function _default(match) {
   return new _index.Selection(subgroups, this._parents);
 }
 
-},{"../matcher":355,"./index":376}],375:[function(require,module,exports){
+},{"../matcher":356,"./index":377}],376:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19961,7 +20425,7 @@ function _default(value) {
   return arguments.length ? this.each(value == null ? htmlRemove : (typeof value === "function" ? htmlFunction : htmlConstant)(value)) : this.node().innerHTML;
 }
 
-},{}],376:[function(require,module,exports){
+},{}],377:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20083,7 +20547,7 @@ Selection.prototype = selection.prototype = {
 var _default = selection;
 exports.default = _default;
 
-},{"./append":362,"./attr":363,"./call":364,"./classed":365,"./clone":366,"./data":367,"./datum":368,"./dispatch":369,"./each":370,"./empty":371,"./enter":372,"./exit":373,"./filter":374,"./html":375,"./insert":377,"./join":378,"./lower":379,"./merge":380,"./node":381,"./nodes":382,"./on":383,"./order":384,"./property":385,"./raise":386,"./remove":387,"./select":388,"./selectAll":389,"./size":390,"./sort":391,"./style":393,"./text":394}],377:[function(require,module,exports){
+},{"./append":363,"./attr":364,"./call":365,"./classed":366,"./clone":367,"./data":368,"./datum":369,"./dispatch":370,"./each":371,"./empty":372,"./enter":373,"./exit":374,"./filter":375,"./html":376,"./insert":378,"./join":379,"./lower":380,"./merge":381,"./node":382,"./nodes":383,"./on":384,"./order":385,"./property":386,"./raise":387,"./remove":388,"./select":389,"./selectAll":390,"./size":391,"./sort":392,"./style":394,"./text":395}],378:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20109,7 +20573,7 @@ function _default(name, before) {
   });
 }
 
-},{"../creator":352,"../selector":395}],378:[function(require,module,exports){
+},{"../creator":353,"../selector":396}],379:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20127,7 +20591,7 @@ function _default(onenter, onupdate, onexit) {
   return enter && update ? enter.merge(update).order() : update;
 }
 
-},{}],379:[function(require,module,exports){
+},{}],380:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20143,7 +20607,7 @@ function _default() {
   return this.each(lower);
 }
 
-},{}],380:[function(require,module,exports){
+},{}],381:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20169,7 +20633,7 @@ function _default(selection) {
   return new _index.Selection(merges, this._parents);
 }
 
-},{"./index":376}],381:[function(require,module,exports){
+},{"./index":377}],382:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20188,7 +20652,7 @@ function _default() {
   return null;
 }
 
-},{}],382:[function(require,module,exports){
+},{}],383:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20205,7 +20669,7 @@ function _default() {
   return nodes;
 }
 
-},{}],383:[function(require,module,exports){
+},{}],384:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20348,7 +20812,7 @@ function customEvent(event1, listener, that, args) {
   }
 }
 
-},{}],384:[function(require,module,exports){
+},{}],385:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20369,7 +20833,7 @@ function _default() {
   return this;
 }
 
-},{}],385:[function(require,module,exports){
+},{}],386:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20400,7 +20864,7 @@ function _default(name, value) {
   return arguments.length > 1 ? this.each((value == null ? propertyRemove : typeof value === "function" ? propertyFunction : propertyConstant)(name, value)) : this.node()[name];
 }
 
-},{}],386:[function(require,module,exports){
+},{}],387:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20416,7 +20880,7 @@ function _default() {
   return this.each(raise);
 }
 
-},{}],387:[function(require,module,exports){
+},{}],388:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20433,7 +20897,7 @@ function _default() {
   return this.each(remove);
 }
 
-},{}],388:[function(require,module,exports){
+},{}],389:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20462,7 +20926,7 @@ function _default(select) {
   return new _index.Selection(subgroups, this._parents);
 }
 
-},{"../selector":395,"./index":376}],389:[function(require,module,exports){
+},{"../selector":396,"./index":377}],390:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20491,7 +20955,7 @@ function _default(select) {
   return new _index.Selection(subgroups, parents);
 }
 
-},{"../selectorAll":396,"./index":376}],390:[function(require,module,exports){
+},{"../selectorAll":397,"./index":377}],391:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20507,7 +20971,7 @@ function _default() {
   return size;
 }
 
-},{}],391:[function(require,module,exports){
+},{}],392:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20541,7 +21005,7 @@ function ascending(a, b) {
   return a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
 }
 
-},{"./index":376}],392:[function(require,module,exports){
+},{"./index":377}],393:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20553,7 +21017,7 @@ function _default(update) {
   return new Array(update.length);
 }
 
-},{}],393:[function(require,module,exports){
+},{}],394:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20593,7 +21057,7 @@ function styleValue(node, name) {
   return node.style.getPropertyValue(name) || (0, _window.default)(node).getComputedStyle(node, null).getPropertyValue(name);
 }
 
-},{"../window":400}],394:[function(require,module,exports){
+},{"../window":401}],395:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20622,7 +21086,7 @@ function _default(value) {
   return arguments.length ? this.each(value == null ? textRemove : (typeof value === "function" ? textFunction : textConstant)(value)) : this.node().textContent;
 }
 
-},{}],395:[function(require,module,exports){
+},{}],396:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20638,7 +21102,7 @@ function _default(selector) {
   };
 }
 
-},{}],396:[function(require,module,exports){
+},{}],397:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20656,7 +21120,7 @@ function _default(selector) {
   };
 }
 
-},{}],397:[function(require,module,exports){
+},{}],398:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20675,7 +21139,7 @@ function _default() {
   return current;
 }
 
-},{"./selection/on":383}],398:[function(require,module,exports){
+},{"./selection/on":384}],399:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20701,7 +21165,7 @@ function _default(node, touches, identifier) {
   return null;
 }
 
-},{"./point":359,"./sourceEvent":397}],399:[function(require,module,exports){
+},{"./point":360,"./sourceEvent":398}],400:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20725,7 +21189,7 @@ function _default(node, touches) {
   return points;
 }
 
-},{"./point":359,"./sourceEvent":397}],400:[function(require,module,exports){
+},{"./point":360,"./sourceEvent":398}],401:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20739,7 +21203,7 @@ function _default(node) {
   || node.defaultView; // node is a Document
 }
 
-},{}],401:[function(require,module,exports){
+},{}],402:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20984,7 +21448,7 @@ function _default() {
   return arc;
 }
 
-},{"./constant.js":405,"./math.js":428,"d3-path":249}],402:[function(require,module,exports){
+},{"./constant.js":406,"./math.js":429,"d3-path":250}],403:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21109,7 +21573,7 @@ function _default() {
   return area;
 }
 
-},{"./constant.js":405,"./curve/linear.js":416,"./line.js":425,"./point.js":442,"d3-path":249}],403:[function(require,module,exports){
+},{"./constant.js":406,"./curve/linear.js":417,"./line.js":426,"./point.js":443,"d3-path":250}],404:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21162,9 +21626,9 @@ function _default() {
   return a;
 }
 
-},{"./area.js":402,"./curve/radial.js":420,"./lineRadial.js":426}],404:[function(require,module,exports){
-arguments[4][35][0].apply(exports,arguments)
-},{"dup":35}],405:[function(require,module,exports){
+},{"./area.js":403,"./curve/radial.js":421,"./lineRadial.js":427}],405:[function(require,module,exports){
+arguments[4][36][0].apply(exports,arguments)
+},{"dup":36}],406:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21178,7 +21642,7 @@ function _default(x) {
   };
 }
 
-},{}],406:[function(require,module,exports){
+},{}],407:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21256,7 +21720,7 @@ function _default(context) {
   return new Basis(context);
 }
 
-},{}],407:[function(require,module,exports){
+},{}],408:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21348,7 +21812,7 @@ function _default(context) {
   return new BasisClosed(context);
 }
 
-},{"../noop.js":429,"./basis.js":406}],408:[function(require,module,exports){
+},{"../noop.js":430,"./basis.js":407}],409:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21414,7 +21878,7 @@ function _default(context) {
   return new BasisOpen(context);
 }
 
-},{"./basis.js":406}],409:[function(require,module,exports){
+},{"./basis.js":407}],410:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21481,7 +21945,7 @@ var _default = function custom(beta) {
 
 exports.default = _default;
 
-},{"./basis.js":406}],410:[function(require,module,exports){
+},{"./basis.js":407}],411:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21568,7 +22032,7 @@ var _default = function custom(tension) {
 
 exports.default = _default;
 
-},{}],411:[function(require,module,exports){
+},{}],412:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21669,7 +22133,7 @@ var _default = function custom(tension) {
 
 exports.default = _default;
 
-},{"../noop.js":429,"./cardinal.js":410}],412:[function(require,module,exports){
+},{"../noop.js":430,"./cardinal.js":411}],413:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21745,7 +22209,7 @@ var _default = function custom(tension) {
 
 exports.default = _default;
 
-},{"./cardinal.js":410}],413:[function(require,module,exports){
+},{"./cardinal.js":411}],414:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21861,7 +22325,7 @@ var _default = function custom(alpha) {
 
 exports.default = _default;
 
-},{"../math.js":428,"./cardinal.js":410}],414:[function(require,module,exports){
+},{"../math.js":429,"./cardinal.js":411}],415:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21971,7 +22435,7 @@ var _default = function custom(alpha) {
 
 exports.default = _default;
 
-},{"../noop.js":429,"./cardinalClosed.js":411,"./catmullRom.js":413}],415:[function(require,module,exports){
+},{"../noop.js":430,"./cardinalClosed.js":412,"./catmullRom.js":414}],416:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22056,7 +22520,7 @@ var _default = function custom(alpha) {
 
 exports.default = _default;
 
-},{"./cardinalOpen.js":412,"./catmullRom.js":413}],416:[function(require,module,exports){
+},{"./cardinalOpen.js":413,"./catmullRom.js":414}],417:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22107,7 +22571,7 @@ function _default(context) {
   return new Linear(context);
 }
 
-},{}],417:[function(require,module,exports){
+},{}],418:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22142,7 +22606,7 @@ function _default(context) {
   return new LinearClosed(context);
 }
 
-},{"../noop.js":429}],418:[function(require,module,exports){
+},{"../noop.js":430}],419:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22283,7 +22747,7 @@ function monotoneY(context) {
   return new MonotoneY(context);
 }
 
-},{}],419:[function(require,module,exports){
+},{}],420:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22367,7 +22831,7 @@ function _default(context) {
   return new Natural(context);
 }
 
-},{}],420:[function(require,module,exports){
+},{}],421:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22414,7 +22878,7 @@ function curveRadial(curve) {
   return radial;
 }
 
-},{"./linear.js":416}],421:[function(require,module,exports){
+},{"./linear.js":417}],422:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22492,9 +22956,9 @@ function stepAfter(context) {
   return new Step(context, 1);
 }
 
-},{}],422:[function(require,module,exports){
-arguments[4][9][0].apply(exports,arguments)
-},{"dup":9}],423:[function(require,module,exports){
+},{}],423:[function(require,module,exports){
+arguments[4][10][0].apply(exports,arguments)
+},{"dup":10}],424:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22506,7 +22970,7 @@ function _default(d) {
   return d;
 }
 
-},{}],424:[function(require,module,exports){
+},{}],425:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22911,7 +23375,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./arc.js":401,"./area.js":402,"./areaRadial.js":403,"./curve/basis.js":406,"./curve/basisClosed.js":407,"./curve/basisOpen.js":408,"./curve/bundle.js":409,"./curve/cardinal.js":410,"./curve/cardinalClosed.js":411,"./curve/cardinalOpen.js":412,"./curve/catmullRom.js":413,"./curve/catmullRomClosed.js":414,"./curve/catmullRomOpen.js":415,"./curve/linear.js":416,"./curve/linearClosed.js":417,"./curve/monotone.js":418,"./curve/natural.js":419,"./curve/step.js":421,"./line.js":425,"./lineRadial.js":426,"./link/index.js":427,"./offset/diverging.js":430,"./offset/expand.js":431,"./offset/none.js":432,"./offset/silhouette.js":433,"./offset/wiggle.js":434,"./order/appearance.js":435,"./order/ascending.js":436,"./order/descending.js":437,"./order/insideOut.js":438,"./order/none.js":439,"./order/reverse.js":440,"./pie.js":441,"./pointRadial.js":443,"./stack.js":444,"./symbol.js":445,"./symbol/circle.js":446,"./symbol/cross.js":447,"./symbol/diamond.js":448,"./symbol/square.js":449,"./symbol/star.js":450,"./symbol/triangle.js":451,"./symbol/wye.js":452}],425:[function(require,module,exports){
+},{"./arc.js":402,"./area.js":403,"./areaRadial.js":404,"./curve/basis.js":407,"./curve/basisClosed.js":408,"./curve/basisOpen.js":409,"./curve/bundle.js":410,"./curve/cardinal.js":411,"./curve/cardinalClosed.js":412,"./curve/cardinalOpen.js":413,"./curve/catmullRom.js":414,"./curve/catmullRomClosed.js":415,"./curve/catmullRomOpen.js":416,"./curve/linear.js":417,"./curve/linearClosed.js":418,"./curve/monotone.js":419,"./curve/natural.js":420,"./curve/step.js":422,"./line.js":426,"./lineRadial.js":427,"./link/index.js":428,"./offset/diverging.js":431,"./offset/expand.js":432,"./offset/none.js":433,"./offset/silhouette.js":434,"./offset/wiggle.js":435,"./order/appearance.js":436,"./order/ascending.js":437,"./order/descending.js":438,"./order/insideOut.js":439,"./order/none.js":440,"./order/reverse.js":441,"./pie.js":442,"./pointRadial.js":444,"./stack.js":445,"./symbol.js":446,"./symbol/circle.js":447,"./symbol/cross.js":448,"./symbol/diamond.js":449,"./symbol/square.js":450,"./symbol/star.js":451,"./symbol/triangle.js":452,"./symbol/wye.js":453}],426:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22979,7 +23443,7 @@ function _default() {
   return line;
 }
 
-},{"./constant.js":405,"./curve/linear.js":416,"./point.js":442,"d3-path":249}],426:[function(require,module,exports){
+},{"./constant.js":406,"./curve/linear.js":417,"./point.js":443,"d3-path":250}],427:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23014,7 +23478,7 @@ function _default() {
   return lineRadial((0, _line.default)().curve(_radial.curveRadialLinear));
 }
 
-},{"./curve/radial.js":420,"./line.js":425}],427:[function(require,module,exports){
+},{"./curve/radial.js":421,"./line.js":426}],428:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23119,7 +23583,7 @@ function linkRadial() {
   return l;
 }
 
-},{"../array.js":404,"../constant.js":405,"../point.js":442,"../pointRadial.js":443,"d3-path":249}],428:[function(require,module,exports){
+},{"../array.js":405,"../constant.js":406,"../point.js":443,"../pointRadial.js":444,"d3-path":250}],429:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23159,9 +23623,9 @@ function asin(x) {
   return x >= 1 ? halfPi : x <= -1 ? -halfPi : Math.asin(x);
 }
 
-},{}],429:[function(require,module,exports){
-arguments[4][72][0].apply(exports,arguments)
-},{"dup":72}],430:[function(require,module,exports){
+},{}],430:[function(require,module,exports){
+arguments[4][73][0].apply(exports,arguments)
+},{"dup":73}],431:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23185,7 +23649,7 @@ function _default(series, order) {
   }
 }
 
-},{}],431:[function(require,module,exports){
+},{}],432:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23209,7 +23673,7 @@ function _default(series, order) {
   (0, _none.default)(series, order);
 }
 
-},{"./none.js":432}],432:[function(require,module,exports){
+},{"./none.js":433}],433:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23229,7 +23693,7 @@ function _default(series, order) {
   }
 }
 
-},{}],433:[function(require,module,exports){
+},{}],434:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23253,7 +23717,7 @@ function _default(series, order) {
   (0, _none.default)(series, order);
 }
 
-},{"./none.js":432}],434:[function(require,module,exports){
+},{"./none.js":433}],435:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23293,7 +23757,7 @@ function _default(series, order) {
   (0, _none.default)(series, order);
 }
 
-},{"./none.js":432}],435:[function(require,module,exports){
+},{"./none.js":433}],436:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23324,7 +23788,7 @@ function peak(series) {
   return j;
 }
 
-},{"./none.js":439}],436:[function(require,module,exports){
+},{"./none.js":440}],437:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23355,7 +23819,7 @@ function sum(series) {
   return s;
 }
 
-},{"./none.js":439}],437:[function(require,module,exports){
+},{"./none.js":440}],438:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23371,7 +23835,7 @@ function _default(series) {
   return (0, _ascending.default)(series).reverse();
 }
 
-},{"./ascending.js":436}],438:[function(require,module,exports){
+},{"./ascending.js":437}],439:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23411,7 +23875,7 @@ function _default(series) {
   return bottoms.reverse().concat(tops);
 }
 
-},{"./appearance.js":435,"./ascending.js":436}],439:[function(require,module,exports){
+},{"./appearance.js":436,"./ascending.js":437}],440:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23428,7 +23892,7 @@ function _default(series) {
   return o;
 }
 
-},{}],440:[function(require,module,exports){
+},{}],441:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23444,7 +23908,7 @@ function _default(series) {
   return (0, _none.default)(series).reverse();
 }
 
-},{"./none.js":439}],441:[function(require,module,exports){
+},{"./none.js":440}],442:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23539,7 +24003,7 @@ function _default() {
   return pie;
 }
 
-},{"./constant.js":405,"./descending.js":422,"./identity.js":423,"./math.js":428}],442:[function(require,module,exports){
+},{"./constant.js":406,"./descending.js":423,"./identity.js":424,"./math.js":429}],443:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23556,7 +24020,7 @@ function y(p) {
   return p[1];
 }
 
-},{}],443:[function(require,module,exports){
+},{}],444:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23568,7 +24032,7 @@ function _default(x, y) {
   return [(y = +y) * Math.cos(x -= Math.PI / 2), y * Math.sin(x)];
 }
 
-},{}],444:[function(require,module,exports){
+},{}],445:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23640,7 +24104,7 @@ function _default() {
   return stack;
 }
 
-},{"./array.js":404,"./constant.js":405,"./offset/none.js":432,"./order/none.js":439}],445:[function(require,module,exports){
+},{"./array.js":405,"./constant.js":406,"./offset/none.js":433,"./order/none.js":440}],446:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23699,7 +24163,7 @@ function _default() {
   return symbol;
 }
 
-},{"./constant.js":405,"./symbol/circle.js":446,"./symbol/cross.js":447,"./symbol/diamond.js":448,"./symbol/square.js":449,"./symbol/star.js":450,"./symbol/triangle.js":451,"./symbol/wye.js":452,"d3-path":249}],446:[function(require,module,exports){
+},{"./constant.js":406,"./symbol/circle.js":447,"./symbol/cross.js":448,"./symbol/diamond.js":449,"./symbol/square.js":450,"./symbol/star.js":451,"./symbol/triangle.js":452,"./symbol/wye.js":453,"d3-path":250}],447:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23718,7 +24182,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{"../math.js":428}],447:[function(require,module,exports){
+},{"../math.js":429}],448:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23745,7 +24209,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{}],448:[function(require,module,exports){
+},{}],449:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23767,7 +24231,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{}],449:[function(require,module,exports){
+},{}],450:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23783,7 +24247,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{}],450:[function(require,module,exports){
+},{}],451:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23818,7 +24282,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{"../math.js":428}],451:[function(require,module,exports){
+},{"../math.js":429}],452:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23837,7 +24301,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{}],452:[function(require,module,exports){
+},{}],453:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23871,7 +24335,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{}],453:[function(require,module,exports){
+},{}],454:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23913,7 +24377,7 @@ function defaultLocale(definition) {
   return locale;
 }
 
-},{"./locale.js":457}],454:[function(require,module,exports){
+},{"./locale.js":458}],455:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23982,7 +24446,7 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-},{"./defaultLocale.js":453,"./isoFormat.js":455,"./isoParse.js":456,"./locale.js":457}],455:[function(require,module,exports){
+},{"./defaultLocale.js":454,"./isoFormat.js":456,"./isoParse.js":457,"./locale.js":458}],456:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24003,7 +24467,7 @@ var formatIso = Date.prototype.toISOString ? formatIsoNative : (0, _defaultLocal
 var _default = formatIso;
 exports.default = _default;
 
-},{"./defaultLocale.js":453}],456:[function(require,module,exports){
+},{"./defaultLocale.js":454}],457:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24024,7 +24488,7 @@ var parseIso = +new Date("2000-01-01T00:00:00.000Z") ? parseIsoNative : (0, _def
 var _default = parseIso;
 exports.default = _default;
 
-},{"./defaultLocale.js":453,"./isoFormat.js":455}],457:[function(require,module,exports){
+},{"./defaultLocale.js":454,"./isoFormat.js":456}],458:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24745,7 +25209,7 @@ function formatUnixTimestampSeconds(d) {
   return Math.floor(+d / 1000);
 }
 
-},{"d3-time":461}],458:[function(require,module,exports){
+},{"d3-time":462}],459:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24773,7 +25237,7 @@ exports.default = _default;
 var days = day.range;
 exports.days = days;
 
-},{"./duration.js":459,"./interval.js":462}],459:[function(require,module,exports){
+},{"./duration.js":460,"./interval.js":463}],460:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24791,7 +25255,7 @@ exports.durationDay = durationDay;
 var durationWeek = 6048e5;
 exports.durationWeek = durationWeek;
 
-},{}],460:[function(require,module,exports){
+},{}],461:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24819,7 +25283,7 @@ exports.default = _default;
 var hours = hour.range;
 exports.hours = hours;
 
-},{"./duration.js":459,"./interval.js":462}],461:[function(require,module,exports){
+},{"./duration.js":460,"./interval.js":463}],462:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25228,7 +25692,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./day.js":458,"./hour.js":460,"./interval.js":462,"./millisecond.js":463,"./minute.js":464,"./month.js":465,"./second.js":466,"./utcDay.js":467,"./utcHour.js":468,"./utcMinute.js":469,"./utcMonth.js":470,"./utcWeek.js":471,"./utcYear.js":472,"./week.js":473,"./year.js":474}],462:[function(require,module,exports){
+},{"./day.js":459,"./hour.js":461,"./interval.js":463,"./millisecond.js":464,"./minute.js":465,"./month.js":466,"./second.js":467,"./utcDay.js":468,"./utcHour.js":469,"./utcMinute.js":470,"./utcMonth.js":471,"./utcWeek.js":472,"./utcYear.js":473,"./week.js":474,"./year.js":475}],463:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25309,7 +25773,7 @@ function newInterval(floori, offseti, count, field) {
   return interval;
 }
 
-},{}],463:[function(require,module,exports){
+},{}],464:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25346,7 +25810,7 @@ exports.default = _default;
 var milliseconds = millisecond.range;
 exports.milliseconds = milliseconds;
 
-},{"./interval.js":462}],464:[function(require,module,exports){
+},{"./interval.js":463}],465:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25374,7 +25838,7 @@ exports.default = _default;
 var minutes = minute.range;
 exports.minutes = minutes;
 
-},{"./duration.js":459,"./interval.js":462}],465:[function(require,module,exports){
+},{"./duration.js":460,"./interval.js":463}],466:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25401,7 +25865,7 @@ exports.default = _default;
 var months = month.range;
 exports.months = months;
 
-},{"./interval.js":462}],466:[function(require,module,exports){
+},{"./interval.js":463}],467:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25429,7 +25893,7 @@ exports.default = _default;
 var seconds = second.range;
 exports.seconds = seconds;
 
-},{"./duration.js":459,"./interval.js":462}],467:[function(require,module,exports){
+},{"./duration.js":460,"./interval.js":463}],468:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25457,7 +25921,7 @@ exports.default = _default;
 var utcDays = utcDay.range;
 exports.utcDays = utcDays;
 
-},{"./duration.js":459,"./interval.js":462}],468:[function(require,module,exports){
+},{"./duration.js":460,"./interval.js":463}],469:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25485,7 +25949,7 @@ exports.default = _default;
 var utcHours = utcHour.range;
 exports.utcHours = utcHours;
 
-},{"./duration.js":459,"./interval.js":462}],469:[function(require,module,exports){
+},{"./duration.js":460,"./interval.js":463}],470:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25513,7 +25977,7 @@ exports.default = _default;
 var utcMinutes = utcMinute.range;
 exports.utcMinutes = utcMinutes;
 
-},{"./duration.js":459,"./interval.js":462}],470:[function(require,module,exports){
+},{"./duration.js":460,"./interval.js":463}],471:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25540,7 +26004,7 @@ exports.default = _default;
 var utcMonths = utcMonth.range;
 exports.utcMonths = utcMonths;
 
-},{"./interval.js":462}],471:[function(require,module,exports){
+},{"./interval.js":463}],472:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25594,7 +26058,7 @@ exports.utcFridays = utcFridays;
 var utcSaturdays = utcSaturday.range;
 exports.utcSaturdays = utcSaturdays;
 
-},{"./duration.js":459,"./interval.js":462}],472:[function(require,module,exports){
+},{"./duration.js":460,"./interval.js":463}],473:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25632,7 +26096,7 @@ exports.default = _default;
 var utcYears = utcYear.range;
 exports.utcYears = utcYears;
 
-},{"./interval.js":462}],473:[function(require,module,exports){
+},{"./interval.js":463}],474:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25686,7 +26150,7 @@ exports.fridays = fridays;
 var saturdays = saturday.range;
 exports.saturdays = saturdays;
 
-},{"./duration.js":459,"./interval.js":462}],474:[function(require,module,exports){
+},{"./duration.js":460,"./interval.js":463}],475:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25724,7 +26188,7 @@ exports.default = _default;
 var years = year.range;
 exports.years = years;
 
-},{"./interval.js":462}],475:[function(require,module,exports){
+},{"./interval.js":463}],476:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25769,7 +26233,7 @@ var _interval = _interopRequireDefault(require("./interval.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./interval.js":476,"./timeout.js":477,"./timer.js":478}],476:[function(require,module,exports){
+},{"./interval.js":477,"./timeout.js":478,"./timer.js":479}],477:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25792,7 +26256,7 @@ function _default(callback, delay, time) {
   return t;
 }
 
-},{"./timer.js":478}],477:[function(require,module,exports){
+},{"./timer.js":479}],478:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25812,7 +26276,7 @@ function _default(callback, delay, time) {
   return t;
 }
 
-},{"./timer.js":478}],478:[function(require,module,exports){
+},{"./timer.js":479}],479:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25952,7 +26416,7 @@ function sleep(time) {
   }
 }
 
-},{}],479:[function(require,module,exports){
+},{}],480:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25984,7 +26448,7 @@ function _default(node, name) {
   return null;
 }
 
-},{"./transition/index.js":492,"./transition/schedule.js":497}],480:[function(require,module,exports){
+},{"./transition/index.js":493,"./transition/schedule.js":498}],481:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26019,7 +26483,7 @@ var _interrupt = _interopRequireDefault(require("./interrupt.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./active.js":479,"./interrupt.js":481,"./selection/index.js":482,"./transition/index.js":492}],481:[function(require,module,exports){
+},{"./active.js":480,"./interrupt.js":482,"./selection/index.js":483,"./transition/index.js":493}],482:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26054,7 +26518,7 @@ function _default(node, name) {
   if (empty) delete node.__transition;
 }
 
-},{"./transition/schedule.js":497}],482:[function(require,module,exports){
+},{"./transition/schedule.js":498}],483:[function(require,module,exports){
 "use strict";
 
 var _d3Selection = require("d3-selection");
@@ -26068,7 +26532,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 _d3Selection.selection.prototype.interrupt = _interrupt.default;
 _d3Selection.selection.prototype.transition = _transition.default;
 
-},{"./interrupt.js":483,"./transition.js":484,"d3-selection":353}],483:[function(require,module,exports){
+},{"./interrupt.js":484,"./transition.js":485,"d3-selection":354}],484:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26086,7 +26550,7 @@ function _default(name) {
   });
 }
 
-},{"../interrupt.js":481}],484:[function(require,module,exports){
+},{"../interrupt.js":482}],485:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26144,7 +26608,7 @@ function _default(name) {
   return new _index.Transition(groups, this._parents, name, id);
 }
 
-},{"../transition/index.js":492,"../transition/schedule.js":497,"d3-ease":92,"d3-timer":475}],485:[function(require,module,exports){
+},{"../transition/index.js":493,"../transition/schedule.js":498,"d3-ease":93,"d3-timer":476}],486:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26226,7 +26690,7 @@ function _default(name, value) {
   return this.attrTween(name, typeof value === "function" ? (fullname.local ? attrFunctionNS : attrFunction)(fullname, i, (0, _tween.tweenValue)(this, "attr." + name, value)) : value == null ? (fullname.local ? attrRemoveNS : attrRemove)(fullname) : (fullname.local ? attrConstantNS : attrConstant)(fullname, i, value));
 }
 
-},{"./interpolate.js":493,"./tween.js":506,"d3-interpolate":234,"d3-selection":353}],486:[function(require,module,exports){
+},{"./interpolate.js":494,"./tween.js":507,"d3-interpolate":235,"d3-selection":354}],487:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26283,7 +26747,7 @@ function _default(name, value) {
   return this.tween(key, (fullname.local ? attrTweenNS : attrTween)(fullname, value));
 }
 
-},{"d3-selection":353}],487:[function(require,module,exports){
+},{"d3-selection":354}],488:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26310,7 +26774,7 @@ function _default(value) {
   return arguments.length ? this.each((typeof value === "function" ? delayFunction : delayConstant)(id, value)) : (0, _schedule.get)(this.node(), id).delay;
 }
 
-},{"./schedule.js":497}],488:[function(require,module,exports){
+},{"./schedule.js":498}],489:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26337,7 +26801,7 @@ function _default(value) {
   return arguments.length ? this.each((typeof value === "function" ? durationFunction : durationConstant)(id, value)) : (0, _schedule.get)(this.node(), id).duration;
 }
 
-},{"./schedule.js":497}],489:[function(require,module,exports){
+},{"./schedule.js":498}],490:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26359,7 +26823,7 @@ function _default(value) {
   return arguments.length ? this.each(easeConstant(id, value)) : (0, _schedule.get)(this.node(), id).ease;
 }
 
-},{"./schedule.js":497}],490:[function(require,module,exports){
+},{"./schedule.js":498}],491:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26405,7 +26869,7 @@ function _default() {
   });
 }
 
-},{"./schedule.js":497}],491:[function(require,module,exports){
+},{"./schedule.js":498}],492:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26431,7 +26895,7 @@ function _default(match) {
   return new _index.Transition(subgroups, this._parents, this._name, this._id);
 }
 
-},{"./index.js":492,"d3-selection":353}],492:[function(require,module,exports){
+},{"./index.js":493,"d3-selection":354}],493:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26530,7 +26994,7 @@ Transition.prototype = transition.prototype = {
   end: _end.default
 };
 
-},{"./attr.js":485,"./attrTween.js":486,"./delay.js":487,"./duration.js":488,"./ease.js":489,"./end.js":490,"./filter.js":491,"./merge.js":494,"./on.js":495,"./remove.js":496,"./select.js":498,"./selectAll.js":499,"./selection.js":500,"./style.js":501,"./styleTween.js":502,"./text.js":503,"./textTween.js":504,"./transition.js":505,"./tween.js":506,"d3-selection":353}],493:[function(require,module,exports){
+},{"./attr.js":486,"./attrTween.js":487,"./delay.js":488,"./duration.js":489,"./ease.js":490,"./end.js":491,"./filter.js":492,"./merge.js":495,"./on.js":496,"./remove.js":497,"./select.js":499,"./selectAll.js":500,"./selection.js":501,"./style.js":502,"./styleTween.js":503,"./text.js":504,"./textTween.js":505,"./transition.js":506,"./tween.js":507,"d3-selection":354}],494:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26547,7 +27011,7 @@ function _default(a, b) {
   return (typeof b === "number" ? _d3Interpolate.interpolateNumber : b instanceof _d3Color.color ? _d3Interpolate.interpolateRgb : (c = (0, _d3Color.color)(b)) ? (b = c, _d3Interpolate.interpolateRgb) : _d3Interpolate.interpolateString)(a, b);
 }
 
-},{"d3-color":60,"d3-interpolate":234}],494:[function(require,module,exports){
+},{"d3-color":61,"d3-interpolate":235}],495:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26575,7 +27039,7 @@ function _default(transition) {
   return new _index.Transition(merges, this._parents, this._name, this._id);
 }
 
-},{"./index.js":492}],495:[function(require,module,exports){
+},{"./index.js":493}],496:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26613,7 +27077,7 @@ function _default(name, listener) {
   return arguments.length < 2 ? (0, _schedule.get)(this.node(), id).on.on(name) : this.each(onFunction(id, name, listener));
 }
 
-},{"./schedule.js":497}],496:[function(require,module,exports){
+},{"./schedule.js":498}],497:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26635,7 +27099,7 @@ function _default() {
   return this.on("end.remove", removeFunction(this._id));
 }
 
-},{}],497:[function(require,module,exports){
+},{}],498:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26806,7 +27270,7 @@ function create(node, id, self) {
   }
 }
 
-},{"d3-dispatch":74,"d3-timer":475}],498:[function(require,module,exports){
+},{"d3-dispatch":75,"d3-timer":476}],499:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26842,7 +27306,7 @@ function _default(select) {
   return new _index.Transition(subgroups, this._parents, name, id);
 }
 
-},{"./index.js":492,"./schedule.js":497,"d3-selection":353}],499:[function(require,module,exports){
+},{"./index.js":493,"./schedule.js":498,"d3-selection":354}],500:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26883,7 +27347,7 @@ function _default(select) {
   return new _index.Transition(subgroups, parents, name, id);
 }
 
-},{"./index.js":492,"./schedule.js":497,"d3-selection":353}],500:[function(require,module,exports){
+},{"./index.js":493,"./schedule.js":498,"d3-selection":354}],501:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26899,7 +27363,7 @@ function _default() {
   return new Selection(this._groups, this._parents);
 }
 
-},{"d3-selection":353}],501:[function(require,module,exports){
+},{"d3-selection":354}],502:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26979,7 +27443,7 @@ function _default(name, value, priority) {
   return value == null ? this.styleTween(name, styleNull(name, i)).on("end.style." + name, styleRemove(name)) : typeof value === "function" ? this.styleTween(name, styleFunction(name, i, (0, _tween.tweenValue)(this, "style." + name, value))).each(styleMaybeRemove(this._id, name)) : this.styleTween(name, styleConstant(name, i, value), priority).on("end.style." + name, null);
 }
 
-},{"./interpolate.js":493,"./schedule.js":497,"./tween.js":506,"d3-interpolate":234,"d3-selection":353}],502:[function(require,module,exports){
+},{"./interpolate.js":494,"./schedule.js":498,"./tween.js":507,"d3-interpolate":235,"d3-selection":354}],503:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27014,7 +27478,7 @@ function _default(name, value, priority) {
   return this.tween(key, styleTween(name, value, priority == null ? "" : priority));
 }
 
-},{}],503:[function(require,module,exports){
+},{}],504:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27041,7 +27505,7 @@ function _default(value) {
   return this.tween("text", typeof value === "function" ? textFunction((0, _tween.tweenValue)(this, "text", value)) : textConstant(value == null ? "" : value + ""));
 }
 
-},{"./tween.js":506}],504:[function(require,module,exports){
+},{"./tween.js":507}],505:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27076,7 +27540,7 @@ function _default(value) {
   return this.tween(key, textTween(value));
 }
 
-},{}],505:[function(require,module,exports){
+},{}],506:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27114,7 +27578,7 @@ function _default() {
   return new _index.Transition(groups, this._parents, name, id1);
 }
 
-},{"./index.js":492,"./schedule.js":497}],506:[function(require,module,exports){
+},{"./index.js":493,"./schedule.js":498}],507:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27208,7 +27672,7 @@ function tweenValue(transition, name, value) {
   };
 }
 
-},{"./schedule.js":497}],507:[function(require,module,exports){
+},{"./schedule.js":498}],508:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27407,7 +27871,7 @@ function rightBreakPoint(arc, directrix) {
   return site[1] === directrix ? site[0] : Infinity;
 }
 
-},{"./Cell":508,"./Circle":509,"./Diagram":510,"./Edge":511,"./RedBlackTree":512}],508:[function(require,module,exports){
+},{"./Cell":509,"./Circle":510,"./Diagram":511,"./Edge":512,"./RedBlackTree":513}],509:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27549,7 +28013,7 @@ function clipCells(x0, y0, x1, y1) {
   }
 }
 
-},{"./Diagram":510,"./Edge":511}],509:[function(require,module,exports){
+},{"./Diagram":511,"./Edge":512}],510:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27635,7 +28099,7 @@ function detachCircle(arc) {
   }
 }
 
-},{"./Diagram":510,"./RedBlackTree":512}],510:[function(require,module,exports){
+},{"./Diagram":511,"./RedBlackTree":513}],511:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27798,7 +28262,7 @@ Diagram.prototype = {
   }
 };
 
-},{"./Beach":507,"./Cell":508,"./Circle":509,"./Edge":511,"./RedBlackTree":512}],511:[function(require,module,exports){
+},{"./Beach":508,"./Cell":509,"./Circle":510,"./Edge":512,"./RedBlackTree":513}],512:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -27976,7 +28440,7 @@ function clipEdges(x0, y0, x1, y1) {
   }
 }
 
-},{"./Diagram":510}],512:[function(require,module,exports){
+},{"./Diagram":511}],513:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28239,9 +28703,9 @@ function RedBlackFirst(node) {
 var _default = RedBlackTree;
 exports.default = _default;
 
-},{}],513:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],514:[function(require,module,exports){
+},{}],514:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],515:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28258,7 +28722,7 @@ var _voronoi = _interopRequireDefault(require("./voronoi"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./voronoi":516}],515:[function(require,module,exports){
+},{"./voronoi":517}],516:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28275,7 +28739,7 @@ function y(d) {
   return d[1];
 }
 
-},{}],516:[function(require,module,exports){
+},{}],517:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28340,9 +28804,9 @@ function _default() {
   return voronoi;
 }
 
-},{"./Diagram":510,"./constant":513,"./point":515}],517:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],518:[function(require,module,exports){
+},{"./Diagram":511,"./constant":514,"./point":516}],518:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],519:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28356,7 +28820,7 @@ function ZoomEvent(target, type, transform) {
   this.transform = transform;
 }
 
-},{}],519:[function(require,module,exports){
+},{}],520:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28391,9 +28855,9 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./transform.js":521,"./zoom.js":522}],520:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"d3-selection":353,"dup":43}],521:[function(require,module,exports){
+},{"./transform.js":522,"./zoom.js":523}],521:[function(require,module,exports){
+arguments[4][44][0].apply(exports,arguments)
+},{"d3-selection":354,"dup":44}],522:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28455,7 +28919,7 @@ function transform(node) {
   return node.__zoom;
 }
 
-},{}],522:[function(require,module,exports){
+},{}],523:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28897,7 +29361,7 @@ function _default() {
   return zoom;
 }
 
-},{"./constant.js":517,"./event.js":518,"./noevent.js":520,"./transform.js":521,"d3-dispatch":74,"d3-drag":78,"d3-interpolate":234,"d3-selection":353,"d3-transition":480}],523:[function(require,module,exports){
+},{"./constant.js":518,"./event.js":519,"./noevent.js":521,"./transform.js":522,"d3-dispatch":75,"d3-drag":79,"d3-interpolate":235,"d3-selection":354,"d3-transition":481}],524:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28988,7 +29452,7 @@ var dependencies = {
 };
 exports.dependencies = dependencies;
 
-},{}],524:[function(require,module,exports){
+},{}],525:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29440,7 +29904,7 @@ Object.keys(_d3Zoom).forEach(function (key) {
   });
 });
 
-},{"./dist/package.js":523,"d3-array":14,"d3-axis":38,"d3-brush":42,"d3-chord":47,"d3-collection":51,"d3-color":60,"d3-contour":71,"d3-dispatch":74,"d3-drag":78,"d3-dsv":84,"d3-ease":92,"d3-fetch":102,"d3-force":109,"d3-format":128,"d3-geo":153,"d3-hierarchy":208,"d3-interpolate":234,"d3-path":249,"d3-polygon":256,"d3-quadtree":263,"d3-random":276,"d3-scale":333,"d3-scale-chromatic":301,"d3-selection":353,"d3-shape":424,"d3-time":461,"d3-time-format":454,"d3-timer":475,"d3-transition":480,"d3-voronoi":514,"d3-zoom":519}],525:[function(require,module,exports){
+},{"./dist/package.js":524,"d3-array":15,"d3-axis":39,"d3-brush":43,"d3-chord":48,"d3-collection":52,"d3-color":61,"d3-contour":72,"d3-dispatch":75,"d3-drag":79,"d3-dsv":85,"d3-ease":93,"d3-fetch":103,"d3-force":110,"d3-format":129,"d3-geo":154,"d3-hierarchy":209,"d3-interpolate":235,"d3-path":250,"d3-polygon":257,"d3-quadtree":264,"d3-random":277,"d3-scale":334,"d3-scale-chromatic":302,"d3-selection":354,"d3-shape":425,"d3-time":462,"d3-time-format":455,"d3-timer":476,"d3-transition":481,"d3-voronoi":515,"d3-zoom":520}],526:[function(require,module,exports){
 /**
  * @license
  * Copyright (c) 2012-2013 Chris Pettitt
@@ -29472,7 +29936,7 @@ module.exports =  {
   version: require("./lib/version")
 };
 
-},{"./lib/dagre":532,"./lib/graphlib":533,"./lib/intersect":534,"./lib/render":549,"./lib/util":551,"./lib/version":552}],526:[function(require,module,exports){
+},{"./lib/dagre":533,"./lib/graphlib":534,"./lib/intersect":535,"./lib/render":550,"./lib/util":552,"./lib/version":553}],527:[function(require,module,exports){
 var util = require("./util");
 
 module.exports = {
@@ -29545,7 +30009,7 @@ function undirected(parent, id, edge, type) {
   }
 }
 
-},{"./util":551}],527:[function(require,module,exports){
+},{"./util":552}],528:[function(require,module,exports){
 var util = require("./util");
 var d3 = require("./d3");
 var addLabel = require("./label/add-label");
@@ -29600,7 +30064,7 @@ function createClusters(selection, g) {
   return svgClusters;
 }
 
-},{"./d3":531,"./label/add-label":542,"./util":551}],528:[function(require,module,exports){
+},{"./d3":532,"./label/add-label":543,"./util":552}],529:[function(require,module,exports){
 "use strict";
 
 var _ = require("./lodash");
@@ -29649,7 +30113,7 @@ function createEdgeLabels(selection, g) {
   return svgEdgeLabels;
 }
 
-},{"./d3":531,"./label/add-label":542,"./lodash":545,"./util":551}],529:[function(require,module,exports){
+},{"./d3":532,"./label/add-label":543,"./lodash":546,"./util":552}],530:[function(require,module,exports){
 "use strict";
 
 var _ = require("./lodash");
@@ -29770,7 +30234,7 @@ function exit(svgPaths, g) {
     .remove();
 }
 
-},{"./d3":531,"./intersect/intersect-node":538,"./lodash":545,"./util":551}],530:[function(require,module,exports){
+},{"./d3":532,"./intersect/intersect-node":539,"./lodash":546,"./util":552}],531:[function(require,module,exports){
 "use strict";
 
 var _ = require("./lodash");
@@ -29845,7 +30309,7 @@ function createNodes(selection, g, shapes) {
   return svgNodes;
 }
 
-},{"./d3":531,"./label/add-label":542,"./lodash":545,"./util":551}],531:[function(require,module,exports){
+},{"./d3":532,"./label/add-label":543,"./lodash":546,"./util":552}],532:[function(require,module,exports){
 // Stub to get D3 either via NPM or from the global object
 var d3;
 
@@ -29866,7 +30330,7 @@ if (!d3) {
 
 module.exports = d3;
 
-},{"d3":524}],532:[function(require,module,exports){
+},{"d3":525}],533:[function(require,module,exports){
 /* global window */
 
 var dagre;
@@ -29885,7 +30349,7 @@ if (!dagre) {
 
 module.exports = dagre;
 
-},{"dagre":553}],533:[function(require,module,exports){
+},{"dagre":554}],534:[function(require,module,exports){
 /* global window */
 
 var graphlib;
@@ -29905,7 +30369,7 @@ if (!graphlib) {
 
 module.exports = graphlib;
 
-},{"graphlib":583}],534:[function(require,module,exports){
+},{"graphlib":608}],535:[function(require,module,exports){
 module.exports = {
   node: require("./intersect-node"),
   circle: require("./intersect-circle"),
@@ -29914,7 +30378,7 @@ module.exports = {
   rect: require("./intersect-rect")
 };
 
-},{"./intersect-circle":535,"./intersect-ellipse":536,"./intersect-node":538,"./intersect-polygon":539,"./intersect-rect":540}],535:[function(require,module,exports){
+},{"./intersect-circle":536,"./intersect-ellipse":537,"./intersect-node":539,"./intersect-polygon":540,"./intersect-rect":541}],536:[function(require,module,exports){
 var intersectEllipse = require("./intersect-ellipse");
 
 module.exports = intersectCircle;
@@ -29923,7 +30387,7 @@ function intersectCircle(node, rx, point) {
   return intersectEllipse(node, rx, rx, point);
 }
 
-},{"./intersect-ellipse":536}],536:[function(require,module,exports){
+},{"./intersect-ellipse":537}],537:[function(require,module,exports){
 module.exports = intersectEllipse;
 
 function intersectEllipse(node, rx, ry, point) {
@@ -29950,7 +30414,7 @@ function intersectEllipse(node, rx, ry, point) {
 }
 
 
-},{}],537:[function(require,module,exports){
+},{}],538:[function(require,module,exports){
 module.exports = intersectLine;
 
 /*
@@ -30022,14 +30486,14 @@ function sameSign(r1, r2) {
   return r1 * r2 > 0;
 }
 
-},{}],538:[function(require,module,exports){
+},{}],539:[function(require,module,exports){
 module.exports = intersectNode;
 
 function intersectNode(node, point) {
   return node.intersect(point);
 }
 
-},{}],539:[function(require,module,exports){
+},{}],540:[function(require,module,exports){
 /* eslint "no-console": off */
 
 var intersectLine = require("./intersect-line");
@@ -30088,7 +30552,7 @@ function intersectPolygon(node, polyPoints, point) {
   return intersections[0];
 }
 
-},{"./intersect-line":537}],540:[function(require,module,exports){
+},{"./intersect-line":538}],541:[function(require,module,exports){
 module.exports = intersectRect;
 
 function intersectRect(node, point) {
@@ -30122,7 +30586,7 @@ function intersectRect(node, point) {
   return {x: x + sx, y: y + sy};
 }
 
-},{}],541:[function(require,module,exports){
+},{}],542:[function(require,module,exports){
 var util = require("../util");
 
 module.exports = addHtmlLabel;
@@ -30161,7 +30625,7 @@ function addHtmlLabel(root, node) {
   return fo;
 }
 
-},{"../util":551}],542:[function(require,module,exports){
+},{"../util":552}],543:[function(require,module,exports){
 var addTextLabel = require("./add-text-label");
 var addHtmlLabel = require("./add-html-label");
 var addSVGLabel  = require("./add-svg-label");
@@ -30201,7 +30665,7 @@ function addLabel(root, node, location) {
   return labelSvg;
 }
 
-},{"./add-html-label":541,"./add-svg-label":543,"./add-text-label":544}],543:[function(require,module,exports){
+},{"./add-html-label":542,"./add-svg-label":544,"./add-text-label":545}],544:[function(require,module,exports){
 var util = require("../util");
 
 module.exports = addSVGLabel;
@@ -30216,7 +30680,7 @@ function addSVGLabel(root, node) {
   return domNode;
 }
 
-},{"../util":551}],544:[function(require,module,exports){
+},{"../util":552}],545:[function(require,module,exports){
 var util = require("../util");
 
 module.exports = addTextLabel;
@@ -30262,7 +30726,7 @@ function processEscapeSequences(text) {
   return newText;
 }
 
-},{"../util":551}],545:[function(require,module,exports){
+},{"../util":552}],546:[function(require,module,exports){
 /* global window */
 
 var lodash;
@@ -30291,7 +30755,7 @@ if (!lodash) {
 
 module.exports = lodash;
 
-},{"lodash/defaults":786,"lodash/each":787,"lodash/has":796,"lodash/isFunction":805,"lodash/isPlainObject":810,"lodash/pick":828,"lodash/range":830,"lodash/uniqueId":843}],546:[function(require,module,exports){
+},{"lodash/defaults":811,"lodash/each":812,"lodash/has":821,"lodash/isFunction":830,"lodash/isPlainObject":835,"lodash/pick":853,"lodash/range":855,"lodash/uniqueId":868}],547:[function(require,module,exports){
 "use strict";
 
 var util = require("./util");
@@ -30326,7 +30790,7 @@ function positionClusters(selection, g) {
     });
 }
 
-},{"./d3":531,"./util":551}],547:[function(require,module,exports){
+},{"./d3":532,"./util":552}],548:[function(require,module,exports){
 "use strict";
 
 var util = require("./util");
@@ -30350,7 +30814,7 @@ function positionEdgeLabels(selection, g) {
     .attr("transform", translate);
 }
 
-},{"./d3":531,"./lodash":545,"./util":551}],548:[function(require,module,exports){
+},{"./d3":532,"./lodash":546,"./util":552}],549:[function(require,module,exports){
 "use strict";
 
 var util = require("./util");
@@ -30373,7 +30837,7 @@ function positionNodes(selection, g) {
     .attr("transform", translate);
 }
 
-},{"./d3":531,"./util":551}],549:[function(require,module,exports){
+},{"./d3":532,"./util":552}],550:[function(require,module,exports){
 var _ = require("./lodash");
 var d3 = require("./d3");
 var layout = require("./dagre").layout;
@@ -30543,7 +31007,7 @@ function createOrSelectGroup(root, name) {
   return selection;
 }
 
-},{"./arrows":526,"./create-clusters":527,"./create-edge-labels":528,"./create-edge-paths":529,"./create-nodes":530,"./d3":531,"./dagre":532,"./lodash":545,"./position-clusters":546,"./position-edge-labels":547,"./position-nodes":548,"./shapes":550}],550:[function(require,module,exports){
+},{"./arrows":527,"./create-clusters":528,"./create-edge-labels":529,"./create-edge-paths":530,"./create-nodes":531,"./d3":532,"./dagre":533,"./lodash":546,"./position-clusters":547,"./position-edge-labels":548,"./position-nodes":549,"./shapes":551}],551:[function(require,module,exports){
 "use strict";
 
 var intersectRect = require("./intersect/intersect-rect");
@@ -30626,7 +31090,7 @@ function diamond(parent, bbox, node) {
   return shapeSvg;
 }
 
-},{"./intersect/intersect-circle":535,"./intersect/intersect-ellipse":536,"./intersect/intersect-polygon":539,"./intersect/intersect-rect":540}],551:[function(require,module,exports){
+},{"./intersect/intersect-circle":536,"./intersect/intersect-ellipse":537,"./intersect/intersect-polygon":540,"./intersect/intersect-rect":541}],552:[function(require,module,exports){
 var _ = require("./lodash");
 
 // Public utility functions
@@ -30682,10 +31146,10 @@ function applyTransition(selection, g) {
   return selection;
 }
 
-},{"./lodash":545}],552:[function(require,module,exports){
+},{"./lodash":546}],553:[function(require,module,exports){
 module.exports = "0.6.4";
 
-},{}],553:[function(require,module,exports){
+},{}],554:[function(require,module,exports){
 /*
 Copyright (c) 2012-2014 Chris Pettitt
 
@@ -30720,7 +31184,7 @@ module.exports = {
   version: require("./lib/version")
 };
 
-},{"./lib/debug":558,"./lib/graphlib":559,"./lib/layout":561,"./lib/util":581,"./lib/version":582}],554:[function(require,module,exports){
+},{"./lib/debug":559,"./lib/graphlib":560,"./lib/layout":562,"./lib/util":582,"./lib/version":583}],555:[function(require,module,exports){
 "use strict";
 
 var _ = require("./lodash");
@@ -30789,7 +31253,7 @@ function undo(g) {
   });
 }
 
-},{"./greedy-fas":560,"./lodash":562}],555:[function(require,module,exports){
+},{"./greedy-fas":561,"./lodash":563}],556:[function(require,module,exports){
 var _ = require("./lodash");
 var util = require("./util");
 
@@ -30829,7 +31293,7 @@ function addBorderNode(g, prop, prefix, sg, sgNode, rank) {
   }
 }
 
-},{"./lodash":562,"./util":581}],556:[function(require,module,exports){
+},{"./lodash":563,"./util":582}],557:[function(require,module,exports){
 "use strict";
 
 var _ = require("./lodash");
@@ -30903,7 +31367,7 @@ function swapXYOne(attrs) {
   attrs.y = x;
 }
 
-},{"./lodash":562}],557:[function(require,module,exports){
+},{"./lodash":563}],558:[function(require,module,exports){
 /*
  * Simple doubly linked list implementation derived from Cormen, et al.,
  * "Introduction to Algorithms".
@@ -30961,7 +31425,7 @@ function filterOutLinks(k, v) {
   }
 }
 
-},{}],558:[function(require,module,exports){
+},{}],559:[function(require,module,exports){
 var _ = require("./lodash");
 var util = require("./util");
 var Graph = require("./graphlib").Graph;
@@ -30997,7 +31461,7 @@ function debugOrdering(g) {
   return h;
 }
 
-},{"./graphlib":559,"./lodash":562,"./util":581}],559:[function(require,module,exports){
+},{"./graphlib":560,"./lodash":563,"./util":582}],560:[function(require,module,exports){
 /* global window */
 
 var graphlib;
@@ -31016,7 +31480,7 @@ if (!graphlib) {
 
 module.exports = graphlib;
 
-},{"graphlib":583}],560:[function(require,module,exports){
+},{"graphlib":608}],561:[function(require,module,exports){
 var _ = require("./lodash");
 var Graph = require("./graphlib").Graph;
 var List = require("./data/list");
@@ -31136,7 +31600,7 @@ function assignBucket(buckets, zeroIdx, entry) {
   }
 }
 
-},{"./data/list":557,"./graphlib":559,"./lodash":562}],561:[function(require,module,exports){
+},{"./data/list":558,"./graphlib":560,"./lodash":563}],562:[function(require,module,exports){
 "use strict";
 
 var _ = require("./lodash");
@@ -31530,7 +31994,7 @@ function canonicalize(attrs) {
   return newAttrs;
 }
 
-},{"./acyclic":554,"./add-border-segments":555,"./coordinate-system":556,"./graphlib":559,"./lodash":562,"./nesting-graph":563,"./normalize":564,"./order":569,"./parent-dummy-chains":574,"./position":576,"./rank":578,"./util":581}],562:[function(require,module,exports){
+},{"./acyclic":555,"./add-border-segments":556,"./coordinate-system":557,"./graphlib":560,"./lodash":563,"./nesting-graph":564,"./normalize":565,"./order":570,"./parent-dummy-chains":575,"./position":577,"./rank":579,"./util":582}],563:[function(require,module,exports){
 /* global window */
 
 var lodash;
@@ -31576,7 +32040,7 @@ if (!lodash) {
 
 module.exports = lodash;
 
-},{"lodash/cloneDeep":784,"lodash/constant":785,"lodash/defaults":786,"lodash/each":787,"lodash/filter":789,"lodash/find":790,"lodash/flatten":792,"lodash/forEach":793,"lodash/forIn":794,"lodash/has":796,"lodash/isUndefined":815,"lodash/last":818,"lodash/map":819,"lodash/mapValues":820,"lodash/max":821,"lodash/merge":823,"lodash/min":824,"lodash/minBy":825,"lodash/now":827,"lodash/pick":828,"lodash/range":830,"lodash/reduce":831,"lodash/sortBy":833,"lodash/uniqueId":843,"lodash/values":844,"lodash/zipObject":845}],563:[function(require,module,exports){
+},{"lodash/cloneDeep":809,"lodash/constant":810,"lodash/defaults":811,"lodash/each":812,"lodash/filter":814,"lodash/find":815,"lodash/flatten":817,"lodash/forEach":818,"lodash/forIn":819,"lodash/has":821,"lodash/isUndefined":840,"lodash/last":843,"lodash/map":844,"lodash/mapValues":845,"lodash/max":846,"lodash/merge":848,"lodash/min":849,"lodash/minBy":850,"lodash/now":852,"lodash/pick":853,"lodash/range":855,"lodash/reduce":856,"lodash/sortBy":858,"lodash/uniqueId":868,"lodash/values":869,"lodash/zipObject":870}],564:[function(require,module,exports){
 var _ = require("./lodash");
 var util = require("./util");
 
@@ -31710,7 +32174,7 @@ function cleanup(g) {
   });
 }
 
-},{"./lodash":562,"./util":581}],564:[function(require,module,exports){
+},{"./lodash":563,"./util":582}],565:[function(require,module,exports){
 "use strict";
 
 var _ = require("./lodash");
@@ -31802,7 +32266,7 @@ function undo(g) {
   });
 }
 
-},{"./lodash":562,"./util":581}],565:[function(require,module,exports){
+},{"./lodash":563,"./util":582}],566:[function(require,module,exports){
 var _ = require("../lodash");
 
 module.exports = addSubgraphConstraints;
@@ -31857,7 +32321,7 @@ function addSubgraphConstraints(g, cg, vs) {
   */
 }
 
-},{"../lodash":562}],566:[function(require,module,exports){
+},{"../lodash":563}],567:[function(require,module,exports){
 var _ = require("../lodash");
 
 module.exports = barycenter;
@@ -31887,7 +32351,7 @@ function barycenter(g, movable) {
 }
 
 
-},{"../lodash":562}],567:[function(require,module,exports){
+},{"../lodash":563}],568:[function(require,module,exports){
 var _ = require("../lodash");
 var Graph = require("../graphlib").Graph;
 
@@ -31962,7 +32426,7 @@ function createRootNode(g) {
   return v;
 }
 
-},{"../graphlib":559,"../lodash":562}],568:[function(require,module,exports){
+},{"../graphlib":560,"../lodash":563}],569:[function(require,module,exports){
 "use strict";
 
 var _ = require("../lodash");
@@ -32031,7 +32495,7 @@ function twoLayerCrossCount(g, northLayer, southLayer) {
   return cc;
 }
 
-},{"../lodash":562}],569:[function(require,module,exports){
+},{"../lodash":563}],570:[function(require,module,exports){
 "use strict";
 
 var _ = require("../lodash");
@@ -32112,7 +32576,7 @@ function assignOrder(g, layering) {
   });
 }
 
-},{"../graphlib":559,"../lodash":562,"../util":581,"./add-subgraph-constraints":565,"./build-layer-graph":567,"./cross-count":568,"./init-order":570,"./sort-subgraph":572}],570:[function(require,module,exports){
+},{"../graphlib":560,"../lodash":563,"../util":582,"./add-subgraph-constraints":566,"./build-layer-graph":568,"./cross-count":569,"./init-order":571,"./sort-subgraph":573}],571:[function(require,module,exports){
 "use strict";
 
 var _ = require("../lodash");
@@ -32152,7 +32616,7 @@ function initOrder(g) {
   return layers;
 }
 
-},{"../lodash":562}],571:[function(require,module,exports){
+},{"../lodash":563}],572:[function(require,module,exports){
 "use strict";
 
 var _ = require("../lodash");
@@ -32276,7 +32740,7 @@ function mergeEntries(target, source) {
   source.merged = true;
 }
 
-},{"../lodash":562}],572:[function(require,module,exports){
+},{"../lodash":563}],573:[function(require,module,exports){
 var _ = require("../lodash");
 var barycenter = require("./barycenter");
 var resolveConflicts = require("./resolve-conflicts");
@@ -32354,7 +32818,7 @@ function mergeBarycenters(target, other) {
   }
 }
 
-},{"../lodash":562,"./barycenter":566,"./resolve-conflicts":571,"./sort":573}],573:[function(require,module,exports){
+},{"../lodash":563,"./barycenter":567,"./resolve-conflicts":572,"./sort":574}],574:[function(require,module,exports){
 var _ = require("../lodash");
 var util = require("../util");
 
@@ -32413,7 +32877,7 @@ function compareWithBias(bias) {
   };
 }
 
-},{"../lodash":562,"../util":581}],574:[function(require,module,exports){
+},{"../lodash":563,"../util":582}],575:[function(require,module,exports){
 var _ = require("./lodash");
 
 module.exports = parentDummyChains;
@@ -32501,7 +32965,7 @@ function postorder(g) {
   return result;
 }
 
-},{"./lodash":562}],575:[function(require,module,exports){
+},{"./lodash":563}],576:[function(require,module,exports){
 "use strict";
 
 var _ = require("../lodash");
@@ -32922,7 +33386,7 @@ function width(g, v) {
   return g.node(v).width;
 }
 
-},{"../graphlib":559,"../lodash":562,"../util":581}],576:[function(require,module,exports){
+},{"../graphlib":560,"../lodash":563,"../util":582}],577:[function(require,module,exports){
 "use strict";
 
 var _ = require("../lodash");
@@ -32954,7 +33418,7 @@ function positionY(g) {
 }
 
 
-},{"../lodash":562,"../util":581,"./bk":575}],577:[function(require,module,exports){
+},{"../lodash":563,"../util":582,"./bk":576}],578:[function(require,module,exports){
 "use strict";
 
 var _ = require("../lodash");
@@ -33045,7 +33509,7 @@ function shiftRanks(t, g, delta) {
   });
 }
 
-},{"../graphlib":559,"../lodash":562,"./util":580}],578:[function(require,module,exports){
+},{"../graphlib":560,"../lodash":563,"./util":581}],579:[function(require,module,exports){
 "use strict";
 
 var rankUtil = require("./util");
@@ -33095,7 +33559,7 @@ function networkSimplexRanker(g) {
   networkSimplex(g);
 }
 
-},{"./feasible-tree":577,"./network-simplex":579,"./util":580}],579:[function(require,module,exports){
+},{"./feasible-tree":578,"./network-simplex":580,"./util":581}],580:[function(require,module,exports){
 "use strict";
 
 var _ = require("../lodash");
@@ -33331,7 +33795,7 @@ function isDescendant(tree, vLabel, rootLabel) {
   return rootLabel.low <= vLabel.lim && vLabel.lim <= rootLabel.lim;
 }
 
-},{"../graphlib":559,"../lodash":562,"../util":581,"./feasible-tree":577,"./util":580}],580:[function(require,module,exports){
+},{"../graphlib":560,"../lodash":563,"../util":582,"./feasible-tree":578,"./util":581}],581:[function(require,module,exports){
 "use strict";
 
 var _ = require("../lodash");
@@ -33396,7 +33860,7 @@ function slack(g, e) {
   return g.node(e.w).rank - g.node(e.v).rank - g.edge(e).minlen;
 }
 
-},{"../lodash":562}],581:[function(require,module,exports){
+},{"../lodash":563}],582:[function(require,module,exports){
 /* eslint "no-console": off */
 
 "use strict";
@@ -33636,10 +34100,4830 @@ function notime(name, fn) {
   return fn();
 }
 
-},{"./graphlib":559,"./lodash":562}],582:[function(require,module,exports){
+},{"./graphlib":560,"./lodash":563}],583:[function(require,module,exports){
 module.exports = "0.8.5";
 
-},{}],583:[function(require,module,exports){
+},{}],584:[function(require,module,exports){
+module.exports={
+  "name": "esri-leaflet",
+  "description": "Leaflet plugins for consuming ArcGIS Online and ArcGIS Server services.",
+  "version": "3.0.2",
+  "author": "Patrick Arlt <parlt@esri.com> (http://patrickarlt.com)",
+  "bugs": {
+    "url": "https://github.com/esri/esri-leaflet/issues"
+  },
+  "contributors": [
+    "Patrick Arlt <parlt@esri.com> (http://patrickarlt.com)",
+    "John Gravois <jgravois@esri.com> (http://johngravois.com)",
+    "Gavin Rehkemper <grehkemper@esri.com>",
+    "Jacob Wasilkowski <jwasilkowski@esri.com> (https://jwasilgeo.github.io)"
+  ],
+  "dependencies": {
+    "@terraformer/arcgis": "^2.0.7",
+    "tiny-binary-search": "^1.0.3"
+  },
+  "devDependencies": {
+    "@rollup/plugin-json": "^4.0.3",
+    "@rollup/plugin-node-resolve": "^7.1.3",
+    "chai": "4.2.0",
+    "gh-release": "^4.0.3",
+    "highlight.js": "^9.12.0",
+    "http-server": "^0.12.3",
+    "husky": "^1.1.1",
+    "istanbul": "^0.4.5",
+    "karma": "^5.2.3",
+    "karma-chai-sinon": "^0.1.5",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-coverage": "^1.1.2",
+    "karma-mocha": "^2.0.1",
+    "karma-mocha-reporter": "^2.2.5",
+    "karma-sourcemap-loader": "^0.3.7",
+    "leaflet": "^1.6.0",
+    "mkdirp": "^0.5.1",
+    "mocha": "^8.1.3",
+    "npm-run-all": "^4.0.2",
+    "rollup": "^2.0.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "semistandard": "^9.0.0",
+    "sinon": "^6.3.5",
+    "sinon-chai": "3.2.0",
+    "snazzy": "^8.0.0",
+    "uglify-js": "^2.8.29",
+    "watch": "^1.0.2"
+  },
+  "files": [
+    "src/**/*.js",
+    "dist/esri-leaflet.js",
+    "dist/esri-leaflet.js.map",
+    "dist/esri-leaflet-debug.js.map",
+    "profiles/*.js"
+  ],
+  "homepage": "http://esri.github.io/esri-leaflet",
+  "module": "src/EsriLeaflet.js",
+  "jsnext:main": "src/EsriLeaflet.js",
+  "jspm": {
+    "registry": "npm",
+    "format": "es6",
+    "main": "src/EsriLeaflet.js"
+  },
+  "keywords": [
+    "arcgis",
+    "esri",
+    "esri leaflet",
+    "gis",
+    "leaflet plugin",
+    "mapping"
+  ],
+  "license": "Apache-2.0",
+  "main": "dist/esri-leaflet-debug.js",
+  "peerDependencies": {
+    "leaflet": "^1.0.0"
+  },
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Esri/esri-leaflet.git"
+  },
+  "scripts": {
+    "build": "rollup -c profiles/debug.js & rollup -c profiles/production.js",
+    "lint": "semistandard | snazzy",
+    "prebuild": "mkdirp dist",
+    "prepare": "npm run build",
+    "pretest": "npm run build",
+    "precommit": "npm run lint",
+    "fix": "semistandard --fix",
+    "release": "./scripts/release.sh",
+    "start-watch": "watch \"npm run build\" src",
+    "start": "run-p start-watch serve",
+    "serve": "http-server -p 5000 -c-1 -o",
+    "test": "npm run lint && karma start",
+    "test:ci": "npm run lint && karma start --browsers Chrome_travis_ci"
+  },
+  "semistandard": {
+    "globals": [
+      "expect",
+      "L",
+      "XMLHttpRequest",
+      "sinon",
+      "xhr",
+      "proj4"
+    ]
+  },
+  "unpkg": "dist/esri-leaflet-debug.js"
+}
+
+},{}],585:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "Support", {
+  enumerable: true,
+  get: function () {
+    return _Support.Support;
+  }
+});
+Object.defineProperty(exports, "options", {
+  enumerable: true,
+  get: function () {
+    return _Options.options;
+  }
+});
+Object.defineProperty(exports, "Util", {
+  enumerable: true,
+  get: function () {
+    return _Util.EsriUtil;
+  }
+});
+Object.defineProperty(exports, "get", {
+  enumerable: true,
+  get: function () {
+    return _Request.get;
+  }
+});
+Object.defineProperty(exports, "post", {
+  enumerable: true,
+  get: function () {
+    return _Request.post;
+  }
+});
+Object.defineProperty(exports, "request", {
+  enumerable: true,
+  get: function () {
+    return _Request.request;
+  }
+});
+Object.defineProperty(exports, "Task", {
+  enumerable: true,
+  get: function () {
+    return _Task.Task;
+  }
+});
+Object.defineProperty(exports, "task", {
+  enumerable: true,
+  get: function () {
+    return _Task.task;
+  }
+});
+Object.defineProperty(exports, "Query", {
+  enumerable: true,
+  get: function () {
+    return _Query.Query;
+  }
+});
+Object.defineProperty(exports, "query", {
+  enumerable: true,
+  get: function () {
+    return _Query.query;
+  }
+});
+Object.defineProperty(exports, "Find", {
+  enumerable: true,
+  get: function () {
+    return _Find.Find;
+  }
+});
+Object.defineProperty(exports, "find", {
+  enumerable: true,
+  get: function () {
+    return _Find.find;
+  }
+});
+Object.defineProperty(exports, "Identify", {
+  enumerable: true,
+  get: function () {
+    return _Identify.Identify;
+  }
+});
+Object.defineProperty(exports, "identify", {
+  enumerable: true,
+  get: function () {
+    return _Identify.identify;
+  }
+});
+Object.defineProperty(exports, "IdentifyFeatures", {
+  enumerable: true,
+  get: function () {
+    return _IdentifyFeatures.IdentifyFeatures;
+  }
+});
+Object.defineProperty(exports, "identifyFeatures", {
+  enumerable: true,
+  get: function () {
+    return _IdentifyFeatures.identifyFeatures;
+  }
+});
+Object.defineProperty(exports, "IdentifyImage", {
+  enumerable: true,
+  get: function () {
+    return _IdentifyImage.IdentifyImage;
+  }
+});
+Object.defineProperty(exports, "identifyImage", {
+  enumerable: true,
+  get: function () {
+    return _IdentifyImage.identifyImage;
+  }
+});
+Object.defineProperty(exports, "Service", {
+  enumerable: true,
+  get: function () {
+    return _Service.Service;
+  }
+});
+Object.defineProperty(exports, "service", {
+  enumerable: true,
+  get: function () {
+    return _Service.service;
+  }
+});
+Object.defineProperty(exports, "MapService", {
+  enumerable: true,
+  get: function () {
+    return _MapService.MapService;
+  }
+});
+Object.defineProperty(exports, "mapService", {
+  enumerable: true,
+  get: function () {
+    return _MapService.mapService;
+  }
+});
+Object.defineProperty(exports, "ImageService", {
+  enumerable: true,
+  get: function () {
+    return _ImageService.ImageService;
+  }
+});
+Object.defineProperty(exports, "imageService", {
+  enumerable: true,
+  get: function () {
+    return _ImageService.imageService;
+  }
+});
+Object.defineProperty(exports, "FeatureLayerService", {
+  enumerable: true,
+  get: function () {
+    return _FeatureLayerService.FeatureLayerService;
+  }
+});
+Object.defineProperty(exports, "featureLayerService", {
+  enumerable: true,
+  get: function () {
+    return _FeatureLayerService.featureLayerService;
+  }
+});
+Object.defineProperty(exports, "BasemapLayer", {
+  enumerable: true,
+  get: function () {
+    return _BasemapLayer.BasemapLayer;
+  }
+});
+Object.defineProperty(exports, "basemapLayer", {
+  enumerable: true,
+  get: function () {
+    return _BasemapLayer.basemapLayer;
+  }
+});
+Object.defineProperty(exports, "TiledMapLayer", {
+  enumerable: true,
+  get: function () {
+    return _TiledMapLayer.TiledMapLayer;
+  }
+});
+Object.defineProperty(exports, "tiledMapLayer", {
+  enumerable: true,
+  get: function () {
+    return _TiledMapLayer.tiledMapLayer;
+  }
+});
+Object.defineProperty(exports, "RasterLayer", {
+  enumerable: true,
+  get: function () {
+    return _RasterLayer.RasterLayer;
+  }
+});
+Object.defineProperty(exports, "ImageMapLayer", {
+  enumerable: true,
+  get: function () {
+    return _ImageMapLayer.ImageMapLayer;
+  }
+});
+Object.defineProperty(exports, "imageMapLayer", {
+  enumerable: true,
+  get: function () {
+    return _ImageMapLayer.imageMapLayer;
+  }
+});
+Object.defineProperty(exports, "DynamicMapLayer", {
+  enumerable: true,
+  get: function () {
+    return _DynamicMapLayer.DynamicMapLayer;
+  }
+});
+Object.defineProperty(exports, "dynamicMapLayer", {
+  enumerable: true,
+  get: function () {
+    return _DynamicMapLayer.dynamicMapLayer;
+  }
+});
+Object.defineProperty(exports, "FeatureManager", {
+  enumerable: true,
+  get: function () {
+    return _FeatureManager.FeatureManager;
+  }
+});
+Object.defineProperty(exports, "FeatureLayer", {
+  enumerable: true,
+  get: function () {
+    return _FeatureLayer.FeatureLayer;
+  }
+});
+Object.defineProperty(exports, "featureLayer", {
+  enumerable: true,
+  get: function () {
+    return _FeatureLayer.featureLayer;
+  }
+});
+exports.VERSION = void 0;
+
+var _package = _interopRequireDefault(require("../package.json"));
+
+var _Support = require("./Support");
+
+var _Options = require("./Options");
+
+var _Util = require("./Util");
+
+var _Request = require("./Request");
+
+var _Task = require("./Tasks/Task");
+
+var _Query = require("./Tasks/Query");
+
+var _Find = require("./Tasks/Find");
+
+var _Identify = require("./Tasks/Identify");
+
+var _IdentifyFeatures = require("./Tasks/IdentifyFeatures");
+
+var _IdentifyImage = require("./Tasks/IdentifyImage");
+
+var _Service = require("./Services/Service");
+
+var _MapService = require("./Services/MapService");
+
+var _ImageService = require("./Services/ImageService");
+
+var _FeatureLayerService = require("./Services/FeatureLayerService");
+
+var _BasemapLayer = require("./Layers/BasemapLayer");
+
+var _TiledMapLayer = require("./Layers/TiledMapLayer");
+
+var _RasterLayer = require("./Layers/RasterLayer");
+
+var _ImageMapLayer = require("./Layers/ImageMapLayer");
+
+var _DynamicMapLayer = require("./Layers/DynamicMapLayer");
+
+var _FeatureManager = require("./Layers/FeatureLayer/FeatureManager");
+
+var _FeatureLayer = require("./Layers/FeatureLayer/FeatureLayer");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// export version
+var version = _package.default.version;
+exports.VERSION = version;
+
+},{"../package.json":584,"./Layers/BasemapLayer":586,"./Layers/DynamicMapLayer":587,"./Layers/FeatureLayer/FeatureLayer":589,"./Layers/FeatureLayer/FeatureManager":590,"./Layers/ImageMapLayer":591,"./Layers/RasterLayer":592,"./Layers/TiledMapLayer":593,"./Options":594,"./Request":595,"./Services/FeatureLayerService":596,"./Services/ImageService":597,"./Services/MapService":598,"./Services/Service":599,"./Support":600,"./Tasks/Find":601,"./Tasks/Identify":602,"./Tasks/IdentifyFeatures":603,"./Tasks/IdentifyImage":604,"./Tasks/Query":605,"./Tasks/Task":606,"./Util":607}],586:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.basemapLayer = basemapLayer;
+exports.default = exports.BasemapLayer = void 0;
+
+var _leaflet = require("leaflet");
+
+var _Support = require("../Support");
+
+var _Util = require("../Util");
+
+var tileProtocol = window.location.protocol !== 'https:' ? 'http:' : 'https:';
+
+var BasemapLayer = _leaflet.TileLayer.extend({
+  statics: {
+    TILES: {
+      Streets: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 19,
+          subdomains: ['server', 'services'],
+          attribution: 'USGS, NOAA',
+          attributionUrl: 'https://static.arcgis.com/attribution/World_Street_Map'
+        }
+      },
+      Topographic: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 19,
+          subdomains: ['server', 'services'],
+          attribution: 'USGS, NOAA',
+          attributionUrl: 'https://static.arcgis.com/attribution/World_Topo_Map'
+        }
+      },
+      Oceans: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 16,
+          subdomains: ['server', 'services'],
+          attribution: 'USGS, NOAA',
+          attributionUrl: 'https://static.arcgis.com/attribution/Ocean_Basemap'
+        }
+      },
+      OceansLabels: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 16,
+          subdomains: ['server', 'services'],
+          pane: _Support.pointerEvents ? 'esri-labels' : 'tilePane',
+          attribution: ''
+        }
+      },
+      NationalGeographic: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 16,
+          subdomains: ['server', 'services'],
+          attribution: 'National Geographic, DeLorme, HERE, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, increment P Corp.'
+        }
+      },
+      DarkGray: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 16,
+          subdomains: ['server', 'services'],
+          attribution: 'HERE, DeLorme, MapmyIndia, &copy; OpenStreetMap contributors'
+        }
+      },
+      DarkGrayLabels: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 16,
+          subdomains: ['server', 'services'],
+          pane: _Support.pointerEvents ? 'esri-labels' : 'tilePane',
+          attribution: ''
+        }
+      },
+      Gray: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 16,
+          subdomains: ['server', 'services'],
+          attribution: 'HERE, DeLorme, MapmyIndia, &copy; OpenStreetMap contributors'
+        }
+      },
+      GrayLabels: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 16,
+          subdomains: ['server', 'services'],
+          pane: _Support.pointerEvents ? 'esri-labels' : 'tilePane',
+          attribution: ''
+        }
+      },
+      Imagery: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 19,
+          subdomains: ['server', 'services'],
+          attribution: 'DigitalGlobe, GeoEye, i-cubed, USDA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community',
+          attributionUrl: 'https://static.arcgis.com/attribution/World_Imagery'
+        }
+      },
+      ImageryLabels: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 19,
+          subdomains: ['server', 'services'],
+          pane: _Support.pointerEvents ? 'esri-labels' : 'tilePane',
+          attribution: ''
+        }
+      },
+      ImageryTransportation: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 19,
+          subdomains: ['server', 'services'],
+          pane: _Support.pointerEvents ? 'esri-labels' : 'tilePane',
+          attribution: ''
+        }
+      },
+      ShadedRelief: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 13,
+          subdomains: ['server', 'services'],
+          attribution: 'USGS'
+        }
+      },
+      ShadedReliefLabels: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places_Alternate/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 12,
+          subdomains: ['server', 'services'],
+          pane: _Support.pointerEvents ? 'esri-labels' : 'tilePane',
+          attribution: ''
+        }
+      },
+      Terrain: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 13,
+          subdomains: ['server', 'services'],
+          attribution: 'USGS, NOAA'
+        }
+      },
+      TerrainLabels: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/Reference/World_Reference_Overlay/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 13,
+          subdomains: ['server', 'services'],
+          pane: _Support.pointerEvents ? 'esri-labels' : 'tilePane',
+          attribution: ''
+        }
+      },
+      USATopo: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 15,
+          subdomains: ['server', 'services'],
+          attribution: 'USGS, National Geographic Society, i-cubed'
+        }
+      },
+      ImageryClarity: {
+        urlTemplate: tileProtocol + '//clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 19,
+          attribution: 'Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community'
+        }
+      },
+      Physical: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/arcgis/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 8,
+          subdomains: ['server', 'services'],
+          attribution: 'U.S. National Park Service'
+        }
+      },
+      ImageryFirefly: {
+        urlTemplate: tileProtocol + '//fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 19,
+          attribution: 'Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community',
+          attributionUrl: 'https://static.arcgis.com/attribution/World_Imagery'
+        }
+      }
+    }
+  },
+  initialize: function (key, options) {
+    var config; // set the config variable with the appropriate config object
+
+    if (typeof key === 'object' && key.urlTemplate && key.options) {
+      config = key;
+    } else if (typeof key === 'string' && BasemapLayer.TILES[key]) {
+      config = BasemapLayer.TILES[key];
+    } else {
+      throw new Error('L.esri.BasemapLayer: Invalid parameter. Use one of "Streets", "Topographic", "Oceans", "OceansLabels", "NationalGeographic", "Physical", "Gray", "GrayLabels", "DarkGray", "DarkGrayLabels", "Imagery", "ImageryLabels", "ImageryTransportation", "ImageryClarity", "ImageryFirefly", ShadedRelief", "ShadedReliefLabels", "Terrain", "TerrainLabels" or "USATopo"');
+    } // merge passed options into the config options
+
+
+    var tileOptions = _leaflet.Util.extend(config.options, options);
+
+    _leaflet.Util.setOptions(this, tileOptions);
+
+    if (this.options.token && config.urlTemplate.indexOf('token=') === -1) {
+      config.urlTemplate += '?token=' + this.options.token;
+    }
+
+    if (this.options.proxy) {
+      config.urlTemplate = this.options.proxy + '?' + config.urlTemplate;
+    } // call the initialize method on L.TileLayer to set everything up
+
+
+    _leaflet.TileLayer.prototype.initialize.call(this, config.urlTemplate, tileOptions);
+  },
+  onAdd: function (map) {
+    // include 'Powered by Esri' in map attribution
+    (0, _Util.setEsriAttribution)(map);
+
+    if (this.options.pane === 'esri-labels') {
+      this._initPane();
+    } // some basemaps can supply dynamic attribution
+
+
+    if (this.options.attributionUrl) {
+      (0, _Util._getAttributionData)((this.options.proxy ? this.options.proxy + '?' : '') + this.options.attributionUrl, map);
+    }
+
+    map.on('moveend', _Util._updateMapAttribution);
+
+    _leaflet.TileLayer.prototype.onAdd.call(this, map);
+  },
+  onRemove: function (map) {
+    (0, _Util.removeEsriAttribution)(map);
+    map.off('moveend', _Util._updateMapAttribution);
+
+    _leaflet.TileLayer.prototype.onRemove.call(this, map);
+  },
+  _initPane: function () {
+    if (!this._map.getPane(this.options.pane)) {
+      var pane = this._map.createPane(this.options.pane);
+
+      pane.style.pointerEvents = 'none';
+      pane.style.zIndex = 500;
+    }
+  },
+  getAttribution: function () {
+    if (this.options.attribution) {
+      var attribution = '<span class="esri-dynamic-attribution">' + this.options.attribution + '</span>';
+    }
+
+    return attribution;
+  }
+});
+
+exports.BasemapLayer = BasemapLayer;
+
+function basemapLayer(key, options) {
+  return new BasemapLayer(key, options);
+}
+
+var _default = basemapLayer;
+exports.default = _default;
+
+},{"../Support":600,"../Util":607,"leaflet":629}],587:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.dynamicMapLayer = dynamicMapLayer;
+exports.default = exports.DynamicMapLayer = void 0;
+
+var _leaflet = require("leaflet");
+
+var _RasterLayer = require("./RasterLayer");
+
+var _Util = require("../Util");
+
+var _MapService = _interopRequireDefault(require("../Services/MapService"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var DynamicMapLayer = _RasterLayer.RasterLayer.extend({
+  options: {
+    updateInterval: 150,
+    layers: false,
+    layerDefs: false,
+    timeOptions: false,
+    format: 'png32',
+    transparent: true,
+    f: 'json'
+  },
+  initialize: function (options) {
+    options = (0, _Util.getUrlParams)(options);
+    this.service = (0, _MapService.default)(options);
+    this.service.addEventParent(this);
+
+    _leaflet.Util.setOptions(this, options);
+  },
+  getDynamicLayers: function () {
+    return this.options.dynamicLayers;
+  },
+  setDynamicLayers: function (dynamicLayers) {
+    this.options.dynamicLayers = dynamicLayers;
+
+    this._update();
+
+    return this;
+  },
+  getLayers: function () {
+    return this.options.layers;
+  },
+  setLayers: function (layers) {
+    this.options.layers = layers;
+
+    this._update();
+
+    return this;
+  },
+  getLayerDefs: function () {
+    return this.options.layerDefs;
+  },
+  setLayerDefs: function (layerDefs) {
+    this.options.layerDefs = layerDefs;
+
+    this._update();
+
+    return this;
+  },
+  getTimeOptions: function () {
+    return this.options.timeOptions;
+  },
+  setTimeOptions: function (timeOptions) {
+    this.options.timeOptions = timeOptions;
+
+    this._update();
+
+    return this;
+  },
+  query: function () {
+    return this.service.query();
+  },
+  identify: function () {
+    return this.service.identify();
+  },
+  find: function () {
+    return this.service.find();
+  },
+  _getPopupData: function (e) {
+    var callback = _leaflet.Util.bind(function (error, featureCollection, response) {
+      if (error) {
+        return;
+      } // we really can't do anything here but authenticate or requesterror will fire
+
+
+      setTimeout(_leaflet.Util.bind(function () {
+        this._renderPopup(e.latlng, error, featureCollection, response);
+      }, this), 300);
+    }, this);
+
+    var identifyRequest;
+
+    if (this.options.popup) {
+      identifyRequest = this.options.popup.on(this._map).at(e.latlng);
+    } else {
+      identifyRequest = this.identify().on(this._map).at(e.latlng);
+    } // remove extraneous vertices from response features if it has not already been done
+
+
+    identifyRequest.params.maxAllowableOffset ? true : identifyRequest.simplify(this._map, 0.5);
+
+    if (!(this.options.popup && this.options.popup.params && this.options.popup.params.layers)) {
+      if (this.options.layers) {
+        identifyRequest.layers('visible:' + this.options.layers.join(','));
+      } else {
+        identifyRequest.layers('visible');
+      }
+    } // if present, pass layer ids and sql filters through to the identify task
+
+
+    if (this.options.layerDefs && typeof this.options.layerDefs !== 'string' && !identifyRequest.params.layerDefs) {
+      for (var id in this.options.layerDefs) {
+        if (this.options.layerDefs.hasOwnProperty(id)) {
+          identifyRequest.layerDef(id, this.options.layerDefs[id]);
+        }
+      }
+    }
+
+    identifyRequest.run(callback); // set the flags to show the popup
+
+    this._shouldRenderPopup = true;
+    this._lastClick = e.latlng;
+  },
+  _buildExportParams: function () {
+    var sr = parseInt(this._map.options.crs.code.split(':')[1], 10);
+    var params = {
+      bbox: this._calculateBbox(),
+      size: this._calculateImageSize(),
+      dpi: 96,
+      format: this.options.format,
+      transparent: this.options.transparent,
+      bboxSR: sr,
+      imageSR: sr
+    };
+
+    if (this.options.dynamicLayers) {
+      params.dynamicLayers = this.options.dynamicLayers;
+    }
+
+    if (this.options.layers) {
+      if (this.options.layers.length === 0) {
+        return;
+      } else {
+        params.layers = 'show:' + this.options.layers.join(',');
+      }
+    }
+
+    if (this.options.layerDefs) {
+      params.layerDefs = typeof this.options.layerDefs === 'string' ? this.options.layerDefs : JSON.stringify(this.options.layerDefs);
+    }
+
+    if (this.options.timeOptions) {
+      params.timeOptions = JSON.stringify(this.options.timeOptions);
+    }
+
+    if (this.options.from && this.options.to) {
+      params.time = this.options.from.valueOf() + ',' + this.options.to.valueOf();
+    }
+
+    if (this.service.options.token) {
+      params.token = this.service.options.token;
+    }
+
+    if (this.options.proxy) {
+      params.proxy = this.options.proxy;
+    } // use a timestamp to bust server cache
+
+
+    if (this.options.disableCache) {
+      params._ts = Date.now();
+    }
+
+    return params;
+  },
+  _requestExport: function (params, bounds) {
+    if (this.options.f === 'json') {
+      this.service.request('export', params, function (error, response) {
+        if (error) {
+          return;
+        } // we really can't do anything here but authenticate or requesterror will fire
+
+
+        if (this.options.token && response.href) {
+          response.href += '?token=' + this.options.token;
+        }
+
+        if (this.options.proxy && response.href) {
+          response.href = this.options.proxy + '?' + response.href;
+        }
+
+        if (response.href) {
+          this._renderImage(response.href, bounds);
+        } else {
+          this._renderImage(response.imageData, bounds, response.contentType);
+        }
+      }, this);
+    } else {
+      params.f = 'image';
+
+      var fullUrl = this.options.url + 'export' + _leaflet.Util.getParamString(params);
+
+      if (this.options.proxy) {
+        fullUrl = this.options.proxy + '?' + fullUrl;
+      }
+
+      this._renderImage(fullUrl, bounds);
+    }
+  }
+});
+
+exports.DynamicMapLayer = DynamicMapLayer;
+
+function dynamicMapLayer(url, options) {
+  return new DynamicMapLayer(url, options);
+}
+
+var _default = dynamicMapLayer;
+exports.default = _default;
+
+},{"../Services/MapService":598,"../Util":607,"./RasterLayer":592,"leaflet":629}],588:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.FeatureGrid = void 0;
+
+var _leaflet = require("leaflet");
+
+var FeatureGrid = _leaflet.Layer.extend({
+  // @section
+  // @aka GridLayer options
+  options: {
+    // @option cellSize: Number|Point = 256
+    // Width and height of cells in the grid. Use a number if width and height are equal, or `L.point(width, height)` otherwise.
+    cellSize: 512,
+    // @option updateWhenIdle: Boolean = (depends)
+    // Load new cells only when panning ends.
+    // `true` by default on mobile browsers, in order to avoid too many requests and keep smooth navigation.
+    // `false` otherwise in order to display new cells _during_ panning, since it is easy to pan outside the
+    // [`keepBuffer`](#gridlayer-keepbuffer) option in desktop browsers.
+    updateWhenIdle: _leaflet.Browser.mobile,
+    // @option updateInterval: Number = 150
+    // Cells will not update more than once every `updateInterval` milliseconds when panning.
+    updateInterval: 150,
+    // @option noWrap: Boolean = false
+    // Whether the layer is wrapped around the antimeridian. If `true`, the
+    // GridLayer will only be displayed once at low zoom levels. Has no
+    // effect when the [map CRS](#map-crs) doesn't wrap around. Can be used
+    // in combination with [`bounds`](#gridlayer-bounds) to prevent requesting
+    // cells outside the CRS limits.
+    noWrap: false,
+    // @option keepBuffer: Number = 1.5
+    // When panning the map, keep this many rows and columns of cells before unloading them.
+    keepBuffer: 1.5
+  },
+  initialize: function (options) {
+    _leaflet.Util.setOptions(this, options);
+  },
+  onAdd: function (map) {
+    this._cells = {};
+    this._activeCells = {};
+
+    this._resetView();
+
+    this._update();
+  },
+  onRemove: function (map) {
+    this._removeAllCells();
+
+    this._cellZoom = undefined;
+  },
+  // @method isLoading: Boolean
+  // Returns `true` if any cell in the grid layer has not finished loading.
+  isLoading: function () {
+    return this._loading;
+  },
+  // @method redraw: this
+  // Causes the layer to clear all the cells and request them again.
+  redraw: function () {
+    if (this._map) {
+      this._removeAllCells();
+
+      this._update();
+    }
+
+    return this;
+  },
+  getEvents: function () {
+    var events = {
+      viewprereset: this._invalidateAll,
+      viewreset: this._resetView,
+      zoom: this._resetView,
+      moveend: this._onMoveEnd
+    };
+
+    if (!this.options.updateWhenIdle) {
+      // update cells on move, but not more often than once per given interval
+      if (!this._onMove) {
+        this._onMove = _leaflet.Util.throttle(this._onMoveEnd, this.options.updateInterval, this);
+      }
+
+      events.move = this._onMove;
+    }
+
+    return events;
+  },
+  // @section Extension methods
+  // Layers extending `GridLayer` shall reimplement the following method.
+  // @method createCell(coords: Object, done?: Function): HTMLElement
+  // Called only internally, must be overridden by classes extending `GridLayer`.
+  // Returns the `HTMLElement` corresponding to the given `coords`. If the `done` callback
+  // is specified, it must be called when the cell has finished loading and drawing.
+  createCell: function () {
+    return document.createElement('div');
+  },
+  removeCell: function () {
+    return;
+  },
+  reuseCell: function () {
+    return;
+  },
+  cellLeave: function () {
+    return;
+  },
+  cellEnter: function () {
+    return;
+  },
+  // @section
+  // @method getCellSize: Point
+  // Normalizes the [cellSize option](#gridlayer-cellsize) into a point. Used by the `createCell()` method.
+  getCellSize: function () {
+    var s = this.options.cellSize;
+    return s instanceof _leaflet.Point ? s : new _leaflet.Point(s, s);
+  },
+  _pruneCells: function () {
+    if (!this._map) {
+      return;
+    }
+
+    var key, cell;
+
+    for (key in this._cells) {
+      cell = this._cells[key];
+      cell.retain = cell.current;
+    }
+
+    for (key in this._cells) {
+      cell = this._cells[key];
+
+      if (cell.current && !cell.active) {
+        var coords = cell.coords;
+
+        if (!this._retainParent(coords.x, coords.y, coords.z, coords.z - 5)) {
+          this._retainChildren(coords.x, coords.y, coords.z, coords.z + 2);
+        }
+      }
+    }
+
+    for (key in this._cells) {
+      if (!this._cells[key].retain) {
+        this._removeCell(key);
+      }
+    }
+  },
+  _removeAllCells: function () {
+    for (var key in this._cells) {
+      this._removeCell(key);
+    }
+  },
+  _invalidateAll: function () {
+    this._removeAllCells();
+
+    this._cellZoom = undefined;
+  },
+  _retainParent: function (x, y, z, minZoom) {
+    var x2 = Math.floor(x / 2);
+    var y2 = Math.floor(y / 2);
+    var z2 = z - 1;
+    var coords2 = new _leaflet.Point(+x2, +y2);
+    coords2.z = +z2;
+
+    var key = this._cellCoordsToKey(coords2);
+
+    var cell = this._cells[key];
+
+    if (cell && cell.active) {
+      cell.retain = true;
+      return true;
+    } else if (cell && cell.loaded) {
+      cell.retain = true;
+    }
+
+    if (z2 > minZoom) {
+      return this._retainParent(x2, y2, z2, minZoom);
+    }
+
+    return false;
+  },
+  _retainChildren: function (x, y, z, maxZoom) {
+    for (var i = 2 * x; i < 2 * x + 2; i++) {
+      for (var j = 2 * y; j < 2 * y + 2; j++) {
+        var coords = new _leaflet.Point(i, j);
+        coords.z = z + 1;
+
+        var key = this._cellCoordsToKey(coords);
+
+        var cell = this._cells[key];
+
+        if (cell && cell.active) {
+          cell.retain = true;
+          continue;
+        } else if (cell && cell.loaded) {
+          cell.retain = true;
+        }
+
+        if (z + 1 < maxZoom) {
+          this._retainChildren(i, j, z + 1, maxZoom);
+        }
+      }
+    }
+  },
+  _resetView: function (e) {
+    var animating = e && (e.pinch || e.flyTo);
+
+    if (animating) {
+      return;
+    }
+
+    this._setView(this._map.getCenter(), this._map.getZoom(), animating, animating);
+  },
+  _setView: function (center, zoom, noPrune, noUpdate) {
+    var cellZoom = Math.round(zoom);
+
+    if (!noUpdate) {
+      this._cellZoom = cellZoom;
+
+      if (this._abortLoading) {
+        this._abortLoading();
+      }
+
+      this._resetGrid();
+
+      if (cellZoom !== undefined) {
+        this._update(center);
+      }
+
+      if (!noPrune) {
+        this._pruneCells();
+      } // Flag to prevent _updateOpacity from pruning cells during
+      // a zoom anim or a pinch gesture
+
+
+      this._noPrune = !!noPrune;
+    }
+  },
+  _resetGrid: function () {
+    var map = this._map;
+    var crs = map.options.crs;
+    var cellSize = this._cellSize = this.getCellSize();
+    var cellZoom = this._cellZoom;
+
+    var bounds = this._map.getPixelWorldBounds(this._cellZoom);
+
+    if (bounds) {
+      this._globalCellRange = this._pxBoundsToCellRange(bounds);
+    }
+
+    this._wrapX = crs.wrapLng && !this.options.noWrap && [Math.floor(map.project([0, crs.wrapLng[0]], cellZoom).x / cellSize.x), Math.ceil(map.project([0, crs.wrapLng[1]], cellZoom).x / cellSize.y)];
+    this._wrapY = crs.wrapLat && !this.options.noWrap && [Math.floor(map.project([crs.wrapLat[0], 0], cellZoom).y / cellSize.x), Math.ceil(map.project([crs.wrapLat[1], 0], cellZoom).y / cellSize.y)];
+  },
+  _onMoveEnd: function (e) {
+    var animating = e && (e.pinch || e.flyTo);
+
+    if (animating || !this._map || this._map._animatingZoom) {
+      return;
+    }
+
+    this._update();
+  },
+  _getCelldPixelBounds: function (center) {
+    var map = this._map;
+    var mapZoom = map._animatingZoom ? Math.max(map._animateToZoom, map.getZoom()) : map.getZoom();
+    var scale = map.getZoomScale(mapZoom, this._cellZoom);
+    var pixelCenter = map.project(center, this._cellZoom).floor();
+    var halfSize = map.getSize().divideBy(scale * 2);
+    return new _leaflet.Bounds(pixelCenter.subtract(halfSize), pixelCenter.add(halfSize));
+  },
+  // Private method to load cells in the grid's active zoom level according to map bounds
+  _update: function (center) {
+    var map = this._map;
+
+    if (!map) {
+      return;
+    }
+
+    var zoom = Math.round(map.getZoom());
+
+    if (center === undefined) {
+      center = map.getCenter();
+    }
+
+    var pixelBounds = this._getCelldPixelBounds(center);
+
+    var cellRange = this._pxBoundsToCellRange(pixelBounds);
+
+    var cellCenter = cellRange.getCenter();
+    var queue = [];
+    var margin = this.options.keepBuffer;
+    var noPruneRange = new _leaflet.Bounds(cellRange.getBottomLeft().subtract([margin, -margin]), cellRange.getTopRight().add([margin, -margin])); // Sanity check: panic if the cell range contains Infinity somewhere.
+
+    if (!(isFinite(cellRange.min.x) && isFinite(cellRange.min.y) && isFinite(cellRange.max.x) && isFinite(cellRange.max.y))) {
+      throw new Error('Attempted to load an infinite number of cells');
+    }
+
+    for (var key in this._cells) {
+      var c = this._cells[key].coords;
+
+      if (c.z !== this._cellZoom || !noPruneRange.contains(new _leaflet.Point(c.x, c.y))) {
+        this._cells[key].current = false;
+      }
+    } // _update just loads more cells. If the cell zoom level differs too much
+    // from the map's, let _setView reset levels and prune old cells.
+
+
+    if (Math.abs(zoom - this._cellZoom) > 1) {
+      this._setView(center, zoom);
+
+      return;
+    } // create a queue of coordinates to load cells from
+
+
+    for (var j = cellRange.min.y; j <= cellRange.max.y; j++) {
+      for (var i = cellRange.min.x; i <= cellRange.max.x; i++) {
+        var coords = new _leaflet.Point(i, j);
+        coords.z = this._cellZoom;
+
+        if (!this._isValidCell(coords)) {
+          continue;
+        }
+
+        var cell = this._cells[this._cellCoordsToKey(coords)];
+
+        if (cell) {
+          cell.current = true;
+        } else {
+          queue.push(coords);
+        }
+      }
+    } // sort cell queue to load cells in order of their distance to center
+
+
+    queue.sort(function (a, b) {
+      return a.distanceTo(cellCenter) - b.distanceTo(cellCenter);
+    });
+
+    if (queue.length !== 0) {
+      // if it's the first batch of cells to load
+      if (!this._loading) {
+        this._loading = true;
+      }
+
+      for (i = 0; i < queue.length; i++) {
+        var _key = this._cellCoordsToKey(queue[i]);
+
+        var _coords = this._keyToCellCoords(_key);
+
+        if (this._activeCells[_coords]) {
+          this._reuseCell(queue[i]);
+        } else {
+          this._createCell(queue[i]);
+        }
+      }
+    }
+  },
+  _isValidCell: function (coords) {
+    var crs = this._map.options.crs;
+
+    if (!crs.infinite) {
+      // don't load cell if it's out of bounds and not wrapped
+      var bounds = this._globalCellRange;
+
+      if (!crs.wrapLng && (coords.x < bounds.min.x || coords.x > bounds.max.x) || !crs.wrapLat && (coords.y < bounds.min.y || coords.y > bounds.max.y)) {
+        return false;
+      }
+    }
+
+    if (!this.options.bounds) {
+      return true;
+    } // don't load cell if it doesn't intersect the bounds in options
+
+
+    var cellBounds = this._cellCoordsToBounds(coords);
+
+    return (0, _leaflet.toLatLngBounds)(this.options.bounds).overlaps(cellBounds);
+  },
+  _keyToBounds: function (key) {
+    return this._cellCoordsToBounds(this._keyToCellCoords(key));
+  },
+  _cellCoordsToNwSe: function (coords) {
+    var map = this._map;
+    var cellSize = this.getCellSize();
+    var nwPoint = coords.scaleBy(cellSize);
+    var sePoint = nwPoint.add(cellSize);
+    var nw = map.unproject(nwPoint, coords.z);
+    var se = map.unproject(sePoint, coords.z);
+    return [nw, se];
+  },
+  // converts cell coordinates to its geographical bounds
+  _cellCoordsToBounds: function (coords) {
+    var bp = this._cellCoordsToNwSe(coords);
+
+    var bounds = new _leaflet.LatLngBounds(bp[0], bp[1]);
+
+    if (!this.options.noWrap) {
+      bounds = this._map.wrapLatLngBounds(bounds);
+    }
+
+    return bounds;
+  },
+  // converts cell coordinates to key for the cell cache
+  _cellCoordsToKey: function (coords) {
+    return coords.x + ':' + coords.y + ':' + coords.z;
+  },
+  // converts cell cache key to coordinates
+  _keyToCellCoords: function (key) {
+    var k = key.split(':');
+    var coords = new _leaflet.Point(+k[0], +k[1]);
+    coords.z = +k[2];
+    return coords;
+  },
+  _removeCell: function (key) {
+    var cell = this._cells[key];
+
+    if (!cell) {
+      return;
+    }
+
+    var coords = this._keyToCellCoords(key);
+
+    var wrappedCoords = this._wrapCoords(coords);
+
+    var cellBounds = this._cellCoordsToBounds(this._wrapCoords(coords));
+
+    cell.current = false;
+    delete this._cells[key];
+    this._activeCells[key] = cell;
+    this.cellLeave(cellBounds, wrappedCoords, key);
+    this.fire('cellleave', {
+      key: key,
+      coords: wrappedCoords,
+      bounds: cellBounds
+    });
+  },
+  _reuseCell: function (coords) {
+    var key = this._cellCoordsToKey(coords); // save cell in cache
+
+
+    this._cells[key] = this._activeCells[key];
+    this._cells[key].current = true;
+
+    var wrappedCoords = this._wrapCoords(coords);
+
+    var cellBounds = this._cellCoordsToBounds(this._wrapCoords(coords));
+
+    this.cellEnter(cellBounds, wrappedCoords, key);
+    this.fire('cellenter', {
+      key: key,
+      coords: wrappedCoords,
+      bounds: cellBounds
+    });
+  },
+  _createCell: function (coords) {
+    var key = this._cellCoordsToKey(coords);
+
+    var wrappedCoords = this._wrapCoords(coords);
+
+    var cellBounds = this._cellCoordsToBounds(this._wrapCoords(coords));
+
+    this.createCell(cellBounds, wrappedCoords, key);
+    this.fire('cellcreate', {
+      key: key,
+      coords: wrappedCoords,
+      bounds: cellBounds
+    }); // save cell in cache
+
+    this._cells[key] = {
+      coords: coords,
+      current: true
+    };
+
+    _leaflet.Util.requestAnimFrame(this._pruneCells, this);
+  },
+  _cellReady: function (coords, err, cell) {
+    var key = this._cellCoordsToKey(coords);
+
+    cell = this._cells[key];
+
+    if (!cell) {
+      return;
+    }
+
+    cell.loaded = +new Date();
+    cell.active = true;
+  },
+  _getCellPos: function (coords) {
+    return coords.scaleBy(this.getCellSize());
+  },
+  _wrapCoords: function (coords) {
+    var newCoords = new _leaflet.Point(this._wrapX ? _leaflet.Util.wrapNum(coords.x, this._wrapX) : coords.x, this._wrapY ? _leaflet.Util.wrapNum(coords.y, this._wrapY) : coords.y);
+    newCoords.z = coords.z;
+    return newCoords;
+  },
+  _pxBoundsToCellRange: function (bounds) {
+    var cellSize = this.getCellSize();
+    return new _leaflet.Bounds(bounds.min.unscaleBy(cellSize).floor(), bounds.max.unscaleBy(cellSize).ceil().subtract([1, 1]));
+  }
+});
+
+exports.FeatureGrid = FeatureGrid;
+
+},{"leaflet":629}],589:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.featureLayer = featureLayer;
+exports.default = exports.FeatureLayer = void 0;
+
+var _leaflet = require("leaflet");
+
+var _FeatureManager = require("./FeatureManager");
+
+var _Util = require("../../Util");
+
+var FeatureLayer = _FeatureManager.FeatureManager.extend({
+  options: {
+    cacheLayers: true
+  },
+
+  /**
+   * Constructor
+   */
+  initialize: function (options) {
+    if (options.apikey) {
+      options.token = options.apikey;
+    }
+
+    _FeatureManager.FeatureManager.prototype.initialize.call(this, options);
+
+    this._originalStyle = this.options.style;
+    this._layers = {};
+  },
+
+  /**
+   * Layer Interface
+   */
+  onRemove: function (map) {
+    for (var i in this._layers) {
+      map.removeLayer(this._layers[i]); // trigger the event when the entire featureLayer is removed from the map
+
+      this.fire('removefeature', {
+        feature: this._layers[i].feature,
+        permanent: false
+      }, true);
+    }
+
+    return _FeatureManager.FeatureManager.prototype.onRemove.call(this, map);
+  },
+  createNewLayer: function (geojson) {
+    var layer = _leaflet.GeoJSON.geometryToLayer(geojson, this.options); // trap for GeoJSON without geometry
+
+
+    if (layer) {
+      layer.defaultOptions = layer.options;
+    }
+
+    return layer;
+  },
+  _updateLayer: function (layer, geojson) {
+    // convert the geojson coordinates into a Leaflet LatLng array/nested arrays
+    // pass it to setLatLngs to update layer geometries
+    var latlngs = [];
+    var coordsToLatLng = this.options.coordsToLatLng || _leaflet.GeoJSON.coordsToLatLng; // copy new attributes, if present
+
+    if (geojson.properties) {
+      layer.feature.properties = geojson.properties;
+    }
+
+    switch (geojson.geometry.type) {
+      case 'Point':
+        latlngs = _leaflet.GeoJSON.coordsToLatLng(geojson.geometry.coordinates);
+        layer.setLatLng(latlngs);
+        break;
+
+      case 'LineString':
+        latlngs = _leaflet.GeoJSON.coordsToLatLngs(geojson.geometry.coordinates, 0, coordsToLatLng);
+        layer.setLatLngs(latlngs);
+        break;
+
+      case 'MultiLineString':
+        latlngs = _leaflet.GeoJSON.coordsToLatLngs(geojson.geometry.coordinates, 1, coordsToLatLng);
+        layer.setLatLngs(latlngs);
+        break;
+
+      case 'Polygon':
+        latlngs = _leaflet.GeoJSON.coordsToLatLngs(geojson.geometry.coordinates, 1, coordsToLatLng);
+        layer.setLatLngs(latlngs);
+        break;
+
+      case 'MultiPolygon':
+        latlngs = _leaflet.GeoJSON.coordsToLatLngs(geojson.geometry.coordinates, 2, coordsToLatLng);
+        layer.setLatLngs(latlngs);
+        break;
+    }
+  },
+
+  /**
+   * Feature Management Methods
+   */
+  createLayers: function (features) {
+    for (var i = features.length - 1; i >= 0; i--) {
+      var geojson = features[i];
+      var layer = this._layers[geojson.id];
+      var newLayer;
+
+      if (this._visibleZoom() && layer && !this._map.hasLayer(layer) && (!this.options.timeField || this._featureWithinTimeRange(geojson))) {
+        this._map.addLayer(layer);
+
+        this.fire('addfeature', {
+          feature: layer.feature
+        }, true);
+      } // update geometry if necessary
+
+
+      if (layer && this.options.simplifyFactor > 0 && (layer.setLatLngs || layer.setLatLng)) {
+        this._updateLayer(layer, geojson);
+      }
+
+      if (!layer) {
+        newLayer = this.createNewLayer(geojson);
+
+        if (!newLayer) {
+          (0, _Util.warn)('invalid GeoJSON encountered');
+        } else {
+          newLayer.feature = geojson; // bubble events from individual layers to the feature layer
+
+          newLayer.addEventParent(this);
+
+          if (this.options.onEachFeature) {
+            this.options.onEachFeature(newLayer.feature, newLayer);
+          } // cache the layer
+
+
+          this._layers[newLayer.feature.id] = newLayer; // style the layer
+
+          this.setFeatureStyle(newLayer.feature.id, this.options.style);
+          this.fire('createfeature', {
+            feature: newLayer.feature
+          }, true); // add the layer if the current zoom level is inside the range defined for the layer, it is within the current time bounds or our layer is not time enabled
+
+          if (this._visibleZoom() && (!this.options.timeField || this.options.timeField && this._featureWithinTimeRange(geojson))) {
+            this._map.addLayer(newLayer);
+          }
+        }
+      }
+    }
+  },
+  addLayers: function (ids) {
+    for (var i = ids.length - 1; i >= 0; i--) {
+      var layer = this._layers[ids[i]];
+
+      if (layer && (!this.options.timeField || this._featureWithinTimeRange(layer.feature))) {
+        this._map.addLayer(layer);
+      }
+    }
+  },
+  removeLayers: function (ids, permanent) {
+    for (var i = ids.length - 1; i >= 0; i--) {
+      var id = ids[i];
+      var layer = this._layers[id];
+
+      if (layer) {
+        this.fire('removefeature', {
+          feature: layer.feature,
+          permanent: permanent
+        }, true);
+
+        this._map.removeLayer(layer);
+      }
+
+      if (layer && permanent) {
+        delete this._layers[id];
+      }
+    }
+  },
+  cellEnter: function (bounds, coords) {
+    if (this._visibleZoom() && !this._zooming && this._map) {
+      _leaflet.Util.requestAnimFrame(_leaflet.Util.bind(function () {
+        var cacheKey = this._cacheKey(coords);
+
+        var cellKey = this._cellCoordsToKey(coords);
+
+        var layers = this._cache[cacheKey];
+
+        if (this._activeCells[cellKey] && layers) {
+          this.addLayers(layers);
+        }
+      }, this));
+    }
+  },
+  cellLeave: function (bounds, coords) {
+    if (!this._zooming) {
+      _leaflet.Util.requestAnimFrame(_leaflet.Util.bind(function () {
+        if (this._map) {
+          var cacheKey = this._cacheKey(coords);
+
+          var cellKey = this._cellCoordsToKey(coords);
+
+          var layers = this._cache[cacheKey];
+
+          var mapBounds = this._map.getBounds();
+
+          if (!this._activeCells[cellKey] && layers) {
+            var removable = true;
+
+            for (var i = 0; i < layers.length; i++) {
+              var layer = this._layers[layers[i]];
+
+              if (layer && layer.getBounds && mapBounds.intersects(layer.getBounds())) {
+                removable = false;
+              }
+            }
+
+            if (removable) {
+              this.removeLayers(layers, !this.options.cacheLayers);
+            }
+
+            if (!this.options.cacheLayers && removable) {
+              delete this._cache[cacheKey];
+              delete this._cells[cellKey];
+              delete this._activeCells[cellKey];
+            }
+          }
+        }
+      }, this));
+    }
+  },
+
+  /**
+   * Styling Methods
+   */
+  resetStyle: function () {
+    this.options.style = this._originalStyle;
+    this.eachFeature(function (layer) {
+      this.resetFeatureStyle(layer.feature.id);
+    }, this);
+    return this;
+  },
+  setStyle: function (style) {
+    this.options.style = style;
+    this.eachFeature(function (layer) {
+      this.setFeatureStyle(layer.feature.id, style);
+    }, this);
+    return this;
+  },
+  resetFeatureStyle: function (id) {
+    var layer = this._layers[id];
+    var style = this._originalStyle || _leaflet.Path.prototype.options;
+
+    if (layer) {
+      _leaflet.Util.extend(layer.options, layer.defaultOptions);
+
+      this.setFeatureStyle(id, style);
+    }
+
+    return this;
+  },
+  setFeatureStyle: function (id, style) {
+    var layer = this._layers[id];
+
+    if (typeof style === 'function') {
+      style = style(layer.feature);
+    }
+
+    if (layer.setStyle) {
+      layer.setStyle(style);
+    }
+
+    return this;
+  },
+
+  /**
+   * Utility Methods
+   */
+  eachActiveFeature: function (fn, context) {
+    // figure out (roughly) which layers are in view
+    if (this._map) {
+      var activeBounds = this._map.getBounds();
+
+      for (var i in this._layers) {
+        if (this._currentSnapshot.indexOf(this._layers[i].feature.id) !== -1) {
+          // a simple point in poly test for point geometries
+          if (typeof this._layers[i].getLatLng === 'function' && activeBounds.contains(this._layers[i].getLatLng())) {
+            fn.call(context, this._layers[i]);
+          } else if (typeof this._layers[i].getBounds === 'function' && activeBounds.intersects(this._layers[i].getBounds())) {
+            // intersecting bounds check for polyline and polygon geometries
+            fn.call(context, this._layers[i]);
+          }
+        }
+      }
+    }
+
+    return this;
+  },
+  eachFeature: function (fn, context) {
+    for (var i in this._layers) {
+      fn.call(context, this._layers[i]);
+    }
+
+    return this;
+  },
+  getFeature: function (id) {
+    return this._layers[id];
+  },
+  bringToBack: function () {
+    this.eachFeature(function (layer) {
+      if (layer.bringToBack) {
+        layer.bringToBack();
+      }
+    });
+  },
+  bringToFront: function () {
+    this.eachFeature(function (layer) {
+      if (layer.bringToFront) {
+        layer.bringToFront();
+      }
+    });
+  },
+  redraw: function (id) {
+    if (id) {
+      this._redraw(id);
+    }
+
+    return this;
+  },
+  _redraw: function (id) {
+    var layer = this._layers[id];
+    var geojson = layer.feature; // if this looks like a marker
+
+    if (layer && layer.setIcon && this.options.pointToLayer) {
+      // update custom symbology, if necessary
+      if (this.options.pointToLayer) {
+        var getIcon = this.options.pointToLayer(geojson, (0, _leaflet.latLng)(geojson.geometry.coordinates[1], geojson.geometry.coordinates[0]));
+        var updatedIcon = getIcon.options.icon;
+        layer.setIcon(updatedIcon);
+      }
+    } // looks like a vector marker (circleMarker)
+
+
+    if (layer && layer.setStyle && this.options.pointToLayer) {
+      var getStyle = this.options.pointToLayer(geojson, (0, _leaflet.latLng)(geojson.geometry.coordinates[1], geojson.geometry.coordinates[0]));
+      var updatedStyle = getStyle.options;
+      this.setFeatureStyle(geojson.id, updatedStyle);
+    } // looks like a path (polygon/polyline)
+
+
+    if (layer && layer.setStyle && this.options.style) {
+      this.resetStyle(geojson.id);
+    }
+  }
+});
+
+exports.FeatureLayer = FeatureLayer;
+
+function featureLayer(options) {
+  return new FeatureLayer(options);
+}
+
+var _default = featureLayer;
+exports.default = _default;
+
+},{"../../Util":607,"./FeatureManager":590,"leaflet":629}],590:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.FeatureManager = void 0;
+
+var _leaflet = require("leaflet");
+
+var _FeatureLayerService = _interopRequireDefault(require("../../Services/FeatureLayerService"));
+
+var _Util = require("../../Util");
+
+var _FeatureGrid = require("./FeatureGrid");
+
+var _tinyBinarySearch = _interopRequireDefault(require("tiny-binary-search"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var FeatureManager = _FeatureGrid.FeatureGrid.extend({
+  /**
+   * Options
+   */
+  options: {
+    attribution: null,
+    where: '1=1',
+    fields: ['*'],
+    from: false,
+    to: false,
+    timeField: false,
+    timeFilterMode: 'server',
+    simplifyFactor: 0,
+    precision: 6,
+    fetchAllFeatures: false
+  },
+
+  /**
+   * Constructor
+   */
+  initialize: function (options) {
+    _FeatureGrid.FeatureGrid.prototype.initialize.call(this, options);
+
+    options = (0, _Util.getUrlParams)(options);
+    options = _leaflet.Util.setOptions(this, options);
+    this.service = (0, _FeatureLayerService.default)(options);
+    this.service.addEventParent(this); // use case insensitive regex to look for common fieldnames used for indexing
+
+    if (this.options.fields[0] !== '*') {
+      var oidCheck = false;
+
+      for (var i = 0; i < this.options.fields.length; i++) {
+        if (this.options.fields[i].match(/^(OBJECTID|FID|OID|ID)$/i)) {
+          oidCheck = true;
+        }
+      }
+
+      if (oidCheck === false) {
+        (0, _Util.warn)('no known esriFieldTypeOID field detected in fields Array.  Please add an attribute field containing unique IDs to ensure the layer can be drawn correctly.');
+      }
+    }
+
+    if (this.options.timeField.start && this.options.timeField.end) {
+      this._startTimeIndex = new _tinyBinarySearch.default();
+      this._endTimeIndex = new _tinyBinarySearch.default();
+    } else if (this.options.timeField) {
+      this._timeIndex = new _tinyBinarySearch.default();
+    }
+
+    this._cache = {};
+    this._currentSnapshot = []; // cache of what layers should be active
+
+    this._activeRequests = 0;
+  },
+
+  /**
+   * Layer Interface
+   */
+  onAdd: function (map) {
+    // include 'Powered by Esri' in map attribution
+    (0, _Util.setEsriAttribution)(map);
+    this.service.metadata(function (err, metadata) {
+      if (!err) {
+        var supportedFormats = metadata.supportedQueryFormats; // Check if someone has requested that we don't use geoJSON, even if it's available
+
+        var forceJsonFormat = false;
+
+        if (this.service.options.isModern === false || this.options.fetchAllFeatures) {
+          forceJsonFormat = true;
+        } // Unless we've been told otherwise, check to see whether service can emit GeoJSON natively
+
+
+        if (!forceJsonFormat && supportedFormats && supportedFormats.indexOf('geoJSON') !== -1) {
+          this.service.options.isModern = true;
+        }
+
+        if (metadata.objectIdField) {
+          this.service.options.idAttribute = metadata.objectIdField;
+        } // add copyright text listed in service metadata
+
+
+        if (!this.options.attribution && map.attributionControl && metadata.copyrightText) {
+          this.options.attribution = metadata.copyrightText;
+          map.attributionControl.addAttribution(this.getAttribution());
+        }
+      }
+    }, this);
+    map.on('zoomend', this._handleZoomChange, this);
+    return _FeatureGrid.FeatureGrid.prototype.onAdd.call(this, map);
+  },
+  onRemove: function (map) {
+    (0, _Util.removeEsriAttribution)(map);
+    map.off('zoomend', this._handleZoomChange, this);
+    return _FeatureGrid.FeatureGrid.prototype.onRemove.call(this, map);
+  },
+  getAttribution: function () {
+    return this.options.attribution;
+  },
+
+  /**
+   * Feature Management
+   */
+  createCell: function (bounds, coords) {
+    // dont fetch features outside the scale range defined for the layer
+    if (this._visibleZoom()) {
+      this._requestFeatures(bounds, coords);
+    }
+  },
+  _requestFeatures: function (bounds, coords, callback, offset) {
+    this._activeRequests++; // default param
+
+    offset = offset || 0;
+    var originalWhere = this.options.where; // our first active request fires loading
+
+    if (this._activeRequests === 1) {
+      this.fire('loading', {
+        bounds: bounds
+      }, true);
+    }
+
+    return this._buildQuery(bounds, offset).run(function (error, featureCollection, response) {
+      if (response && response.exceededTransferLimit) {
+        this.fire('drawlimitexceeded');
+      } // the where changed while this request was being run so don't it.
+
+
+      if (this.options.where !== originalWhere) {
+        return;
+      } // no error, features
+
+
+      if (!error && featureCollection && featureCollection.features.length) {
+        // schedule adding features until the next animation frame
+        _leaflet.Util.requestAnimFrame(_leaflet.Util.bind(function () {
+          this._addFeatures(featureCollection.features, coords);
+
+          this._postProcessFeatures(bounds);
+        }, this));
+      } // no error, no features
+
+
+      if (!error && featureCollection && !featureCollection.features.length) {
+        this._postProcessFeatures(bounds);
+      }
+
+      if (error) {
+        this._postProcessFeatures(bounds);
+      }
+
+      if (callback) {
+        callback.call(this, error, featureCollection);
+      }
+
+      if (response && (response.exceededTransferLimit || response.properties && response.properties.exceededTransferLimit) && this.options.fetchAllFeatures) {
+        this._requestFeatures(bounds, coords, callback, offset + featureCollection.features.length);
+      }
+    }, this);
+  },
+  _postProcessFeatures: function (bounds) {
+    // deincrement the request counter now that we have processed features
+    this._activeRequests--; // if there are no more active requests fire a load event for this view
+
+    if (this._activeRequests <= 0) {
+      this.fire('load', {
+        bounds: bounds
+      });
+    }
+  },
+  _cacheKey: function (coords) {
+    return coords.z + ':' + coords.x + ':' + coords.y;
+  },
+  _addFeatures: function (features, coords) {
+    // coords is optional - will be false if coming from addFeatures() function
+    if (coords) {
+      var key = this._cacheKey(coords);
+
+      this._cache[key] = this._cache[key] || [];
+    }
+
+    for (var i = features.length - 1; i >= 0; i--) {
+      var id = features[i].id;
+
+      if (this._currentSnapshot.indexOf(id) === -1) {
+        this._currentSnapshot.push(id);
+      }
+
+      if (typeof key !== 'undefined' && this._cache[key].indexOf(id) === -1) {
+        this._cache[key].push(id);
+      }
+    }
+
+    if (this.options.timeField) {
+      this._buildTimeIndexes(features);
+    }
+
+    this.createLayers(features);
+  },
+  _buildQuery: function (bounds, offset) {
+    var query = this.service.query().intersects(bounds).where(this.options.where).fields(this.options.fields).precision(this.options.precision);
+
+    if (this.options.fetchAllFeatures && !isNaN(parseInt(offset))) {
+      query = query.offset(offset);
+    }
+
+    query.params['resultType'] = 'tile';
+
+    if (this.options.requestParams) {
+      _leaflet.Util.extend(query.params, this.options.requestParams);
+    }
+
+    if (this.options.simplifyFactor) {
+      query.simplify(this._map, this.options.simplifyFactor);
+    }
+
+    if (this.options.timeFilterMode === 'server' && this.options.from && this.options.to) {
+      query.between(this.options.from, this.options.to);
+    }
+
+    return query;
+  },
+
+  /**
+   * Where Methods
+   */
+  setWhere: function (where, callback, context) {
+    this.options.where = where && where.length ? where : '1=1';
+    var oldSnapshot = [];
+    var newSnapshot = [];
+    var pendingRequests = 0;
+    var requestError = null;
+
+    var requestCallback = _leaflet.Util.bind(function (error, featureCollection) {
+      if (error) {
+        requestError = error;
+      }
+
+      if (featureCollection) {
+        for (var i = featureCollection.features.length - 1; i >= 0; i--) {
+          newSnapshot.push(featureCollection.features[i].id);
+        }
+      }
+
+      pendingRequests--;
+
+      if (pendingRequests <= 0 && this._visibleZoom() && where === this.options.where // the where is still the same so use this one
+      ) {
+          this._currentSnapshot = newSnapshot; // schedule adding features for the next animation frame
+
+          _leaflet.Util.requestAnimFrame(_leaflet.Util.bind(function () {
+            this.removeLayers(oldSnapshot);
+            this.addLayers(newSnapshot);
+
+            if (callback) {
+              callback.call(context, requestError);
+            }
+          }, this));
+        }
+    }, this);
+
+    for (var i = this._currentSnapshot.length - 1; i >= 0; i--) {
+      oldSnapshot.push(this._currentSnapshot[i]);
+    }
+
+    this._cache = {};
+
+    for (var key in this._cells) {
+      pendingRequests++;
+
+      var coords = this._keyToCellCoords(key);
+
+      var bounds = this._cellCoordsToBounds(coords);
+
+      this._requestFeatures(bounds, coords, requestCallback);
+    }
+
+    return this;
+  },
+  getWhere: function () {
+    return this.options.where;
+  },
+
+  /**
+   * Time Range Methods
+   */
+  getTimeRange: function () {
+    return [this.options.from, this.options.to];
+  },
+  setTimeRange: function (from, to, callback, context) {
+    var oldFrom = this.options.from;
+    var oldTo = this.options.to;
+    var pendingRequests = 0;
+    var requestError = null;
+
+    var requestCallback = _leaflet.Util.bind(function (error) {
+      if (error) {
+        requestError = error;
+      }
+
+      this._filterExistingFeatures(oldFrom, oldTo, from, to);
+
+      pendingRequests--;
+
+      if (callback && pendingRequests <= 0) {
+        callback.call(context, requestError);
+      }
+    }, this);
+
+    this.options.from = from;
+    this.options.to = to;
+
+    this._filterExistingFeatures(oldFrom, oldTo, from, to);
+
+    if (this.options.timeFilterMode === 'server') {
+      for (var key in this._cells) {
+        pendingRequests++;
+
+        var coords = this._keyToCellCoords(key);
+
+        var bounds = this._cellCoordsToBounds(coords);
+
+        this._requestFeatures(bounds, coords, requestCallback);
+      }
+    }
+
+    return this;
+  },
+  refresh: function () {
+    this.setWhere(this.options.where);
+  },
+  _filterExistingFeatures: function (oldFrom, oldTo, newFrom, newTo) {
+    var layersToRemove = oldFrom && oldTo ? this._getFeaturesInTimeRange(oldFrom, oldTo) : this._currentSnapshot;
+
+    var layersToAdd = this._getFeaturesInTimeRange(newFrom, newTo);
+
+    if (layersToAdd.indexOf) {
+      for (var i = 0; i < layersToAdd.length; i++) {
+        var shouldRemoveLayer = layersToRemove.indexOf(layersToAdd[i]);
+
+        if (shouldRemoveLayer >= 0) {
+          layersToRemove.splice(shouldRemoveLayer, 1);
+        }
+      }
+    } // schedule adding features until the next animation frame
+
+
+    _leaflet.Util.requestAnimFrame(_leaflet.Util.bind(function () {
+      this.removeLayers(layersToRemove);
+      this.addLayers(layersToAdd);
+    }, this));
+  },
+  _getFeaturesInTimeRange: function (start, end) {
+    var ids = [];
+    var search;
+
+    if (this.options.timeField.start && this.options.timeField.end) {
+      var startTimes = this._startTimeIndex.between(start, end);
+
+      var endTimes = this._endTimeIndex.between(start, end);
+
+      search = startTimes.concat(endTimes);
+    } else if (this._timeIndex) {
+      search = this._timeIndex.between(start, end);
+    } else {
+      (0, _Util.warn)('You must set timeField in the layer constructor in order to manipulate the start and end time filter.');
+      return [];
+    }
+
+    for (var i = search.length - 1; i >= 0; i--) {
+      ids.push(search[i].id);
+    }
+
+    return ids;
+  },
+  _buildTimeIndexes: function (geojson) {
+    var i;
+    var feature;
+
+    if (this.options.timeField.start && this.options.timeField.end) {
+      var startTimeEntries = [];
+      var endTimeEntries = [];
+
+      for (i = geojson.length - 1; i >= 0; i--) {
+        feature = geojson[i];
+        startTimeEntries.push({
+          id: feature.id,
+          value: new Date(feature.properties[this.options.timeField.start])
+        });
+        endTimeEntries.push({
+          id: feature.id,
+          value: new Date(feature.properties[this.options.timeField.end])
+        });
+      }
+
+      this._startTimeIndex.bulkAdd(startTimeEntries);
+
+      this._endTimeIndex.bulkAdd(endTimeEntries);
+    } else {
+      var timeEntries = [];
+
+      for (i = geojson.length - 1; i >= 0; i--) {
+        feature = geojson[i];
+        timeEntries.push({
+          id: feature.id,
+          value: new Date(feature.properties[this.options.timeField])
+        });
+      }
+
+      this._timeIndex.bulkAdd(timeEntries);
+    }
+  },
+  _featureWithinTimeRange: function (feature) {
+    if (!this.options.from || !this.options.to) {
+      return true;
+    }
+
+    var from = +this.options.from.valueOf();
+    var to = +this.options.to.valueOf();
+
+    if (typeof this.options.timeField === 'string') {
+      var date = +feature.properties[this.options.timeField];
+      return date >= from && date <= to;
+    }
+
+    if (this.options.timeField.start && this.options.timeField.end) {
+      var startDate = +feature.properties[this.options.timeField.start];
+      var endDate = +feature.properties[this.options.timeField.end];
+      return startDate >= from && startDate <= to || endDate >= from && endDate <= to || startDate <= from && endDate >= to;
+    }
+  },
+  _visibleZoom: function () {
+    // check to see whether the current zoom level of the map is within the optional limit defined for the FeatureLayer
+    if (!this._map) {
+      return false;
+    }
+
+    var zoom = this._map.getZoom();
+
+    if (zoom > this.options.maxZoom || zoom < this.options.minZoom) {
+      return false;
+    } else {
+      return true;
+    }
+  },
+  _handleZoomChange: function () {
+    if (!this._visibleZoom()) {
+      this.removeLayers(this._currentSnapshot);
+    } else {
+      /*
+      for every cell in this._cells
+        1. Get the cache key for the coords of the cell
+        2. If this._cache[key] exists it will be an array of feature IDs.
+        3. Call this.addLayers(this._cache[key]) to instruct the feature layer to add the layers back.
+      */
+      for (var i in this._cells) {
+        var coords = this._cells[i].coords;
+
+        var key = this._cacheKey(coords);
+
+        if (this._cache[key]) {
+          this.addLayers(this._cache[key]);
+        }
+      }
+    }
+  },
+
+  /**
+   * Service Methods
+   */
+  authenticate: function (token) {
+    this.service.authenticate(token);
+    return this;
+  },
+  metadata: function (callback, context) {
+    this.service.metadata(callback, context);
+    return this;
+  },
+  query: function () {
+    return this.service.query();
+  },
+  _getMetadata: function (callback) {
+    if (this._metadata) {
+      var error;
+      callback(error, this._metadata);
+    } else {
+      this.metadata(_leaflet.Util.bind(function (error, response) {
+        this._metadata = response;
+        callback(error, this._metadata);
+      }, this));
+    }
+  },
+  addFeature: function (feature, callback, context) {
+    this.addFeatures(feature, callback, context);
+  },
+  addFeatures: function (features, callback, context) {
+    this._getMetadata(_leaflet.Util.bind(function (error, metadata) {
+      if (error) {
+        if (callback) {
+          callback.call(this, error, null);
+        }
+
+        return;
+      } // GeoJSON featureCollection or simple feature
+
+
+      var featuresArray = features.features ? features.features : [features];
+      this.service.addFeatures(features, _leaflet.Util.bind(function (error, response) {
+        if (!error) {
+          for (var i = featuresArray.length - 1; i >= 0; i--) {
+            // assign ID from result to appropriate objectid field from service metadata
+            featuresArray[i].properties[metadata.objectIdField] = featuresArray.length > 1 ? response[i].objectId : response.objectId; // we also need to update the geojson id for createLayers() to function
+
+            featuresArray[i].id = featuresArray.length > 1 ? response[i].objectId : response.objectId;
+          }
+
+          this._addFeatures(featuresArray);
+        }
+
+        if (callback) {
+          callback.call(context, error, response);
+        }
+      }, this));
+    }, this));
+  },
+  updateFeature: function (feature, callback, context) {
+    this.updateFeatures(feature, callback, context);
+  },
+  updateFeatures: function (features, callback, context) {
+    // GeoJSON featureCollection or simple feature
+    var featuresArray = features.features ? features.features : [features];
+    this.service.updateFeatures(features, function (error, response) {
+      if (!error) {
+        for (var i = featuresArray.length - 1; i >= 0; i--) {
+          this.removeLayers([featuresArray[i].id], true);
+        }
+
+        this._addFeatures(featuresArray);
+      }
+
+      if (callback) {
+        callback.call(context, error, response);
+      }
+    }, this);
+  },
+  deleteFeature: function (id, callback, context) {
+    this.deleteFeatures(id, callback, context);
+  },
+  deleteFeatures: function (ids, callback, context) {
+    return this.service.deleteFeatures(ids, function (error, response) {
+      var responseArray = response.length ? response : [response];
+
+      if (!error && responseArray.length > 0) {
+        for (var i = responseArray.length - 1; i >= 0; i--) {
+          this.removeLayers([responseArray[i].objectId], true);
+        }
+      }
+
+      if (callback) {
+        callback.call(context, error, response);
+      }
+    }, this);
+  }
+});
+
+exports.FeatureManager = FeatureManager;
+
+},{"../../Services/FeatureLayerService":596,"../../Util":607,"./FeatureGrid":588,"leaflet":629,"tiny-binary-search":871}],591:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.imageMapLayer = imageMapLayer;
+exports.default = exports.ImageMapLayer = void 0;
+
+var _leaflet = require("leaflet");
+
+var _RasterLayer = require("./RasterLayer");
+
+var _Util = require("../Util");
+
+var _ImageService = _interopRequireDefault(require("../Services/ImageService"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ImageMapLayer = _RasterLayer.RasterLayer.extend({
+  options: {
+    updateInterval: 150,
+    format: 'jpgpng',
+    transparent: true,
+    f: 'image'
+  },
+  query: function () {
+    return this.service.query();
+  },
+  identify: function () {
+    return this.service.identify();
+  },
+  initialize: function (options) {
+    options = (0, _Util.getUrlParams)(options);
+    this.service = (0, _ImageService.default)(options);
+    this.service.addEventParent(this);
+
+    _leaflet.Util.setOptions(this, options);
+  },
+  setPixelType: function (pixelType) {
+    this.options.pixelType = pixelType;
+
+    this._update();
+
+    return this;
+  },
+  getPixelType: function () {
+    return this.options.pixelType;
+  },
+  setBandIds: function (bandIds) {
+    if (_leaflet.Util.isArray(bandIds)) {
+      this.options.bandIds = bandIds.join(',');
+    } else {
+      this.options.bandIds = bandIds.toString();
+    }
+
+    this._update();
+
+    return this;
+  },
+  getBandIds: function () {
+    return this.options.bandIds;
+  },
+  setNoData: function (noData, noDataInterpretation) {
+    if (_leaflet.Util.isArray(noData)) {
+      this.options.noData = noData.join(',');
+    } else {
+      this.options.noData = noData.toString();
+    }
+
+    if (noDataInterpretation) {
+      this.options.noDataInterpretation = noDataInterpretation;
+    }
+
+    this._update();
+
+    return this;
+  },
+  getNoData: function () {
+    return this.options.noData;
+  },
+  getNoDataInterpretation: function () {
+    return this.options.noDataInterpretation;
+  },
+  setRenderingRule: function (renderingRule) {
+    this.options.renderingRule = renderingRule;
+
+    this._update();
+  },
+  getRenderingRule: function () {
+    return this.options.renderingRule;
+  },
+  setMosaicRule: function (mosaicRule) {
+    this.options.mosaicRule = mosaicRule;
+
+    this._update();
+  },
+  getMosaicRule: function () {
+    return this.options.mosaicRule;
+  },
+  _getPopupData: function (e) {
+    var callback = _leaflet.Util.bind(function (error, results, response) {
+      if (error) {
+        return;
+      } // we really can't do anything here but authenticate or requesterror will fire
+
+
+      setTimeout(_leaflet.Util.bind(function () {
+        this._renderPopup(e.latlng, error, results, response);
+      }, this), 300);
+    }, this);
+
+    var identifyRequest = this.identify().at(e.latlng); // set mosaic rule for identify task if it is set for layer
+
+    if (this.options.mosaicRule) {
+      identifyRequest.setMosaicRule(this.options.mosaicRule); // @TODO: force return catalog items too?
+    } // @TODO: set rendering rule? Not sure,
+    // sometimes you want raw pixel values
+    // if (this.options.renderingRule) {
+    //   identifyRequest.setRenderingRule(this.options.renderingRule);
+    // }
+
+
+    identifyRequest.run(callback); // set the flags to show the popup
+
+    this._shouldRenderPopup = true;
+    this._lastClick = e.latlng;
+  },
+  _buildExportParams: function () {
+    var sr = parseInt(this._map.options.crs.code.split(':')[1], 10);
+    var params = {
+      bbox: this._calculateBbox(),
+      size: this._calculateImageSize(),
+      format: this.options.format,
+      transparent: this.options.transparent,
+      bboxSR: sr,
+      imageSR: sr
+    };
+
+    if (this.options.from && this.options.to) {
+      params.time = this.options.from.valueOf() + ',' + this.options.to.valueOf();
+    }
+
+    if (this.options.pixelType) {
+      params.pixelType = this.options.pixelType;
+    }
+
+    if (this.options.interpolation) {
+      params.interpolation = this.options.interpolation;
+    }
+
+    if (this.options.compressionQuality) {
+      params.compressionQuality = this.options.compressionQuality;
+    }
+
+    if (this.options.bandIds) {
+      params.bandIds = this.options.bandIds;
+    } // 0 is falsy *and* a valid input parameter
+
+
+    if (this.options.noData === 0 || this.options.noData) {
+      params.noData = this.options.noData;
+    }
+
+    if (this.options.noDataInterpretation) {
+      params.noDataInterpretation = this.options.noDataInterpretation;
+    }
+
+    if (this.service.options.token) {
+      params.token = this.service.options.token;
+    }
+
+    if (this.options.renderingRule) {
+      params.renderingRule = JSON.stringify(this.options.renderingRule);
+    }
+
+    if (this.options.mosaicRule) {
+      params.mosaicRule = JSON.stringify(this.options.mosaicRule);
+    }
+
+    return params;
+  },
+  _requestExport: function (params, bounds) {
+    if (this.options.f === 'json') {
+      this.service.request('exportImage', params, function (error, response) {
+        if (error) {
+          return;
+        } // we really can't do anything here but authenticate or requesterror will fire
+
+
+        if (this.options.token) {
+          response.href += '?token=' + this.options.token;
+        }
+
+        if (this.options.proxy) {
+          response.href = this.options.proxy + '?' + response.href;
+        }
+
+        this._renderImage(response.href, bounds);
+      }, this);
+    } else {
+      params.f = 'image';
+
+      var fullUrl = this.options.url + 'exportImage' + _leaflet.Util.getParamString(params);
+
+      if (this.options.proxy) {
+        fullUrl = this.options.proxy + '?' + fullUrl;
+      }
+
+      this._renderImage(fullUrl, bounds);
+    }
+  }
+});
+
+exports.ImageMapLayer = ImageMapLayer;
+
+function imageMapLayer(url, options) {
+  return new ImageMapLayer(url, options);
+}
+
+var _default = imageMapLayer;
+exports.default = _default;
+
+},{"../Services/ImageService":597,"../Util":607,"./RasterLayer":592,"leaflet":629}],592:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.RasterLayer = void 0;
+
+var _leaflet = require("leaflet");
+
+var _Support = require("../Support");
+
+var _Util = require("../Util");
+
+var Overlay = _leaflet.ImageOverlay.extend({
+  onAdd: function (map) {
+    this._topLeft = map.getPixelBounds().min;
+
+    _leaflet.ImageOverlay.prototype.onAdd.call(this, map);
+  },
+  _reset: function () {
+    if (this._map.options.crs === _leaflet.CRS.EPSG3857) {
+      _leaflet.ImageOverlay.prototype._reset.call(this);
+    } else {
+      _leaflet.DomUtil.setPosition(this._image, this._topLeft.subtract(this._map.getPixelOrigin()));
+    }
+  }
+});
+
+var RasterLayer = _leaflet.Layer.extend({
+  options: {
+    opacity: 1,
+    position: 'front',
+    f: 'image',
+    useCors: _Support.cors,
+    attribution: null,
+    interactive: false,
+    alt: ''
+  },
+  onAdd: function (map) {
+    // include 'Powered by Esri' in map attribution
+    (0, _Util.setEsriAttribution)(map);
+
+    if (this.options.zIndex) {
+      this.options.position = null;
+    }
+
+    this._update = _leaflet.Util.throttle(this._update, this.options.updateInterval, this);
+    map.on('moveend', this._update, this); // if we had an image loaded and it matches the
+    // current bounds show the image otherwise remove it
+
+    if (this._currentImage && this._currentImage._bounds.equals(this._map.getBounds())) {
+      map.addLayer(this._currentImage);
+    } else if (this._currentImage) {
+      this._map.removeLayer(this._currentImage);
+
+      this._currentImage = null;
+    }
+
+    this._update();
+
+    if (this._popup) {
+      this._map.on('click', this._getPopupData, this);
+
+      this._map.on('dblclick', this._resetPopupState, this);
+    } // add copyright text listed in service metadata
+
+
+    this.metadata(function (err, metadata) {
+      if (!err && !this.options.attribution && map.attributionControl && metadata.copyrightText) {
+        this.options.attribution = metadata.copyrightText;
+        map.attributionControl.addAttribution(this.getAttribution());
+      }
+    }, this);
+  },
+  onRemove: function (map) {
+    (0, _Util.removeEsriAttribution)(map);
+
+    if (this._currentImage) {
+      this._map.removeLayer(this._currentImage);
+    }
+
+    if (this._popup) {
+      this._map.off('click', this._getPopupData, this);
+
+      this._map.off('dblclick', this._resetPopupState, this);
+    }
+
+    this._map.off('moveend', this._update, this);
+  },
+  bindPopup: function (fn, popupOptions) {
+    this._shouldRenderPopup = false;
+    this._lastClick = false;
+    this._popup = (0, _leaflet.popup)(popupOptions);
+    this._popupFunction = fn;
+
+    if (this._map) {
+      this._map.on('click', this._getPopupData, this);
+
+      this._map.on('dblclick', this._resetPopupState, this);
+    }
+
+    return this;
+  },
+  unbindPopup: function () {
+    if (this._map) {
+      this._map.closePopup(this._popup);
+
+      this._map.off('click', this._getPopupData, this);
+
+      this._map.off('dblclick', this._resetPopupState, this);
+    }
+
+    this._popup = false;
+    return this;
+  },
+  bringToFront: function () {
+    this.options.position = 'front';
+
+    if (this._currentImage) {
+      this._currentImage.bringToFront();
+
+      this._setAutoZIndex(Math.max);
+    }
+
+    return this;
+  },
+  bringToBack: function () {
+    this.options.position = 'back';
+
+    if (this._currentImage) {
+      this._currentImage.bringToBack();
+
+      this._setAutoZIndex(Math.min);
+    }
+
+    return this;
+  },
+  setZIndex: function (value) {
+    this.options.zIndex = value;
+
+    if (this._currentImage) {
+      this._currentImage.setZIndex(value);
+    }
+
+    return this;
+  },
+  _setAutoZIndex: function (compare) {
+    // go through all other layers of the same pane, set zIndex to max + 1 (front) or min - 1 (back)
+    if (!this._currentImage) {
+      return;
+    }
+
+    var layers = this._currentImage.getPane().children;
+
+    var edgeZIndex = -compare(-Infinity, Infinity); // -Infinity for max, Infinity for min
+
+    for (var i = 0, len = layers.length, zIndex; i < len; i++) {
+      zIndex = layers[i].style.zIndex;
+
+      if (layers[i] !== this._currentImage._image && zIndex) {
+        edgeZIndex = compare(edgeZIndex, +zIndex);
+      }
+    }
+
+    if (isFinite(edgeZIndex)) {
+      this.options.zIndex = edgeZIndex + compare(-1, 1);
+      this.setZIndex(this.options.zIndex);
+    }
+  },
+  getAttribution: function () {
+    return this.options.attribution;
+  },
+  getOpacity: function () {
+    return this.options.opacity;
+  },
+  setOpacity: function (opacity) {
+    this.options.opacity = opacity;
+
+    if (this._currentImage) {
+      this._currentImage.setOpacity(opacity);
+    }
+
+    return this;
+  },
+  getTimeRange: function () {
+    return [this.options.from, this.options.to];
+  },
+  setTimeRange: function (from, to) {
+    this.options.from = from;
+    this.options.to = to;
+
+    this._update();
+
+    return this;
+  },
+  metadata: function (callback, context) {
+    this.service.metadata(callback, context);
+    return this;
+  },
+  authenticate: function (token) {
+    this.service.authenticate(token);
+    return this;
+  },
+  redraw: function () {
+    this._update();
+  },
+  _renderImage: function (url, bounds, contentType) {
+    if (this._map) {
+      // if no output directory has been specified for a service, MIME data will be returned
+      if (contentType) {
+        url = 'data:' + contentType + ';base64,' + url;
+      } // if server returns an inappropriate response, abort.
+
+
+      if (!url) return; // create a new image overlay and add it to the map
+      // to start loading the image
+      // opacity is 0 while the image is loading
+
+      var image = new Overlay(url, bounds, {
+        opacity: 0,
+        crossOrigin: this.options.withCredentials ? 'use-credentials' : this.options.useCors,
+        alt: this.options.alt,
+        pane: this.options.pane || this.getPane(),
+        interactive: this.options.interactive
+      }).addTo(this._map);
+
+      var onOverlayError = function () {
+        this._map.removeLayer(image);
+
+        this.fire('error');
+        image.off('load', onOverlayLoad, this);
+      };
+
+      var onOverlayLoad = function (e) {
+        image.off('error', onOverlayLoad, this);
+
+        if (this._map) {
+          var newImage = e.target;
+          var oldImage = this._currentImage; // if the bounds of this image matches the bounds that
+          // _renderImage was called with and we have a map with the same bounds
+          // hide the old image if there is one and set the opacity
+          // of the new image otherwise remove the new image
+
+          if (newImage._bounds.equals(bounds) && newImage._bounds.equals(this._map.getBounds())) {
+            this._currentImage = newImage;
+
+            if (this.options.position === 'front') {
+              this.bringToFront();
+            } else if (this.options.position === 'back') {
+              this.bringToBack();
+            }
+
+            if (this.options.zIndex) {
+              this.setZIndex(this.options.zIndex);
+            }
+
+            if (this._map && this._currentImage._map) {
+              this._currentImage.setOpacity(this.options.opacity);
+            } else {
+              this._currentImage._map.removeLayer(this._currentImage);
+            }
+
+            if (oldImage && this._map) {
+              this._map.removeLayer(oldImage);
+            }
+
+            if (oldImage && oldImage._map) {
+              oldImage._map.removeLayer(oldImage);
+            }
+          } else {
+            this._map.removeLayer(newImage);
+          }
+        }
+
+        this.fire('load', {
+          bounds: bounds
+        });
+      }; // If loading the image fails
+
+
+      image.once('error', onOverlayError, this); // once the image loads
+
+      image.once('load', onOverlayLoad, this);
+    }
+  },
+  _update: function () {
+    if (!this._map) {
+      return;
+    }
+
+    var zoom = this._map.getZoom();
+
+    var bounds = this._map.getBounds();
+
+    if (this._animatingZoom) {
+      return;
+    }
+
+    if (this._map._panTransition && this._map._panTransition._inProgress) {
+      return;
+    }
+
+    if (zoom > this.options.maxZoom || zoom < this.options.minZoom) {
+      if (this._currentImage) {
+        this._currentImage._map.removeLayer(this._currentImage);
+
+        this._currentImage = null;
+      }
+
+      return;
+    }
+
+    var params = this._buildExportParams();
+
+    _leaflet.Util.extend(params, this.options.requestParams);
+
+    if (params) {
+      this._requestExport(params, bounds);
+
+      this.fire('loading', {
+        bounds: bounds
+      });
+    } else if (this._currentImage) {
+      this._currentImage._map.removeLayer(this._currentImage);
+
+      this._currentImage = null;
+    }
+  },
+  _renderPopup: function (latlng, error, results, response) {
+    latlng = (0, _leaflet.latLng)(latlng);
+
+    if (this._shouldRenderPopup && this._lastClick.equals(latlng)) {
+      // add the popup to the map where the mouse was clicked at
+      var content = this._popupFunction(error, results, response);
+
+      if (content) {
+        this._popup.setLatLng(latlng).setContent(content).openOn(this._map);
+      }
+    }
+  },
+  _resetPopupState: function (e) {
+    this._shouldRenderPopup = false;
+    this._lastClick = e.latlng;
+  },
+  _calculateBbox: function () {
+    var pixelBounds = this._map.getPixelBounds();
+
+    var sw = this._map.unproject(pixelBounds.getBottomLeft());
+
+    var ne = this._map.unproject(pixelBounds.getTopRight());
+
+    var neProjected = this._map.options.crs.project(ne);
+
+    var swProjected = this._map.options.crs.project(sw); // this ensures ne/sw are switched in polar maps where north/top bottom/south is inverted
+
+
+    var boundsProjected = (0, _leaflet.bounds)(neProjected, swProjected);
+    return [boundsProjected.getBottomLeft().x, boundsProjected.getBottomLeft().y, boundsProjected.getTopRight().x, boundsProjected.getTopRight().y].join(',');
+  },
+  _calculateImageSize: function () {
+    // ensure that we don't ask ArcGIS Server for a taller image than we have actual map displaying within the div
+    var bounds = this._map.getPixelBounds();
+
+    var size = this._map.getSize();
+
+    var sw = this._map.unproject(bounds.getBottomLeft());
+
+    var ne = this._map.unproject(bounds.getTopRight());
+
+    var top = this._map.latLngToLayerPoint(ne).y;
+
+    var bottom = this._map.latLngToLayerPoint(sw).y;
+
+    if (top > 0 || bottom < size.y) {
+      size.y = bottom - top;
+    }
+
+    return size.x + ',' + size.y;
+  }
+});
+
+exports.RasterLayer = RasterLayer;
+
+},{"../Support":600,"../Util":607,"leaflet":629}],593:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.tiledMapLayer = tiledMapLayer;
+exports.default = exports.TiledMapLayer = void 0;
+
+var _leaflet = require("leaflet");
+
+var _Util = require("../Util");
+
+var _MapService = _interopRequireDefault(require("../Services/MapService"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var TiledMapLayer = _leaflet.TileLayer.extend({
+  options: {
+    zoomOffsetAllowance: 0.1,
+    errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEABAMAAACuXLVVAAAAA1BMVEUzNDVszlHHAAAAAXRSTlMAQObYZgAAAAlwSFlzAAAAAAAAAAAB6mUWpAAAADZJREFUeJztwQEBAAAAgiD/r25IQAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA7waBAAABw08RwAAAAABJRU5ErkJggg=='
+  },
+  statics: {
+    MercatorZoomLevels: {
+      '0': 156543.03392799999,
+      '1': 78271.516963999893,
+      '2': 39135.758482000099,
+      '3': 19567.879240999901,
+      '4': 9783.9396204999593,
+      '5': 4891.9698102499797,
+      '6': 2445.9849051249898,
+      '7': 1222.9924525624899,
+      '8': 611.49622628138002,
+      '9': 305.74811314055802,
+      '10': 152.874056570411,
+      '11': 76.437028285073197,
+      '12': 38.218514142536598,
+      '13': 19.109257071268299,
+      '14': 9.5546285356341496,
+      '15': 4.7773142679493699,
+      '16': 2.38865713397468,
+      '17': 1.1943285668550501,
+      '18': 0.59716428355981699,
+      '19': 0.29858214164761698,
+      '20': 0.14929107082381,
+      '21': 0.07464553541191,
+      '22': 0.0373227677059525,
+      '23': 0.0186613838529763
+    }
+  },
+  initialize: function (options) {
+    options = _leaflet.Util.setOptions(this, options); // set the urls
+
+    options = (0, _Util.getUrlParams)(options);
+    this.tileUrl = (options.proxy ? options.proxy + '?' : '') + options.url + 'tile/{z}/{y}/{x}' + (options.requestParams && Object.keys(options.requestParams).length > 0 ? _leaflet.Util.getParamString(options.requestParams) : ''); // Remove subdomain in url
+    // https://github.com/Esri/esri-leaflet/issues/991
+
+    if (options.url.indexOf('{s}') !== -1 && options.subdomains) {
+      options.url = options.url.replace('{s}', options.subdomains[0]);
+    }
+
+    this.service = (0, _MapService.default)(options);
+    this.service.addEventParent(this);
+    var arcgisonline = new RegExp(/tiles.arcgis(online)?\.com/g);
+
+    if (arcgisonline.test(options.url)) {
+      this.tileUrl = this.tileUrl.replace('://tiles', '://tiles{s}');
+      options.subdomains = ['1', '2', '3', '4'];
+    }
+
+    if (this.options.token) {
+      this.tileUrl += '?token=' + this.options.token;
+    } // init layer by calling TileLayers initialize method
+
+
+    _leaflet.TileLayer.prototype.initialize.call(this, this.tileUrl, options);
+  },
+  getTileUrl: function (tilePoint) {
+    var zoom = this._getZoomForUrl();
+
+    return _leaflet.Util.template(this.tileUrl, _leaflet.Util.extend({
+      s: this._getSubdomain(tilePoint),
+      x: tilePoint.x,
+      y: tilePoint.y,
+      // try lod map first, then just default to zoom level
+      z: this._lodMap && this._lodMap[zoom] ? this._lodMap[zoom] : zoom
+    }, this.options));
+  },
+  createTile: function (coords, done) {
+    var tile = document.createElement('img');
+
+    _leaflet.DomEvent.on(tile, 'load', _leaflet.Util.bind(this._tileOnLoad, this, done, tile));
+
+    _leaflet.DomEvent.on(tile, 'error', _leaflet.Util.bind(this._tileOnError, this, done, tile));
+
+    if (this.options.crossOrigin) {
+      tile.crossOrigin = '';
+    }
+    /*
+     Alt tag is set to empty string to keep screen readers from reading URL and for compliance reasons
+     http://www.w3.org/TR/WCAG20-TECHS/H67
+    */
+
+
+    tile.alt = ''; // if there is no lod map or an lod map with a proper zoom load the tile
+    // otherwise wait for the lod map to become available
+
+    if (!this._lodMap || this._lodMap && this._lodMap[this._getZoomForUrl()]) {
+      tile.src = this.getTileUrl(coords);
+    } else {
+      this.once('lodmap', function () {
+        tile.src = this.getTileUrl(coords);
+      }, this);
+    }
+
+    return tile;
+  },
+  onAdd: function (map) {
+    // include 'Powered by Esri' in map attribution
+    (0, _Util.setEsriAttribution)(map);
+
+    if (!this._lodMap) {
+      this.metadata(function (error, metadata) {
+        if (!error && metadata.spatialReference) {
+          var sr = metadata.spatialReference.latestWkid || metadata.spatialReference.wkid; // display the copyright text from the service using leaflet's attribution control
+
+          if (!this.options.attribution && map.attributionControl && metadata.copyrightText) {
+            this.options.attribution = metadata.copyrightText;
+            map.attributionControl.addAttribution(this.getAttribution());
+          } // if the service tiles were published in web mercator using conventional LODs but missing levels, we can try and remap them
+
+
+          if (map.options.crs === _leaflet.CRS.EPSG3857 && (sr === 102100 || sr === 3857)) {
+            this._lodMap = {}; // create the zoom level data
+
+            var arcgisLODs = metadata.tileInfo.lods;
+            var correctResolutions = TiledMapLayer.MercatorZoomLevels;
+
+            for (var i = 0; i < arcgisLODs.length; i++) {
+              var arcgisLOD = arcgisLODs[i];
+
+              for (var ci in correctResolutions) {
+                var correctRes = correctResolutions[ci];
+
+                if (this._withinPercentage(arcgisLOD.resolution, correctRes, this.options.zoomOffsetAllowance)) {
+                  this._lodMap[ci] = arcgisLOD.level;
+                  break;
+                }
+              }
+            }
+
+            this.fire('lodmap');
+          } else if (map.options.crs && map.options.crs.code && map.options.crs.code.indexOf(sr) > -1) {// if the projection is WGS84, or the developer is using Proj4 to define a custom CRS, no action is required
+          } else {
+            // if the service was cached in a custom projection and an appropriate LOD hasn't been defined in the map, guide the developer to our Proj4 sample
+            (0, _Util.warn)('L.esri.TiledMapLayer is using a non-mercator spatial reference. Support may be available through Proj4Leaflet http://esri.github.io/esri-leaflet/examples/non-mercator-projection.html');
+          }
+        }
+      }, this);
+    }
+
+    _leaflet.TileLayer.prototype.onAdd.call(this, map);
+  },
+  onRemove: function (map) {
+    (0, _Util.removeEsriAttribution)(map);
+
+    _leaflet.TileLayer.prototype.onRemove.call(this, map);
+  },
+  metadata: function (callback, context) {
+    this.service.metadata(callback, context);
+    return this;
+  },
+  identify: function () {
+    return this.service.identify();
+  },
+  find: function () {
+    return this.service.find();
+  },
+  query: function () {
+    return this.service.query();
+  },
+  authenticate: function (token) {
+    var tokenQs = '?token=' + token;
+    this.tileUrl = this.options.token ? this.tileUrl.replace(/\?token=(.+)/g, tokenQs) : this.tileUrl + tokenQs;
+    this.options.token = token;
+    this.service.authenticate(token);
+    return this;
+  },
+  _withinPercentage: function (a, b, percentage) {
+    var diff = Math.abs(a / b - 1);
+    return diff < percentage;
+  }
+});
+
+exports.TiledMapLayer = TiledMapLayer;
+
+function tiledMapLayer(url, options) {
+  return new TiledMapLayer(url, options);
+}
+
+var _default = tiledMapLayer;
+exports.default = _default;
+
+},{"../Services/MapService":598,"../Util":607,"leaflet":629}],594:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.options = void 0;
+var options = {
+  attributionWidthOffset: 55
+};
+exports.options = options;
+var _default = options;
+exports.default = _default;
+
+},{}],595:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.request = request;
+exports.jsonp = jsonp;
+exports.warn = warn;
+exports.post = xmlHttpPost;
+exports.default = exports.Request = exports.get = void 0;
+
+var _leaflet = require("leaflet");
+
+var _Support = require("./Support");
+
+var callbacks = 0;
+
+function serialize(params) {
+  var data = '';
+  params.f = params.f || 'json';
+
+  for (var key in params) {
+    if (params.hasOwnProperty(key)) {
+      var param = params[key];
+      var type = Object.prototype.toString.call(param);
+      var value;
+
+      if (data.length) {
+        data += '&';
+      }
+
+      if (type === '[object Array]') {
+        value = Object.prototype.toString.call(param[0]) === '[object Object]' ? JSON.stringify(param) : param.join(',');
+      } else if (type === '[object Object]') {
+        value = JSON.stringify(param);
+      } else if (type === '[object Date]') {
+        value = param.valueOf();
+      } else {
+        value = param;
+      }
+
+      data += encodeURIComponent(key) + '=' + encodeURIComponent(value);
+    }
+  }
+
+  return data;
+}
+
+function createRequest(callback, context) {
+  var httpRequest = new window.XMLHttpRequest();
+
+  httpRequest.onerror = function (e) {
+    httpRequest.onreadystatechange = _leaflet.Util.falseFn;
+    callback.call(context, {
+      error: {
+        code: 500,
+        message: 'XMLHttpRequest error'
+      }
+    }, null);
+  };
+
+  httpRequest.onreadystatechange = function () {
+    var response;
+    var error;
+
+    if (httpRequest.readyState === 4) {
+      try {
+        response = JSON.parse(httpRequest.responseText);
+      } catch (e) {
+        response = null;
+        error = {
+          code: 500,
+          message: 'Could not parse response as JSON. This could also be caused by a CORS or XMLHttpRequest error.'
+        };
+      }
+
+      if (!error && response.error) {
+        error = response.error;
+        response = null;
+      }
+
+      httpRequest.onerror = _leaflet.Util.falseFn;
+      callback.call(context, error, response);
+    }
+  };
+
+  httpRequest.ontimeout = function () {
+    this.onerror();
+  };
+
+  return httpRequest;
+}
+
+function xmlHttpPost(url, params, callback, context) {
+  var httpRequest = createRequest(callback, context);
+  httpRequest.open('POST', url);
+
+  if (typeof context !== 'undefined' && context !== null) {
+    if (typeof context.options !== 'undefined') {
+      httpRequest.timeout = context.options.timeout;
+    }
+  }
+
+  httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+  httpRequest.send(serialize(params));
+  return httpRequest;
+}
+
+function xmlHttpGet(url, params, callback, context) {
+  var httpRequest = createRequest(callback, context);
+  httpRequest.open('GET', url + '?' + serialize(params), true);
+
+  if (typeof context !== 'undefined' && context !== null) {
+    if (typeof context.options !== 'undefined') {
+      httpRequest.timeout = context.options.timeout;
+
+      if (context.options.withCredentials) {
+        httpRequest.withCredentials = true;
+      }
+    }
+  }
+
+  httpRequest.send(null);
+  return httpRequest;
+} // AJAX handlers for CORS (modern browsers) or JSONP (older browsers)
+
+
+function request(url, params, callback, context) {
+  var paramString = serialize(params);
+  var httpRequest = createRequest(callback, context);
+  var requestLength = (url + '?' + paramString).length; // ie10/11 require the request be opened before a timeout is applied
+
+  if (requestLength <= 2000 && _Support.Support.cors) {
+    httpRequest.open('GET', url + '?' + paramString);
+  } else if (requestLength > 2000 && _Support.Support.cors) {
+    httpRequest.open('POST', url);
+    httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+  }
+
+  if (typeof context !== 'undefined' && context !== null) {
+    if (typeof context.options !== 'undefined') {
+      httpRequest.timeout = context.options.timeout;
+
+      if (context.options.withCredentials) {
+        httpRequest.withCredentials = true;
+      }
+    }
+  } // request is less than 2000 characters and the browser supports CORS, make GET request with XMLHttpRequest
+
+
+  if (requestLength <= 2000 && _Support.Support.cors) {
+    httpRequest.send(null); // request is more than 2000 characters and the browser supports CORS, make POST request with XMLHttpRequest
+  } else if (requestLength > 2000 && _Support.Support.cors) {
+    httpRequest.send(paramString); // request is less  than 2000 characters and the browser does not support CORS, make a JSONP request
+  } else if (requestLength <= 2000 && !_Support.Support.cors) {
+    return jsonp(url, params, callback, context); // request is longer then 2000 characters and the browser does not support CORS, log a warning
+  } else {
+    warn('a request to ' + url + ' was longer then 2000 characters and this browser cannot make a cross-domain post request. Please use a proxy http://esri.github.io/esri-leaflet/api-reference/request.html');
+    return;
+  }
+
+  return httpRequest;
+}
+
+function jsonp(url, params, callback, context) {
+  window._EsriLeafletCallbacks = window._EsriLeafletCallbacks || {};
+  var callbackId = 'c' + callbacks;
+  params.callback = 'window._EsriLeafletCallbacks.' + callbackId;
+
+  window._EsriLeafletCallbacks[callbackId] = function (response) {
+    if (window._EsriLeafletCallbacks[callbackId] !== true) {
+      var error;
+      var responseType = Object.prototype.toString.call(response);
+
+      if (!(responseType === '[object Object]' || responseType === '[object Array]')) {
+        error = {
+          error: {
+            code: 500,
+            message: 'Expected array or object as JSONP response'
+          }
+        };
+        response = null;
+      }
+
+      if (!error && response.error) {
+        error = response;
+        response = null;
+      }
+
+      callback.call(context, error, response);
+      window._EsriLeafletCallbacks[callbackId] = true;
+    }
+  };
+
+  var script = _leaflet.DomUtil.create('script', null, document.body);
+
+  script.type = 'text/javascript';
+  script.src = url + '?' + serialize(params);
+  script.id = callbackId;
+
+  script.onerror = function (error) {
+    if (error && window._EsriLeafletCallbacks[callbackId] !== true) {
+      // Can't get true error code: it can be 404, or 401, or 500
+      var err = {
+        error: {
+          code: 500,
+          message: 'An unknown error occurred'
+        }
+      };
+      callback.call(context, err);
+      window._EsriLeafletCallbacks[callbackId] = true;
+    }
+  };
+
+  _leaflet.DomUtil.addClass(script, 'esri-leaflet-jsonp');
+
+  callbacks++;
+  return {
+    id: callbackId,
+    url: script.src,
+    abort: function () {
+      window._EsriLeafletCallbacks._callback[callbackId]({
+        code: 0,
+        message: 'Request aborted.'
+      });
+    }
+  };
+}
+
+var get = _Support.Support.cors ? xmlHttpGet : jsonp;
+exports.get = get;
+get.CORS = xmlHttpGet;
+get.JSONP = jsonp;
+
+function warn() {
+  if (console && console.warn) {
+    console.warn.apply(console, arguments);
+  }
+} // choose the correct AJAX handler depending on CORS support
+
+
+// export the Request object to call the different handlers for debugging
+var Request = {
+  request: request,
+  get: get,
+  post: xmlHttpPost
+};
+exports.Request = Request;
+var _default = Request;
+exports.default = _default;
+
+},{"./Support":600,"leaflet":629}],596:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.featureLayerService = featureLayerService;
+exports.default = exports.FeatureLayerService = void 0;
+
+var _Service = require("./Service");
+
+var _Query = _interopRequireDefault(require("../Tasks/Query"));
+
+var _Util = require("../Util");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var FeatureLayerService = _Service.Service.extend({
+  options: {
+    idAttribute: 'OBJECTID'
+  },
+  query: function () {
+    return (0, _Query.default)(this);
+  },
+  addFeature: function (feature, callback, context) {
+    this.addFeatures(feature, callback, context);
+  },
+  addFeatures: function (features, callback, context) {
+    var featuresArray = features.features ? features.features : [features];
+
+    for (var i = featuresArray.length - 1; i >= 0; i--) {
+      delete featuresArray[i].id;
+    }
+
+    features = (0, _Util.geojsonToArcGIS)(features);
+    features = featuresArray.length > 1 ? features : [features];
+    return this.post('addFeatures', {
+      features: features
+    }, function (error, response) {
+      // For compatibility reason with former addFeature function,
+      // we return the object in the array and not the array itself
+      var result = response && response.addResults ? response.addResults.length > 1 ? response.addResults : response.addResults[0] : undefined;
+
+      if (callback) {
+        callback.call(context, error || response.addResults[0].error, result);
+      }
+    }, context);
+  },
+  updateFeature: function (feature, callback, context) {
+    this.updateFeatures(feature, callback, context);
+  },
+  updateFeatures: function (features, callback, context) {
+    var featuresArray = features.features ? features.features : [features];
+    features = (0, _Util.geojsonToArcGIS)(features, this.options.idAttribute);
+    features = featuresArray.length > 1 ? features : [features];
+    return this.post('updateFeatures', {
+      features: features
+    }, function (error, response) {
+      // For compatibility reason with former updateFeature function,
+      // we return the object in the array and not the array itself
+      var result = response && response.updateResults ? response.updateResults.length > 1 ? response.updateResults : response.updateResults[0] : undefined;
+
+      if (callback) {
+        callback.call(context, error || response.updateResults[0].error, result);
+      }
+    }, context);
+  },
+  deleteFeature: function (id, callback, context) {
+    this.deleteFeatures(id, callback, context);
+  },
+  deleteFeatures: function (ids, callback, context) {
+    return this.post('deleteFeatures', {
+      objectIds: ids
+    }, function (error, response) {
+      // For compatibility reason with former deleteFeature function,
+      // we return the object in the array and not the array itself
+      var result = response && response.deleteResults ? response.deleteResults.length > 1 ? response.deleteResults : response.deleteResults[0] : undefined;
+
+      if (callback) {
+        callback.call(context, error || response.deleteResults[0].error, result);
+      }
+    }, context);
+  }
+});
+
+exports.FeatureLayerService = FeatureLayerService;
+
+function featureLayerService(options) {
+  return new FeatureLayerService(options);
+}
+
+var _default = featureLayerService;
+exports.default = _default;
+
+},{"../Tasks/Query":605,"../Util":607,"./Service":599}],597:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.imageService = imageService;
+exports.default = exports.ImageService = void 0;
+
+var _Service = require("./Service");
+
+var _IdentifyImage = _interopRequireDefault(require("../Tasks/IdentifyImage"));
+
+var _Query = _interopRequireDefault(require("../Tasks/Query"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ImageService = _Service.Service.extend({
+  query: function () {
+    return (0, _Query.default)(this);
+  },
+  identify: function () {
+    return (0, _IdentifyImage.default)(this);
+  }
+});
+
+exports.ImageService = ImageService;
+
+function imageService(options) {
+  return new ImageService(options);
+}
+
+var _default = imageService;
+exports.default = _default;
+
+},{"../Tasks/IdentifyImage":604,"../Tasks/Query":605,"./Service":599}],598:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.mapService = mapService;
+exports.default = exports.MapService = void 0;
+
+var _Service = require("./Service");
+
+var _IdentifyFeatures = _interopRequireDefault(require("../Tasks/IdentifyFeatures"));
+
+var _Query = _interopRequireDefault(require("../Tasks/Query"));
+
+var _Find = _interopRequireDefault(require("../Tasks/Find"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var MapService = _Service.Service.extend({
+  identify: function () {
+    return (0, _IdentifyFeatures.default)(this);
+  },
+  find: function () {
+    return (0, _Find.default)(this);
+  },
+  query: function () {
+    return (0, _Query.default)(this);
+  }
+});
+
+exports.MapService = MapService;
+
+function mapService(options) {
+  return new MapService(options);
+}
+
+var _default = mapService;
+exports.default = _default;
+
+},{"../Tasks/Find":601,"../Tasks/IdentifyFeatures":603,"../Tasks/Query":605,"./Service":599}],599:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.service = service;
+exports.default = exports.Service = void 0;
+
+var _leaflet = require("leaflet");
+
+var _Support = require("../Support");
+
+var _Util = require("../Util");
+
+var _Request = _interopRequireDefault(require("../Request"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Service = _leaflet.Evented.extend({
+  options: {
+    proxy: false,
+    useCors: _Support.cors,
+    timeout: 0
+  },
+  initialize: function (options) {
+    options = options || {};
+    this._requestQueue = [];
+    this._authenticating = false;
+
+    _leaflet.Util.setOptions(this, options);
+
+    this.options.url = (0, _Util.cleanUrl)(this.options.url);
+  },
+  get: function (path, params, callback, context) {
+    return this._request('get', path, params, callback, context);
+  },
+  post: function (path, params, callback, context) {
+    return this._request('post', path, params, callback, context);
+  },
+  request: function (path, params, callback, context) {
+    return this._request('request', path, params, callback, context);
+  },
+  metadata: function (callback, context) {
+    return this._request('get', '', {}, callback, context);
+  },
+  authenticate: function (token) {
+    this._authenticating = false;
+    this.options.token = token;
+
+    this._runQueue();
+
+    return this;
+  },
+  getTimeout: function () {
+    return this.options.timeout;
+  },
+  setTimeout: function (timeout) {
+    this.options.timeout = timeout;
+  },
+  _request: function (method, path, params, callback, context) {
+    this.fire('requeststart', {
+      url: this.options.url + path,
+      params: params,
+      method: method
+    }, true);
+
+    var wrappedCallback = this._createServiceCallback(method, path, params, callback, context);
+
+    if (this.options.token) {
+      params.token = this.options.token;
+    }
+
+    if (this.options.requestParams) {
+      _leaflet.Util.extend(params, this.options.requestParams);
+    }
+
+    if (this._authenticating) {
+      this._requestQueue.push([method, path, params, callback, context]);
+
+      return;
+    } else {
+      var url = this.options.proxy ? this.options.proxy + '?' + this.options.url + path : this.options.url + path;
+
+      if ((method === 'get' || method === 'request') && !this.options.useCors) {
+        return _Request.default.get.JSONP(url, params, wrappedCallback, context);
+      } else {
+        return _Request.default[method](url, params, wrappedCallback, context);
+      }
+    }
+  },
+  _createServiceCallback: function (method, path, params, callback, context) {
+    return _leaflet.Util.bind(function (error, response) {
+      if (error && (error.code === 499 || error.code === 498)) {
+        this._authenticating = true;
+
+        this._requestQueue.push([method, path, params, callback, context]); // fire an event for users to handle and re-authenticate
+
+
+        this.fire('authenticationrequired', {
+          authenticate: _leaflet.Util.bind(this.authenticate, this)
+        }, true); // if the user has access to a callback they can handle the auth error
+
+        error.authenticate = _leaflet.Util.bind(this.authenticate, this);
+      }
+
+      callback.call(context, error, response);
+
+      if (error) {
+        this.fire('requesterror', {
+          url: this.options.url + path,
+          params: params,
+          message: error.message,
+          code: error.code,
+          method: method
+        }, true);
+      } else {
+        this.fire('requestsuccess', {
+          url: this.options.url + path,
+          params: params,
+          response: response,
+          method: method
+        }, true);
+      }
+
+      this.fire('requestend', {
+        url: this.options.url + path,
+        params: params,
+        method: method
+      }, true);
+    }, this);
+  },
+  _runQueue: function () {
+    for (var i = this._requestQueue.length - 1; i >= 0; i--) {
+      var request = this._requestQueue[i];
+      var method = request.shift();
+      this[method].apply(this, request);
+    }
+
+    this._requestQueue = [];
+  }
+});
+
+exports.Service = Service;
+
+function service(options) {
+  options = (0, _Util.getUrlParams)(options);
+  return new Service(options);
+}
+
+var _default = service;
+exports.default = _default;
+
+},{"../Request":595,"../Support":600,"../Util":607,"leaflet":629}],600:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.Support = exports.pointerEvents = exports.cors = void 0;
+var cors = window.XMLHttpRequest && 'withCredentials' in new window.XMLHttpRequest();
+exports.cors = cors;
+var pointerEvents = document.documentElement.style.pointerEvents === '';
+exports.pointerEvents = pointerEvents;
+var Support = {
+  cors: cors,
+  pointerEvents: pointerEvents
+};
+exports.Support = Support;
+var _default = Support;
+exports.default = _default;
+
+},{}],601:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.find = find;
+exports.default = exports.Find = void 0;
+
+var _Task = require("./Task");
+
+var _Util = require("../Util");
+
+var Find = _Task.Task.extend({
+  setters: {
+    // method name > param name
+    'contains': 'contains',
+    'text': 'searchText',
+    'fields': 'searchFields',
+    // denote an array or single string
+    'spatialReference': 'sr',
+    'sr': 'sr',
+    'layers': 'layers',
+    'returnGeometry': 'returnGeometry',
+    'maxAllowableOffset': 'maxAllowableOffset',
+    'precision': 'geometryPrecision',
+    'dynamicLayers': 'dynamicLayers',
+    'returnZ': 'returnZ',
+    'returnM': 'returnM',
+    'gdbVersion': 'gdbVersion',
+    // skipped implementing this (for now) because the REST service implementation isnt consistent between operations
+    // 'transform': 'datumTransformations',
+    'token': 'token'
+  },
+  path: 'find',
+  params: {
+    sr: 4326,
+    contains: true,
+    returnGeometry: true,
+    returnZ: true,
+    returnM: false
+  },
+  layerDefs: function (id, where) {
+    this.params.layerDefs = this.params.layerDefs ? this.params.layerDefs + ';' : '';
+    this.params.layerDefs += [id, where].join(':');
+    return this;
+  },
+  simplify: function (map, factor) {
+    var mapWidth = Math.abs(map.getBounds().getWest() - map.getBounds().getEast());
+    this.params.maxAllowableOffset = mapWidth / map.getSize().y * factor;
+    return this;
+  },
+  run: function (callback, context) {
+    return this.request(function (error, response) {
+      callback.call(context, error, response && (0, _Util.responseToFeatureCollection)(response), response);
+    }, context);
+  }
+});
+
+exports.Find = Find;
+
+function find(options) {
+  return new Find(options);
+}
+
+var _default = find;
+exports.default = _default;
+
+},{"../Util":607,"./Task":606}],602:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.identify = identify;
+exports.default = exports.Identify = void 0;
+
+var _Task = require("./Task");
+
+var Identify = _Task.Task.extend({
+  path: 'identify',
+  between: function (start, end) {
+    this.params.time = [start.valueOf(), end.valueOf()];
+    return this;
+  }
+});
+
+exports.Identify = Identify;
+
+function identify(options) {
+  return new Identify(options);
+}
+
+var _default = identify;
+exports.default = _default;
+
+},{"./Task":606}],603:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.identifyFeatures = identifyFeatures;
+exports.default = exports.IdentifyFeatures = void 0;
+
+var _leaflet = require("leaflet");
+
+var _Identify = require("./Identify");
+
+var _Util = require("../Util");
+
+var IdentifyFeatures = _Identify.Identify.extend({
+  setters: {
+    'layers': 'layers',
+    'precision': 'geometryPrecision',
+    'tolerance': 'tolerance',
+    // skipped implementing this (for now) because the REST service implementation isnt consistent between operations.
+    // 'transform': 'datumTransformations'
+    'returnGeometry': 'returnGeometry'
+  },
+  params: {
+    sr: 4326,
+    layers: 'all',
+    tolerance: 3,
+    returnGeometry: true
+  },
+  on: function (map) {
+    var extent = (0, _Util.boundsToExtent)(map.getBounds());
+    var size = map.getSize();
+    this.params.imageDisplay = [size.x, size.y, 96];
+    this.params.mapExtent = [extent.xmin, extent.ymin, extent.xmax, extent.ymax];
+    return this;
+  },
+  at: function (geometry) {
+    // cast lat, long pairs in raw array form manually
+    if (geometry.length === 2) {
+      geometry = (0, _leaflet.latLng)(geometry);
+    }
+
+    this._setGeometryParams(geometry);
+
+    return this;
+  },
+  layerDef: function (id, where) {
+    this.params.layerDefs = this.params.layerDefs ? this.params.layerDefs + ';' : '';
+    this.params.layerDefs += [id, where].join(':');
+    return this;
+  },
+  simplify: function (map, factor) {
+    var mapWidth = Math.abs(map.getBounds().getWest() - map.getBounds().getEast());
+    this.params.maxAllowableOffset = mapWidth / map.getSize().y * factor;
+    return this;
+  },
+  run: function (callback, context) {
+    return this.request(function (error, response) {
+      // immediately invoke with an error
+      if (error) {
+        callback.call(context, error, undefined, response);
+        return; // ok no error lets just assume we have features...
+      } else {
+        var featureCollection = (0, _Util.responseToFeatureCollection)(response);
+        response.results = response.results.reverse();
+
+        for (var i = 0; i < featureCollection.features.length; i++) {
+          var feature = featureCollection.features[i];
+          feature.layerId = response.results[i].layerId;
+        }
+
+        callback.call(context, undefined, featureCollection, response);
+      }
+    });
+  },
+  _setGeometryParams: function (geometry) {
+    var converted = (0, _Util._setGeometry)(geometry);
+    this.params.geometry = converted.geometry;
+    this.params.geometryType = converted.geometryType;
+  }
+});
+
+exports.IdentifyFeatures = IdentifyFeatures;
+
+function identifyFeatures(options) {
+  return new IdentifyFeatures(options);
+}
+
+var _default = identifyFeatures;
+exports.default = _default;
+
+},{"../Util":607,"./Identify":602,"leaflet":629}],604:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.identifyImage = identifyImage;
+exports.default = exports.IdentifyImage = void 0;
+
+var _leaflet = require("leaflet");
+
+var _Identify = require("./Identify");
+
+var _Util = require("../Util");
+
+var IdentifyImage = _Identify.Identify.extend({
+  setters: {
+    'setMosaicRule': 'mosaicRule',
+    'setRenderingRule': 'renderingRule',
+    'setPixelSize': 'pixelSize',
+    'returnCatalogItems': 'returnCatalogItems',
+    'returnGeometry': 'returnGeometry'
+  },
+  params: {
+    returnGeometry: false
+  },
+  at: function (latlng) {
+    latlng = (0, _leaflet.latLng)(latlng);
+    this.params.geometry = JSON.stringify({
+      x: latlng.lng,
+      y: latlng.lat,
+      spatialReference: {
+        wkid: 4326
+      }
+    });
+    this.params.geometryType = 'esriGeometryPoint';
+    return this;
+  },
+  getMosaicRule: function () {
+    return this.params.mosaicRule;
+  },
+  getRenderingRule: function () {
+    return this.params.renderingRule;
+  },
+  getPixelSize: function () {
+    return this.params.pixelSize;
+  },
+  run: function (callback, context) {
+    return this.request(function (error, response) {
+      callback.call(context, error, response && this._responseToGeoJSON(response), response);
+    }, this);
+  },
+  // get pixel data and return as geoJSON point
+  // populate catalog items (if any)
+  // merging in any catalogItemVisibilities as a propery of each feature
+  _responseToGeoJSON: function (response) {
+    var location = response.location;
+    var catalogItems = response.catalogItems;
+    var catalogItemVisibilities = response.catalogItemVisibilities;
+    var geoJSON = {
+      'pixel': {
+        'type': 'Feature',
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [location.x, location.y]
+        },
+        'crs': {
+          'type': 'EPSG',
+          'properties': {
+            'code': location.spatialReference.wkid
+          }
+        },
+        'properties': {
+          'OBJECTID': response.objectId,
+          'name': response.name,
+          'value': response.value
+        },
+        'id': response.objectId
+      }
+    };
+
+    if (response.properties && response.properties.Values) {
+      geoJSON.pixel.properties.values = response.properties.Values;
+    }
+
+    if (catalogItems && catalogItems.features) {
+      geoJSON.catalogItems = (0, _Util.responseToFeatureCollection)(catalogItems);
+
+      if (catalogItemVisibilities && catalogItemVisibilities.length === geoJSON.catalogItems.features.length) {
+        for (var i = catalogItemVisibilities.length - 1; i >= 0; i--) {
+          geoJSON.catalogItems.features[i].properties.catalogItemVisibility = catalogItemVisibilities[i];
+        }
+      }
+    }
+
+    return geoJSON;
+  }
+});
+
+exports.IdentifyImage = IdentifyImage;
+
+function identifyImage(params) {
+  return new IdentifyImage(params);
+}
+
+var _default = identifyImage;
+exports.default = _default;
+
+},{"../Util":607,"./Identify":602,"leaflet":629}],605:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.query = query;
+exports.default = exports.Query = void 0;
+
+var _leaflet = require("leaflet");
+
+var _Task = require("./Task");
+
+var _Util = require("../Util");
+
+var Query = _Task.Task.extend({
+  setters: {
+    'offset': 'resultOffset',
+    'limit': 'resultRecordCount',
+    'fields': 'outFields',
+    'precision': 'geometryPrecision',
+    'featureIds': 'objectIds',
+    'returnGeometry': 'returnGeometry',
+    'returnM': 'returnM',
+    'transform': 'datumTransformation',
+    'token': 'token'
+  },
+  path: 'query',
+  params: {
+    returnGeometry: true,
+    where: '1=1',
+    outSR: 4326,
+    outFields: '*'
+  },
+  // Returns a feature if its shape is wholly contained within the search geometry. Valid for all shape type combinations.
+  within: function (geometry) {
+    this._setGeometryParams(geometry);
+
+    this.params.spatialRel = 'esriSpatialRelContains'; // to the REST api this reads geometry **contains** layer
+
+    return this;
+  },
+  // Returns a feature if any spatial relationship is found. Applies to all shape type combinations.
+  intersects: function (geometry) {
+    this._setGeometryParams(geometry);
+
+    this.params.spatialRel = 'esriSpatialRelIntersects';
+    return this;
+  },
+  // Returns a feature if its shape wholly contains the search geometry. Valid for all shape type combinations.
+  contains: function (geometry) {
+    this._setGeometryParams(geometry);
+
+    this.params.spatialRel = 'esriSpatialRelWithin'; // to the REST api this reads geometry **within** layer
+
+    return this;
+  },
+  // Returns a feature if the intersection of the interiors of the two shapes is not empty and has a lower dimension than the maximum dimension of the two shapes. Two lines that share an endpoint in common do not cross. Valid for Line/Line, Line/Area, Multi-point/Area, and Multi-point/Line shape type combinations.
+  crosses: function (geometry) {
+    this._setGeometryParams(geometry);
+
+    this.params.spatialRel = 'esriSpatialRelCrosses';
+    return this;
+  },
+  // Returns a feature if the two shapes share a common boundary. However, the intersection of the interiors of the two shapes must be empty. In the Point/Line case, the point may touch an endpoint only of the line. Applies to all combinations except Point/Point.
+  touches: function (geometry) {
+    this._setGeometryParams(geometry);
+
+    this.params.spatialRel = 'esriSpatialRelTouches';
+    return this;
+  },
+  // Returns a feature if the intersection of the two shapes results in an object of the same dimension, but different from both of the shapes. Applies to Area/Area, Line/Line, and Multi-point/Multi-point shape type combinations.
+  overlaps: function (geometry) {
+    this._setGeometryParams(geometry);
+
+    this.params.spatialRel = 'esriSpatialRelOverlaps';
+    return this;
+  },
+  // Returns a feature if the envelope of the two shapes intersects.
+  bboxIntersects: function (geometry) {
+    this._setGeometryParams(geometry);
+
+    this.params.spatialRel = 'esriSpatialRelEnvelopeIntersects';
+    return this;
+  },
+  // if someone can help decipher the ArcObjects explanation and translate to plain speak, we should mention this method in the doc
+  indexIntersects: function (geometry) {
+    this._setGeometryParams(geometry);
+
+    this.params.spatialRel = 'esriSpatialRelIndexIntersects'; // Returns a feature if the envelope of the query geometry intersects the index entry for the target geometry
+
+    return this;
+  },
+  // only valid for Feature Services running on ArcGIS Server 10.3+ or ArcGIS Online
+  nearby: function (latlng, radius) {
+    latlng = (0, _leaflet.latLng)(latlng);
+    this.params.geometry = [latlng.lng, latlng.lat];
+    this.params.geometryType = 'esriGeometryPoint';
+    this.params.spatialRel = 'esriSpatialRelIntersects';
+    this.params.units = 'esriSRUnit_Meter';
+    this.params.distance = radius;
+    this.params.inSR = 4326;
+    return this;
+  },
+  where: function (string) {
+    // instead of converting double-quotes to single quotes, pass as is, and provide a more informative message if a 400 is encountered
+    this.params.where = string;
+    return this;
+  },
+  between: function (start, end) {
+    this.params.time = [start.valueOf(), end.valueOf()];
+    return this;
+  },
+  simplify: function (map, factor) {
+    var mapWidth = Math.abs(map.getBounds().getWest() - map.getBounds().getEast());
+    this.params.maxAllowableOffset = mapWidth / map.getSize().y * factor;
+    return this;
+  },
+  orderBy: function (fieldName, order) {
+    order = order || 'ASC';
+    this.params.orderByFields = this.params.orderByFields ? this.params.orderByFields + ',' : '';
+    this.params.orderByFields += [fieldName, order].join(' ');
+    return this;
+  },
+  run: function (callback, context) {
+    this._cleanParams(); // services hosted on ArcGIS Online and ArcGIS Server 10.3.1+ support requesting geojson directly
+
+
+    if (this.options.isModern || (0, _Util.isArcgisOnline)(this.options.url) && this.options.isModern === undefined) {
+      this.params.f = 'geojson';
+      return this.request(function (error, response) {
+        this._trapSQLerrors(error);
+
+        callback.call(context, error, response, response);
+      }, this); // otherwise convert it in the callback then pass it on
+    } else {
+      return this.request(function (error, response) {
+        this._trapSQLerrors(error);
+
+        callback.call(context, error, response && (0, _Util.responseToFeatureCollection)(response), response);
+      }, this);
+    }
+  },
+  count: function (callback, context) {
+    this._cleanParams();
+
+    this.params.returnCountOnly = true;
+    return this.request(function (error, response) {
+      callback.call(this, error, response && response.count, response);
+    }, context);
+  },
+  ids: function (callback, context) {
+    this._cleanParams();
+
+    this.params.returnIdsOnly = true;
+    return this.request(function (error, response) {
+      callback.call(this, error, response && response.objectIds, response);
+    }, context);
+  },
+  // only valid for Feature Services running on ArcGIS Server 10.3+ or ArcGIS Online
+  bounds: function (callback, context) {
+    this._cleanParams();
+
+    this.params.returnExtentOnly = true;
+    return this.request(function (error, response) {
+      if (response && response.extent && (0, _Util.extentToBounds)(response.extent)) {
+        callback.call(context, error, (0, _Util.extentToBounds)(response.extent), response);
+      } else {
+        error = {
+          message: 'Invalid Bounds'
+        };
+        callback.call(context, error, null, response);
+      }
+    }, context);
+  },
+  distinct: function () {
+    // geometry must be omitted for queries requesting distinct values
+    this.params.returnGeometry = false;
+    this.params.returnDistinctValues = true;
+    return this;
+  },
+  // only valid for image services
+  pixelSize: function (rawPoint) {
+    var castPoint = (0, _leaflet.point)(rawPoint);
+    this.params.pixelSize = [castPoint.x, castPoint.y];
+    return this;
+  },
+  // only valid for map services
+  layer: function (layer) {
+    this.path = layer + '/query';
+    return this;
+  },
+  _trapSQLerrors: function (error) {
+    if (error) {
+      if (error.code === '400') {
+        (0, _Util.warn)('one common syntax error in query requests is encasing string values in double quotes instead of single quotes');
+      }
+    }
+  },
+  _cleanParams: function () {
+    delete this.params.returnIdsOnly;
+    delete this.params.returnExtentOnly;
+    delete this.params.returnCountOnly;
+  },
+  _setGeometryParams: function (geometry) {
+    this.params.inSR = 4326;
+    var converted = (0, _Util._setGeometry)(geometry);
+    this.params.geometry = converted.geometry;
+    this.params.geometryType = converted.geometryType;
+  }
+});
+
+exports.Query = Query;
+
+function query(options) {
+  return new Query(options);
+}
+
+var _default = query;
+exports.default = _default;
+
+},{"../Util":607,"./Task":606,"leaflet":629}],606:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.task = task;
+exports.default = exports.Task = void 0;
+
+var _leaflet = require("leaflet");
+
+var _Support = require("../Support");
+
+var _Util = require("../Util");
+
+var _Request = _interopRequireDefault(require("../Request"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Task = _leaflet.Class.extend({
+  options: {
+    proxy: false,
+    useCors: _Support.cors
+  },
+  // Generate a method for each methodName:paramName in the setters for this task.
+  generateSetter: function (param, context) {
+    return _leaflet.Util.bind(function (value) {
+      this.params[param] = value;
+      return this;
+    }, context);
+  },
+  initialize: function (endpoint) {
+    // endpoint can be either a url (and options) for an ArcGIS Rest Service or an instance of EsriLeaflet.Service
+    if (endpoint.request && endpoint.options) {
+      this._service = endpoint;
+
+      _leaflet.Util.setOptions(this, endpoint.options);
+    } else {
+      _leaflet.Util.setOptions(this, endpoint);
+
+      this.options.url = (0, _Util.cleanUrl)(endpoint.url);
+    } // clone default params into this object
+
+
+    this.params = _leaflet.Util.extend({}, this.params || {}); // generate setter methods based on the setters object implimented a child class
+
+    if (this.setters) {
+      for (var setter in this.setters) {
+        var param = this.setters[setter];
+        this[setter] = this.generateSetter(param, this);
+      }
+    }
+  },
+  token: function (token) {
+    if (this._service) {
+      this._service.authenticate(token);
+    } else {
+      this.params.token = token;
+    }
+
+    return this;
+  },
+  apikey: function (apikey) {
+    return this.token(apikey);
+  },
+  // ArcGIS Server Find/Identify 10.5+
+  format: function (boolean) {
+    // use double negative to expose a more intuitive positive method name
+    this.params.returnUnformattedValues = !boolean;
+    return this;
+  },
+  request: function (callback, context) {
+    if (this.options.requestParams) {
+      _leaflet.Util.extend(this.params, this.options.requestParams);
+    }
+
+    if (this._service) {
+      return this._service.request(this.path, this.params, callback, context);
+    }
+
+    return this._request('request', this.path, this.params, callback, context);
+  },
+  _request: function (method, path, params, callback, context) {
+    var url = this.options.proxy ? this.options.proxy + '?' + this.options.url + path : this.options.url + path;
+
+    if ((method === 'get' || method === 'request') && !this.options.useCors) {
+      return _Request.default.get.JSONP(url, params, callback, context);
+    }
+
+    return _Request.default[method](url, params, callback, context);
+  }
+});
+
+exports.Task = Task;
+
+function task(options) {
+  options = (0, _Util.getUrlParams)(options);
+  return new Task(options);
+}
+
+var _default = task;
+exports.default = _default;
+
+},{"../Request":595,"../Support":600,"../Util":607,"leaflet":629}],607:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.geojsonToArcGIS = geojsonToArcGIS;
+exports.arcgisToGeoJSON = arcgisToGeoJSON;
+exports.extentToBounds = extentToBounds;
+exports.boundsToExtent = boundsToExtent;
+exports._findIdAttributeFromResponse = _findIdAttributeFromResponse;
+exports._findIdAttributeFromFeature = _findIdAttributeFromFeature;
+exports.responseToFeatureCollection = responseToFeatureCollection;
+exports.cleanUrl = cleanUrl;
+exports.getUrlParams = getUrlParams;
+exports.isArcgisOnline = isArcgisOnline;
+exports.geojsonTypeToArcGIS = geojsonTypeToArcGIS;
+exports.calcAttributionWidth = calcAttributionWidth;
+exports.setEsriAttribution = setEsriAttribution;
+exports.removeEsriAttribution = removeEsriAttribution;
+exports._setGeometry = _setGeometry;
+exports._getAttributionData = _getAttributionData;
+exports._updateMapAttribution = _updateMapAttribution;
+Object.defineProperty(exports, "warn", {
+  enumerable: true,
+  get: function () {
+    return _Request.warn;
+  }
+});
+exports.default = exports.EsriUtil = void 0;
+
+var _leaflet = require("leaflet");
+
+var _Request = require("./Request");
+
+var _Options = require("./Options");
+
+var _Support = require("./Support");
+
+var _arcgis = require("@terraformer/arcgis");
+
+var BASE_LEAFLET_ATTRIBUTION_STRING = '<a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>';
+var POWERED_BY_ESRI_ATTRIBUTION_STRING = 'Powered by <a href="https://www.esri.com">Esri</a>';
+
+function geojsonToArcGIS(geojson, idAttr) {
+  return (0, _arcgis.geojsonToArcGIS)(geojson, idAttr);
+}
+
+function arcgisToGeoJSON(arcgis, idAttr) {
+  return (0, _arcgis.arcgisToGeoJSON)(arcgis, idAttr);
+} // convert an extent (ArcGIS) to LatLngBounds (Leaflet)
+
+
+function extentToBounds(extent) {
+  // "NaN" coordinates from ArcGIS Server indicate a null geometry
+  if (extent.xmin !== 'NaN' && extent.ymin !== 'NaN' && extent.xmax !== 'NaN' && extent.ymax !== 'NaN') {
+    var sw = (0, _leaflet.latLng)(extent.ymin, extent.xmin);
+    var ne = (0, _leaflet.latLng)(extent.ymax, extent.xmax);
+    return (0, _leaflet.latLngBounds)(sw, ne);
+  } else {
+    return null;
+  }
+} // convert an LatLngBounds (Leaflet) to extent (ArcGIS)
+
+
+function boundsToExtent(bounds) {
+  bounds = (0, _leaflet.latLngBounds)(bounds);
+  return {
+    'xmin': bounds.getSouthWest().lng,
+    'ymin': bounds.getSouthWest().lat,
+    'xmax': bounds.getNorthEast().lng,
+    'ymax': bounds.getNorthEast().lat,
+    'spatialReference': {
+      'wkid': 4326
+    }
+  };
+}
+
+var knownFieldNames = /^(OBJECTID|FID|OID|ID)$/i; // Attempts to find the ID Field from response
+
+function _findIdAttributeFromResponse(response) {
+  var result;
+
+  if (response.objectIdFieldName) {
+    // Find Id Field directly
+    result = response.objectIdFieldName;
+  } else if (response.fields) {
+    // Find ID Field based on field type
+    for (var j = 0; j <= response.fields.length - 1; j++) {
+      if (response.fields[j].type === 'esriFieldTypeOID') {
+        result = response.fields[j].name;
+        break;
+      }
+    }
+
+    if (!result) {
+      // If no field was marked as being the esriFieldTypeOID try well known field names
+      for (j = 0; j <= response.fields.length - 1; j++) {
+        if (response.fields[j].name.match(knownFieldNames)) {
+          result = response.fields[j].name;
+          break;
+        }
+      }
+    }
+  }
+
+  return result;
+} // This is the 'last' resort, find the Id field from the specified feature
+
+
+function _findIdAttributeFromFeature(feature) {
+  for (var key in feature.attributes) {
+    if (key.match(knownFieldNames)) {
+      return key;
+    }
+  }
+}
+
+function responseToFeatureCollection(response, idAttribute) {
+  var objectIdField;
+  var features = response.features || response.results;
+  var count = features && features.length;
+
+  if (idAttribute) {
+    objectIdField = idAttribute;
+  } else {
+    objectIdField = _findIdAttributeFromResponse(response);
+  }
+
+  var featureCollection = {
+    type: 'FeatureCollection',
+    features: []
+  };
+
+  if (count) {
+    for (var i = features.length - 1; i >= 0; i--) {
+      var feature = arcgisToGeoJSON(features[i], objectIdField || _findIdAttributeFromFeature(features[i]));
+      featureCollection.features.push(feature);
+    }
+  }
+
+  return featureCollection;
+} // trim url whitespace and add a trailing slash if needed
+
+
+function cleanUrl(url) {
+  // trim leading and trailing spaces, but not spaces inside the url
+  url = _leaflet.Util.trim(url); // add a trailing slash to the url if the user omitted it
+
+  if (url[url.length - 1] !== '/') {
+    url += '/';
+  }
+
+  return url;
+}
+/* Extract url params if any and store them in requestParams attribute.
+   Return the options params updated */
+
+
+function getUrlParams(options) {
+  if (options.url.indexOf('?') !== -1) {
+    options.requestParams = options.requestParams || {};
+    var queryString = options.url.substring(options.url.indexOf('?') + 1);
+    options.url = options.url.split('?')[0];
+    options.requestParams = JSON.parse('{"' + decodeURI(queryString).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}');
+  }
+
+  options.url = cleanUrl(options.url.split('?')[0]);
+  return options;
+}
+
+function isArcgisOnline(url) {
+  /* hosted feature services support geojson as an output format
+  utility.arcgis.com services are proxied from a variety of ArcGIS Server vintages, and may not */
+  return /^(?!.*utility\.arcgis\.com).*\.arcgis\.com.*FeatureServer/i.test(url);
+}
+
+function geojsonTypeToArcGIS(geoJsonType) {
+  var arcgisGeometryType;
+
+  switch (geoJsonType) {
+    case 'Point':
+      arcgisGeometryType = 'esriGeometryPoint';
+      break;
+
+    case 'MultiPoint':
+      arcgisGeometryType = 'esriGeometryMultipoint';
+      break;
+
+    case 'LineString':
+      arcgisGeometryType = 'esriGeometryPolyline';
+      break;
+
+    case 'MultiLineString':
+      arcgisGeometryType = 'esriGeometryPolyline';
+      break;
+
+    case 'Polygon':
+      arcgisGeometryType = 'esriGeometryPolygon';
+      break;
+
+    case 'MultiPolygon':
+      arcgisGeometryType = 'esriGeometryPolygon';
+      break;
+  }
+
+  return arcgisGeometryType;
+}
+
+function calcAttributionWidth(map) {
+  // either crop at 55px or user defined buffer
+  return map.getSize().x - _Options.options.attributionWidthOffset + 'px';
+}
+
+function setEsriAttribution(map) {
+  if (!map.attributionControl) {
+    return;
+  }
+
+  if (!map.attributionControl._esriAttributionLayerCount) {
+    map.attributionControl._esriAttributionLayerCount = 0;
+  }
+
+  if (map.attributionControl._esriAttributionLayerCount === 0) {
+    // Dynamically creating the CSS rules, only run this once per page load:
+    if (!map.attributionControl._esriAttributionAddedOnce) {
+      var hoverAttributionStyle = document.createElement('style');
+      hoverAttributionStyle.type = 'text/css';
+      hoverAttributionStyle.innerHTML = '.esri-truncated-attribution:hover {' + 'white-space: normal;' + '}';
+      document.getElementsByTagName('head')[0].appendChild(hoverAttributionStyle); // define a new css class in JS to trim attribution into a single line
+
+      var attributionStyle = document.createElement('style');
+      attributionStyle.type = 'text/css';
+      attributionStyle.innerHTML = '.esri-truncated-attribution {' + 'vertical-align: -3px;' + 'white-space: nowrap;' + 'overflow: hidden;' + 'text-overflow: ellipsis;' + 'display: inline-block;' + 'transition: 0s white-space;' + 'transition-delay: 1s;' + 'max-width: ' + calcAttributionWidth(map) + ';' + '}';
+      document.getElementsByTagName('head')[0].appendChild(attributionStyle); // update the width used to truncate when the map itself is resized
+
+      map.on('resize', function (e) {
+        if (map.attributionControl) {
+          map.attributionControl._container.style.maxWidth = calcAttributionWidth(e.target);
+        }
+      });
+      map.attributionControl._esriAttributionAddedOnce = true;
+    }
+
+    map.attributionControl.setPrefix(BASE_LEAFLET_ATTRIBUTION_STRING + ' | ' + POWERED_BY_ESRI_ATTRIBUTION_STRING);
+
+    _leaflet.DomUtil.addClass(map.attributionControl._container, 'esri-truncated-attribution:hover');
+
+    _leaflet.DomUtil.addClass(map.attributionControl._container, 'esri-truncated-attribution');
+  } // Track the number of esri-leaflet layers that are on the map so we can know when we can remove the attribution (below in removeEsriAttribution)
+
+
+  map.attributionControl._esriAttributionLayerCount = map.attributionControl._esriAttributionLayerCount + 1;
+}
+
+function removeEsriAttribution(map) {
+  if (!map.attributionControl) {
+    return;
+  } // Only remove the attribution if we're about to remove the LAST esri-leaflet layer (_esriAttributionLayerCount)
+
+
+  if (map.attributionControl._esriAttributionLayerCount && map.attributionControl._esriAttributionLayerCount === 1) {
+    map.attributionControl.setPrefix(BASE_LEAFLET_ATTRIBUTION_STRING);
+
+    _leaflet.DomUtil.removeClass(map.attributionControl._container, 'esri-truncated-attribution:hover');
+
+    _leaflet.DomUtil.removeClass(map.attributionControl._container, 'esri-truncated-attribution');
+  }
+
+  map.attributionControl._esriAttributionLayerCount = map.attributionControl._esriAttributionLayerCount - 1;
+}
+
+function _setGeometry(geometry) {
+  var params = {
+    geometry: null,
+    geometryType: null
+  }; // convert bounds to extent and finish
+
+  if (geometry instanceof _leaflet.LatLngBounds) {
+    // set geometry + geometryType
+    params.geometry = boundsToExtent(geometry);
+    params.geometryType = 'esriGeometryEnvelope';
+    return params;
+  } // convert L.Marker > L.LatLng
+
+
+  if (geometry.getLatLng) {
+    geometry = geometry.getLatLng();
+  } // convert L.LatLng to a geojson point and continue;
+
+
+  if (geometry instanceof _leaflet.LatLng) {
+    geometry = {
+      type: 'Point',
+      coordinates: [geometry.lng, geometry.lat]
+    };
+  } // handle L.GeoJSON, pull out the first geometry
+
+
+  if (geometry instanceof _leaflet.GeoJSON) {
+    // reassign geometry to the GeoJSON value  (we are assuming that only one feature is present)
+    geometry = geometry.getLayers()[0].feature.geometry;
+    params.geometry = geojsonToArcGIS(geometry);
+    params.geometryType = geojsonTypeToArcGIS(geometry.type);
+  } // Handle L.Polyline and L.Polygon
+
+
+  if (geometry.toGeoJSON) {
+    geometry = geometry.toGeoJSON();
+  } // handle GeoJSON feature by pulling out the geometry
+
+
+  if (geometry.type === 'Feature') {
+    // get the geometry of the geojson feature
+    geometry = geometry.geometry;
+  } // confirm that our GeoJSON is a point, line or polygon
+
+
+  if (geometry.type === 'Point' || geometry.type === 'LineString' || geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
+    params.geometry = geojsonToArcGIS(geometry);
+    params.geometryType = geojsonTypeToArcGIS(geometry.type);
+    return params;
+  } // warn the user if we havn't found an appropriate object
+
+
+  (0, _Request.warn)('invalid geometry passed to spatial query. Should be L.LatLng, L.LatLngBounds, L.Marker or a GeoJSON Point, Line, Polygon or MultiPolygon object');
+  return;
+}
+
+function _getAttributionData(url, map) {
+  if (_Support.Support.cors) {
+    (0, _Request.request)(url, {}, _leaflet.Util.bind(function (error, attributions) {
+      if (error) {
+        return;
+      }
+
+      map._esriAttributions = [];
+
+      for (var c = 0; c < attributions.contributors.length; c++) {
+        var contributor = attributions.contributors[c];
+
+        for (var i = 0; i < contributor.coverageAreas.length; i++) {
+          var coverageArea = contributor.coverageAreas[i];
+          var southWest = (0, _leaflet.latLng)(coverageArea.bbox[0], coverageArea.bbox[1]);
+          var northEast = (0, _leaflet.latLng)(coverageArea.bbox[2], coverageArea.bbox[3]);
+
+          map._esriAttributions.push({
+            attribution: contributor.attribution,
+            score: coverageArea.score,
+            bounds: (0, _leaflet.latLngBounds)(southWest, northEast),
+            minZoom: coverageArea.zoomMin,
+            maxZoom: coverageArea.zoomMax
+          });
+        }
+      }
+
+      map._esriAttributions.sort(function (a, b) {
+        return b.score - a.score;
+      }); // pass the same argument as the map's 'moveend' event
+
+
+      var obj = {
+        target: map
+      };
+
+      _updateMapAttribution(obj);
+    }, this));
+  }
+}
+
+function _updateMapAttribution(evt) {
+  var map = evt.target;
+  var oldAttributions = map._esriAttributions;
+  if (!map || !map.attributionControl) return;
+
+  var attributionElement = map.attributionControl._container.querySelector('.esri-dynamic-attribution');
+
+  if (attributionElement && oldAttributions) {
+    var newAttributions = '';
+    var bounds = map.getBounds();
+    var wrappedBounds = (0, _leaflet.latLngBounds)(bounds.getSouthWest().wrap(), bounds.getNorthEast().wrap());
+    var zoom = map.getZoom();
+
+    for (var i = 0; i < oldAttributions.length; i++) {
+      var attribution = oldAttributions[i];
+      var text = attribution.attribution;
+
+      if (!newAttributions.match(text) && attribution.bounds.intersects(wrappedBounds) && zoom >= attribution.minZoom && zoom <= attribution.maxZoom) {
+        newAttributions += ', ' + text;
+      }
+    }
+
+    newAttributions = newAttributions.substr(2);
+    attributionElement.innerHTML = newAttributions;
+    attributionElement.style.maxWidth = calcAttributionWidth(map);
+    map.fire('attributionupdated', {
+      attribution: newAttributions
+    });
+  }
+} // for backwards compatibility
+
+
+var EsriUtil = {
+  warn: _Request.warn,
+  cleanUrl: cleanUrl,
+  getUrlParams: getUrlParams,
+  isArcgisOnline: isArcgisOnline,
+  geojsonTypeToArcGIS: geojsonTypeToArcGIS,
+  responseToFeatureCollection: responseToFeatureCollection,
+  geojsonToArcGIS: geojsonToArcGIS,
+  arcgisToGeoJSON: arcgisToGeoJSON,
+  boundsToExtent: boundsToExtent,
+  extentToBounds: extentToBounds,
+  calcAttributionWidth: calcAttributionWidth,
+  setEsriAttribution: setEsriAttribution,
+  _setGeometry: _setGeometry,
+  _getAttributionData: _getAttributionData,
+  _updateMapAttribution: _updateMapAttribution,
+  _findIdAttributeFromFeature: _findIdAttributeFromFeature,
+  _findIdAttributeFromResponse: _findIdAttributeFromResponse
+};
+exports.EsriUtil = EsriUtil;
+var _default = EsriUtil;
+exports.default = _default;
+
+},{"./Options":594,"./Request":595,"./Support":600,"@terraformer/arcgis":1,"leaflet":629}],608:[function(require,module,exports){
 /**
  * Copyright (c) 2014, Chris Pettitt
  * All rights reserved.
@@ -33679,7 +38963,7 @@ module.exports = {
   version: lib.version
 };
 
-},{"./lib":599,"./lib/alg":590,"./lib/json":600}],584:[function(require,module,exports){
+},{"./lib":624,"./lib/alg":615,"./lib/json":625}],609:[function(require,module,exports){
 var _ = require("../lodash");
 
 module.exports = components;
@@ -33708,7 +38992,7 @@ function components(g) {
   return cmpts;
 }
 
-},{"../lodash":601}],585:[function(require,module,exports){
+},{"../lodash":626}],610:[function(require,module,exports){
 var _ = require("../lodash");
 
 module.exports = dfs;
@@ -33752,7 +39036,7 @@ function doDfs(g, v, postorder, visited, navigation, acc) {
   }
 }
 
-},{"../lodash":601}],586:[function(require,module,exports){
+},{"../lodash":626}],611:[function(require,module,exports){
 var dijkstra = require("./dijkstra");
 var _ = require("../lodash");
 
@@ -33764,7 +39048,7 @@ function dijkstraAll(g, weightFunc, edgeFunc) {
   }, {});
 }
 
-},{"../lodash":601,"./dijkstra":587}],587:[function(require,module,exports){
+},{"../lodash":626,"./dijkstra":612}],612:[function(require,module,exports){
 var _ = require("../lodash");
 var PriorityQueue = require("../data/priority-queue");
 
@@ -33820,7 +39104,7 @@ function runDijkstra(g, source, weightFn, edgeFn) {
   return results;
 }
 
-},{"../data/priority-queue":597,"../lodash":601}],588:[function(require,module,exports){
+},{"../data/priority-queue":622,"../lodash":626}],613:[function(require,module,exports){
 var _ = require("../lodash");
 var tarjan = require("./tarjan");
 
@@ -33832,7 +39116,7 @@ function findCycles(g) {
   });
 }
 
-},{"../lodash":601,"./tarjan":595}],589:[function(require,module,exports){
+},{"../lodash":626,"./tarjan":620}],614:[function(require,module,exports){
 var _ = require("../lodash");
 
 module.exports = floydWarshall;
@@ -33884,7 +39168,7 @@ function runFloydWarshall(g, weightFn, edgeFn) {
   return results;
 }
 
-},{"../lodash":601}],590:[function(require,module,exports){
+},{"../lodash":626}],615:[function(require,module,exports){
 module.exports = {
   components: require("./components"),
   dijkstra: require("./dijkstra"),
@@ -33899,7 +39183,7 @@ module.exports = {
   topsort: require("./topsort")
 };
 
-},{"./components":584,"./dijkstra":587,"./dijkstra-all":586,"./find-cycles":588,"./floyd-warshall":589,"./is-acyclic":591,"./postorder":592,"./preorder":593,"./prim":594,"./tarjan":595,"./topsort":596}],591:[function(require,module,exports){
+},{"./components":609,"./dijkstra":612,"./dijkstra-all":611,"./find-cycles":613,"./floyd-warshall":614,"./is-acyclic":616,"./postorder":617,"./preorder":618,"./prim":619,"./tarjan":620,"./topsort":621}],616:[function(require,module,exports){
 var topsort = require("./topsort");
 
 module.exports = isAcyclic;
@@ -33916,7 +39200,7 @@ function isAcyclic(g) {
   return true;
 }
 
-},{"./topsort":596}],592:[function(require,module,exports){
+},{"./topsort":621}],617:[function(require,module,exports){
 var dfs = require("./dfs");
 
 module.exports = postorder;
@@ -33925,7 +39209,7 @@ function postorder(g, vs) {
   return dfs(g, vs, "post");
 }
 
-},{"./dfs":585}],593:[function(require,module,exports){
+},{"./dfs":610}],618:[function(require,module,exports){
 var dfs = require("./dfs");
 
 module.exports = preorder;
@@ -33934,7 +39218,7 @@ function preorder(g, vs) {
   return dfs(g, vs, "pre");
 }
 
-},{"./dfs":585}],594:[function(require,module,exports){
+},{"./dfs":610}],619:[function(require,module,exports){
 var _ = require("../lodash");
 var Graph = require("../graph");
 var PriorityQueue = require("../data/priority-queue");
@@ -33988,7 +39272,7 @@ function prim(g, weightFunc) {
   return result;
 }
 
-},{"../data/priority-queue":597,"../graph":598,"../lodash":601}],595:[function(require,module,exports){
+},{"../data/priority-queue":622,"../graph":623,"../lodash":626}],620:[function(require,module,exports){
 var _ = require("../lodash");
 
 module.exports = tarjan;
@@ -34037,7 +39321,7 @@ function tarjan(g) {
   return results;
 }
 
-},{"../lodash":601}],596:[function(require,module,exports){
+},{"../lodash":626}],621:[function(require,module,exports){
 var _ = require("../lodash");
 
 module.exports = topsort;
@@ -34073,7 +39357,7 @@ function topsort(g) {
 
 function CycleException() {}
 CycleException.prototype = new Error(); // must be an instance of Error to pass testing
-},{"../lodash":601}],597:[function(require,module,exports){
+},{"../lodash":626}],622:[function(require,module,exports){
 var _ = require("../lodash");
 
 module.exports = PriorityQueue;
@@ -34227,7 +39511,7 @@ PriorityQueue.prototype._swap = function(i, j) {
   keyIndices[origArrI.key] = j;
 };
 
-},{"../lodash":601}],598:[function(require,module,exports){
+},{"../lodash":626}],623:[function(require,module,exports){
 "use strict";
 
 var _ = require("./lodash");
@@ -34761,14 +40045,14 @@ function edgeObjToId(isDirected, edgeObj) {
   return edgeArgsToId(isDirected, edgeObj.v, edgeObj.w, edgeObj.name);
 }
 
-},{"./lodash":601}],599:[function(require,module,exports){
+},{"./lodash":626}],624:[function(require,module,exports){
 // Includes only the "core" of graphlib
 module.exports = {
   Graph: require("./graph"),
   version: require("./version")
 };
 
-},{"./graph":598,"./version":602}],600:[function(require,module,exports){
+},{"./graph":623,"./version":627}],625:[function(require,module,exports){
 var _ = require("./lodash");
 var Graph = require("./graph");
 
@@ -34836,7 +40120,7 @@ function read(json) {
   return g;
 }
 
-},{"./graph":598,"./lodash":601}],601:[function(require,module,exports){
+},{"./graph":623,"./lodash":626}],626:[function(require,module,exports){
 /* global window */
 
 var lodash;
@@ -34872,10 +40156,10 @@ if (!lodash) {
 
 module.exports = lodash;
 
-},{"lodash/clone":783,"lodash/constant":785,"lodash/each":787,"lodash/filter":789,"lodash/has":796,"lodash/isArray":800,"lodash/isEmpty":804,"lodash/isFunction":805,"lodash/isUndefined":815,"lodash/keys":816,"lodash/map":819,"lodash/reduce":831,"lodash/size":832,"lodash/transform":841,"lodash/union":842,"lodash/values":844}],602:[function(require,module,exports){
+},{"lodash/clone":808,"lodash/constant":810,"lodash/each":812,"lodash/filter":814,"lodash/has":821,"lodash/isArray":825,"lodash/isEmpty":829,"lodash/isFunction":830,"lodash/isUndefined":840,"lodash/keys":841,"lodash/map":844,"lodash/reduce":856,"lodash/size":857,"lodash/transform":866,"lodash/union":867,"lodash/values":869}],627:[function(require,module,exports){
 module.exports = '2.1.8';
 
-},{}],603:[function(require,module,exports){
+},{}],628:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v3.6.0
  * https://jquery.com/
@@ -45758,7 +51042,7 @@ if ( typeof noGlobal === "undefined" ) {
 return jQuery;
 } );
 
-},{}],604:[function(require,module,exports){
+},{}],629:[function(require,module,exports){
 "use strict";
 
 /* @preserve
@@ -59072,12 +64356,12 @@ return jQuery;
   window.L = exports;
 });
 
-},{}],605:[function(require,module,exports){
+},{}],630:[function(require,module,exports){
 function lerp(v0, v1, t) {
     return v0*(1-t)+v1*t
 }
 module.exports = lerp
-},{}],606:[function(require,module,exports){
+},{}],631:[function(require,module,exports){
 var getNative = require('./_getNative'),
     root = require('./_root');
 
@@ -59086,7 +64370,7 @@ var DataView = getNative(root, 'DataView');
 
 module.exports = DataView;
 
-},{"./_getNative":719,"./_root":764}],607:[function(require,module,exports){
+},{"./_getNative":744,"./_root":789}],632:[function(require,module,exports){
 var hashClear = require('./_hashClear'),
     hashDelete = require('./_hashDelete'),
     hashGet = require('./_hashGet'),
@@ -59120,7 +64404,7 @@ Hash.prototype.set = hashSet;
 
 module.exports = Hash;
 
-},{"./_hashClear":728,"./_hashDelete":729,"./_hashGet":730,"./_hashHas":731,"./_hashSet":732}],608:[function(require,module,exports){
+},{"./_hashClear":753,"./_hashDelete":754,"./_hashGet":755,"./_hashHas":756,"./_hashSet":757}],633:[function(require,module,exports){
 var listCacheClear = require('./_listCacheClear'),
     listCacheDelete = require('./_listCacheDelete'),
     listCacheGet = require('./_listCacheGet'),
@@ -59154,7 +64438,7 @@ ListCache.prototype.set = listCacheSet;
 
 module.exports = ListCache;
 
-},{"./_listCacheClear":744,"./_listCacheDelete":745,"./_listCacheGet":746,"./_listCacheHas":747,"./_listCacheSet":748}],609:[function(require,module,exports){
+},{"./_listCacheClear":769,"./_listCacheDelete":770,"./_listCacheGet":771,"./_listCacheHas":772,"./_listCacheSet":773}],634:[function(require,module,exports){
 var getNative = require('./_getNative'),
     root = require('./_root');
 
@@ -59163,7 +64447,7 @@ var Map = getNative(root, 'Map');
 
 module.exports = Map;
 
-},{"./_getNative":719,"./_root":764}],610:[function(require,module,exports){
+},{"./_getNative":744,"./_root":789}],635:[function(require,module,exports){
 var mapCacheClear = require('./_mapCacheClear'),
     mapCacheDelete = require('./_mapCacheDelete'),
     mapCacheGet = require('./_mapCacheGet'),
@@ -59197,7 +64481,7 @@ MapCache.prototype.set = mapCacheSet;
 
 module.exports = MapCache;
 
-},{"./_mapCacheClear":749,"./_mapCacheDelete":750,"./_mapCacheGet":751,"./_mapCacheHas":752,"./_mapCacheSet":753}],611:[function(require,module,exports){
+},{"./_mapCacheClear":774,"./_mapCacheDelete":775,"./_mapCacheGet":776,"./_mapCacheHas":777,"./_mapCacheSet":778}],636:[function(require,module,exports){
 var getNative = require('./_getNative'),
     root = require('./_root');
 
@@ -59206,7 +64490,7 @@ var Promise = getNative(root, 'Promise');
 
 module.exports = Promise;
 
-},{"./_getNative":719,"./_root":764}],612:[function(require,module,exports){
+},{"./_getNative":744,"./_root":789}],637:[function(require,module,exports){
 var getNative = require('./_getNative'),
     root = require('./_root');
 
@@ -59215,7 +64499,7 @@ var Set = getNative(root, 'Set');
 
 module.exports = Set;
 
-},{"./_getNative":719,"./_root":764}],613:[function(require,module,exports){
+},{"./_getNative":744,"./_root":789}],638:[function(require,module,exports){
 var MapCache = require('./_MapCache'),
     setCacheAdd = require('./_setCacheAdd'),
     setCacheHas = require('./_setCacheHas');
@@ -59244,7 +64528,7 @@ SetCache.prototype.has = setCacheHas;
 
 module.exports = SetCache;
 
-},{"./_MapCache":610,"./_setCacheAdd":766,"./_setCacheHas":767}],614:[function(require,module,exports){
+},{"./_MapCache":635,"./_setCacheAdd":791,"./_setCacheHas":792}],639:[function(require,module,exports){
 var ListCache = require('./_ListCache'),
     stackClear = require('./_stackClear'),
     stackDelete = require('./_stackDelete'),
@@ -59273,7 +64557,7 @@ Stack.prototype.set = stackSet;
 
 module.exports = Stack;
 
-},{"./_ListCache":608,"./_stackClear":771,"./_stackDelete":772,"./_stackGet":773,"./_stackHas":774,"./_stackSet":775}],615:[function(require,module,exports){
+},{"./_ListCache":633,"./_stackClear":796,"./_stackDelete":797,"./_stackGet":798,"./_stackHas":799,"./_stackSet":800}],640:[function(require,module,exports){
 var root = require('./_root');
 
 /** Built-in value references. */
@@ -59281,7 +64565,7 @@ var Symbol = root.Symbol;
 
 module.exports = Symbol;
 
-},{"./_root":764}],616:[function(require,module,exports){
+},{"./_root":789}],641:[function(require,module,exports){
 var root = require('./_root');
 
 /** Built-in value references. */
@@ -59289,7 +64573,7 @@ var Uint8Array = root.Uint8Array;
 
 module.exports = Uint8Array;
 
-},{"./_root":764}],617:[function(require,module,exports){
+},{"./_root":789}],642:[function(require,module,exports){
 var getNative = require('./_getNative'),
     root = require('./_root');
 
@@ -59298,7 +64582,7 @@ var WeakMap = getNative(root, 'WeakMap');
 
 module.exports = WeakMap;
 
-},{"./_getNative":719,"./_root":764}],618:[function(require,module,exports){
+},{"./_getNative":744,"./_root":789}],643:[function(require,module,exports){
 /**
  * A faster alternative to `Function#apply`, this function invokes `func`
  * with the `this` binding of `thisArg` and the arguments of `args`.
@@ -59321,7 +64605,7 @@ function apply(func, thisArg, args) {
 
 module.exports = apply;
 
-},{}],619:[function(require,module,exports){
+},{}],644:[function(require,module,exports){
 /**
  * A specialized version of `_.forEach` for arrays without support for
  * iteratee shorthands.
@@ -59345,7 +64629,7 @@ function arrayEach(array, iteratee) {
 
 module.exports = arrayEach;
 
-},{}],620:[function(require,module,exports){
+},{}],645:[function(require,module,exports){
 /**
  * A specialized version of `_.filter` for arrays without support for
  * iteratee shorthands.
@@ -59372,7 +64656,7 @@ function arrayFilter(array, predicate) {
 
 module.exports = arrayFilter;
 
-},{}],621:[function(require,module,exports){
+},{}],646:[function(require,module,exports){
 var baseIndexOf = require('./_baseIndexOf');
 
 /**
@@ -59391,7 +64675,7 @@ function arrayIncludes(array, value) {
 
 module.exports = arrayIncludes;
 
-},{"./_baseIndexOf":650}],622:[function(require,module,exports){
+},{"./_baseIndexOf":675}],647:[function(require,module,exports){
 /**
  * This function is like `arrayIncludes` except that it accepts a comparator.
  *
@@ -59415,7 +64699,7 @@ function arrayIncludesWith(array, value, comparator) {
 
 module.exports = arrayIncludesWith;
 
-},{}],623:[function(require,module,exports){
+},{}],648:[function(require,module,exports){
 var baseTimes = require('./_baseTimes'),
     isArguments = require('./isArguments'),
     isArray = require('./isArray'),
@@ -59466,7 +64750,7 @@ function arrayLikeKeys(value, inherited) {
 
 module.exports = arrayLikeKeys;
 
-},{"./_baseTimes":680,"./_isIndex":737,"./isArguments":799,"./isArray":800,"./isBuffer":803,"./isTypedArray":814}],624:[function(require,module,exports){
+},{"./_baseTimes":705,"./_isIndex":762,"./isArguments":824,"./isArray":825,"./isBuffer":828,"./isTypedArray":839}],649:[function(require,module,exports){
 /**
  * A specialized version of `_.map` for arrays without support for iteratee
  * shorthands.
@@ -59489,7 +64773,7 @@ function arrayMap(array, iteratee) {
 
 module.exports = arrayMap;
 
-},{}],625:[function(require,module,exports){
+},{}],650:[function(require,module,exports){
 /**
  * Appends the elements of `values` to `array`.
  *
@@ -59511,7 +64795,7 @@ function arrayPush(array, values) {
 
 module.exports = arrayPush;
 
-},{}],626:[function(require,module,exports){
+},{}],651:[function(require,module,exports){
 /**
  * A specialized version of `_.reduce` for arrays without support for
  * iteratee shorthands.
@@ -59539,7 +64823,7 @@ function arrayReduce(array, iteratee, accumulator, initAccum) {
 
 module.exports = arrayReduce;
 
-},{}],627:[function(require,module,exports){
+},{}],652:[function(require,module,exports){
 /**
  * A specialized version of `_.some` for arrays without support for iteratee
  * shorthands.
@@ -59564,7 +64848,7 @@ function arraySome(array, predicate) {
 
 module.exports = arraySome;
 
-},{}],628:[function(require,module,exports){
+},{}],653:[function(require,module,exports){
 var baseProperty = require('./_baseProperty');
 
 /**
@@ -59578,7 +64862,7 @@ var asciiSize = baseProperty('length');
 
 module.exports = asciiSize;
 
-},{"./_baseProperty":672}],629:[function(require,module,exports){
+},{"./_baseProperty":697}],654:[function(require,module,exports){
 var baseAssignValue = require('./_baseAssignValue'),
     eq = require('./eq');
 
@@ -59600,7 +64884,7 @@ function assignMergeValue(object, key, value) {
 
 module.exports = assignMergeValue;
 
-},{"./_baseAssignValue":634,"./eq":788}],630:[function(require,module,exports){
+},{"./_baseAssignValue":659,"./eq":813}],655:[function(require,module,exports){
 var baseAssignValue = require('./_baseAssignValue'),
     eq = require('./eq');
 
@@ -59630,7 +64914,7 @@ function assignValue(object, key, value) {
 
 module.exports = assignValue;
 
-},{"./_baseAssignValue":634,"./eq":788}],631:[function(require,module,exports){
+},{"./_baseAssignValue":659,"./eq":813}],656:[function(require,module,exports){
 var eq = require('./eq');
 
 /**
@@ -59653,7 +64937,7 @@ function assocIndexOf(array, key) {
 
 module.exports = assocIndexOf;
 
-},{"./eq":788}],632:[function(require,module,exports){
+},{"./eq":813}],657:[function(require,module,exports){
 var copyObject = require('./_copyObject'),
     keys = require('./keys');
 
@@ -59672,7 +64956,7 @@ function baseAssign(object, source) {
 
 module.exports = baseAssign;
 
-},{"./_copyObject":699,"./keys":816}],633:[function(require,module,exports){
+},{"./_copyObject":724,"./keys":841}],658:[function(require,module,exports){
 var copyObject = require('./_copyObject'),
     keysIn = require('./keysIn');
 
@@ -59691,7 +64975,7 @@ function baseAssignIn(object, source) {
 
 module.exports = baseAssignIn;
 
-},{"./_copyObject":699,"./keysIn":817}],634:[function(require,module,exports){
+},{"./_copyObject":724,"./keysIn":842}],659:[function(require,module,exports){
 var defineProperty = require('./_defineProperty');
 
 /**
@@ -59718,7 +65002,7 @@ function baseAssignValue(object, key, value) {
 
 module.exports = baseAssignValue;
 
-},{"./_defineProperty":709}],635:[function(require,module,exports){
+},{"./_defineProperty":734}],660:[function(require,module,exports){
 var Stack = require('./_Stack'),
     arrayEach = require('./_arrayEach'),
     assignValue = require('./_assignValue'),
@@ -59886,7 +65170,7 @@ function baseClone(value, bitmask, customizer, key, object, stack) {
 
 module.exports = baseClone;
 
-},{"./_Stack":614,"./_arrayEach":619,"./_assignValue":630,"./_baseAssign":632,"./_baseAssignIn":633,"./_cloneBuffer":691,"./_copyArray":698,"./_copySymbols":700,"./_copySymbolsIn":701,"./_getAllKeys":715,"./_getAllKeysIn":716,"./_getTag":724,"./_initCloneArray":733,"./_initCloneByTag":734,"./_initCloneObject":735,"./isArray":800,"./isBuffer":803,"./isMap":807,"./isObject":808,"./isSet":811,"./keys":816,"./keysIn":817}],636:[function(require,module,exports){
+},{"./_Stack":639,"./_arrayEach":644,"./_assignValue":655,"./_baseAssign":657,"./_baseAssignIn":658,"./_cloneBuffer":716,"./_copyArray":723,"./_copySymbols":725,"./_copySymbolsIn":726,"./_getAllKeys":740,"./_getAllKeysIn":741,"./_getTag":749,"./_initCloneArray":758,"./_initCloneByTag":759,"./_initCloneObject":760,"./isArray":825,"./isBuffer":828,"./isMap":832,"./isObject":833,"./isSet":836,"./keys":841,"./keysIn":842}],661:[function(require,module,exports){
 var isObject = require('./isObject');
 
 /** Built-in value references. */
@@ -59918,7 +65202,7 @@ var baseCreate = (function() {
 
 module.exports = baseCreate;
 
-},{"./isObject":808}],637:[function(require,module,exports){
+},{"./isObject":833}],662:[function(require,module,exports){
 var baseForOwn = require('./_baseForOwn'),
     createBaseEach = require('./_createBaseEach');
 
@@ -59934,7 +65218,7 @@ var baseEach = createBaseEach(baseForOwn);
 
 module.exports = baseEach;
 
-},{"./_baseForOwn":643,"./_createBaseEach":704}],638:[function(require,module,exports){
+},{"./_baseForOwn":668,"./_createBaseEach":729}],663:[function(require,module,exports){
 var isSymbol = require('./isSymbol');
 
 /**
@@ -59968,7 +65252,7 @@ function baseExtremum(array, iteratee, comparator) {
 
 module.exports = baseExtremum;
 
-},{"./isSymbol":813}],639:[function(require,module,exports){
+},{"./isSymbol":838}],664:[function(require,module,exports){
 var baseEach = require('./_baseEach');
 
 /**
@@ -59991,7 +65275,7 @@ function baseFilter(collection, predicate) {
 
 module.exports = baseFilter;
 
-},{"./_baseEach":637}],640:[function(require,module,exports){
+},{"./_baseEach":662}],665:[function(require,module,exports){
 /**
  * The base implementation of `_.findIndex` and `_.findLastIndex` without
  * support for iteratee shorthands.
@@ -60017,7 +65301,7 @@ function baseFindIndex(array, predicate, fromIndex, fromRight) {
 
 module.exports = baseFindIndex;
 
-},{}],641:[function(require,module,exports){
+},{}],666:[function(require,module,exports){
 var arrayPush = require('./_arrayPush'),
     isFlattenable = require('./_isFlattenable');
 
@@ -60057,7 +65341,7 @@ function baseFlatten(array, depth, predicate, isStrict, result) {
 
 module.exports = baseFlatten;
 
-},{"./_arrayPush":625,"./_isFlattenable":736}],642:[function(require,module,exports){
+},{"./_arrayPush":650,"./_isFlattenable":761}],667:[function(require,module,exports){
 var createBaseFor = require('./_createBaseFor');
 
 /**
@@ -60075,7 +65359,7 @@ var baseFor = createBaseFor();
 
 module.exports = baseFor;
 
-},{"./_createBaseFor":705}],643:[function(require,module,exports){
+},{"./_createBaseFor":730}],668:[function(require,module,exports){
 var baseFor = require('./_baseFor'),
     keys = require('./keys');
 
@@ -60093,7 +65377,7 @@ function baseForOwn(object, iteratee) {
 
 module.exports = baseForOwn;
 
-},{"./_baseFor":642,"./keys":816}],644:[function(require,module,exports){
+},{"./_baseFor":667,"./keys":841}],669:[function(require,module,exports){
 var castPath = require('./_castPath'),
     toKey = require('./_toKey');
 
@@ -60119,7 +65403,7 @@ function baseGet(object, path) {
 
 module.exports = baseGet;
 
-},{"./_castPath":689,"./_toKey":779}],645:[function(require,module,exports){
+},{"./_castPath":714,"./_toKey":804}],670:[function(require,module,exports){
 var arrayPush = require('./_arrayPush'),
     isArray = require('./isArray');
 
@@ -60141,7 +65425,7 @@ function baseGetAllKeys(object, keysFunc, symbolsFunc) {
 
 module.exports = baseGetAllKeys;
 
-},{"./_arrayPush":625,"./isArray":800}],646:[function(require,module,exports){
+},{"./_arrayPush":650,"./isArray":825}],671:[function(require,module,exports){
 var Symbol = require('./_Symbol'),
     getRawTag = require('./_getRawTag'),
     objectToString = require('./_objectToString');
@@ -60171,7 +65455,7 @@ function baseGetTag(value) {
 
 module.exports = baseGetTag;
 
-},{"./_Symbol":615,"./_getRawTag":721,"./_objectToString":761}],647:[function(require,module,exports){
+},{"./_Symbol":640,"./_getRawTag":746,"./_objectToString":786}],672:[function(require,module,exports){
 /**
  * The base implementation of `_.gt` which doesn't coerce arguments.
  *
@@ -60187,7 +65471,7 @@ function baseGt(value, other) {
 
 module.exports = baseGt;
 
-},{}],648:[function(require,module,exports){
+},{}],673:[function(require,module,exports){
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
@@ -60208,7 +65492,7 @@ function baseHas(object, key) {
 
 module.exports = baseHas;
 
-},{}],649:[function(require,module,exports){
+},{}],674:[function(require,module,exports){
 /**
  * The base implementation of `_.hasIn` without support for deep paths.
  *
@@ -60223,7 +65507,7 @@ function baseHasIn(object, key) {
 
 module.exports = baseHasIn;
 
-},{}],650:[function(require,module,exports){
+},{}],675:[function(require,module,exports){
 var baseFindIndex = require('./_baseFindIndex'),
     baseIsNaN = require('./_baseIsNaN'),
     strictIndexOf = require('./_strictIndexOf');
@@ -60245,7 +65529,7 @@ function baseIndexOf(array, value, fromIndex) {
 
 module.exports = baseIndexOf;
 
-},{"./_baseFindIndex":640,"./_baseIsNaN":656,"./_strictIndexOf":776}],651:[function(require,module,exports){
+},{"./_baseFindIndex":665,"./_baseIsNaN":681,"./_strictIndexOf":801}],676:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isObjectLike = require('./isObjectLike');
 
@@ -60265,7 +65549,7 @@ function baseIsArguments(value) {
 
 module.exports = baseIsArguments;
 
-},{"./_baseGetTag":646,"./isObjectLike":809}],652:[function(require,module,exports){
+},{"./_baseGetTag":671,"./isObjectLike":834}],677:[function(require,module,exports){
 var baseIsEqualDeep = require('./_baseIsEqualDeep'),
     isObjectLike = require('./isObjectLike');
 
@@ -60295,7 +65579,7 @@ function baseIsEqual(value, other, bitmask, customizer, stack) {
 
 module.exports = baseIsEqual;
 
-},{"./_baseIsEqualDeep":653,"./isObjectLike":809}],653:[function(require,module,exports){
+},{"./_baseIsEqualDeep":678,"./isObjectLike":834}],678:[function(require,module,exports){
 var Stack = require('./_Stack'),
     equalArrays = require('./_equalArrays'),
     equalByTag = require('./_equalByTag'),
@@ -60380,7 +65664,7 @@ function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
 
 module.exports = baseIsEqualDeep;
 
-},{"./_Stack":614,"./_equalArrays":710,"./_equalByTag":711,"./_equalObjects":712,"./_getTag":724,"./isArray":800,"./isBuffer":803,"./isTypedArray":814}],654:[function(require,module,exports){
+},{"./_Stack":639,"./_equalArrays":735,"./_equalByTag":736,"./_equalObjects":737,"./_getTag":749,"./isArray":825,"./isBuffer":828,"./isTypedArray":839}],679:[function(require,module,exports){
 var getTag = require('./_getTag'),
     isObjectLike = require('./isObjectLike');
 
@@ -60400,7 +65684,7 @@ function baseIsMap(value) {
 
 module.exports = baseIsMap;
 
-},{"./_getTag":724,"./isObjectLike":809}],655:[function(require,module,exports){
+},{"./_getTag":749,"./isObjectLike":834}],680:[function(require,module,exports){
 var Stack = require('./_Stack'),
     baseIsEqual = require('./_baseIsEqual');
 
@@ -60464,7 +65748,7 @@ function baseIsMatch(object, source, matchData, customizer) {
 
 module.exports = baseIsMatch;
 
-},{"./_Stack":614,"./_baseIsEqual":652}],656:[function(require,module,exports){
+},{"./_Stack":639,"./_baseIsEqual":677}],681:[function(require,module,exports){
 /**
  * The base implementation of `_.isNaN` without support for number objects.
  *
@@ -60478,7 +65762,7 @@ function baseIsNaN(value) {
 
 module.exports = baseIsNaN;
 
-},{}],657:[function(require,module,exports){
+},{}],682:[function(require,module,exports){
 var isFunction = require('./isFunction'),
     isMasked = require('./_isMasked'),
     isObject = require('./isObject'),
@@ -60527,7 +65811,7 @@ function baseIsNative(value) {
 
 module.exports = baseIsNative;
 
-},{"./_isMasked":741,"./_toSource":780,"./isFunction":805,"./isObject":808}],658:[function(require,module,exports){
+},{"./_isMasked":766,"./_toSource":805,"./isFunction":830,"./isObject":833}],683:[function(require,module,exports){
 var getTag = require('./_getTag'),
     isObjectLike = require('./isObjectLike');
 
@@ -60547,7 +65831,7 @@ function baseIsSet(value) {
 
 module.exports = baseIsSet;
 
-},{"./_getTag":724,"./isObjectLike":809}],659:[function(require,module,exports){
+},{"./_getTag":749,"./isObjectLike":834}],684:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isLength = require('./isLength'),
     isObjectLike = require('./isObjectLike');
@@ -60609,7 +65893,7 @@ function baseIsTypedArray(value) {
 
 module.exports = baseIsTypedArray;
 
-},{"./_baseGetTag":646,"./isLength":806,"./isObjectLike":809}],660:[function(require,module,exports){
+},{"./_baseGetTag":671,"./isLength":831,"./isObjectLike":834}],685:[function(require,module,exports){
 var baseMatches = require('./_baseMatches'),
     baseMatchesProperty = require('./_baseMatchesProperty'),
     identity = require('./identity'),
@@ -60642,7 +65926,7 @@ function baseIteratee(value) {
 
 module.exports = baseIteratee;
 
-},{"./_baseMatches":665,"./_baseMatchesProperty":666,"./identity":798,"./isArray":800,"./property":829}],661:[function(require,module,exports){
+},{"./_baseMatches":690,"./_baseMatchesProperty":691,"./identity":823,"./isArray":825,"./property":854}],686:[function(require,module,exports){
 var isPrototype = require('./_isPrototype'),
     nativeKeys = require('./_nativeKeys');
 
@@ -60674,7 +65958,7 @@ function baseKeys(object) {
 
 module.exports = baseKeys;
 
-},{"./_isPrototype":742,"./_nativeKeys":758}],662:[function(require,module,exports){
+},{"./_isPrototype":767,"./_nativeKeys":783}],687:[function(require,module,exports){
 var isObject = require('./isObject'),
     isPrototype = require('./_isPrototype'),
     nativeKeysIn = require('./_nativeKeysIn');
@@ -60709,7 +65993,7 @@ function baseKeysIn(object) {
 
 module.exports = baseKeysIn;
 
-},{"./_isPrototype":742,"./_nativeKeysIn":759,"./isObject":808}],663:[function(require,module,exports){
+},{"./_isPrototype":767,"./_nativeKeysIn":784,"./isObject":833}],688:[function(require,module,exports){
 /**
  * The base implementation of `_.lt` which doesn't coerce arguments.
  *
@@ -60725,7 +66009,7 @@ function baseLt(value, other) {
 
 module.exports = baseLt;
 
-},{}],664:[function(require,module,exports){
+},{}],689:[function(require,module,exports){
 var baseEach = require('./_baseEach'),
     isArrayLike = require('./isArrayLike');
 
@@ -60749,7 +66033,7 @@ function baseMap(collection, iteratee) {
 
 module.exports = baseMap;
 
-},{"./_baseEach":637,"./isArrayLike":801}],665:[function(require,module,exports){
+},{"./_baseEach":662,"./isArrayLike":826}],690:[function(require,module,exports){
 var baseIsMatch = require('./_baseIsMatch'),
     getMatchData = require('./_getMatchData'),
     matchesStrictComparable = require('./_matchesStrictComparable');
@@ -60773,7 +66057,7 @@ function baseMatches(source) {
 
 module.exports = baseMatches;
 
-},{"./_baseIsMatch":655,"./_getMatchData":718,"./_matchesStrictComparable":755}],666:[function(require,module,exports){
+},{"./_baseIsMatch":680,"./_getMatchData":743,"./_matchesStrictComparable":780}],691:[function(require,module,exports){
 var baseIsEqual = require('./_baseIsEqual'),
     get = require('./get'),
     hasIn = require('./hasIn'),
@@ -60808,7 +66092,7 @@ function baseMatchesProperty(path, srcValue) {
 
 module.exports = baseMatchesProperty;
 
-},{"./_baseIsEqual":652,"./_isKey":739,"./_isStrictComparable":743,"./_matchesStrictComparable":755,"./_toKey":779,"./get":795,"./hasIn":797}],667:[function(require,module,exports){
+},{"./_baseIsEqual":677,"./_isKey":764,"./_isStrictComparable":768,"./_matchesStrictComparable":780,"./_toKey":804,"./get":820,"./hasIn":822}],692:[function(require,module,exports){
 var Stack = require('./_Stack'),
     assignMergeValue = require('./_assignMergeValue'),
     baseFor = require('./_baseFor'),
@@ -60852,7 +66136,7 @@ function baseMerge(object, source, srcIndex, customizer, stack) {
 
 module.exports = baseMerge;
 
-},{"./_Stack":614,"./_assignMergeValue":629,"./_baseFor":642,"./_baseMergeDeep":668,"./_safeGet":765,"./isObject":808,"./keysIn":817}],668:[function(require,module,exports){
+},{"./_Stack":639,"./_assignMergeValue":654,"./_baseFor":667,"./_baseMergeDeep":693,"./_safeGet":790,"./isObject":833,"./keysIn":842}],693:[function(require,module,exports){
 var assignMergeValue = require('./_assignMergeValue'),
     cloneBuffer = require('./_cloneBuffer'),
     cloneTypedArray = require('./_cloneTypedArray'),
@@ -60948,7 +66232,7 @@ function baseMergeDeep(object, source, key, srcIndex, mergeFunc, customizer, sta
 
 module.exports = baseMergeDeep;
 
-},{"./_assignMergeValue":629,"./_cloneBuffer":691,"./_cloneTypedArray":695,"./_copyArray":698,"./_initCloneObject":735,"./_safeGet":765,"./isArguments":799,"./isArray":800,"./isArrayLikeObject":802,"./isBuffer":803,"./isFunction":805,"./isObject":808,"./isPlainObject":810,"./isTypedArray":814,"./toPlainObject":839}],669:[function(require,module,exports){
+},{"./_assignMergeValue":654,"./_cloneBuffer":716,"./_cloneTypedArray":720,"./_copyArray":723,"./_initCloneObject":760,"./_safeGet":790,"./isArguments":824,"./isArray":825,"./isArrayLikeObject":827,"./isBuffer":828,"./isFunction":830,"./isObject":833,"./isPlainObject":835,"./isTypedArray":839,"./toPlainObject":864}],694:[function(require,module,exports){
 var arrayMap = require('./_arrayMap'),
     baseGet = require('./_baseGet'),
     baseIteratee = require('./_baseIteratee'),
@@ -60999,7 +66283,7 @@ function baseOrderBy(collection, iteratees, orders) {
 
 module.exports = baseOrderBy;
 
-},{"./_arrayMap":624,"./_baseGet":644,"./_baseIteratee":660,"./_baseMap":664,"./_baseSortBy":679,"./_baseUnary":683,"./_compareMultiple":697,"./identity":798,"./isArray":800}],670:[function(require,module,exports){
+},{"./_arrayMap":649,"./_baseGet":669,"./_baseIteratee":685,"./_baseMap":689,"./_baseSortBy":704,"./_baseUnary":708,"./_compareMultiple":722,"./identity":823,"./isArray":825}],695:[function(require,module,exports){
 var basePickBy = require('./_basePickBy'),
     hasIn = require('./hasIn');
 
@@ -61020,7 +66304,7 @@ function basePick(object, paths) {
 
 module.exports = basePick;
 
-},{"./_basePickBy":671,"./hasIn":797}],671:[function(require,module,exports){
+},{"./_basePickBy":696,"./hasIn":822}],696:[function(require,module,exports){
 var baseGet = require('./_baseGet'),
     baseSet = require('./_baseSet'),
     castPath = require('./_castPath');
@@ -61052,7 +66336,7 @@ function basePickBy(object, paths, predicate) {
 
 module.exports = basePickBy;
 
-},{"./_baseGet":644,"./_baseSet":677,"./_castPath":689}],672:[function(require,module,exports){
+},{"./_baseGet":669,"./_baseSet":702,"./_castPath":714}],697:[function(require,module,exports){
 /**
  * The base implementation of `_.property` without support for deep paths.
  *
@@ -61068,7 +66352,7 @@ function baseProperty(key) {
 
 module.exports = baseProperty;
 
-},{}],673:[function(require,module,exports){
+},{}],698:[function(require,module,exports){
 var baseGet = require('./_baseGet');
 
 /**
@@ -61086,7 +66370,7 @@ function basePropertyDeep(path) {
 
 module.exports = basePropertyDeep;
 
-},{"./_baseGet":644}],674:[function(require,module,exports){
+},{"./_baseGet":669}],699:[function(require,module,exports){
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeCeil = Math.ceil,
     nativeMax = Math.max;
@@ -61116,7 +66400,7 @@ function baseRange(start, end, step, fromRight) {
 
 module.exports = baseRange;
 
-},{}],675:[function(require,module,exports){
+},{}],700:[function(require,module,exports){
 /**
  * The base implementation of `_.reduce` and `_.reduceRight`, without support
  * for iteratee shorthands, which iterates over `collection` using `eachFunc`.
@@ -61141,7 +66425,7 @@ function baseReduce(collection, iteratee, accumulator, initAccum, eachFunc) {
 
 module.exports = baseReduce;
 
-},{}],676:[function(require,module,exports){
+},{}],701:[function(require,module,exports){
 var identity = require('./identity'),
     overRest = require('./_overRest'),
     setToString = require('./_setToString');
@@ -61160,7 +66444,7 @@ function baseRest(func, start) {
 
 module.exports = baseRest;
 
-},{"./_overRest":763,"./_setToString":769,"./identity":798}],677:[function(require,module,exports){
+},{"./_overRest":788,"./_setToString":794,"./identity":823}],702:[function(require,module,exports){
 var assignValue = require('./_assignValue'),
     castPath = require('./_castPath'),
     isIndex = require('./_isIndex'),
@@ -61213,7 +66497,7 @@ function baseSet(object, path, value, customizer) {
 
 module.exports = baseSet;
 
-},{"./_assignValue":630,"./_castPath":689,"./_isIndex":737,"./_toKey":779,"./isObject":808}],678:[function(require,module,exports){
+},{"./_assignValue":655,"./_castPath":714,"./_isIndex":762,"./_toKey":804,"./isObject":833}],703:[function(require,module,exports){
 var constant = require('./constant'),
     defineProperty = require('./_defineProperty'),
     identity = require('./identity');
@@ -61237,7 +66521,7 @@ var baseSetToString = !defineProperty ? identity : function(func, string) {
 
 module.exports = baseSetToString;
 
-},{"./_defineProperty":709,"./constant":785,"./identity":798}],679:[function(require,module,exports){
+},{"./_defineProperty":734,"./constant":810,"./identity":823}],704:[function(require,module,exports){
 /**
  * The base implementation of `_.sortBy` which uses `comparer` to define the
  * sort order of `array` and replaces criteria objects with their corresponding
@@ -61260,7 +66544,7 @@ function baseSortBy(array, comparer) {
 
 module.exports = baseSortBy;
 
-},{}],680:[function(require,module,exports){
+},{}],705:[function(require,module,exports){
 /**
  * The base implementation of `_.times` without support for iteratee shorthands
  * or max array length checks.
@@ -61282,7 +66566,7 @@ function baseTimes(n, iteratee) {
 
 module.exports = baseTimes;
 
-},{}],681:[function(require,module,exports){
+},{}],706:[function(require,module,exports){
 var Symbol = require('./_Symbol'),
     arrayMap = require('./_arrayMap'),
     isArray = require('./isArray'),
@@ -61321,7 +66605,7 @@ function baseToString(value) {
 
 module.exports = baseToString;
 
-},{"./_Symbol":615,"./_arrayMap":624,"./isArray":800,"./isSymbol":813}],682:[function(require,module,exports){
+},{"./_Symbol":640,"./_arrayMap":649,"./isArray":825,"./isSymbol":838}],707:[function(require,module,exports){
 var trimmedEndIndex = require('./_trimmedEndIndex');
 
 /** Used to match leading whitespace. */
@@ -61342,7 +66626,7 @@ function baseTrim(string) {
 
 module.exports = baseTrim;
 
-},{"./_trimmedEndIndex":781}],683:[function(require,module,exports){
+},{"./_trimmedEndIndex":806}],708:[function(require,module,exports){
 /**
  * The base implementation of `_.unary` without support for storing metadata.
  *
@@ -61358,7 +66642,7 @@ function baseUnary(func) {
 
 module.exports = baseUnary;
 
-},{}],684:[function(require,module,exports){
+},{}],709:[function(require,module,exports){
 var SetCache = require('./_SetCache'),
     arrayIncludes = require('./_arrayIncludes'),
     arrayIncludesWith = require('./_arrayIncludesWith'),
@@ -61432,7 +66716,7 @@ function baseUniq(array, iteratee, comparator) {
 
 module.exports = baseUniq;
 
-},{"./_SetCache":613,"./_arrayIncludes":621,"./_arrayIncludesWith":622,"./_cacheHas":687,"./_createSet":708,"./_setToArray":768}],685:[function(require,module,exports){
+},{"./_SetCache":638,"./_arrayIncludes":646,"./_arrayIncludesWith":647,"./_cacheHas":712,"./_createSet":733,"./_setToArray":793}],710:[function(require,module,exports){
 var arrayMap = require('./_arrayMap');
 
 /**
@@ -61453,7 +66737,7 @@ function baseValues(object, props) {
 
 module.exports = baseValues;
 
-},{"./_arrayMap":624}],686:[function(require,module,exports){
+},{"./_arrayMap":649}],711:[function(require,module,exports){
 /**
  * This base implementation of `_.zipObject` which assigns values using `assignFunc`.
  *
@@ -61478,7 +66762,7 @@ function baseZipObject(props, values, assignFunc) {
 
 module.exports = baseZipObject;
 
-},{}],687:[function(require,module,exports){
+},{}],712:[function(require,module,exports){
 /**
  * Checks if a `cache` value for `key` exists.
  *
@@ -61493,7 +66777,7 @@ function cacheHas(cache, key) {
 
 module.exports = cacheHas;
 
-},{}],688:[function(require,module,exports){
+},{}],713:[function(require,module,exports){
 var identity = require('./identity');
 
 /**
@@ -61509,7 +66793,7 @@ function castFunction(value) {
 
 module.exports = castFunction;
 
-},{"./identity":798}],689:[function(require,module,exports){
+},{"./identity":823}],714:[function(require,module,exports){
 var isArray = require('./isArray'),
     isKey = require('./_isKey'),
     stringToPath = require('./_stringToPath'),
@@ -61532,7 +66816,7 @@ function castPath(value, object) {
 
 module.exports = castPath;
 
-},{"./_isKey":739,"./_stringToPath":778,"./isArray":800,"./toString":840}],690:[function(require,module,exports){
+},{"./_isKey":764,"./_stringToPath":803,"./isArray":825,"./toString":865}],715:[function(require,module,exports){
 var Uint8Array = require('./_Uint8Array');
 
 /**
@@ -61550,7 +66834,7 @@ function cloneArrayBuffer(arrayBuffer) {
 
 module.exports = cloneArrayBuffer;
 
-},{"./_Uint8Array":616}],691:[function(require,module,exports){
+},{"./_Uint8Array":641}],716:[function(require,module,exports){
 var root = require('./_root');
 
 /** Detect free variable `exports`. */
@@ -61587,7 +66871,7 @@ function cloneBuffer(buffer, isDeep) {
 
 module.exports = cloneBuffer;
 
-},{"./_root":764}],692:[function(require,module,exports){
+},{"./_root":789}],717:[function(require,module,exports){
 var cloneArrayBuffer = require('./_cloneArrayBuffer');
 
 /**
@@ -61605,7 +66889,7 @@ function cloneDataView(dataView, isDeep) {
 
 module.exports = cloneDataView;
 
-},{"./_cloneArrayBuffer":690}],693:[function(require,module,exports){
+},{"./_cloneArrayBuffer":715}],718:[function(require,module,exports){
 /** Used to match `RegExp` flags from their coerced string values. */
 var reFlags = /\w*$/;
 
@@ -61624,7 +66908,7 @@ function cloneRegExp(regexp) {
 
 module.exports = cloneRegExp;
 
-},{}],694:[function(require,module,exports){
+},{}],719:[function(require,module,exports){
 var Symbol = require('./_Symbol');
 
 /** Used to convert symbols to primitives and strings. */
@@ -61644,7 +66928,7 @@ function cloneSymbol(symbol) {
 
 module.exports = cloneSymbol;
 
-},{"./_Symbol":615}],695:[function(require,module,exports){
+},{"./_Symbol":640}],720:[function(require,module,exports){
 var cloneArrayBuffer = require('./_cloneArrayBuffer');
 
 /**
@@ -61662,7 +66946,7 @@ function cloneTypedArray(typedArray, isDeep) {
 
 module.exports = cloneTypedArray;
 
-},{"./_cloneArrayBuffer":690}],696:[function(require,module,exports){
+},{"./_cloneArrayBuffer":715}],721:[function(require,module,exports){
 var isSymbol = require('./isSymbol');
 
 /**
@@ -61705,7 +66989,7 @@ function compareAscending(value, other) {
 
 module.exports = compareAscending;
 
-},{"./isSymbol":813}],697:[function(require,module,exports){
+},{"./isSymbol":838}],722:[function(require,module,exports){
 var compareAscending = require('./_compareAscending');
 
 /**
@@ -61751,7 +67035,7 @@ function compareMultiple(object, other, orders) {
 
 module.exports = compareMultiple;
 
-},{"./_compareAscending":696}],698:[function(require,module,exports){
+},{"./_compareAscending":721}],723:[function(require,module,exports){
 /**
  * Copies the values of `source` to `array`.
  *
@@ -61773,7 +67057,7 @@ function copyArray(source, array) {
 
 module.exports = copyArray;
 
-},{}],699:[function(require,module,exports){
+},{}],724:[function(require,module,exports){
 var assignValue = require('./_assignValue'),
     baseAssignValue = require('./_baseAssignValue');
 
@@ -61815,7 +67099,7 @@ function copyObject(source, props, object, customizer) {
 
 module.exports = copyObject;
 
-},{"./_assignValue":630,"./_baseAssignValue":634}],700:[function(require,module,exports){
+},{"./_assignValue":655,"./_baseAssignValue":659}],725:[function(require,module,exports){
 var copyObject = require('./_copyObject'),
     getSymbols = require('./_getSymbols');
 
@@ -61833,7 +67117,7 @@ function copySymbols(source, object) {
 
 module.exports = copySymbols;
 
-},{"./_copyObject":699,"./_getSymbols":722}],701:[function(require,module,exports){
+},{"./_copyObject":724,"./_getSymbols":747}],726:[function(require,module,exports){
 var copyObject = require('./_copyObject'),
     getSymbolsIn = require('./_getSymbolsIn');
 
@@ -61851,7 +67135,7 @@ function copySymbolsIn(source, object) {
 
 module.exports = copySymbolsIn;
 
-},{"./_copyObject":699,"./_getSymbolsIn":723}],702:[function(require,module,exports){
+},{"./_copyObject":724,"./_getSymbolsIn":748}],727:[function(require,module,exports){
 var root = require('./_root');
 
 /** Used to detect overreaching core-js shims. */
@@ -61859,7 +67143,7 @@ var coreJsData = root['__core-js_shared__'];
 
 module.exports = coreJsData;
 
-},{"./_root":764}],703:[function(require,module,exports){
+},{"./_root":789}],728:[function(require,module,exports){
 var baseRest = require('./_baseRest'),
     isIterateeCall = require('./_isIterateeCall');
 
@@ -61898,7 +67182,7 @@ function createAssigner(assigner) {
 
 module.exports = createAssigner;
 
-},{"./_baseRest":676,"./_isIterateeCall":738}],704:[function(require,module,exports){
+},{"./_baseRest":701,"./_isIterateeCall":763}],729:[function(require,module,exports){
 var isArrayLike = require('./isArrayLike');
 
 /**
@@ -61932,7 +67216,7 @@ function createBaseEach(eachFunc, fromRight) {
 
 module.exports = createBaseEach;
 
-},{"./isArrayLike":801}],705:[function(require,module,exports){
+},{"./isArrayLike":826}],730:[function(require,module,exports){
 /**
  * Creates a base function for methods like `_.forIn` and `_.forOwn`.
  *
@@ -61959,7 +67243,7 @@ function createBaseFor(fromRight) {
 
 module.exports = createBaseFor;
 
-},{}],706:[function(require,module,exports){
+},{}],731:[function(require,module,exports){
 var baseIteratee = require('./_baseIteratee'),
     isArrayLike = require('./isArrayLike'),
     keys = require('./keys');
@@ -61986,7 +67270,7 @@ function createFind(findIndexFunc) {
 
 module.exports = createFind;
 
-},{"./_baseIteratee":660,"./isArrayLike":801,"./keys":816}],707:[function(require,module,exports){
+},{"./_baseIteratee":685,"./isArrayLike":826,"./keys":841}],732:[function(require,module,exports){
 var baseRange = require('./_baseRange'),
     isIterateeCall = require('./_isIterateeCall'),
     toFinite = require('./toFinite');
@@ -62018,7 +67302,7 @@ function createRange(fromRight) {
 
 module.exports = createRange;
 
-},{"./_baseRange":674,"./_isIterateeCall":738,"./toFinite":836}],708:[function(require,module,exports){
+},{"./_baseRange":699,"./_isIterateeCall":763,"./toFinite":861}],733:[function(require,module,exports){
 var Set = require('./_Set'),
     noop = require('./noop'),
     setToArray = require('./_setToArray');
@@ -62039,7 +67323,7 @@ var createSet = !(Set && (1 / setToArray(new Set([,-0]))[1]) == INFINITY) ? noop
 
 module.exports = createSet;
 
-},{"./_Set":612,"./_setToArray":768,"./noop":826}],709:[function(require,module,exports){
+},{"./_Set":637,"./_setToArray":793,"./noop":851}],734:[function(require,module,exports){
 var getNative = require('./_getNative');
 
 var defineProperty = (function() {
@@ -62052,7 +67336,7 @@ var defineProperty = (function() {
 
 module.exports = defineProperty;
 
-},{"./_getNative":719}],710:[function(require,module,exports){
+},{"./_getNative":744}],735:[function(require,module,exports){
 var SetCache = require('./_SetCache'),
     arraySome = require('./_arraySome'),
     cacheHas = require('./_cacheHas');
@@ -62138,7 +67422,7 @@ function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
 
 module.exports = equalArrays;
 
-},{"./_SetCache":613,"./_arraySome":627,"./_cacheHas":687}],711:[function(require,module,exports){
+},{"./_SetCache":638,"./_arraySome":652,"./_cacheHas":712}],736:[function(require,module,exports){
 var Symbol = require('./_Symbol'),
     Uint8Array = require('./_Uint8Array'),
     eq = require('./eq'),
@@ -62252,7 +67536,7 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
 
 module.exports = equalByTag;
 
-},{"./_Symbol":615,"./_Uint8Array":616,"./_equalArrays":710,"./_mapToArray":754,"./_setToArray":768,"./eq":788}],712:[function(require,module,exports){
+},{"./_Symbol":640,"./_Uint8Array":641,"./_equalArrays":735,"./_mapToArray":779,"./_setToArray":793,"./eq":813}],737:[function(require,module,exports){
 var getAllKeys = require('./_getAllKeys');
 
 /** Used to compose bitmasks for value comparisons. */
@@ -62344,7 +67628,7 @@ function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
 
 module.exports = equalObjects;
 
-},{"./_getAllKeys":715}],713:[function(require,module,exports){
+},{"./_getAllKeys":740}],738:[function(require,module,exports){
 var flatten = require('./flatten'),
     overRest = require('./_overRest'),
     setToString = require('./_setToString');
@@ -62362,7 +67646,7 @@ function flatRest(func) {
 
 module.exports = flatRest;
 
-},{"./_overRest":763,"./_setToString":769,"./flatten":792}],714:[function(require,module,exports){
+},{"./_overRest":788,"./_setToString":794,"./flatten":817}],739:[function(require,module,exports){
 (function (global){(function (){
 /** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
@@ -62370,7 +67654,7 @@ var freeGlobal = typeof global == 'object' && global && global.Object === Object
 module.exports = freeGlobal;
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],715:[function(require,module,exports){
+},{}],740:[function(require,module,exports){
 var baseGetAllKeys = require('./_baseGetAllKeys'),
     getSymbols = require('./_getSymbols'),
     keys = require('./keys');
@@ -62388,7 +67672,7 @@ function getAllKeys(object) {
 
 module.exports = getAllKeys;
 
-},{"./_baseGetAllKeys":645,"./_getSymbols":722,"./keys":816}],716:[function(require,module,exports){
+},{"./_baseGetAllKeys":670,"./_getSymbols":747,"./keys":841}],741:[function(require,module,exports){
 var baseGetAllKeys = require('./_baseGetAllKeys'),
     getSymbolsIn = require('./_getSymbolsIn'),
     keysIn = require('./keysIn');
@@ -62407,7 +67691,7 @@ function getAllKeysIn(object) {
 
 module.exports = getAllKeysIn;
 
-},{"./_baseGetAllKeys":645,"./_getSymbolsIn":723,"./keysIn":817}],717:[function(require,module,exports){
+},{"./_baseGetAllKeys":670,"./_getSymbolsIn":748,"./keysIn":842}],742:[function(require,module,exports){
 var isKeyable = require('./_isKeyable');
 
 /**
@@ -62427,7 +67711,7 @@ function getMapData(map, key) {
 
 module.exports = getMapData;
 
-},{"./_isKeyable":740}],718:[function(require,module,exports){
+},{"./_isKeyable":765}],743:[function(require,module,exports){
 var isStrictComparable = require('./_isStrictComparable'),
     keys = require('./keys');
 
@@ -62453,7 +67737,7 @@ function getMatchData(object) {
 
 module.exports = getMatchData;
 
-},{"./_isStrictComparable":743,"./keys":816}],719:[function(require,module,exports){
+},{"./_isStrictComparable":768,"./keys":841}],744:[function(require,module,exports){
 var baseIsNative = require('./_baseIsNative'),
     getValue = require('./_getValue');
 
@@ -62472,7 +67756,7 @@ function getNative(object, key) {
 
 module.exports = getNative;
 
-},{"./_baseIsNative":657,"./_getValue":725}],720:[function(require,module,exports){
+},{"./_baseIsNative":682,"./_getValue":750}],745:[function(require,module,exports){
 var overArg = require('./_overArg');
 
 /** Built-in value references. */
@@ -62480,7 +67764,7 @@ var getPrototype = overArg(Object.getPrototypeOf, Object);
 
 module.exports = getPrototype;
 
-},{"./_overArg":762}],721:[function(require,module,exports){
+},{"./_overArg":787}],746:[function(require,module,exports){
 var Symbol = require('./_Symbol');
 
 /** Used for built-in method references. */
@@ -62528,7 +67812,7 @@ function getRawTag(value) {
 
 module.exports = getRawTag;
 
-},{"./_Symbol":615}],722:[function(require,module,exports){
+},{"./_Symbol":640}],747:[function(require,module,exports){
 var arrayFilter = require('./_arrayFilter'),
     stubArray = require('./stubArray');
 
@@ -62560,7 +67844,7 @@ var getSymbols = !nativeGetSymbols ? stubArray : function(object) {
 
 module.exports = getSymbols;
 
-},{"./_arrayFilter":620,"./stubArray":834}],723:[function(require,module,exports){
+},{"./_arrayFilter":645,"./stubArray":859}],748:[function(require,module,exports){
 var arrayPush = require('./_arrayPush'),
     getPrototype = require('./_getPrototype'),
     getSymbols = require('./_getSymbols'),
@@ -62587,7 +67871,7 @@ var getSymbolsIn = !nativeGetSymbols ? stubArray : function(object) {
 
 module.exports = getSymbolsIn;
 
-},{"./_arrayPush":625,"./_getPrototype":720,"./_getSymbols":722,"./stubArray":834}],724:[function(require,module,exports){
+},{"./_arrayPush":650,"./_getPrototype":745,"./_getSymbols":747,"./stubArray":859}],749:[function(require,module,exports){
 var DataView = require('./_DataView'),
     Map = require('./_Map'),
     Promise = require('./_Promise'),
@@ -62647,7 +67931,7 @@ if ((DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag) ||
 
 module.exports = getTag;
 
-},{"./_DataView":606,"./_Map":609,"./_Promise":611,"./_Set":612,"./_WeakMap":617,"./_baseGetTag":646,"./_toSource":780}],725:[function(require,module,exports){
+},{"./_DataView":631,"./_Map":634,"./_Promise":636,"./_Set":637,"./_WeakMap":642,"./_baseGetTag":671,"./_toSource":805}],750:[function(require,module,exports){
 /**
  * Gets the value at `key` of `object`.
  *
@@ -62662,7 +67946,7 @@ function getValue(object, key) {
 
 module.exports = getValue;
 
-},{}],726:[function(require,module,exports){
+},{}],751:[function(require,module,exports){
 var castPath = require('./_castPath'),
     isArguments = require('./isArguments'),
     isArray = require('./isArray'),
@@ -62703,7 +67987,7 @@ function hasPath(object, path, hasFunc) {
 
 module.exports = hasPath;
 
-},{"./_castPath":689,"./_isIndex":737,"./_toKey":779,"./isArguments":799,"./isArray":800,"./isLength":806}],727:[function(require,module,exports){
+},{"./_castPath":714,"./_isIndex":762,"./_toKey":804,"./isArguments":824,"./isArray":825,"./isLength":831}],752:[function(require,module,exports){
 /** Used to compose unicode character classes. */
 var rsAstralRange = '\\ud800-\\udfff',
     rsComboMarksRange = '\\u0300-\\u036f',
@@ -62731,7 +68015,7 @@ function hasUnicode(string) {
 
 module.exports = hasUnicode;
 
-},{}],728:[function(require,module,exports){
+},{}],753:[function(require,module,exports){
 var nativeCreate = require('./_nativeCreate');
 
 /**
@@ -62748,7 +68032,7 @@ function hashClear() {
 
 module.exports = hashClear;
 
-},{"./_nativeCreate":757}],729:[function(require,module,exports){
+},{"./_nativeCreate":782}],754:[function(require,module,exports){
 /**
  * Removes `key` and its value from the hash.
  *
@@ -62767,7 +68051,7 @@ function hashDelete(key) {
 
 module.exports = hashDelete;
 
-},{}],730:[function(require,module,exports){
+},{}],755:[function(require,module,exports){
 var nativeCreate = require('./_nativeCreate');
 
 /** Used to stand-in for `undefined` hash values. */
@@ -62799,7 +68083,7 @@ function hashGet(key) {
 
 module.exports = hashGet;
 
-},{"./_nativeCreate":757}],731:[function(require,module,exports){
+},{"./_nativeCreate":782}],756:[function(require,module,exports){
 var nativeCreate = require('./_nativeCreate');
 
 /** Used for built-in method references. */
@@ -62824,7 +68108,7 @@ function hashHas(key) {
 
 module.exports = hashHas;
 
-},{"./_nativeCreate":757}],732:[function(require,module,exports){
+},{"./_nativeCreate":782}],757:[function(require,module,exports){
 var nativeCreate = require('./_nativeCreate');
 
 /** Used to stand-in for `undefined` hash values. */
@@ -62849,7 +68133,7 @@ function hashSet(key, value) {
 
 module.exports = hashSet;
 
-},{"./_nativeCreate":757}],733:[function(require,module,exports){
+},{"./_nativeCreate":782}],758:[function(require,module,exports){
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
@@ -62877,7 +68161,7 @@ function initCloneArray(array) {
 
 module.exports = initCloneArray;
 
-},{}],734:[function(require,module,exports){
+},{}],759:[function(require,module,exports){
 var cloneArrayBuffer = require('./_cloneArrayBuffer'),
     cloneDataView = require('./_cloneDataView'),
     cloneRegExp = require('./_cloneRegExp'),
@@ -62956,7 +68240,7 @@ function initCloneByTag(object, tag, isDeep) {
 
 module.exports = initCloneByTag;
 
-},{"./_cloneArrayBuffer":690,"./_cloneDataView":692,"./_cloneRegExp":693,"./_cloneSymbol":694,"./_cloneTypedArray":695}],735:[function(require,module,exports){
+},{"./_cloneArrayBuffer":715,"./_cloneDataView":717,"./_cloneRegExp":718,"./_cloneSymbol":719,"./_cloneTypedArray":720}],760:[function(require,module,exports){
 var baseCreate = require('./_baseCreate'),
     getPrototype = require('./_getPrototype'),
     isPrototype = require('./_isPrototype');
@@ -62976,7 +68260,7 @@ function initCloneObject(object) {
 
 module.exports = initCloneObject;
 
-},{"./_baseCreate":636,"./_getPrototype":720,"./_isPrototype":742}],736:[function(require,module,exports){
+},{"./_baseCreate":661,"./_getPrototype":745,"./_isPrototype":767}],761:[function(require,module,exports){
 var Symbol = require('./_Symbol'),
     isArguments = require('./isArguments'),
     isArray = require('./isArray');
@@ -62998,7 +68282,7 @@ function isFlattenable(value) {
 
 module.exports = isFlattenable;
 
-},{"./_Symbol":615,"./isArguments":799,"./isArray":800}],737:[function(require,module,exports){
+},{"./_Symbol":640,"./isArguments":824,"./isArray":825}],762:[function(require,module,exports){
 /** Used as references for various `Number` constants. */
 var MAX_SAFE_INTEGER = 9007199254740991;
 
@@ -63025,7 +68309,7 @@ function isIndex(value, length) {
 
 module.exports = isIndex;
 
-},{}],738:[function(require,module,exports){
+},{}],763:[function(require,module,exports){
 var eq = require('./eq'),
     isArrayLike = require('./isArrayLike'),
     isIndex = require('./_isIndex'),
@@ -63057,7 +68341,7 @@ function isIterateeCall(value, index, object) {
 
 module.exports = isIterateeCall;
 
-},{"./_isIndex":737,"./eq":788,"./isArrayLike":801,"./isObject":808}],739:[function(require,module,exports){
+},{"./_isIndex":762,"./eq":813,"./isArrayLike":826,"./isObject":833}],764:[function(require,module,exports){
 var isArray = require('./isArray'),
     isSymbol = require('./isSymbol');
 
@@ -63088,7 +68372,7 @@ function isKey(value, object) {
 
 module.exports = isKey;
 
-},{"./isArray":800,"./isSymbol":813}],740:[function(require,module,exports){
+},{"./isArray":825,"./isSymbol":838}],765:[function(require,module,exports){
 /**
  * Checks if `value` is suitable for use as unique object key.
  *
@@ -63105,7 +68389,7 @@ function isKeyable(value) {
 
 module.exports = isKeyable;
 
-},{}],741:[function(require,module,exports){
+},{}],766:[function(require,module,exports){
 var coreJsData = require('./_coreJsData');
 
 /** Used to detect methods masquerading as native. */
@@ -63127,7 +68411,7 @@ function isMasked(func) {
 
 module.exports = isMasked;
 
-},{"./_coreJsData":702}],742:[function(require,module,exports){
+},{"./_coreJsData":727}],767:[function(require,module,exports){
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
@@ -63147,7 +68431,7 @@ function isPrototype(value) {
 
 module.exports = isPrototype;
 
-},{}],743:[function(require,module,exports){
+},{}],768:[function(require,module,exports){
 var isObject = require('./isObject');
 
 /**
@@ -63164,7 +68448,7 @@ function isStrictComparable(value) {
 
 module.exports = isStrictComparable;
 
-},{"./isObject":808}],744:[function(require,module,exports){
+},{"./isObject":833}],769:[function(require,module,exports){
 /**
  * Removes all key-value entries from the list cache.
  *
@@ -63179,7 +68463,7 @@ function listCacheClear() {
 
 module.exports = listCacheClear;
 
-},{}],745:[function(require,module,exports){
+},{}],770:[function(require,module,exports){
 var assocIndexOf = require('./_assocIndexOf');
 
 /** Used for built-in method references. */
@@ -63216,7 +68500,7 @@ function listCacheDelete(key) {
 
 module.exports = listCacheDelete;
 
-},{"./_assocIndexOf":631}],746:[function(require,module,exports){
+},{"./_assocIndexOf":656}],771:[function(require,module,exports){
 var assocIndexOf = require('./_assocIndexOf');
 
 /**
@@ -63237,7 +68521,7 @@ function listCacheGet(key) {
 
 module.exports = listCacheGet;
 
-},{"./_assocIndexOf":631}],747:[function(require,module,exports){
+},{"./_assocIndexOf":656}],772:[function(require,module,exports){
 var assocIndexOf = require('./_assocIndexOf');
 
 /**
@@ -63255,7 +68539,7 @@ function listCacheHas(key) {
 
 module.exports = listCacheHas;
 
-},{"./_assocIndexOf":631}],748:[function(require,module,exports){
+},{"./_assocIndexOf":656}],773:[function(require,module,exports){
 var assocIndexOf = require('./_assocIndexOf');
 
 /**
@@ -63283,7 +68567,7 @@ function listCacheSet(key, value) {
 
 module.exports = listCacheSet;
 
-},{"./_assocIndexOf":631}],749:[function(require,module,exports){
+},{"./_assocIndexOf":656}],774:[function(require,module,exports){
 var Hash = require('./_Hash'),
     ListCache = require('./_ListCache'),
     Map = require('./_Map');
@@ -63306,7 +68590,7 @@ function mapCacheClear() {
 
 module.exports = mapCacheClear;
 
-},{"./_Hash":607,"./_ListCache":608,"./_Map":609}],750:[function(require,module,exports){
+},{"./_Hash":632,"./_ListCache":633,"./_Map":634}],775:[function(require,module,exports){
 var getMapData = require('./_getMapData');
 
 /**
@@ -63326,7 +68610,7 @@ function mapCacheDelete(key) {
 
 module.exports = mapCacheDelete;
 
-},{"./_getMapData":717}],751:[function(require,module,exports){
+},{"./_getMapData":742}],776:[function(require,module,exports){
 var getMapData = require('./_getMapData');
 
 /**
@@ -63344,7 +68628,7 @@ function mapCacheGet(key) {
 
 module.exports = mapCacheGet;
 
-},{"./_getMapData":717}],752:[function(require,module,exports){
+},{"./_getMapData":742}],777:[function(require,module,exports){
 var getMapData = require('./_getMapData');
 
 /**
@@ -63362,7 +68646,7 @@ function mapCacheHas(key) {
 
 module.exports = mapCacheHas;
 
-},{"./_getMapData":717}],753:[function(require,module,exports){
+},{"./_getMapData":742}],778:[function(require,module,exports){
 var getMapData = require('./_getMapData');
 
 /**
@@ -63386,7 +68670,7 @@ function mapCacheSet(key, value) {
 
 module.exports = mapCacheSet;
 
-},{"./_getMapData":717}],754:[function(require,module,exports){
+},{"./_getMapData":742}],779:[function(require,module,exports){
 /**
  * Converts `map` to its key-value pairs.
  *
@@ -63406,7 +68690,7 @@ function mapToArray(map) {
 
 module.exports = mapToArray;
 
-},{}],755:[function(require,module,exports){
+},{}],780:[function(require,module,exports){
 /**
  * A specialized version of `matchesProperty` for source values suitable
  * for strict equality comparisons, i.e. `===`.
@@ -63428,7 +68712,7 @@ function matchesStrictComparable(key, srcValue) {
 
 module.exports = matchesStrictComparable;
 
-},{}],756:[function(require,module,exports){
+},{}],781:[function(require,module,exports){
 var memoize = require('./memoize');
 
 /** Used as the maximum memoize cache size. */
@@ -63456,7 +68740,7 @@ function memoizeCapped(func) {
 
 module.exports = memoizeCapped;
 
-},{"./memoize":822}],757:[function(require,module,exports){
+},{"./memoize":847}],782:[function(require,module,exports){
 var getNative = require('./_getNative');
 
 /* Built-in method references that are verified to be native. */
@@ -63464,7 +68748,7 @@ var nativeCreate = getNative(Object, 'create');
 
 module.exports = nativeCreate;
 
-},{"./_getNative":719}],758:[function(require,module,exports){
+},{"./_getNative":744}],783:[function(require,module,exports){
 var overArg = require('./_overArg');
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
@@ -63472,7 +68756,7 @@ var nativeKeys = overArg(Object.keys, Object);
 
 module.exports = nativeKeys;
 
-},{"./_overArg":762}],759:[function(require,module,exports){
+},{"./_overArg":787}],784:[function(require,module,exports){
 /**
  * This function is like
  * [`Object.keys`](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
@@ -63494,7 +68778,7 @@ function nativeKeysIn(object) {
 
 module.exports = nativeKeysIn;
 
-},{}],760:[function(require,module,exports){
+},{}],785:[function(require,module,exports){
 var freeGlobal = require('./_freeGlobal');
 
 /** Detect free variable `exports`. */
@@ -63526,7 +68810,7 @@ var nodeUtil = (function() {
 
 module.exports = nodeUtil;
 
-},{"./_freeGlobal":714}],761:[function(require,module,exports){
+},{"./_freeGlobal":739}],786:[function(require,module,exports){
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
@@ -63550,7 +68834,7 @@ function objectToString(value) {
 
 module.exports = objectToString;
 
-},{}],762:[function(require,module,exports){
+},{}],787:[function(require,module,exports){
 /**
  * Creates a unary function that invokes `func` with its argument transformed.
  *
@@ -63567,7 +68851,7 @@ function overArg(func, transform) {
 
 module.exports = overArg;
 
-},{}],763:[function(require,module,exports){
+},{}],788:[function(require,module,exports){
 var apply = require('./_apply');
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
@@ -63605,7 +68889,7 @@ function overRest(func, start, transform) {
 
 module.exports = overRest;
 
-},{"./_apply":618}],764:[function(require,module,exports){
+},{"./_apply":643}],789:[function(require,module,exports){
 var freeGlobal = require('./_freeGlobal');
 
 /** Detect free variable `self`. */
@@ -63616,7 +68900,7 @@ var root = freeGlobal || freeSelf || Function('return this')();
 
 module.exports = root;
 
-},{"./_freeGlobal":714}],765:[function(require,module,exports){
+},{"./_freeGlobal":739}],790:[function(require,module,exports){
 /**
  * Gets the value at `key`, unless `key` is "__proto__" or "constructor".
  *
@@ -63639,7 +68923,7 @@ function safeGet(object, key) {
 
 module.exports = safeGet;
 
-},{}],766:[function(require,module,exports){
+},{}],791:[function(require,module,exports){
 /** Used to stand-in for `undefined` hash values. */
 var HASH_UNDEFINED = '__lodash_hash_undefined__';
 
@@ -63660,7 +68944,7 @@ function setCacheAdd(value) {
 
 module.exports = setCacheAdd;
 
-},{}],767:[function(require,module,exports){
+},{}],792:[function(require,module,exports){
 /**
  * Checks if `value` is in the array cache.
  *
@@ -63676,7 +68960,7 @@ function setCacheHas(value) {
 
 module.exports = setCacheHas;
 
-},{}],768:[function(require,module,exports){
+},{}],793:[function(require,module,exports){
 /**
  * Converts `set` to an array of its values.
  *
@@ -63696,7 +68980,7 @@ function setToArray(set) {
 
 module.exports = setToArray;
 
-},{}],769:[function(require,module,exports){
+},{}],794:[function(require,module,exports){
 var baseSetToString = require('./_baseSetToString'),
     shortOut = require('./_shortOut');
 
@@ -63712,7 +68996,7 @@ var setToString = shortOut(baseSetToString);
 
 module.exports = setToString;
 
-},{"./_baseSetToString":678,"./_shortOut":770}],770:[function(require,module,exports){
+},{"./_baseSetToString":703,"./_shortOut":795}],795:[function(require,module,exports){
 /** Used to detect hot functions by number of calls within a span of milliseconds. */
 var HOT_COUNT = 800,
     HOT_SPAN = 16;
@@ -63751,7 +69035,7 @@ function shortOut(func) {
 
 module.exports = shortOut;
 
-},{}],771:[function(require,module,exports){
+},{}],796:[function(require,module,exports){
 var ListCache = require('./_ListCache');
 
 /**
@@ -63768,7 +69052,7 @@ function stackClear() {
 
 module.exports = stackClear;
 
-},{"./_ListCache":608}],772:[function(require,module,exports){
+},{"./_ListCache":633}],797:[function(require,module,exports){
 /**
  * Removes `key` and its value from the stack.
  *
@@ -63788,7 +69072,7 @@ function stackDelete(key) {
 
 module.exports = stackDelete;
 
-},{}],773:[function(require,module,exports){
+},{}],798:[function(require,module,exports){
 /**
  * Gets the stack value for `key`.
  *
@@ -63804,7 +69088,7 @@ function stackGet(key) {
 
 module.exports = stackGet;
 
-},{}],774:[function(require,module,exports){
+},{}],799:[function(require,module,exports){
 /**
  * Checks if a stack value for `key` exists.
  *
@@ -63820,7 +69104,7 @@ function stackHas(key) {
 
 module.exports = stackHas;
 
-},{}],775:[function(require,module,exports){
+},{}],800:[function(require,module,exports){
 var ListCache = require('./_ListCache'),
     Map = require('./_Map'),
     MapCache = require('./_MapCache');
@@ -63856,7 +69140,7 @@ function stackSet(key, value) {
 
 module.exports = stackSet;
 
-},{"./_ListCache":608,"./_Map":609,"./_MapCache":610}],776:[function(require,module,exports){
+},{"./_ListCache":633,"./_Map":634,"./_MapCache":635}],801:[function(require,module,exports){
 /**
  * A specialized version of `_.indexOf` which performs strict equality
  * comparisons of values, i.e. `===`.
@@ -63881,7 +69165,7 @@ function strictIndexOf(array, value, fromIndex) {
 
 module.exports = strictIndexOf;
 
-},{}],777:[function(require,module,exports){
+},{}],802:[function(require,module,exports){
 var asciiSize = require('./_asciiSize'),
     hasUnicode = require('./_hasUnicode'),
     unicodeSize = require('./_unicodeSize');
@@ -63901,7 +69185,7 @@ function stringSize(string) {
 
 module.exports = stringSize;
 
-},{"./_asciiSize":628,"./_hasUnicode":727,"./_unicodeSize":782}],778:[function(require,module,exports){
+},{"./_asciiSize":653,"./_hasUnicode":752,"./_unicodeSize":807}],803:[function(require,module,exports){
 var memoizeCapped = require('./_memoizeCapped');
 
 /** Used to match property names within property paths. */
@@ -63930,7 +69214,7 @@ var stringToPath = memoizeCapped(function(string) {
 
 module.exports = stringToPath;
 
-},{"./_memoizeCapped":756}],779:[function(require,module,exports){
+},{"./_memoizeCapped":781}],804:[function(require,module,exports){
 var isSymbol = require('./isSymbol');
 
 /** Used as references for various `Number` constants. */
@@ -63953,7 +69237,7 @@ function toKey(value) {
 
 module.exports = toKey;
 
-},{"./isSymbol":813}],780:[function(require,module,exports){
+},{"./isSymbol":838}],805:[function(require,module,exports){
 /** Used for built-in method references. */
 var funcProto = Function.prototype;
 
@@ -63981,7 +69265,7 @@ function toSource(func) {
 
 module.exports = toSource;
 
-},{}],781:[function(require,module,exports){
+},{}],806:[function(require,module,exports){
 /** Used to match a single whitespace character. */
 var reWhitespace = /\s/;
 
@@ -64002,7 +69286,7 @@ function trimmedEndIndex(string) {
 
 module.exports = trimmedEndIndex;
 
-},{}],782:[function(require,module,exports){
+},{}],807:[function(require,module,exports){
 /** Used to compose unicode character classes. */
 var rsAstralRange = '\\ud800-\\udfff',
     rsComboMarksRange = '\\u0300-\\u036f',
@@ -64048,7 +69332,7 @@ function unicodeSize(string) {
 
 module.exports = unicodeSize;
 
-},{}],783:[function(require,module,exports){
+},{}],808:[function(require,module,exports){
 var baseClone = require('./_baseClone');
 
 /** Used to compose bitmasks for cloning. */
@@ -64086,7 +69370,7 @@ function clone(value) {
 
 module.exports = clone;
 
-},{"./_baseClone":635}],784:[function(require,module,exports){
+},{"./_baseClone":660}],809:[function(require,module,exports){
 var baseClone = require('./_baseClone');
 
 /** Used to compose bitmasks for cloning. */
@@ -64117,7 +69401,7 @@ function cloneDeep(value) {
 
 module.exports = cloneDeep;
 
-},{"./_baseClone":635}],785:[function(require,module,exports){
+},{"./_baseClone":660}],810:[function(require,module,exports){
 /**
  * Creates a function that returns `value`.
  *
@@ -64145,7 +69429,7 @@ function constant(value) {
 
 module.exports = constant;
 
-},{}],786:[function(require,module,exports){
+},{}],811:[function(require,module,exports){
 var baseRest = require('./_baseRest'),
     eq = require('./eq'),
     isIterateeCall = require('./_isIterateeCall'),
@@ -64211,10 +69495,10 @@ var defaults = baseRest(function(object, sources) {
 
 module.exports = defaults;
 
-},{"./_baseRest":676,"./_isIterateeCall":738,"./eq":788,"./keysIn":817}],787:[function(require,module,exports){
+},{"./_baseRest":701,"./_isIterateeCall":763,"./eq":813,"./keysIn":842}],812:[function(require,module,exports){
 module.exports = require('./forEach');
 
-},{"./forEach":793}],788:[function(require,module,exports){
+},{"./forEach":818}],813:[function(require,module,exports){
 /**
  * Performs a
  * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
@@ -64253,7 +69537,7 @@ function eq(value, other) {
 
 module.exports = eq;
 
-},{}],789:[function(require,module,exports){
+},{}],814:[function(require,module,exports){
 var arrayFilter = require('./_arrayFilter'),
     baseFilter = require('./_baseFilter'),
     baseIteratee = require('./_baseIteratee'),
@@ -64307,7 +69591,7 @@ function filter(collection, predicate) {
 
 module.exports = filter;
 
-},{"./_arrayFilter":620,"./_baseFilter":639,"./_baseIteratee":660,"./isArray":800}],790:[function(require,module,exports){
+},{"./_arrayFilter":645,"./_baseFilter":664,"./_baseIteratee":685,"./isArray":825}],815:[function(require,module,exports){
 var createFind = require('./_createFind'),
     findIndex = require('./findIndex');
 
@@ -64351,7 +69635,7 @@ var find = createFind(findIndex);
 
 module.exports = find;
 
-},{"./_createFind":706,"./findIndex":791}],791:[function(require,module,exports){
+},{"./_createFind":731,"./findIndex":816}],816:[function(require,module,exports){
 var baseFindIndex = require('./_baseFindIndex'),
     baseIteratee = require('./_baseIteratee'),
     toInteger = require('./toInteger');
@@ -64408,7 +69692,7 @@ function findIndex(array, predicate, fromIndex) {
 
 module.exports = findIndex;
 
-},{"./_baseFindIndex":640,"./_baseIteratee":660,"./toInteger":837}],792:[function(require,module,exports){
+},{"./_baseFindIndex":665,"./_baseIteratee":685,"./toInteger":862}],817:[function(require,module,exports){
 var baseFlatten = require('./_baseFlatten');
 
 /**
@@ -64432,7 +69716,7 @@ function flatten(array) {
 
 module.exports = flatten;
 
-},{"./_baseFlatten":641}],793:[function(require,module,exports){
+},{"./_baseFlatten":666}],818:[function(require,module,exports){
 var arrayEach = require('./_arrayEach'),
     baseEach = require('./_baseEach'),
     castFunction = require('./_castFunction'),
@@ -64475,7 +69759,7 @@ function forEach(collection, iteratee) {
 
 module.exports = forEach;
 
-},{"./_arrayEach":619,"./_baseEach":637,"./_castFunction":688,"./isArray":800}],794:[function(require,module,exports){
+},{"./_arrayEach":644,"./_baseEach":662,"./_castFunction":713,"./isArray":825}],819:[function(require,module,exports){
 var baseFor = require('./_baseFor'),
     castFunction = require('./_castFunction'),
     keysIn = require('./keysIn');
@@ -64516,7 +69800,7 @@ function forIn(object, iteratee) {
 
 module.exports = forIn;
 
-},{"./_baseFor":642,"./_castFunction":688,"./keysIn":817}],795:[function(require,module,exports){
+},{"./_baseFor":667,"./_castFunction":713,"./keysIn":842}],820:[function(require,module,exports){
 var baseGet = require('./_baseGet');
 
 /**
@@ -64551,7 +69835,7 @@ function get(object, path, defaultValue) {
 
 module.exports = get;
 
-},{"./_baseGet":644}],796:[function(require,module,exports){
+},{"./_baseGet":669}],821:[function(require,module,exports){
 var baseHas = require('./_baseHas'),
     hasPath = require('./_hasPath');
 
@@ -64588,7 +69872,7 @@ function has(object, path) {
 
 module.exports = has;
 
-},{"./_baseHas":648,"./_hasPath":726}],797:[function(require,module,exports){
+},{"./_baseHas":673,"./_hasPath":751}],822:[function(require,module,exports){
 var baseHasIn = require('./_baseHasIn'),
     hasPath = require('./_hasPath');
 
@@ -64624,7 +69908,7 @@ function hasIn(object, path) {
 
 module.exports = hasIn;
 
-},{"./_baseHasIn":649,"./_hasPath":726}],798:[function(require,module,exports){
+},{"./_baseHasIn":674,"./_hasPath":751}],823:[function(require,module,exports){
 /**
  * This method returns the first argument it receives.
  *
@@ -64647,7 +69931,7 @@ function identity(value) {
 
 module.exports = identity;
 
-},{}],799:[function(require,module,exports){
+},{}],824:[function(require,module,exports){
 var baseIsArguments = require('./_baseIsArguments'),
     isObjectLike = require('./isObjectLike');
 
@@ -64685,7 +69969,7 @@ var isArguments = baseIsArguments(function() { return arguments; }()) ? baseIsAr
 
 module.exports = isArguments;
 
-},{"./_baseIsArguments":651,"./isObjectLike":809}],800:[function(require,module,exports){
+},{"./_baseIsArguments":676,"./isObjectLike":834}],825:[function(require,module,exports){
 /**
  * Checks if `value` is classified as an `Array` object.
  *
@@ -64713,7 +69997,7 @@ var isArray = Array.isArray;
 
 module.exports = isArray;
 
-},{}],801:[function(require,module,exports){
+},{}],826:[function(require,module,exports){
 var isFunction = require('./isFunction'),
     isLength = require('./isLength');
 
@@ -64748,7 +70032,7 @@ function isArrayLike(value) {
 
 module.exports = isArrayLike;
 
-},{"./isFunction":805,"./isLength":806}],802:[function(require,module,exports){
+},{"./isFunction":830,"./isLength":831}],827:[function(require,module,exports){
 var isArrayLike = require('./isArrayLike'),
     isObjectLike = require('./isObjectLike');
 
@@ -64783,7 +70067,7 @@ function isArrayLikeObject(value) {
 
 module.exports = isArrayLikeObject;
 
-},{"./isArrayLike":801,"./isObjectLike":809}],803:[function(require,module,exports){
+},{"./isArrayLike":826,"./isObjectLike":834}],828:[function(require,module,exports){
 var root = require('./_root'),
     stubFalse = require('./stubFalse');
 
@@ -64823,7 +70107,7 @@ var isBuffer = nativeIsBuffer || stubFalse;
 
 module.exports = isBuffer;
 
-},{"./_root":764,"./stubFalse":835}],804:[function(require,module,exports){
+},{"./_root":789,"./stubFalse":860}],829:[function(require,module,exports){
 var baseKeys = require('./_baseKeys'),
     getTag = require('./_getTag'),
     isArguments = require('./isArguments'),
@@ -64902,7 +70186,7 @@ function isEmpty(value) {
 
 module.exports = isEmpty;
 
-},{"./_baseKeys":661,"./_getTag":724,"./_isPrototype":742,"./isArguments":799,"./isArray":800,"./isArrayLike":801,"./isBuffer":803,"./isTypedArray":814}],805:[function(require,module,exports){
+},{"./_baseKeys":686,"./_getTag":749,"./_isPrototype":767,"./isArguments":824,"./isArray":825,"./isArrayLike":826,"./isBuffer":828,"./isTypedArray":839}],830:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isObject = require('./isObject');
 
@@ -64941,7 +70225,7 @@ function isFunction(value) {
 
 module.exports = isFunction;
 
-},{"./_baseGetTag":646,"./isObject":808}],806:[function(require,module,exports){
+},{"./_baseGetTag":671,"./isObject":833}],831:[function(require,module,exports){
 /** Used as references for various `Number` constants. */
 var MAX_SAFE_INTEGER = 9007199254740991;
 
@@ -64978,7 +70262,7 @@ function isLength(value) {
 
 module.exports = isLength;
 
-},{}],807:[function(require,module,exports){
+},{}],832:[function(require,module,exports){
 var baseIsMap = require('./_baseIsMap'),
     baseUnary = require('./_baseUnary'),
     nodeUtil = require('./_nodeUtil');
@@ -65007,7 +70291,7 @@ var isMap = nodeIsMap ? baseUnary(nodeIsMap) : baseIsMap;
 
 module.exports = isMap;
 
-},{"./_baseIsMap":654,"./_baseUnary":683,"./_nodeUtil":760}],808:[function(require,module,exports){
+},{"./_baseIsMap":679,"./_baseUnary":708,"./_nodeUtil":785}],833:[function(require,module,exports){
 /**
  * Checks if `value` is the
  * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
@@ -65040,7 +70324,7 @@ function isObject(value) {
 
 module.exports = isObject;
 
-},{}],809:[function(require,module,exports){
+},{}],834:[function(require,module,exports){
 /**
  * Checks if `value` is object-like. A value is object-like if it's not `null`
  * and has a `typeof` result of "object".
@@ -65071,7 +70355,7 @@ function isObjectLike(value) {
 
 module.exports = isObjectLike;
 
-},{}],810:[function(require,module,exports){
+},{}],835:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     getPrototype = require('./_getPrototype'),
     isObjectLike = require('./isObjectLike');
@@ -65135,7 +70419,7 @@ function isPlainObject(value) {
 
 module.exports = isPlainObject;
 
-},{"./_baseGetTag":646,"./_getPrototype":720,"./isObjectLike":809}],811:[function(require,module,exports){
+},{"./_baseGetTag":671,"./_getPrototype":745,"./isObjectLike":834}],836:[function(require,module,exports){
 var baseIsSet = require('./_baseIsSet'),
     baseUnary = require('./_baseUnary'),
     nodeUtil = require('./_nodeUtil');
@@ -65164,7 +70448,7 @@ var isSet = nodeIsSet ? baseUnary(nodeIsSet) : baseIsSet;
 
 module.exports = isSet;
 
-},{"./_baseIsSet":658,"./_baseUnary":683,"./_nodeUtil":760}],812:[function(require,module,exports){
+},{"./_baseIsSet":683,"./_baseUnary":708,"./_nodeUtil":785}],837:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isArray = require('./isArray'),
     isObjectLike = require('./isObjectLike');
@@ -65196,7 +70480,7 @@ function isString(value) {
 
 module.exports = isString;
 
-},{"./_baseGetTag":646,"./isArray":800,"./isObjectLike":809}],813:[function(require,module,exports){
+},{"./_baseGetTag":671,"./isArray":825,"./isObjectLike":834}],838:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isObjectLike = require('./isObjectLike');
 
@@ -65227,7 +70511,7 @@ function isSymbol(value) {
 
 module.exports = isSymbol;
 
-},{"./_baseGetTag":646,"./isObjectLike":809}],814:[function(require,module,exports){
+},{"./_baseGetTag":671,"./isObjectLike":834}],839:[function(require,module,exports){
 var baseIsTypedArray = require('./_baseIsTypedArray'),
     baseUnary = require('./_baseUnary'),
     nodeUtil = require('./_nodeUtil');
@@ -65256,7 +70540,7 @@ var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedA
 
 module.exports = isTypedArray;
 
-},{"./_baseIsTypedArray":659,"./_baseUnary":683,"./_nodeUtil":760}],815:[function(require,module,exports){
+},{"./_baseIsTypedArray":684,"./_baseUnary":708,"./_nodeUtil":785}],840:[function(require,module,exports){
 /**
  * Checks if `value` is `undefined`.
  *
@@ -65280,7 +70564,7 @@ function isUndefined(value) {
 
 module.exports = isUndefined;
 
-},{}],816:[function(require,module,exports){
+},{}],841:[function(require,module,exports){
 var arrayLikeKeys = require('./_arrayLikeKeys'),
     baseKeys = require('./_baseKeys'),
     isArrayLike = require('./isArrayLike');
@@ -65319,7 +70603,7 @@ function keys(object) {
 
 module.exports = keys;
 
-},{"./_arrayLikeKeys":623,"./_baseKeys":661,"./isArrayLike":801}],817:[function(require,module,exports){
+},{"./_arrayLikeKeys":648,"./_baseKeys":686,"./isArrayLike":826}],842:[function(require,module,exports){
 var arrayLikeKeys = require('./_arrayLikeKeys'),
     baseKeysIn = require('./_baseKeysIn'),
     isArrayLike = require('./isArrayLike');
@@ -65353,7 +70637,7 @@ function keysIn(object) {
 
 module.exports = keysIn;
 
-},{"./_arrayLikeKeys":623,"./_baseKeysIn":662,"./isArrayLike":801}],818:[function(require,module,exports){
+},{"./_arrayLikeKeys":648,"./_baseKeysIn":687,"./isArrayLike":826}],843:[function(require,module,exports){
 /**
  * Gets the last element of `array`.
  *
@@ -65375,7 +70659,7 @@ function last(array) {
 
 module.exports = last;
 
-},{}],819:[function(require,module,exports){
+},{}],844:[function(require,module,exports){
 var arrayMap = require('./_arrayMap'),
     baseIteratee = require('./_baseIteratee'),
     baseMap = require('./_baseMap'),
@@ -65430,7 +70714,7 @@ function map(collection, iteratee) {
 
 module.exports = map;
 
-},{"./_arrayMap":624,"./_baseIteratee":660,"./_baseMap":664,"./isArray":800}],820:[function(require,module,exports){
+},{"./_arrayMap":649,"./_baseIteratee":685,"./_baseMap":689,"./isArray":825}],845:[function(require,module,exports){
 var baseAssignValue = require('./_baseAssignValue'),
     baseForOwn = require('./_baseForOwn'),
     baseIteratee = require('./_baseIteratee');
@@ -65475,7 +70759,7 @@ function mapValues(object, iteratee) {
 
 module.exports = mapValues;
 
-},{"./_baseAssignValue":634,"./_baseForOwn":643,"./_baseIteratee":660}],821:[function(require,module,exports){
+},{"./_baseAssignValue":659,"./_baseForOwn":668,"./_baseIteratee":685}],846:[function(require,module,exports){
 var baseExtremum = require('./_baseExtremum'),
     baseGt = require('./_baseGt'),
     identity = require('./identity');
@@ -65506,7 +70790,7 @@ function max(array) {
 
 module.exports = max;
 
-},{"./_baseExtremum":638,"./_baseGt":647,"./identity":798}],822:[function(require,module,exports){
+},{"./_baseExtremum":663,"./_baseGt":672,"./identity":823}],847:[function(require,module,exports){
 var MapCache = require('./_MapCache');
 
 /** Error message constants. */
@@ -65581,7 +70865,7 @@ memoize.Cache = MapCache;
 
 module.exports = memoize;
 
-},{"./_MapCache":610}],823:[function(require,module,exports){
+},{"./_MapCache":635}],848:[function(require,module,exports){
 var baseMerge = require('./_baseMerge'),
     createAssigner = require('./_createAssigner');
 
@@ -65622,7 +70906,7 @@ var merge = createAssigner(function(object, source, srcIndex) {
 
 module.exports = merge;
 
-},{"./_baseMerge":667,"./_createAssigner":703}],824:[function(require,module,exports){
+},{"./_baseMerge":692,"./_createAssigner":728}],849:[function(require,module,exports){
 var baseExtremum = require('./_baseExtremum'),
     baseLt = require('./_baseLt'),
     identity = require('./identity');
@@ -65653,7 +70937,7 @@ function min(array) {
 
 module.exports = min;
 
-},{"./_baseExtremum":638,"./_baseLt":663,"./identity":798}],825:[function(require,module,exports){
+},{"./_baseExtremum":663,"./_baseLt":688,"./identity":823}],850:[function(require,module,exports){
 var baseExtremum = require('./_baseExtremum'),
     baseIteratee = require('./_baseIteratee'),
     baseLt = require('./_baseLt');
@@ -65689,7 +70973,7 @@ function minBy(array, iteratee) {
 
 module.exports = minBy;
 
-},{"./_baseExtremum":638,"./_baseIteratee":660,"./_baseLt":663}],826:[function(require,module,exports){
+},{"./_baseExtremum":663,"./_baseIteratee":685,"./_baseLt":688}],851:[function(require,module,exports){
 /**
  * This method returns `undefined`.
  *
@@ -65708,7 +70992,7 @@ function noop() {
 
 module.exports = noop;
 
-},{}],827:[function(require,module,exports){
+},{}],852:[function(require,module,exports){
 var root = require('./_root');
 
 /**
@@ -65733,7 +71017,7 @@ var now = function() {
 
 module.exports = now;
 
-},{"./_root":764}],828:[function(require,module,exports){
+},{"./_root":789}],853:[function(require,module,exports){
 var basePick = require('./_basePick'),
     flatRest = require('./_flatRest');
 
@@ -65760,7 +71044,7 @@ var pick = flatRest(function(object, paths) {
 
 module.exports = pick;
 
-},{"./_basePick":670,"./_flatRest":713}],829:[function(require,module,exports){
+},{"./_basePick":695,"./_flatRest":738}],854:[function(require,module,exports){
 var baseProperty = require('./_baseProperty'),
     basePropertyDeep = require('./_basePropertyDeep'),
     isKey = require('./_isKey'),
@@ -65794,7 +71078,7 @@ function property(path) {
 
 module.exports = property;
 
-},{"./_baseProperty":672,"./_basePropertyDeep":673,"./_isKey":739,"./_toKey":779}],830:[function(require,module,exports){
+},{"./_baseProperty":697,"./_basePropertyDeep":698,"./_isKey":764,"./_toKey":804}],855:[function(require,module,exports){
 var createRange = require('./_createRange');
 
 /**
@@ -65842,7 +71126,7 @@ var range = createRange();
 
 module.exports = range;
 
-},{"./_createRange":707}],831:[function(require,module,exports){
+},{"./_createRange":732}],856:[function(require,module,exports){
 var arrayReduce = require('./_arrayReduce'),
     baseEach = require('./_baseEach'),
     baseIteratee = require('./_baseIteratee'),
@@ -65895,7 +71179,7 @@ function reduce(collection, iteratee, accumulator) {
 
 module.exports = reduce;
 
-},{"./_arrayReduce":626,"./_baseEach":637,"./_baseIteratee":660,"./_baseReduce":675,"./isArray":800}],832:[function(require,module,exports){
+},{"./_arrayReduce":651,"./_baseEach":662,"./_baseIteratee":685,"./_baseReduce":700,"./isArray":825}],857:[function(require,module,exports){
 var baseKeys = require('./_baseKeys'),
     getTag = require('./_getTag'),
     isArrayLike = require('./isArrayLike'),
@@ -65943,7 +71227,7 @@ function size(collection) {
 
 module.exports = size;
 
-},{"./_baseKeys":661,"./_getTag":724,"./_stringSize":777,"./isArrayLike":801,"./isString":812}],833:[function(require,module,exports){
+},{"./_baseKeys":686,"./_getTag":749,"./_stringSize":802,"./isArrayLike":826,"./isString":837}],858:[function(require,module,exports){
 var baseFlatten = require('./_baseFlatten'),
     baseOrderBy = require('./_baseOrderBy'),
     baseRest = require('./_baseRest'),
@@ -65993,7 +71277,7 @@ var sortBy = baseRest(function(collection, iteratees) {
 
 module.exports = sortBy;
 
-},{"./_baseFlatten":641,"./_baseOrderBy":669,"./_baseRest":676,"./_isIterateeCall":738}],834:[function(require,module,exports){
+},{"./_baseFlatten":666,"./_baseOrderBy":694,"./_baseRest":701,"./_isIterateeCall":763}],859:[function(require,module,exports){
 /**
  * This method returns a new empty array.
  *
@@ -66018,7 +71302,7 @@ function stubArray() {
 
 module.exports = stubArray;
 
-},{}],835:[function(require,module,exports){
+},{}],860:[function(require,module,exports){
 /**
  * This method returns `false`.
  *
@@ -66038,7 +71322,7 @@ function stubFalse() {
 
 module.exports = stubFalse;
 
-},{}],836:[function(require,module,exports){
+},{}],861:[function(require,module,exports){
 var toNumber = require('./toNumber');
 
 /** Used as references for various `Number` constants. */
@@ -66082,7 +71366,7 @@ function toFinite(value) {
 
 module.exports = toFinite;
 
-},{"./toNumber":838}],837:[function(require,module,exports){
+},{"./toNumber":863}],862:[function(require,module,exports){
 var toFinite = require('./toFinite');
 
 /**
@@ -66120,7 +71404,7 @@ function toInteger(value) {
 
 module.exports = toInteger;
 
-},{"./toFinite":836}],838:[function(require,module,exports){
+},{"./toFinite":861}],863:[function(require,module,exports){
 var baseTrim = require('./_baseTrim'),
     isObject = require('./isObject'),
     isSymbol = require('./isSymbol');
@@ -66186,7 +71470,7 @@ function toNumber(value) {
 
 module.exports = toNumber;
 
-},{"./_baseTrim":682,"./isObject":808,"./isSymbol":813}],839:[function(require,module,exports){
+},{"./_baseTrim":707,"./isObject":833,"./isSymbol":838}],864:[function(require,module,exports){
 var copyObject = require('./_copyObject'),
     keysIn = require('./keysIn');
 
@@ -66220,7 +71504,7 @@ function toPlainObject(value) {
 
 module.exports = toPlainObject;
 
-},{"./_copyObject":699,"./keysIn":817}],840:[function(require,module,exports){
+},{"./_copyObject":724,"./keysIn":842}],865:[function(require,module,exports){
 var baseToString = require('./_baseToString');
 
 /**
@@ -66250,7 +71534,7 @@ function toString(value) {
 
 module.exports = toString;
 
-},{"./_baseToString":681}],841:[function(require,module,exports){
+},{"./_baseToString":706}],866:[function(require,module,exports){
 var arrayEach = require('./_arrayEach'),
     baseCreate = require('./_baseCreate'),
     baseForOwn = require('./_baseForOwn'),
@@ -66317,7 +71601,7 @@ function transform(object, iteratee, accumulator) {
 
 module.exports = transform;
 
-},{"./_arrayEach":619,"./_baseCreate":636,"./_baseForOwn":643,"./_baseIteratee":660,"./_getPrototype":720,"./isArray":800,"./isBuffer":803,"./isFunction":805,"./isObject":808,"./isTypedArray":814}],842:[function(require,module,exports){
+},{"./_arrayEach":644,"./_baseCreate":661,"./_baseForOwn":668,"./_baseIteratee":685,"./_getPrototype":745,"./isArray":825,"./isBuffer":828,"./isFunction":830,"./isObject":833,"./isTypedArray":839}],867:[function(require,module,exports){
 var baseFlatten = require('./_baseFlatten'),
     baseRest = require('./_baseRest'),
     baseUniq = require('./_baseUniq'),
@@ -66345,7 +71629,7 @@ var union = baseRest(function(arrays) {
 
 module.exports = union;
 
-},{"./_baseFlatten":641,"./_baseRest":676,"./_baseUniq":684,"./isArrayLikeObject":802}],843:[function(require,module,exports){
+},{"./_baseFlatten":666,"./_baseRest":701,"./_baseUniq":709,"./isArrayLikeObject":827}],868:[function(require,module,exports){
 var toString = require('./toString');
 
 /** Used to generate unique IDs. */
@@ -66375,7 +71659,7 @@ function uniqueId(prefix) {
 
 module.exports = uniqueId;
 
-},{"./toString":840}],844:[function(require,module,exports){
+},{"./toString":865}],869:[function(require,module,exports){
 var baseValues = require('./_baseValues'),
     keys = require('./keys');
 
@@ -66411,7 +71695,7 @@ function values(object) {
 
 module.exports = values;
 
-},{"./_baseValues":685,"./keys":816}],845:[function(require,module,exports){
+},{"./_baseValues":710,"./keys":841}],870:[function(require,module,exports){
 var assignValue = require('./_assignValue'),
     baseZipObject = require('./_baseZipObject');
 
@@ -66437,7 +71721,101 @@ function zipObject(props, values) {
 
 module.exports = zipObject;
 
-},{"./_assignValue":630,"./_baseZipObject":686}],846:[function(require,module,exports){
+},{"./_assignValue":655,"./_baseZipObject":711}],871:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function BinarySearchIndex(values) {
+  this.values = [].concat(values || []);
+}
+
+BinarySearchIndex.prototype.query = function (value) {
+  var index = this.getIndex(value);
+  return this.values[index];
+};
+
+BinarySearchIndex.prototype.getIndex = function getIndex(value) {
+  if (this.dirty) {
+    this.sort();
+  }
+
+  var minIndex = 0;
+  var maxIndex = this.values.length - 1;
+  var currentIndex;
+  var currentElement;
+
+  while (minIndex <= maxIndex) {
+    currentIndex = (minIndex + maxIndex) / 2 | 0;
+    currentElement = this.values[Math.round(currentIndex)];
+
+    if (+currentElement.value < +value) {
+      minIndex = currentIndex + 1;
+    } else if (+currentElement.value > +value) {
+      maxIndex = currentIndex - 1;
+    } else {
+      return currentIndex;
+    }
+  }
+
+  return Math.abs(~maxIndex);
+};
+
+BinarySearchIndex.prototype.between = function between(start, end) {
+  var startIndex = this.getIndex(start);
+  var endIndex = this.getIndex(end);
+
+  if (startIndex === 0 && endIndex === 0) {
+    return [];
+  }
+
+  while (this.values[startIndex - 1] && this.values[startIndex - 1].value === start) {
+    startIndex--;
+  }
+
+  while (this.values[endIndex + 1] && this.values[endIndex + 1].value === end) {
+    endIndex++;
+  }
+
+  if (this.values[endIndex] && this.values[endIndex].value === end && this.values[endIndex + 1]) {
+    endIndex++;
+  }
+
+  return this.values.slice(startIndex, endIndex);
+};
+
+BinarySearchIndex.prototype.insert = function insert(item) {
+  this.values.splice(this.getIndex(item.value), 0, item);
+  return this;
+};
+
+BinarySearchIndex.prototype.bulkAdd = function bulkAdd(items, sort) {
+  this.values = this.values.concat([].concat(items || []));
+
+  if (sort) {
+    this.sort();
+  } else {
+    this.dirty = true;
+  }
+
+  return this;
+};
+
+BinarySearchIndex.prototype.sort = function sort() {
+  this.values.sort(function (a, b) {
+    return +b.value - +a.value;
+  }).reverse();
+  this.dirty = false;
+  return this;
+};
+
+var _default = BinarySearchIndex;
+exports.default = _default;
+
+},{}],872:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66659,7 +72037,7 @@ exports.the_adaptations = the_adaptations;
 const the_trends = [new Trend(3, [5], "High"), new Trend(0, [0, 1], "High"), new Trend(1, [2], "High"), new Trend(1, [3], "High"), new Trend(2, [4], "Low")];
 exports.the_trends = the_trends;
 
-},{"./utils":852,"jquery":603}],847:[function(require,module,exports){
+},{"./utils":878,"jquery":628}],873:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66822,7 +72200,7 @@ function update_graph(lsoa_zones, time) {
   }
 }
 
-},{"./svg.js":851,"./utils.js":852,"jquery":603}],848:[function(require,module,exports){
+},{"./svg.js":877,"./utils.js":878,"jquery":628}],874:[function(require,module,exports){
 // Copyright (C) 2021 Then Try This
 //
 // This program is free software: you can redistribute it and/or modify
@@ -66843,18 +72221,31 @@ const L = require("leaflet")
 const zones = require("./lsoa.js")
 const graph = require("./graph.js")
 const network = require("./network.js")
+const esri = require("esri-leaflet")
 
 var leaflet_map = L.map('leaflet-map').setView([50.26123046875, -5.052745342254639], 10);
 
 var baseMaps = {
-	"Terrain": L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}),
-	"OpenStreetMap": L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}),
+    "Terrain": L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}),
+    "OpenStreetMap": L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}),
     "Toner": L.tileLayer("http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}),
-    "Watercolor":L.tileLayer("http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'})
+    "Watercolor":L.tileLayer("http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'}),
+    "Humanitarian": L.tileLayer("http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {attribution: '©OpenStreetMap contributors. Tiles style by Humanitarian OpenStreetMap Team hosted by OpenStreetMap France. Website and API terms'}),
+    "OS Open Grey": L.tileLayer("https://tiles.arcgis.com/tiles/qHLhLQrcvEnxjtPr/arcgis/rest/services/os_open_greyscale_no_labels/MapServer/tile/{z}/{x}/{y}.png")
+
 };
 
 L.control.layers(baseMaps).addTo(leaflet_map);
-L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}).addTo(leaflet_map);
+//L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}).addTo(leaflet_map);
+
+esri.basemapLayer("Gray").addTo(leaflet_map);
+//esri.basemapLayer('DarkGrayLabels').addTo(leaflet_map);
+esri.basemapLayer('ImageryLabels').addTo(leaflet_map);
+
+
+
+//esri.basemapLayer("HumanGeography").addTo(leaflet_map);
+//esri.basemapLayer('ShadedReliefLabels').addTo(leaflet_map);
 
 async function setup() {
 	const z = new zones.LSOAZones(leaflet_map)
@@ -66887,7 +72278,7 @@ async function setup() {
 
 setup()
 
-},{"./graph.js":847,"./lsoa.js":849,"./network.js":850,"jquery":603,"leaflet":604}],849:[function(require,module,exports){
+},{"./graph.js":873,"./lsoa.js":875,"./network.js":876,"esri-leaflet":585,"jquery":628,"leaflet":629}],875:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66961,7 +72352,7 @@ class LSOAZones {
     this.current_layer_buffer = 0;
     this.other_layer_buffer = 1;
     let cols = colormap({
-      colormap: 'cool',
+      colormap: 'bathymetry',
       nshades: 100,
       format: 'hex',
       alpha: 0.5
@@ -67041,25 +72432,26 @@ class LSOAZones {
     if (this.include(feature.properties.name)) {
       layer.setStyle({
         'fillColor': this.highlight_col,
-        'fillOpacity': 0.75
+        'fillOpacity': 1
       });
     } else {
       layer.setStyle({
         'fillColor': col,
-        'fillOpacity': 0.5
+        'fillOpacity': 1
       });
     }
 
     layer.setStyle({
-      'color': "#42273b",
+      'color': "#e6e6e6",
       'weight': 1,
-      'opacity': 1
+      'opacity': 1,
+      'fillOpacity': 1
     });
     layer.on('click', () => {
       if (!this.include(feature.properties.name)) {
         layer.setStyle({
           'fillColor': this.highlight_col,
-          'fillOpacity': 0.75
+          'fillOpacity': 1
         });
         this.zones.push({
           name: feature.properties.name,
@@ -67068,7 +72460,7 @@ class LSOAZones {
       } else {
         layer.setStyle({
           'fillColor': col,
-          'fillOpacity': 0.5
+          'fillOpacity': 1
         });
         this.remove(feature.properties.name);
       }
@@ -67126,7 +72518,7 @@ class LSOAZones {
 
 exports.LSOAZones = LSOAZones;
 
-},{"./graph.js":847,"./network.js":850,"colormap":2,"jquery":603,"leaflet":604}],850:[function(require,module,exports){
+},{"./graph.js":873,"./network.js":876,"colormap":3,"jquery":628,"leaflet":629}],876:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67374,7 +72766,7 @@ class Network {
 
 exports.Network = Network;
 
-},{"./adaptation_finder.js":846,"d3":524,"dagre-d3":525,"jquery":603}],851:[function(require,module,exports){
+},{"./adaptation_finder.js":872,"d3":525,"dagre-d3":526,"jquery":628}],877:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67500,7 +72892,7 @@ class SVG {
 
 exports.SVG = SVG;
 
-},{}],852:[function(require,module,exports){
+},{}],878:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67553,4 +72945,4 @@ function calculate_decades(graph_data) {
   return decades;
 }
 
-},{}]},{},[848]);
+},{}]},{},[874]);
