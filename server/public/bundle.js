@@ -72037,7 +72037,7 @@ exports.the_adaptations = the_adaptations;
 const the_trends = [new Trend(3, [5], "High"), new Trend(0, [0, 1], "High"), new Trend(1, [2], "High"), new Trend(1, [3], "High"), new Trend(2, [4], "Low")];
 exports.the_trends = the_trends;
 
-},{"./utils":878,"jquery":628}],873:[function(require,module,exports){
+},{"./utils":879,"jquery":628}],873:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72200,7 +72200,7 @@ function update_graph(lsoa_zones, time) {
   }
 }
 
-},{"./svg.js":877,"./utils.js":878,"jquery":628}],874:[function(require,module,exports){
+},{"./svg.js":878,"./utils.js":879,"jquery":628}],874:[function(require,module,exports){
 // Copyright (C) 2021 Then Try This
 //
 // This program is free software: you can redistribute it and/or modify
@@ -72251,7 +72251,7 @@ async function setup() {
 	const z = new zones.LSOAZones(leaflet_map)
 	const net = new network.Network()
 
-	await net.loadData()
+	//await net.loadData()
 
 	leaflet_map.on("moveend", () => {
 		z.update(leaflet_map,net);
@@ -72278,7 +72278,7 @@ async function setup() {
 
 setup()
 
-},{"./graph.js":873,"./lsoa.js":875,"./network.js":876,"esri-leaflet":585,"jquery":628,"leaflet":629}],875:[function(require,module,exports){
+},{"./graph.js":873,"./lsoa.js":875,"./network.js":877,"esri-leaflet":585,"jquery":628,"leaflet":629}],875:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72518,7 +72518,1758 @@ class LSOAZones {
 
 exports.LSOAZones = LSOAZones;
 
-},{"./graph.js":873,"./network.js":876,"colormap":3,"jquery":628,"leaflet":629}],876:[function(require,module,exports){
+},{"./graph.js":873,"./network.js":877,"colormap":3,"jquery":628,"leaflet":629}],876:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.net = void 0;
+const net = {
+  "factors": {
+    "0": {
+      "id": 0,
+      "short": "Equity and affordability of access to goods and services",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "10.3 Equity and affordability of access to education, employment, and health-promoting goods and services by income, gender, age and ethnicity",
+      "variables": null,
+      "impacts": [6, 20, 37, 40, 59, 85]
+    },
+    "1": {
+      "id": 1,
+      "short": "Local crime",
+      "type": "",
+      "tags": "",
+      "long": "Local crime, including violence against women and girls.",
+      "references": null,
+      "unsdg": "5.2 Violence against women and girls",
+      "variables": null,
+      "impacts": [90, 96]
+    },
+    "2": {
+      "id": 2,
+      "short": "Proportion of people getting enough daily exercise",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "3.4 Proportion of people getting enough daily exercise",
+      "variables": null,
+      "impacts": [36]
+    },
+    "3": {
+      "id": 3,
+      "short": "\"Gentrification\"",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [28, 49]
+    },
+    "4": {
+      "id": 4,
+      "short": "Attractiveness of streets and parks to people who live there",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [42, 66, 67, 89]
+    },
+    "5": {
+      "id": 5,
+      "short": "Appropriateness of design (cultural landscapes) and incorporation of indigenous biodiversity",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "15.9 Appropriateness of design (cultural landscapes) and incorporation of indigenous biodiversity",
+      "variables": null,
+      "impacts": [34, 91]
+    },
+    "6": {
+      "id": 6,
+      "short": "Exposure to  other people",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [83]
+    },
+    "7": {
+      "id": 7,
+      "short": "Cultural wellbeing and protection of cultural heritage",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "11.4 Cultural wellbeing and protection of cultural heritage",
+      "variables": null,
+      "impacts": [11]
+    },
+    "8": {
+      "id": 8,
+      "short": "Direct environmental effects from automobiles",
+      "type": "",
+      "tags": "",
+      "long": "- Exhaust\n- Other auto-related pollutants\n- Road noise",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [30, 71, 78]
+    },
+    "9": {
+      "id": 9,
+      "short": "Local community action to resolve minor anti-social behaviour",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [12]
+    },
+    "10": {
+      "id": 10,
+      "short": "Automobile collisions",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [57, 80]
+    },
+    "11": {
+      "id": 11,
+      "short": "Public transport  network usage",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [0, 23, 47]
+    },
+    "12": {
+      "id": 12,
+      "short": "Local sense of security",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [51]
+    },
+    "13": {
+      "id": 13,
+      "short": "Access to safe, inclusive and accessible green and public spaces",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [7, 48]
+    },
+    "14": {
+      "id": 14,
+      "short": "Place attachment",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [52]
+    },
+    "15": {
+      "id": 15,
+      "short": "Community capacity  and empowerment",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [61, 62]
+    },
+    "16": {
+      "id": 16,
+      "short": "Relative local  property values",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [65]
+    },
+    "17": {
+      "id": 17,
+      "short": "Equity in rights to access basic services",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "1.4 Equity in rights to access basic services",
+      "variables": null,
+      "impacts": []
+    },
+    "18": {
+      "id": 18,
+      "short": "Local air quality",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "11.6 Local air pollution",
+      "variables": null,
+      "impacts": [14, 68]
+    },
+    "19": {
+      "id": 19,
+      "short": "Public health and  well-being",
+      "type": "main element",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": []
+    },
+    "20": {
+      "id": 20,
+      "short": "Participatory planning",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "11.3 Enable inclusive and sustainable urbanization through participatory planning",
+      "variables": null,
+      "impacts": []
+    },
+    "21": {
+      "id": 21,
+      "short": "Disparities in access to education",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "4.5 Disparities in access to education",
+      "variables": null,
+      "impacts": [4]
+    },
+    "22": {
+      "id": 22,
+      "short": "investment in walking and cycling infrastructure",
+      "type": "",
+      "tags": "",
+      "long": "Investment in further walking and cycling infrastructure to connect different areas.",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [44, 64, 75]
+    },
+    "23": {
+      "id": 23,
+      "short": "Women's access to economic resources",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "5.7 Women's access to economic resources",
+      "variables": null,
+      "impacts": []
+    },
+    "24": {
+      "id": 24,
+      "short": "Active transportation usage",
+      "type": "main element",
+      "tags": "",
+      "long": "Defined as number of trips made by active transport, i.e. walking and cycling.",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [1, 24, 27, 41, 60, 86, 94]
+    },
+    "25": {
+      "id": 25,
+      "short": "Dense mixed  land use",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [87]
+    },
+    "26": {
+      "id": 26,
+      "short": "Tenure length",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [82]
+    },
+    "27": {
+      "id": 27,
+      "short": "Presence of people on local streets",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [26, 58, 77, 81]
+    },
+    "28": {
+      "id": 28,
+      "short": "Injuries",
+      "type": "Health meta-variable",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [18]
+    },
+    "29": {
+      "id": 29,
+      "short": "Speed of emergency  ground transportation",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [8]
+    },
+    "30": {
+      "id": 30,
+      "short": "Well-being",
+      "type": "Health meta-variable",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [35]
+    },
+    "31": {
+      "id": 31,
+      "short": "Exposure to traffic",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [33]
+    },
+    "32": {
+      "id": 32,
+      "short": "Communicable  diseases",
+      "type": "Health meta-variable",
+      "tags": "health variable",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [38]
+    },
+    "33": {
+      "id": 33,
+      "short": "Resilience to economic, social and environmental shocks",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "1.5 Resilience to economic, social and environmental shocks",
+      "variables": null,
+      "impacts": []
+    },
+    "34": {
+      "id": 34,
+      "short": "Private vehicle usage",
+      "type": "",
+      "tags": "",
+      "long": "Defined by number of local trips taken by private vehicles/individual automobile usage.",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [10, 15, 39, 50, 54, 76, 79]
+    },
+    "35": {
+      "id": 35,
+      "short": "Number of local walking and cycling injuries",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "3.6 Number of local walking and cycling injuries",
+      "variables": null,
+      "impacts": [21, 63]
+    },
+    "36": {
+      "id": 36,
+      "short": "Local vehicle volumes",
+      "type": "",
+      "tags": "",
+      "long": "Defined by the traffic congestion and density in the local area.",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [5, 29, 53, 55, 70, 72]
+    },
+    "37": {
+      "id": 37,
+      "short": "Meaningful community participation in local design and planning",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "16.7 Meaningful community participation in local design and planning",
+      "variables": null,
+      "impacts": [19, 22, 93]
+    },
+    "38": {
+      "id": 38,
+      "short": "Accessibility to goods and services",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [84, 95]
+    },
+    "39": {
+      "id": 39,
+      "short": "Disease  diffusion rate",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [13]
+    },
+    "40": {
+      "id": 40,
+      "short": "Equity in access to healthcare services",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "3.8 Equity in access to healthcare services",
+      "variables": null,
+      "impacts": []
+    },
+    "41": {
+      "id": 41,
+      "short": "Local community  social connection",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [43, 46, 69, 92]
+    },
+    "42": {
+      "id": 42,
+      "short": "Perception of active transport safety from injury",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [32]
+    },
+    "43": {
+      "id": 43,
+      "short": "Disparities in access to work and training",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "8.5 and 8.6 Disparities in access to work and training",
+      "variables": null,
+      "impacts": []
+    },
+    "44": {
+      "id": 44,
+      "short": "Access to health goods and services",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [31, 74]
+    },
+    "45": {
+      "id": 45,
+      "short": "Local vehicle speeds",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [45, 73]
+    },
+    "46": {
+      "id": 46,
+      "short": "Urbanization",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [3]
+    },
+    "47": {
+      "id": 47,
+      "short": "Non-  communicable  diseases",
+      "type": "Health meta-variable",
+      "tags": "health variable",
+      "long": "Types of NCD health effects are coded in variables.",
+      "references": null,
+      "unsdg": "3.9 Deaths and illnesses from air pollution",
+      "variables": null,
+      "impacts": [25]
+    },
+    "48": {
+      "id": 48,
+      "short": "Greenhouse gas  emissions",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "13.2 Transport greenhouse gas emissions",
+      "variables": null,
+      "impacts": []
+    },
+    "49": {
+      "id": 49,
+      "short": "Walk/bike  friendly & safe  environment",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "references": null,
+      "unsdg": "",
+      "variables": null,
+      "impacts": [2, 9, 16, 17, 56, 88]
+    }
+  },
+  "causes": [{
+    "id": 0,
+    "short": "Temperature",
+    "long": "",
+    "factor": 24,
+    "operator": "increase",
+    "ref": null
+  }, {
+    "id": 1,
+    "short": "Precipitation",
+    "long": "Increased precipitation leads to decreased cycling.",
+    "factor": 24,
+    "operator": "decrease",
+    "ref": null
+  }, {
+    "id": 2,
+    "short": "Wind  speed",
+    "long": "",
+    "factor": 24,
+    "operator": "decrease",
+    "ref": null
+  }],
+  "impacts": {
+    "0": {
+      "id": 0,
+      "from": 11,
+      "to": 24,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "1": {
+      "id": 1,
+      "from": 24,
+      "to": 35,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "2": {
+      "id": 2,
+      "from": 49,
+      "to": 11,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "A less walk/bike friendly environment leads to more public transport network usage.\n\nIf parents perceive the environment as less safe (crime, transport infrastructure etc), children use public transport network more.",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "3": {
+      "id": 3,
+      "from": 46,
+      "to": 36,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "More urbanization leads to more traffic congestion and increased traffic density.",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "4": {
+      "id": 4,
+      "from": 21,
+      "to": 43,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "5": {
+      "id": 5,
+      "from": 36,
+      "to": 29,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "Increased traffic congestion/density leads to a decrease in the speed of emergency ground transportation.",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "6": {
+      "id": 6,
+      "from": 0,
+      "to": 17,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "7": {
+      "id": 7,
+      "from": 13,
+      "to": 47,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "8": {
+      "id": 8,
+      "from": 29,
+      "to": 38,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "9": {
+      "id": 9,
+      "from": 49,
+      "to": 22,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "10": {
+      "id": 10,
+      "from": 34,
+      "to": 38,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "11": {
+      "id": 11,
+      "from": 7,
+      "to": 30,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "12": {
+      "id": 12,
+      "from": 9,
+      "to": 4,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "13": {
+      "id": 13,
+      "from": 39,
+      "to": 32,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "14": {
+      "id": 14,
+      "from": 18,
+      "to": 47,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "15": {
+      "id": 15,
+      "from": 34,
+      "to": 8,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "Increased automobile usage leads to increased direct environmental effects from automobiles (such as exhaust and other pollutants, road noise).",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "16": {
+      "id": 16,
+      "from": 49,
+      "to": 25,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "17": {
+      "id": 17,
+      "from": 49,
+      "to": 38,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "18": {
+      "id": 18,
+      "from": 28,
+      "to": 19,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "19": {
+      "id": 19,
+      "from": 37,
+      "to": 5,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "20": {
+      "id": 20,
+      "from": 0,
+      "to": 21,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "21": {
+      "id": 21,
+      "from": 35,
+      "to": 28,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "22": {
+      "id": 22,
+      "from": 37,
+      "to": 20,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "23": {
+      "id": 23,
+      "from": 11,
+      "to": 34,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "Increased public transport network usage leads to less individual automobile usage, and vice versa.",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "24": {
+      "id": 24,
+      "from": 24,
+      "to": 48,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "25": {
+      "id": 25,
+      "from": 47,
+      "to": 19,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "26": {
+      "id": 26,
+      "from": 27,
+      "to": 12,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "27": {
+      "id": 27,
+      "from": 24,
+      "to": 45,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "28": {
+      "id": 28,
+      "from": 3,
+      "to": 26,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "29": {
+      "id": 29,
+      "from": 36,
+      "to": 8,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "30": {
+      "id": 30,
+      "from": 8,
+      "to": 49,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "Increased environmental effects from automobiles (such as exhaust and noise) leads to a less attractive environment for active travelers.",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "31": {
+      "id": 31,
+      "from": 44,
+      "to": 47,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "32": {
+      "id": 32,
+      "from": 42,
+      "to": 24,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "33": {
+      "id": 33,
+      "from": 31,
+      "to": 49,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "34": {
+      "id": 34,
+      "from": 5,
+      "to": 7,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "35": {
+      "id": 35,
+      "from": 30,
+      "to": 19,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "36": {
+      "id": 36,
+      "from": 2,
+      "to": 47,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "37": {
+      "id": 37,
+      "from": 0,
+      "to": 40,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "38": {
+      "id": 38,
+      "from": 32,
+      "to": 19,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "39": {
+      "id": 39,
+      "from": 34,
+      "to": 10,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "40": {
+      "id": 40,
+      "from": 0,
+      "to": 23,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "41": {
+      "id": 41,
+      "from": 24,
+      "to": 47,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "42": {
+      "id": 42,
+      "from": 4,
+      "to": 14,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "43": {
+      "id": 43,
+      "from": 41,
+      "to": 33,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "44": {
+      "id": 44,
+      "from": 22,
+      "to": 49,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "45": {
+      "id": 45,
+      "from": 45,
+      "to": 42,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "46": {
+      "id": 46,
+      "from": 41,
+      "to": 12,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "47": {
+      "id": 47,
+      "from": 11,
+      "to": 6,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "48": {
+      "id": 48,
+      "from": 13,
+      "to": 30,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "49": {
+      "id": 49,
+      "from": 3,
+      "to": 41,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "50": {
+      "id": 50,
+      "from": 34,
+      "to": 36,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "Increased individual automobile usage causes more traffic congestion and density.",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "51": {
+      "id": 51,
+      "from": 12,
+      "to": 24,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "52": {
+      "id": 52,
+      "from": 14,
+      "to": 26,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "53": {
+      "id": 53,
+      "from": 36,
+      "to": 35,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "54": {
+      "id": 54,
+      "from": 34,
+      "to": 6,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "55": {
+      "id": 55,
+      "from": 36,
+      "to": 42,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "56": {
+      "id": 56,
+      "from": 49,
+      "to": 24,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "A more walk/bike friendly environment leads to more active transportation usage (cycling, walking).\n\nIf parents perceive the environment as safer (crime, transport infrastructure etc), children use active transport more.",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "57": {
+      "id": 57,
+      "from": 10,
+      "to": 36,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "58": {
+      "id": 58,
+      "from": 27,
+      "to": 6,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "59": {
+      "id": 59,
+      "from": 0,
+      "to": 43,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "60": {
+      "id": 60,
+      "from": 24,
+      "to": 2,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "61": {
+      "id": 61,
+      "from": 15,
+      "to": 9,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "62": {
+      "id": 62,
+      "from": 15,
+      "to": 37,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "63": {
+      "id": 63,
+      "from": 35,
+      "to": 42,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "64": {
+      "id": 64,
+      "from": 22,
+      "to": 0,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "10.3 Equity and affordability of access to education, employment, and health-promoting goods and services by income, gender, age and ethnicity",
+      "vars": null
+    },
+    "65": {
+      "id": 65,
+      "from": 16,
+      "to": 3,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "66": {
+      "id": 66,
+      "from": 4,
+      "to": 16,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "67": {
+      "id": 67,
+      "from": 4,
+      "to": 27,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "68": {
+      "id": 68,
+      "from": 18,
+      "to": 11,
+      "short": "",
+      "type": "",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "69": {
+      "id": 69,
+      "from": 41,
+      "to": 15,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "70": {
+      "id": 70,
+      "from": 36,
+      "to": 47,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "71": {
+      "id": 71,
+      "from": 8,
+      "to": 18,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "72": {
+      "id": 72,
+      "from": 36,
+      "to": 49,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "Increased traffic congestion and density leads to a less attractive environment for active travelers.\n\nIncreased traffic density leads to a perception of decreased safety for parents and children.",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "73": {
+      "id": 73,
+      "from": 45,
+      "to": 35,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "74": {
+      "id": 74,
+      "from": 44,
+      "to": 32,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "75": {
+      "id": 75,
+      "from": 22,
+      "to": 38,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "76": {
+      "id": 76,
+      "from": 34,
+      "to": 25,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "77": {
+      "id": 77,
+      "from": 27,
+      "to": 1,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "78": {
+      "id": 78,
+      "from": 8,
+      "to": 48,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "79": {
+      "id": 79,
+      "from": 34,
+      "to": 31,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "Increased individual automobile usage leads to increased exposure to traffic.",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "80": {
+      "id": 80,
+      "from": 10,
+      "to": 28,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "81": {
+      "id": 81,
+      "from": 27,
+      "to": 4,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "82": {
+      "id": 82,
+      "from": 26,
+      "to": 41,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "83": {
+      "id": 83,
+      "from": 6,
+      "to": 39,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "84": {
+      "id": 84,
+      "from": 38,
+      "to": 47,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "85": {
+      "id": 85,
+      "from": 0,
+      "to": 44,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "86": {
+      "id": 86,
+      "from": 24,
+      "to": 34,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "87": {
+      "id": 87,
+      "from": 25,
+      "to": 6,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "88": {
+      "id": 88,
+      "from": 49,
+      "to": 30,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "89": {
+      "id": 89,
+      "from": 4,
+      "to": 13,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "90": {
+      "id": 90,
+      "from": 1,
+      "to": 12,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "91": {
+      "id": 91,
+      "from": 5,
+      "to": 4,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "92": {
+      "id": 92,
+      "from": 41,
+      "to": 14,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "93": {
+      "id": 93,
+      "from": 37,
+      "to": 41,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "94": {
+      "id": 94,
+      "from": 24,
+      "to": 27,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "95": {
+      "id": 95,
+      "from": 38,
+      "to": 44,
+      "short": "",
+      "type": "+",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    },
+    "96": {
+      "id": 96,
+      "from": 1,
+      "to": 41,
+      "short": "",
+      "type": "-",
+      "tags": "",
+      "long": "",
+      "refs": null,
+      "unsdg": "",
+      "vars": null
+    }
+  }
+};
+exports.net = net;
+
+},{}],877:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72544,6 +74295,8 @@ const $ = require("jquery");
 
 const adapt = require("./adaptation_finder.js");
 
+const net = require("./net.js");
+
 const dagreD3 = require("dagre-d3");
 
 const d3 = require("d3");
@@ -72554,58 +74307,45 @@ function fetchSvg(url) {
       resolve(svg.documentElement);
     });
   });
-} // Cause -> Impact -> Adaptation
+} // Cause -> Factor -> Impact -> Factor ->??? Adaptation
 
 
 class Network {
   constructor() {
-    this.ad = new adapt.AdaptationFinder(adapt.the_causes, adapt.the_impacts, adapt.the_adaptations, adapt.the_trends);
+    this.net = net.net;
     this.existing_nodes = [];
     this.tiles = [];
     this.style = "simple";
     this.render = new dagreD3.render();
   }
 
-  async loadData() {
-    this.svg_cache = {};
-
-    for (let c of Object.keys(this.ad.causes)) {
-      let cause = this.ad.causes[c];
-      this.svg_cache[cause.image] = await fetchSvg(cause.image);
-    }
-  }
-
-  addCause(cause_id) {
-    let cause_name = "cause" + cause_id;
-    let cause = this.ad.causes[cause_id];
+  addCause(cause) {
+    let cause_name = "cause" + cause.id;
 
     if (!this.existing_nodes.includes(cause_name)) {
       this.graph.setNode(cause_name, {
         label: `<div class="net-node-simple">
                           <div class="net-node-simple-vertical-center">
-                            <p><img src="` + cause.image + `"><br>                         
-			                ` + cause.description + `</p>
+                            <p><img src="images/blank.svg"><br>                         
+			                ` + cause.short + `</p>
                           </div>
 		                </div>`,
         labelType: 'html'
       });
       this.existing_nodes.push(cause_name);
     }
-
-    return cause;
   }
 
-  addImpact(impact_id) {
-    let impact_name = "impact" + impact_id;
-    let impact = this.ad.impacts[impact_id];
+  addFactor(factor) {
+    let factor_name = "factor" + factor.id;
 
-    if (!this.existing_nodes.includes(impact_name)) {
+    if (!this.existing_nodes.includes(factor_name)) {
       if (this.style == "simple") {
-        this.graph.setNode(impact_name, {
+        this.graph.setNode(factor_name, {
           label: `<div class="net-node-simple">
                               <div class="net-node-simple-vertical-center">
-                                <p><img src="` + impact.image + `"><br> 
-                                ` + impact.short_description + `</p>
+                                <p><img src="images/blank.svg"><br> 
+                                ` + factor.short + `</p>
   		                       </div>
                              </div>`,
           labelType: 'html'
@@ -72613,8 +74353,52 @@ class Network {
       } else {
         let refs = "<ol>";
 
-        for (let ref of impact.references) {
-          refs += "<li><a href=" + ref + ">" + ref + "</a></li> ";
+        if (factor.references) {
+          for (let ref of factor.references) {
+            refs += "<li><a href=" + ref + ">" + ref + "</a></li> ";
+          }
+        }
+
+        refs += "</ol>";
+        this.graph.setNode(factor_name, {
+          label: `<div class="net-node-complex">
+                              <div class="net-node-image-holder">
+                                 <img src="images/blank.svg"><br>
+                              </div> 
+                              <b>` + factor.short + `</b><br>
+                              ` + factor.type + `<br>
+                              ` + factor.long + `<br>
+                              ` + refs + `
+		                     </div>`,
+          labelType: 'html'
+        });
+      }
+
+      this.existing_nodes.push(factor_name);
+    }
+  }
+
+  addImpact(impact) {
+    let impact_name = "impact" + impact.id;
+
+    if (!this.existing_nodes.includes(impact_name)) {
+      if (this.style == "simple") {
+        this.graph.setNode(impact_name, {
+          label: `<div class="net-node-simple">
+                              <div class="net-node-simple-vertical-center">
+                                <p><img src="` + impact.image + `"><br> 
+                                ` + impact.short + `</p>
+  		                       </div>
+                             </div>`,
+          labelType: 'html'
+        });
+      } else {
+        let refs = "<ol>";
+
+        if (impact.refs) {
+          for (let ref of impact.refs) {
+            refs += "<li><a href=" + ref + ">" + ref + "</a></li> ";
+          }
         }
 
         refs += "</ol>";
@@ -72624,7 +74408,7 @@ class Network {
                                  <img src="` + impact.image + `"><br>
                               </div> 
                               <b>Impact: ` + impact.type + `</b><br>
-                              ` + impact.description + `<br>
+                              ` + impact.long + `<br>
                               ` + refs + `
 		                     </div>`,
           labelType: 'html'
@@ -72633,78 +74417,96 @@ class Network {
 
       this.existing_nodes.push(impact_name);
     }
-
-    return impact;
   }
+  /*	addAdaptation(adapt_id) {
+  		let adapt_name = "adapt"+adapt_id
+  		let adapt = this.ad.adaptations[adapt_id]			
+  		if (!this.existing_nodes.includes(adapt_name)) {
+  			if (this.style=="simple") {
+  				this.graph.setNode(adapt_name, {
+  					label: adapt.short_description,
+  					labelType: 'html'
+  				});
+  			} else {
+  				// add the examples
+  				let exs=""
+  				if (adapt.examples.length>0) {
+  					exs+="<br><ol>"
+  					for (let example of adapt.examples) {				
+  						exs+="<li>"+example+"</li>"
+  					}
+  					exs+="</ol>"
+  				}
+  
+  				this.graph.setNode(adapt_name, {
+  					label: `<b>Adaptation</b><br>`+adapt.description+exs,
+  					labelType: 'html'
+  				});
+  			}
+  			this.existing_nodes.push(adapt_name)
+  
+  		}
+  		return adapt
+  	}
+  */
 
-  addAdaptation(adapt_id) {
-    let adapt_name = "adapt" + adapt_id;
-    let adapt = this.ad.adaptations[adapt_id];
 
-    if (!this.existing_nodes.includes(adapt_name)) {
-      if (this.style == "simple") {
-        this.graph.setNode(adapt_name, {
-          label: adapt.short_description,
-          labelType: 'html'
-        });
-      } else {
-        // add the examples
-        let exs = "";
+  addToCauseToFactor(cause, factor) {
+    this.addCause(cause);
 
-        if (adapt.examples.length > 0) {
-          exs += "<br><ol>";
+    if (this.style == "complex" || factor.type != "") {
+      this.addFactor(factor);
+      let label = "<span style='color:green'>+</span>";
 
-          for (let example of adapt.examples) {
-            exs += "<li>" + example + "</li>";
-          }
-
-          exs += "</ol>";
-        }
-
-        this.graph.setNode(adapt_name, {
-          label: `<b>Adaptation</b><br>` + adapt.description + exs,
-          labelType: 'html'
-        });
+      if (cause.operator == "decrease" || cause.operator == "less-than") {
+        label = "<span style='color:red'>-</span>";
       }
 
-      this.existing_nodes.push(adapt_name);
-    }
+      this.graph.setEdge("cause" + cause.id, "factor" + factor.id, {
+        labelType: "html",
+        label: label
+      });
 
-    return adapt;
-  }
-
-  addToCauseToImpact(cause_id, impact_id) {
-    let cause = this.addCause(cause_id);
-    let impact = this.addImpact(impact_id);
-    let label = "<span style='color:green'>+</span>";
-
-    if (cause.operator == "decrease" || cause.operator == "less-than") {
-      label = "<span style='color:red'>-</span>";
-    }
-
-    this.graph.setEdge("cause" + cause_id, "impact" + impact_id, {
-      labelType: "html",
-      label: label
-    });
-  }
-
-  addToImpactToSecondaries(impact_id) {
-    let impact = this.addImpact(impact_id);
-
-    for (let secondary_id of impact.secondary_impacts) {
-      let secondary = this.addImpact(secondary_id);
-      this.graph.setEdge("impact" + impact_id, "impact" + secondary_id);
+      for (let impact_id of factor.impacts) {
+        this.addFactorToImpact(factor, this.net.impacts[impact_id], 0);
+      }
     }
   }
 
-  addToImpactToAdaptations(impact_id) {
-    let impact = this.addImpact(impact_id);
+  addFactorToImpact(factor, impact, depth) {
+    if (this.style == "complex" || factor.type != "") {
+      let next_factor = this.net.factors[impact.to];
 
-    for (let adapt_id of impact.adaptations) {
-      let adaptation = this.addAdaptation(adapt_id);
-      this.graph.setEdge("impact" + impact_id, "adapt" + adapt_id);
+      if (this.style == "complex" || next_factor.type != "") {
+        let label = "<span style='color:green'>+</span>";
+
+        if (impact.type == "-") {
+          label = "<span style='color:red'>-</span>";
+        }
+
+        this.graph.setEdge("factor" + factor.id, "factor" + impact.to, {
+          labelType: "html",
+          label: label
+        });
+        this.addFactor(next_factor);
+
+        if (depth < 5) {
+          for (let impact_id of next_factor.impacts) {
+            this.addFactorToImpact(next_factor, this.net.impacts[impact_id], depth + 1);
+          }
+        }
+      }
     }
   }
+  /*	addToImpactToAdaptations(impact_id) {
+  		let impact = this.addImpact(impact_id)
+  		for (let adapt_id of impact.adaptations) {
+  			let adaptation = this.addAdaptation(adapt_id)		
+  			this.graph.setEdge("impact"+impact_id,"adapt"+adapt_id)
+  		}
+  	}
+  */
+
 
   async buildGraph() {
     // rebuild the lot
@@ -72717,26 +74519,22 @@ class Network {
     });
     this.graph.graph().rankdir = "LR";
     this.graph.graph().ranker = "longest-path";
-    let active_trends = await this.ad.calcActiveTrends(this.tiles, 2, 9);
     this.existing_nodes = [];
 
-    for (let trend of active_trends) {
-      let cause_id = trend.cause;
-
-      for (let impact_id of trend.impacts) {
-        this.addToCauseToImpact(cause_id, impact_id);
-        this.addToImpactToSecondaries(impact_id);
-
-        if (this.style == "complex") {
-          this.addToImpactToAdaptations(impact_id);
-        }
-      }
+    for (let cause of this.net.causes) {
+      this.addToCauseToFactor(cause, this.net.factors[cause.factor]); //this.addToImpactToSecondaries(impact_id)
+      //	if (this.style=="complex") {
+      //		this.addToImpactToAdaptations(impact_id)
+      //	}
+      //}
     }
 
     this.graph.nodes().forEach(v => {
       var node = this.graph.node(v); // Round the corners of the nodes
 
-      node.rx = node.ry = 5;
+      if (node) {
+        node.rx = node.ry = 5;
+      }
     });
     let inner = d3.select("#mapsvg g");
     this.zoom = d3.zoom().on("zoom", function () {
@@ -72751,7 +74549,6 @@ class Network {
       width,
       height
     } = d3.select("#mapsvg g").node().getBBox();
-    console.log([width, height]);
 
     if (width && height) {
       let svgn = d3.select("#mapsvg").node();
@@ -72766,7 +74563,7 @@ class Network {
 
 exports.Network = Network;
 
-},{"./adaptation_finder.js":872,"d3":525,"dagre-d3":526,"jquery":628}],877:[function(require,module,exports){
+},{"./adaptation_finder.js":872,"./net.js":876,"d3":525,"dagre-d3":526,"jquery":628}],878:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72892,7 +74689,7 @@ class SVG {
 
 exports.SVG = SVG;
 
-},{}],878:[function(require,module,exports){
+},{}],879:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
