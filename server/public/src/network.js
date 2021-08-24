@@ -15,6 +15,7 @@
 
 const $ = require("jquery")
 const adapt = require("./adaptation_finder.js")
+const net = require("./net.js")
 const dagreD3 = require("dagre-d3")
 const d3 = require("d3")
 
@@ -26,41 +27,26 @@ function fetchSvg(url) {
 	})
 }
 
-// Cause -> Impact -> Adaptation
+// Cause -> Factor -> Impact -> Factor ->??? Adaptation
 
 class Network {
 
 	constructor() {
-		this.ad = new adapt.AdaptationFinder(
-			adapt.the_causes,
-			adapt.the_impacts,
-			adapt.the_adaptations,
-			adapt.the_trends
-		)
-
+		this.net = net.net		
 		this.existing_nodes=[]
 		this.tiles = []
 		this.style = "simple"
 		this.render = new dagreD3.render();
 	}
 	
-	async loadData() {
-		this.svg_cache = {}
-		for (let c of Object.keys(this.ad.causes)) {
-			let cause=this.ad.causes[c]
-			this.svg_cache[cause.image]=await fetchSvg(cause.image)
-		}
-	}
-
-	addCause(cause_id) {
-		let cause_name = "cause"+cause_id
-		let cause = this.ad.causes[cause_id]			
+	addCause(cause) {
+		let cause_name = "cause"+cause.id
 		if (!this.existing_nodes.includes(cause_name)) {
 			this.graph.setNode(cause_name, {
 				label: `<div class="net-node-simple">
                           <div class="net-node-simple-vertical-center">
                             <p><img src="`+cause.image+`"><br>                         
-			                `+cause.description+`</p>
+			                `+cause.short+`</p>
                           </div>
 		                </div>`,
 				labelType: 'html'
@@ -70,9 +56,48 @@ class Network {
 		return cause
 	}
 
-	addImpact(impact_id) {
-		let impact_name = "impact"+impact_id
-		let impact = this.ad.impacts[impact_id]			
+	addFactor(factor) {
+		let factor_name = "factor"+factor.id
+
+		if (!this.existing_nodes.includes(factor_name)) {
+			if (this.style=="simple") {
+				this.graph.setNode(factor_name, {
+					label: `<div class="net-node-simple">
+                              <div class="net-node-simple-vertical-center">
+                                <p><img src="`+factor.image+`"><br> 
+                                `+factor.short+`</p>
+  		                       </div>
+                             </div>`,
+					labelType: 'html'
+				});
+			} else {
+				let refs = "<ol>"
+				if (factor.references) {
+					for (let ref of factor.references) {
+						refs+="<li><a href="+ref+">"+ref+"</a></li> "
+					}
+				}
+				refs+="</ol>"
+		
+				this.graph.setNode(factor_name, {
+					label: `<div class="net-node-complex">
+                              <div class="net-node-image-holder">
+                                 <img src="`+factor.image+`"><br>
+                              </div> 
+                              <b>`+factor.short+`</b><br>
+                              `+factor.long+`<br>
+                              `+refs+`
+		                     </div>`,
+					labelType: 'html'
+				});
+			}
+			this.existing_nodes.push(factor_name)
+		}
+		return factor
+	}
+
+	addImpact(impact) {
+		let impact_name = "impact"+impact.id
 
 		if (!this.existing_nodes.includes(impact_name)) {
 			if (this.style=="simple") {
@@ -80,15 +105,17 @@ class Network {
 					label: `<div class="net-node-simple">
                               <div class="net-node-simple-vertical-center">
                                 <p><img src="`+impact.image+`"><br> 
-                                `+impact.short_description+`</p>
+                                `+impact.short+`</p>
   		                       </div>
                              </div>`,
 					labelType: 'html'
 				});
 			} else {
-				let refs = "<ol>"		
-				for (let ref of impact.references) {
-					refs+="<li><a href="+ref+">"+ref+"</a></li> "
+				let refs = "<ol>"
+				if (impact.refs) {
+					for (let ref of impact.refs) {
+						refs+="<li><a href="+ref+">"+ref+"</a></li> "
+					}
 				}
 				refs+="</ol>"
 		
@@ -98,7 +125,7 @@ class Network {
                                  <img src="`+impact.image+`"><br>
                               </div> 
                               <b>Impact: `+impact.type+`</b><br>
-                              `+impact.description+`<br>
+                              `+impact.long+`<br>
                               `+refs+`
 		                     </div>`,
 					labelType: 'html'
@@ -140,9 +167,9 @@ class Network {
 		return adapt
 	}
 
-	addToCauseToImpact(cause_id,impact_id) {
-		let cause = this.addCause(cause_id)
-		let impact = this.addImpact(impact_id)
+	addToCauseToFactor(cause,factor) {
+		this.addCause(cause)
+		this.addFactor(factor)
 
 		let label="<span style='color:green'>+</span>"
 		if (cause.operator == "decrease" ||
@@ -150,17 +177,38 @@ class Network {
 			label="<span style='color:red'>-</span>"			
 		}
 		
-		this.graph.setEdge("cause"+cause_id, "impact"+impact_id, {
+		this.graph.setEdge("cause"+cause.id, "factor"+factor.id, {
 			labelType: "html",
 			label: label
 		});
+
+		for (let impact_id of factor.impacts) {			
+			this.addFactorToImpact(factor,this.net.impacts[impact_id],0)
+		}
 	}
 
-	addToImpactToSecondaries(impact_id) {
-		let impact = this.addImpact(impact_id)
-		for (let secondary_id of impact.secondary_impacts) {		
-			let secondary = this.addImpact(secondary_id)			
-			this.graph.setEdge("impact"+impact_id, "impact"+secondary_id);
+	addFactorToImpact(factor,impact,depth) {
+		if (impact.long!="") {
+			this.addImpact(impact)
+			this.graph.setEdge("factor"+factor.id,"impact"+impact.id);
+		} else {
+			let label="<span style='color:green'>+</span>"
+			if (impact.type == "-") {
+				label="<span style='color:red'>-</span>"			
+			}			
+			this.graph.setEdge("factor"+factor.id,"factor"+impact.to,{
+				labelType: "html",
+				label: label
+			});
+		}
+
+		let next_factor = this.net.factors[impact.to]
+		this.addFactor(next_factor)
+
+		if (depth<5) {
+			for (let impact_id of next_factor.impacts) {			
+				this.addFactorToImpact(next_factor,this.net.impacts[impact_id],depth+1)
+			}
 		}
 	}
 
@@ -185,24 +233,24 @@ class Network {
 		this.graph.graph().rankdir = "LR"		
 		this.graph.graph().ranker = "longest-path"
 
-		let active_trends = await this.ad.calcActiveTrends(this.tiles,2,9)
 		this.existing_nodes=[]
 
-		for (let trend of active_trends) {
-			let cause_id = trend.cause;
-			for (let impact_id of trend.impacts) {
- 				this.addToCauseToImpact(cause_id,impact_id)
-				this.addToImpactToSecondaries(impact_id)
-				if (this.style=="complex") {
-					this.addToImpactToAdaptations(impact_id)
-				}
-			}
+		for (let cause of this.net.causes) {			
+ 			this.addToCauseToFactor(cause,this.net.factors[cause.factor])
+
+			//this.addToImpactToSecondaries(impact_id)
+			//	if (this.style=="complex") {
+			//		this.addToImpactToAdaptations(impact_id)
+			//	}
+			//}
 		}
 
 		this.graph.nodes().forEach(v => {
 			var node = this.graph.node(v);
 			// Round the corners of the nodes
-			node.rx = node.ry = 5;
+			if (node) {
+				node.rx = node.ry = 5;
+			}
 		});
 		
 
@@ -219,7 +267,7 @@ class Network {
 		
 		// Center the graph
 		const { width, height } = d3.select("#mapsvg g").node().getBBox()
-		console.log([width,height])
+	
 		if (width && height) {
 			let svgn=d3.select("#mapsvg").node()
 			const scale = Math.min(svgn.clientWidth / width, svgn.clientHeight / height) * 0.95

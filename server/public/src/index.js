@@ -48,7 +48,7 @@ async function setup() {
 	const z = new zones.LSOAZones(leaflet_map)
 	const net = new network.Network()
 
-	await net.loadData()
+	//await net.loadData()
 
 	leaflet_map.on("moveend", () => {
 		z.update(leaflet_map,net);
