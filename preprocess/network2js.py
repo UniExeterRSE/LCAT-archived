@@ -6,6 +6,7 @@ causes = []
 factors = {}
 impacts = {}
 adaptations = []
+next_id=1
 
 # elements:
 # Label, Type, Tags, Description, References, DOI, UN SDG, Variables
@@ -15,9 +16,10 @@ def str2arr(s):
     ret = []
     if s!="":
         ret = s.split("|")
+    return ret
         
-def load_elements(fn):    
-    el_id = 0
+def load_elements(fn):
+    global next_id
     with open(fn) as csvfile:
         reader = csv.reader(csvfile)
         for i,row in enumerate(reader):
@@ -27,7 +29,7 @@ def load_elements(fn):
                     climate_vars.append(row[0])
                 else:                    
                     factors[row[0]]={
-                        "id": el_id,
+                        "id": next_id,
                         "short": row[0],
                         "type": row[1],
                         "tags": row[2],
@@ -37,15 +39,14 @@ def load_elements(fn):
                         "variables": str2arr(row[6]),
                         "impacts": []
                     }
-                    el_id+=1
+                    next_id+=1
 
 # connections:
 # From,To, Label, Type, Tags, Description, References, DOI, UN SDG, Variables
 def load_connections(fn):
+    global next_id
     with open(fn) as csvfile:
         reader = csv.reader(csvfile)
-        cause_id = 0
-        impact_id = 0
         for i,row in enumerate(reader):
             if i>0:
                 if row[0] in climate_vars:
@@ -55,23 +56,25 @@ def load_connections(fn):
                     else: op="decrease"
                         
                     causes.append({
-                        "id": cause_id,
+                        "id": next_id,
                         "short": row[0],
                         "long": row[5],
                         "factor": t["id"],
                         "operator": op, 
                         "ref": str2arr(row[6])
                     })
-                    cause_id+=1
+                    next_id+=1
                     
                 else:                
                     f = factors[row[0]]
                     t = factors[row[1]]
                     
-                    f["impacts"].append(impact_id)
+                    f["impacts"].append(next_id)
+
+                    print(str2arr(row[6]))
                     
-                    impacts[impact_id] = {
-                        "id": impact_id,
+                    impacts[next_id] = {
+                        "id": next_id,
                         "from": f["id"],
                         "to": t["id"],
                         "short": row[2],
@@ -82,7 +85,7 @@ def load_connections(fn):
                         "unsdg": row[7],
                         "vars": str2arr(row[8])
                     }
-                    impact_id+=1
+                    next_id+=1
                 
                     
 def pp(arr):
@@ -104,8 +107,8 @@ for k,v in factors.items():
 f = open("../server/public/src/net.js", "w")
 f.write("const net = ")
 f.write(json.dumps({
-    "factors":fact_by_id,
     "causes":causes,
+    "factors":fact_by_id,
     "impacts":impacts
 }))
 f.write("\nexport{ net }")

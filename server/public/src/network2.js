@@ -21,6 +21,9 @@ const vis = require("vis-network/standalone")
 
 // Cause -> Factor -> Impact -> Factor ->??? Adaptation
 
+const node_size=25
+const preview_font_size=6
+
 class Network {
 
 	constructor() {
@@ -31,12 +34,16 @@ class Network {
 		this.edges = []
 		this.url_cache = {}
 	}
+
+	printable(str) {
+		return str.replace("&","&amp;");
+	}
 	
-	nodeImageURL(id,title,text) {
-		let height = 400
-		if (text=="") height=300
+	nodeImageURL(id,title,text,bg) {
+		let height = 450
+		if (text=="") height=350
 		let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="`+height+`" style="overflow:visible;">
-                   <rect x="0" y="0" width="100%" height="100%" fill="#e6e6e6" stroke-width="5" stroke="#a4b3cd"  rx="15" ></rect>
+                   <rect x="0" y="0" width="100%" height="100%" fill="`+bg+`" stroke-width="5" stroke="#a4b3cd"  rx="15" ></rect>
 
 			<circle
              style="fill:#254747;fill-opacity:1;stroke-width:0.46499997"
@@ -47,8 +54,8 @@ class Network {
 
         <foreignObject x="0" y="220" width="100%" height="100%">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
-        <center style="font-size: 2em;">`+title+`</center>
-        <p>`+text+`</p>
+        <center style="font-size: 2em;">`+this.printable(title)+`</center>
+        <p>`+this.printable(text)+`</p>
         </div>
         </foreignObject>
         </svg>`
@@ -58,13 +65,84 @@ class Network {
 	}
 	
 
+	factorToHTML(factor) {
+		let s=""
+		s+=`<h3>`+factor.short+`</h3>`
+		s+=`<p>`+factor.long+`</p>`
+		s+="<ul>"
+		if (factor.type!="") {
+			s+="<li><b>Type</b>: "+factor.type+"</li>"
+		}
+		if (factor.unsdg!="") {
+			s+="<li><b>UN SDG</b>: "+factor.unsdg+"</li>"
+		}
+		if (factor.tags!="") {
+			s+="<li><b>Tags</b>: "+factor.tags+"</li>"
+		}
+		if (factor.references.length>0) {
+			s+="<li><b>References</b>: <ol>"
+			for (let ref of factor.references) {
+				s+="<li><a href='"+ref+"'>"+ref+"</a></li>";
+			}
+			s+="</ol></li>"
+		}
+		if (factor.variables.length>0) {
+			s+="<li><b>Variables</b>: <ol>"
+			for (let ref of factor.variables) {
+				s+="<li>"+ref+"</li>";
+			}
+			s+="</ol></li>"
+		}
+		s+="</ul>"
+		return s
+	}
+	
+	impactToHTML(impact) {
+		let s=""
+		if (impact.short!="") {
+			s+=`<h3>`+impact.short+`</h3>`
+		} else {
+			s+=`<b>`+this.net.factors[impact.from].short+`</b> impacts <b>`+this.net.factors[impact.to].short+`</b><br>`
+		}
+		if (impact.long!="") {
+			s+=`<p>`+impact.long+`</p>`
+		}
+		s+="<ul>"
+		if (impact.type!="") {
+			s+="<li><b>Type</b>: "+impact.type+"</li>"
+		}
+		if (impact.unsdg!="") {
+			s+="<li><b>UN SDG</b>: "+impact.unsdg+"</li>"
+		}
+		if (impact.tags!="") {
+			s+="<li><b>Tags</b>: "+impact.tags+"</li>"
+		}
+		if (impact.refs.length>0) {
+			s+="<li><b>Referencess</b>: <ol>"
+			for (let ref of impact.refs) {
+				s+="<li><a href='"+ref+"'>"+ref+"</a></li>";
+			}
+			s+="</ol></li>"
+		}
+		if (impact.vars.length>0) {
+			s+="<li><b>Variables</b>: <ol>"
+			for (let ref of impact.vars) {
+				s+="<li>"+ref+"</li>";
+			}
+			s+="</ol></li>"
+		}
+		s+="</ul>"
+		return s
+	}
+
+
 	factorToNodeFull(factor) {
 		return {
 			id: factor.id,
 			shape: "image",
 			label: "",
-			size: 25,
-			image: this.nodeImageURL(factor.id,factor.short,factor.long),
+			size: node_size,
+			image: this.nodeImageURL(factor.id,factor.short,factor.long,"#e6e6e6"),
 			preview: false
 		}
 	}
@@ -74,48 +152,59 @@ class Network {
  			id: factor.id,
 			shape: "text",
 			label: factor.short,
-			font: { size: 6 },
+			font: { size: preview_font_size },
 			preview: true
 		}
 	}
 
 	factorEdgeFull(factor,impact,new_factor) {
 		return {
+			id: impact.id,
 			from: factor.id,
 			to: impact.to,
-			arrows: "to",
+			arrows: "middle",
 			label: impact.type,
 			//label: new_factor.short,
 			//length: 0.5,
 			//font: { size: 6 },
-			arrowStrikethrough: false,					
+			//arrowStrikethrough: false,					
 			color: { color: "#a4b3cd" }
 		}
 	}
 
 	factorEdgePreview(factor,impact,new_factor) {
 		return {
+			id: impact.id,
 			from: factor.id,
 			to: impact.to,
 			arrows: "to",
 			label: impact.type,
 			//value: 0.05,
-			//arrowStrikethrough: false,					
+			arrowStrikethrough: false,					
 			color: { color: "#a4b3cd" }
 		}
 	}
 
 	addImpacts(factor,pos) {
+		let i=0;
 		for (let impact_id of factor.impacts) {
 			let impact = this.net.impacts[impact_id]
 			let new_factor = this.net.factors[impact.to]
-			if (new_factor.type!="") {
-				this.addFactor(new_factor,false,pos)
-				this.edges.add([this.factorEdgePreview(factor,impact,new_factor)])
-			} else {
-				this.addFactor(new_factor,true,pos)
-				this.edges.add([this.factorEdgeFull(factor,impact,new_factor)])
+
+			// get a roughly ok position, downwind and spread out
+			let fpos = {
+				x: pos.x+100,
+				y: pos.y+(i-(factor.impacts.length/2))*node_size
 			}
+			
+			if (new_factor.type!="") {
+				this.addFactor(new_factor,false,fpos)
+				this.edges.add([this.factorEdgeFull(factor,impact,new_factor)])
+			} else {
+				this.addFactor(new_factor,true,fpos)
+				this.edges.add([this.factorEdgePreview(factor,impact,new_factor)])
+			}
+			i+=1;
 		}
 	}
 
@@ -124,37 +213,35 @@ class Network {
 	}
 	
 	addFactor(factor,preview_node,pos) {
-		if (!this.nodes.get(factor.id)) {
+		if (!this.nodes.get(factor.id)) {						
 			if (preview_node==false) {
 				let n = this.factorToNodeFull(factor)
-				if (pos!=undefined) {
-					n.x = pos.x+this.getRnd(-5,5);
-					n.y = pos.y+this.getRnd(-5,5);
-				}
-				console.log(n)
+				n.x = pos.x;
+				n.y = pos.y;
 				this.nodes.add([n])
-				this.addImpacts(factor)
+				this.addImpacts(factor,{x: n.x, y: n.y})
 			} else {
 				let n = this.factorToNodePreview(factor)
-				if (pos!=undefined) {
-					n.x = pos.x+this.getRnd(-5,5);
-					n.y = pos.y+this.getRnd(-5,5);
-				}
-				console.log(n)
+				n.x = pos.x;
+				n.y = pos.y;
 				this.nodes.add([n])
 			}
 		}
 	}
 
-	addCause(cause) {
+	addCause(cause,y) {
 		if (!this.nodes.get(cause.id)) {
 			this.nodes.add([{
 				id: cause.id,
 				shape: "image",
-				size: 25,
-				image: this.nodeImageURL(cause.id,cause.short,""),
+				size: node_size,
+				image: this.nodeImageURL(cause.id,cause.short,"","#a4f9c8"),
+				x: 0,
+				y: y*75,
+				fixed: true
 			}])
-			this.addFactor(this.net.factors[cause.factor],false)
+			
+			this.addFactor(this.net.factors[cause.factor],false,{x: 100, y: y*75})
 			let label="+"
 			if (cause.operator == "decrease") {
 				label="-"
@@ -179,14 +266,11 @@ class Network {
 		this.nodes = new vis.DataSet([])
 		this.edges = new vis.DataSet([])
 		
-/*		this.nodes.add([{
-			id: 9999,
-			fixed: true
-		}])
-*/		
+
+		let c = 0
 		for (let cause of this.net.causes) {
-			this.addCause(cause)
-//			this.edges.add([{from:9999, to:cause.id}])
+			this.addCause(cause,c)
+			c+=1
 		}
 		
 		const options = {
@@ -194,15 +278,17 @@ class Network {
 				enabled: true,
 				//solver: "forceAtlas2Based",
 				solver: "barnesHut",
-				maxVelocity: 1,
-				/*barnesHut: {
+				maxVelocity: 20,
+				barnesHut: {
 					//avoidOverlap: 0.5,
 					//gravitationalConstant: -10000
-				},*/
-				//wind: { x: 1, y: 0}
+				},
+				wind: { x: 0.5, y: 0}
             },
 			layout: {
-				//improvedLayout:true,
+				randomSeed: 5,
+				improvedLayout: true,
+				clusterThreshold: 1,
 				/*hierarchical: {
 					shakeTowards: "roots",
 					enabled: false,
@@ -221,15 +307,29 @@ class Network {
 		}, options);
 
 		network.on( 'click', (properties) => {
-			var ids = properties.nodes;
+			let ids = properties.nodes;
+			let node_selected=false;
 			for (let node of this.nodes.get(ids)) {
 				let factor = this.net.factors[node.id]
 				let pos=network.getPositions(node.id)[node.id]
 				if (node.preview==true) {					
 					this.nodes.update(this.factorToNodeFull(factor))
 					this.addImpacts(factor,pos)
+				} else {
+					$("#network-info").html(this.factorToHTML(factor))
 				}
+				node_selected=true;
+			}
 
+			if (!node_selected) {
+				let ids = properties.edges;
+				for (let edge of this.edges.get(ids)) {				
+					let impact = this.net.impacts[edge.id]
+					if (impact!=undefined) {
+						console.log(impact)
+						$("#network-info").html(this.impactToHTML(impact))
+					}
+				}
 			}
 		});
 		

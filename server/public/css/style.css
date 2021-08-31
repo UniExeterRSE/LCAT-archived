@@ -129,6 +129,14 @@ button {
 #network-holder {
 	border-radius: 5px;
 	border: 4px solid #a4b3cd;
+	height: 500px;
+}
+
+#network-info {		
+	border-radius: 5px;
+	background: #a4b3cd;	
+	font-size: 0.5em;
+	padding: 1em;
 }
 
 
@@ -267,3 +275,6 @@ g span {
 	width: 100%;
 	text-align: center;	
 }
+
+
+

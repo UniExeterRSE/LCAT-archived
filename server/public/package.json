@@ -15,7 +15,10 @@
     "express": "^4.17.1",
     "graphlib-dot": "^0.6.4",
     "jquery": "^3.6.0",
-    "leaflet": "^1.7.1"
+    "leaflet": "^1.7.1",
+    "vis-data": "^7.1.2",
+    "vis-network": "^9.0.5",
+    "vis-util": "^5.0.2"
   },
   "devDependencies": {
     "browserify": "^17.0.0",

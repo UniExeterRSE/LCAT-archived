@@ -258,7 +258,12 @@ class Network {
 			}
 		});
 		
-
+		$('#fiddle').on("click",()=>{		
+			console.log(this.graph)
+			this.graph.setNode("fjlkwfwe", { label: "one"} )
+			// Run the renderer. This is what draws the final graph.
+			this.render(d3.select("#mapsvg g"), this.graph);
+		})
 
 		let inner = d3.select("#mapsvg g")
 		this.zoom = d3.zoom().on("zoom", function() {
