@@ -5,7 +5,7 @@ climate_vars = []
 causes = []
 factors = {}
 impacts = {}
-adaptations = []
+adaptations = {}
 next_id=1
 
 # elements:
@@ -24,7 +24,7 @@ def load_elements(fn):
         reader = csv.reader(csvfile)
         for i,row in enumerate(reader):
             if i>0:
-                if row[2]=="climate variable":
+                if row[1]=="Climate variable":
                     # store to build later from connections
                     climate_vars.append(row[0])
                 else:                    
@@ -32,17 +32,15 @@ def load_elements(fn):
                         "id": next_id,
                         "short": row[0],
                         "type": row[1],
-                        "tags": row[2],
-                        "long": row[3],
-                        "references": str2arr(row[4]),
-                        "unsdg": row[5],
-                        "variables": str2arr(row[6]),
+                        "long": row[2],
+                        "refs": str2arr(row[3]),
+                        "unsdg": row[4],
                         "impacts": []
                     }
                     next_id+=1
 
 # connections:
-# From,To, Label, Type, Tags, Description, References, DOI, UN SDG, Variables
+# From,To, Label, Type, Description, References, UN SDG
 def load_connections(fn):
     global next_id
     with open(fn) as csvfile:
@@ -52,16 +50,29 @@ def load_connections(fn):
                 if row[0] in climate_vars:
                     t = factors[row[1]]
                     op = ""
-                    if row[3]=="+": op="increase"
-                    else: op="decrease"
+
+                    var="none"
+                    if row[0]=="Wind speed":
+                        op="increase"
+                        var="mean_windspeed"
+                        
+                    if row[0]=="Rain":
+                        op="increase"
+                        var="daily_precip"
+                        
+                    if row[0]=="Temperature":
+                        op="increase"
+                        var="mean_temp"
                         
                     causes.append({
                         "id": next_id,
                         "short": row[0],
-                        "long": row[5],
+                        "type": row[2],
+                        "long": row[4],
                         "factor": t["id"],
-                        "operator": op, 
-                        "ref": str2arr(row[6])
+                        "operator": op,
+                        "variable": var,
+                        "refs": str2arr(row[5])
                     })
                     next_id+=1
                     
@@ -71,22 +82,45 @@ def load_connections(fn):
                     
                     f["impacts"].append(next_id)
 
-                    print(str2arr(row[6]))
-                    
                     impacts[next_id] = {
                         "id": next_id,
                         "from": f["id"],
                         "to": t["id"],
-                        "short": row[2],
-                        "type": row[3],
-                        "tags": row[4],
-                        "long": row[5],
-                        "refs": str2arr(row[6]),
-                        "unsdg": row[7],
-                        "vars": str2arr(row[8])
+                        "type": row[2],
+                        "long": row[3],
+                        "refs": str2arr(row[4]),
+                        "unsdg": row[5],
                     }
                     next_id+=1
-                
+
+def lookup_factors(s):
+    arr = str2arr(s)
+    r = []
+    ignore = ["Active transport use"]
+    for title in arr:
+        if title in factors and not title in ignore:
+            r.append(factors[title]["id"])
+        else:
+            #print("could not find factor: "+title)
+            pass
+    return r
+
+def load_adaptations(fn):
+    global next_id
+    with open(fn) as csvfile:
+        reader = csv.reader(csvfile)
+        for i,row in enumerate(reader):
+            if i>0:
+                adaptations[next_id]={
+                    "id": next_id,
+                    "related": lookup_factors(row[1]),
+                    "short": row[2],
+                    "long": row[3],
+                    "refs": str2arr(row[4]),
+                    "case": row[5],
+                    "caseref": row[6],
+                }
+                next_id+=1
                     
 def pp(arr):
     for n,i in arr.items():
@@ -97,8 +131,9 @@ def pp(arr):
               
 root = "/home/dave/projects/climate/data/ceren/"
 
-load_elements(root+"elements.csv")
-load_connections(root+"connections.csv")
+load_elements(root+"elements2.csv")
+load_connections(root+"connections2.csv")
+load_adaptations(root+"adaptations.csv")
 
 fact_by_id = {}
 for k,v in factors.items():
@@ -109,7 +144,8 @@ f.write("const net = ")
 f.write(json.dumps({
     "causes":causes,
     "factors":fact_by_id,
-    "impacts":impacts
+    "impacts":impacts,
+    "adaptations":adaptations
 }))
 f.write("\nexport{ net }")
 f.close()

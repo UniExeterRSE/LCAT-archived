@@ -48,7 +48,7 @@ async function setup() {
 	const z = new zones.LSOAZones(leaflet_map)
 	const net = new network.Network()
 
-	//await net.loadData()
+	await net.loadIconCache()
 
 	leaflet_map.on("moveend", () => {
 		z.update(leaflet_map,net);
@@ -63,11 +63,17 @@ async function setup() {
 		graph.update_graph(z.zones,$("#graph-time").val())
 	})
 
-	$("#net-type").on("change", () => {
+/*	$("#net-type").on("change", () => {
 		net.style=$("#net-type").val()
-		net.buildGraph();
-	})
+		net.buildGraph()
+	})*/
 
+	for (let t of net.types) {
+		$('#'+t).on("change",() => {
+			net.buildGraph()
+		})
+	}
+	
 	$("#graph").html(graph.no_data)
 
 	z.update(leaflet_map,net)

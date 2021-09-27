@@ -38804,7 +38804,7 @@ Object.keys(_esm).forEach(function (key) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.the_adaptations = exports.the_impacts = exports.the_causes = exports.the_trends = exports.AdaptationFinder = void 0;
+exports.AdaptationFinder = void 0;
 
 const $ = require("jquery");
 
@@ -38819,206 +38819,67 @@ class ClimateVariable {
     this.value = value;
   }
 
-} // a cause is a trigger that can be set off by different variables
-
-
-class Cause {
-  constructor(description, table, variable_name, operator, threshold) {
-    this.description = description;
-    this.table = table;
-    this.variable_name = variable_name;
-    this.operator = operator;
-    this.threshold = threshold;
-
-    switch (variable_name) {
-      case "mean_windspeed":
-        this.image = "images/wind.svg";
-        break;
-
-      case "mean_temp":
-        this.image = "images/temp.svg";
-        break;
-
-      case "daily_precip":
-        this.image = "images/rain.svg";
-        break;
-
-      default:
-        console.log("no svg for " + variable_name);
-    }
-  }
-
-  isActive(variable) {
-    if (variable.variable_name == this.variable_name && variable.table == this.table) {
-      switch (this.operator) {
-        case "increase":
-          if (variable.reference < variable.value) return true;
-          return false;
-          break;
-
-        case "decrease":
-          if (variable.reference > variable.value) return true;
-          return false;
-          break;
-
-        case "less-than":
-          if (variable.value < this.threshold) return true;
-          return false;
-          break;
-
-        case "greater-than":
-          if (variable.value > this.threshold) return true;
-          return false;
-          break;
-      }
-    }
-
-    return false;
-  }
-
-}
-
-class Impact {
-  constructor(type, short_description, description, references, image, secondary_impacts, adaptations) {
-    this.type = type;
-    this.short_description = short_description;
-    this.description = description;
-    this.references = references;
-    this.image = image;
-    this.secondary_impacts = secondary_impacts;
-    this.adaptations = adaptations;
-  }
-
-}
-
-class Adaptation {
-  constructor(short_description, description, examples) {
-    this.short_description = short_description;
-
-    if (description == "") {
-      this.description = short_description;
-    } else {
-      this.description = description;
-    }
-
-    this.examples = examples;
-  }
-
-} // trends connect together causes/impacts and adaptions
-
-
-class Trend {
-  constructor(cause, impacts, adaptations, priority) {
-    this.cause = cause;
-    this.impacts = impacts;
-    this.adaptations = adaptations;
-    this.priority = priority;
-  }
-
 }
 
 class AdaptationFinder {
-  constructor(causes, impacts, adaptations, trends) {
-    this.causes = causes;
-    this.impacts = impacts;
-    this.adaptations = adaptations;
-    this.trends = trends;
-    this.variables = [];
+  constructor() {
+    this.variable = [];
     this.tables = ["future_year_avg", "future_summer_avg", "future_winter_avg"];
-    this.variable_names = ["daily_precip", "mean_temp" //"max_temp",
+    this.variable_names = ["daily_precip", "mean_temp", //"max_temp",
     //"min_temp",
-    //			"mean_windspeed",
-    //"max_windspeed",
+    "mean_windspeed" //"max_windspeed",
     //"min_windspeed"
     ];
   }
 
-  addVariable(table, variable_name, decade_data, reference_decade, value_decade) {
-    let y = 0;
-    let ref = decade_data[reference_decade];
-    let val = decade_data[value_decade];
-    /*		if (val>ref) {
-    			console.log(table+" "+variable_name+" rising "+ref.toFixed(2)+" -> "+val.toFixed(2))
-    		} else {
-    			console.log(table+" "+variable_name+" falling "+ref.toFixed(2)+" -> "+val.toFixed(2))
-    		}
-    */
-
-    if (ref != undefined && val != undefined) {
-      this.variables.push(new ClimateVariable(table, variable_name, ref, val));
-    }
-  }
-
-  async loadVariables(zones, reference_decade, value_decade) {
+  async getVariable(table, variable_name, zones, reference_decade, value_decade) {
     // todo cache these so we don't need to reload all zones
     this.variables = [];
+    await $.getJSON("/api/future", {
+      table: table,
+      zones: zones,
+      data_type: variable_name
+    }, (data, status) => {
+      let decades = utils.calculate_decades(data);
+      this.variable = [decades[reference_decade], decades[value_decade]];
+    });
+  }
 
-    for (let table of this.tables) {
-      for (let variable_name of this.variable_names) {
-        await $.getJSON("/api/future", {
-          table: table,
-          zones: zones,
-          data_type: variable_name
-        }, (data, status) => {
-          this.addVariable(table, variable_name, utils.calculate_decades(data), reference_decade, value_decade);
-        });
-      }
+  async isCauseActive(table, zones, reference_decade, value_decade, cause) {
+    // load variables for these zones
+    await this.getVariable(table, cause.variable, zones, reference_decade, value_decade);
+    console.log(this.variable);
+    let ref = this.variable[0];
+    let val = this.variable[1];
+    let variable = cause.variable;
+    console.log(cause.operator);
+    console.log(variable);
+
+    if (val > ref) {
+      console.log(table + " " + variable + " rising " + ref.toFixed(2) + " -> " + val.toFixed(2));
+    } else {
+      console.log(table + " " + variable + " falling " + ref.toFixed(2) + " -> " + val.toFixed(2));
+    }
+
+    switch (cause.operator) {
+      case "increase":
+        if (ref < val) return true;
+        return false;
+        break;
+
+      case "decrease":
+        if (ref > val) return true;
+        return false;
+        break;
+
+      default:
+        return false;
     }
   }
 
-  async calcActiveTrends(zones, reference_decade, value_decade) {
-    await this.loadVariables(zones, reference_decade, value_decade);
-    let active_trends = [];
-
-    for (let trend of this.trends) {
-      let cause = this.causes[trend.cause];
-
-      if (cause == undefined) {
-        console.log("no cause found for id: " + trend.cause);
-      }
-
-      for (let variable of this.variables) {
-        if (cause.isActive(variable)) {
-          //console.log(variable.variable_name+" is "+cause.operator)
-          active_trends.push(trend);
-        }
-      }
-    }
-
-    return active_trends;
-  }
-
-} ////////////////////////////////////////////////////
-// some fake data
-
+}
 
 exports.AdaptationFinder = AdaptationFinder;
-const the_causes = {
-  0: new Cause("Windspeed increases", "future_year_avg", "mean_windspeed", "increase", 0),
-  1: new Cause("Winter rainfall increases", "future_winter_avg", "daily_precip", "increase", 0),
-  2: new Cause("Temperatures rise", "future_year_avg", "mean_temp", "increase", 0),
-  3: new Cause("Summer rainfall decreases", "future_summer_avg", "daily_precip", "decrease", 0)
-};
-exports.the_causes = the_causes;
-const the_impacts = {
-  0: new Impact("Transport/Active Transport", "Decreased cycling", "Increased wind speed leads to decreased cycling. More people use public transport networks.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/active-transport.svg", [1], [0]),
-  1: new Impact("Health and Wellbeing", "More illness", "More people get sick, as contact increases.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg", [], [0]),
-  2: new Impact("Transport/Active Transport", "Decreased cycling", "Increased precipitation leads to decreased cycling.", [], "images/active-transport.svg", [1], [1, 4]),
-  3: new Impact("Environmental", "More flooding", "Increased precipitation means more flooding on roads.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg", [2], [0]),
-  4: new Impact("Transport", "Tires melt", "Increased temperature means tires melt in the heat.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg", [], []),
-  5: new Impact("Agriculture", "Less crops", "Decreased summer rain means more crop failure.", ["https://dx.doi.org/10.1186/1476-069x-11-12"], "images/blank.svg", [1], [])
-};
-exports.the_impacts = the_impacts;
-const the_adaptations = {
-  0: new Adaptation("Plant trees", "", ["Example 1", "Example 2"]),
-  1: new Adaptation("Cycle to work scheme", "", ["Example 1", "Example 2"]),
-  2: new Adaptation("Build more drains", "", ["Some example of this"]),
-  3: new Adaptation("Build more railways", "", []),
-  4: new Adaptation("Build more bicycle lanes", "", [])
-};
-exports.the_adaptations = the_adaptations;
-const the_trends = [new Trend(3, [5], "High"), new Trend(0, [0, 1], "High"), new Trend(1, [2], "High"), new Trend(1, [3], "High"), new Trend(2, [4], "Low")];
-exports.the_trends = the_trends;
 
 },{"./utils":42,"jquery":28}],36:[function(require,module,exports){
 "use strict";
@@ -39234,7 +39095,7 @@ async function setup() {
 	const z = new zones.LSOAZones(leaflet_map)
 	const net = new network.Network()
 
-	//await net.loadData()
+	await net.loadIconCache()
 
 	leaflet_map.on("moveend", () => {
 		z.update(leaflet_map,net);
@@ -39249,11 +39110,17 @@ async function setup() {
 		graph.update_graph(z.zones,$("#graph-time").val())
 	})
 
-	$("#net-type").on("change", () => {
+/*	$("#net-type").on("change", () => {
 		net.style=$("#net-type").val()
-		net.buildGraph();
-	})
+		net.buildGraph()
+	})*/
 
+	for (let t of net.types) {
+		$('#'+t).on("change",() => {
+			net.buildGraph()
+		})
+	}
+	
 	$("#graph").html(graph.no_data)
 
 	z.update(leaflet_map,net)
@@ -39510,1743 +39377,1441 @@ Object.defineProperty(exports, "__esModule", {
 exports.net = void 0;
 const net = {
   "causes": [{
-    "id": 73,
+    "id": 70,
     "short": "Temperature",
-    "long": "",
-    "factor": 25,
+    "type": "+",
+    "long": "10.1186/1476-069x-11-12|10.1016/j.trd.2019.09.022",
+    "factor": 24,
     "operator": "increase",
-    "ref": ["10.1186/1476-069x-11-12", "10.1016/j.trd.2019.09.022"]
+    "variable": "mean_temp",
+    "refs": []
   }, {
-    "id": 109,
-    "short": "Precipitation",
-    "long": "Increased precipitation leads to decreased cycling.",
-    "factor": 25,
-    "operator": "decrease",
-    "ref": ["https://dx.doi.org/10.1007/s11116-012-9398-5", "https://dx.doi.org/10.1186/1476-069x-11-12", "10.1016/j.jtrangeo.2019.04.016", "10.1186/1476-069x-11-12", "10.1016/j.trd.2019.09.022"]
+    "id": 105,
+    "short": "Rain",
+    "type": "-",
+    "long": "https://dx.doi.org/10.1007/s11116-012-9398-5|https://dx.doi.org/10.1186/1476-069x-11-12|10.1016/j.jtrangeo.2019.04.016|10.1186/1476-069x-11-12|10.1016/j.trd.2019.09.022",
+    "factor": 24,
+    "operator": "increase",
+    "variable": "daily_precip",
+    "refs": []
   }, {
-    "id": 126,
-    "short": "Wind  speed",
-    "long": "",
-    "factor": 25,
-    "operator": "decrease",
-    "ref": ["10.1186/1476-069x-11-12", "10.1016/j.trd.2019.09.022"]
+    "id": 121,
+    "short": "Wind speed",
+    "type": "-",
+    "long": "10.1186/1476-069x-11-12|10.1016/j.trd.2019.09.022",
+    "factor": 24,
+    "operator": "increase",
+    "variable": "mean_windspeed",
+    "refs": []
   }],
   "factors": {
     "1": {
       "id": 1,
-      "short": "Equity and affordability of access to goods and services",
-      "type": "",
-      "tags": "",
+      "short": "Access to goods & services",
+      "type": "Equity",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "10.3 Equity and affordability of access to education, employment, and health-promoting goods and services by income, gender, age and ethnicity",
-      "variables": [],
-      "impacts": [57, 71, 89, 92, 112, 139]
+      "impacts": [54, 68, 85, 88, 108, 132, 143]
     },
     "2": {
       "id": 2,
       "short": "Local crime",
-      "type": "",
-      "tags": "",
+      "type": "Equity",
       "long": "Local crime, including violence against women and girls.",
-      "references": [],
+      "refs": [],
       "unsdg": "5.2 Violence against women and girls",
-      "variables": [],
-      "impacts": [144, 150]
+      "impacts": [137, 142]
     },
     "3": {
       "id": 3,
       "short": "Proportion of people getting enough daily exercise",
-      "type": "",
-      "tags": "",
+      "type": "Equity",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "3.4 Proportion of people getting enough daily exercise",
-      "variables": [],
-      "impacts": [88]
+      "impacts": [84]
     },
     "4": {
       "id": 4,
-      "short": "\"Gentrification\"",
-      "type": "",
-      "tags": "",
+      "short": "Gentrification",
+      "type": "Community",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "",
-      "variables": [],
-      "impacts": [80, 101]
+      "impacts": [76, 97]
     },
     "5": {
       "id": 5,
-      "short": "Attractiveness of streets and parks to people who live there",
-      "type": "",
-      "tags": "",
+      "short": "Attractiveness of streets/parks to locals",
+      "type": "Community",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "",
-      "variables": [],
-      "impacts": [94, 119, 120, 143]
+      "impacts": [90, 115, 116, 136]
     },
     "6": {
       "id": 6,
-      "short": "Appropriateness of design (cultural landscapes) and incorporation of indigenous biodiversity",
-      "type": "",
-      "tags": "",
+      "short": "Incorporation of culture & indigenous biodiversity in design",
+      "type": "Equity",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "15.9 Appropriateness of design (cultural landscapes) and incorporation of indigenous biodiversity",
-      "variables": [],
-      "impacts": [86, 145]
+      "impacts": [82, 138]
     },
     "7": {
       "id": 7,
-      "short": "Exposure to  other people",
-      "type": "",
-      "tags": "",
+      "short": "Exposure to other people",
+      "type": "Health",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "",
-      "variables": [],
-      "impacts": [137]
+      "impacts": [131]
     },
     "8": {
       "id": 8,
-      "short": "Cultural wellbeing and protection of cultural heritage",
-      "type": "",
-      "tags": "",
+      "short": "Cultural wellbeing & protection of cultural heritage",
+      "type": "Equity",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "11.4 Cultural wellbeing and protection of cultural heritage",
-      "variables": [],
-      "impacts": [62]
+      "impacts": [59]
     },
     "9": {
       "id": 9,
-      "short": "Direct environmental effects from automobiles",
-      "type": "",
-      "tags": "",
-      "long": "- Exhaust\n- Other auto-related pollutants\n- Road noise",
-      "references": [],
+      "short": "Direct environmental effects from cars",
+      "type": "Travel",
+      "long": "- Exhaust (from internal combustion engine cars)\n- Other auto-related pollutants (eg. microplastics from tyres)\n- Road noise",
+      "refs": [],
       "unsdg": "",
-      "variables": [],
-      "impacts": [82, 124, 132]
+      "impacts": [78, 119, 126]
     },
     "10": {
       "id": 10,
-      "short": "Local community action to resolve minor anti-social behaviour",
-      "type": "",
-      "tags": "",
+      "short": "Community action to resolve minor anti-social behaviour",
+      "type": "Community",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "",
-      "variables": [],
-      "impacts": [63]
+      "impacts": [60]
     },
     "11": {
       "id": 11,
-      "short": "Automobile collisions",
-      "type": "",
-      "tags": "",
+      "short": "Car accidents",
+      "type": "Travel",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "",
-      "variables": [],
-      "impacts": [110, 134]
+      "impacts": [106, 128]
     },
     "12": {
       "id": 12,
-      "short": "Public transport  network usage",
-      "type": "",
-      "tags": "",
+      "short": "Public transport use",
+      "type": "Travel",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "",
-      "variables": ["Trips_by_public_transport"],
-      "impacts": [51, 75, 99]
+      "impacts": [48, 71, 95]
     },
     "13": {
       "id": 13,
       "short": "Local sense of security",
-      "type": "",
-      "tags": "",
+      "type": "Community",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "",
-      "variables": [],
-      "impacts": [103]
+      "impacts": [99]
     },
     "14": {
       "id": 14,
-      "short": "Access to safe, inclusive and accessible green and public spaces",
-      "type": "",
-      "tags": "",
+      "short": "Access to safe & inclusive public green spaces",
+      "type": "Equity",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "",
-      "variables": [],
-      "impacts": [58, 100]
+      "impacts": [55, 96]
     },
     "15": {
       "id": 15,
       "short": "Place attachment",
-      "type": "",
-      "tags": "",
+      "type": "Community",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "",
-      "variables": [],
-      "impacts": [104]
+      "impacts": [100]
     },
     "16": {
       "id": 16,
-      "short": "Community capacity  and empowerment",
-      "type": "",
-      "tags": "",
+      "short": "Community capacity & empowerment",
+      "type": "Community",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "",
-      "variables": [],
-      "impacts": [114, 115]
+      "impacts": [110, 111]
     },
     "17": {
       "id": 17,
-      "short": "Relative local  property values",
-      "type": "",
-      "tags": "",
+      "short": "Relative local property values",
+      "type": "Community",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "",
-      "variables": [],
-      "impacts": [118]
+      "impacts": [114]
     },
     "18": {
       "id": 18,
-      "short": "Equity in rights to access basic services",
-      "type": "",
-      "tags": "",
+      "short": "Equity in access to basic services",
+      "type": "Equity",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "1.4 Equity in rights to access basic services",
-      "variables": [],
       "impacts": []
     },
     "19": {
       "id": 19,
       "short": "Local air quality",
-      "type": "",
-      "tags": "",
+      "type": "Health",
       "long": "",
-      "references": [],
+      "refs": [],
       "unsdg": "11.6 Local air pollution",
-      "variables": [],
-      "impacts": [65, 121]
+      "impacts": [62]
     },
     "20": {
       "id": 20,
-      "short": "Public health and  well-being",
+      "short": "Public health & wellbeing",
       "type": "main element",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
+      "long": "Good public health is described as an absence of disease and injuries.\n\nHigh wellbeing in community is described as the state when members of the community are feeling good and functioning well.",
+      "refs": [],
+      "unsdg": "3. Ensure healthy lives and promote well-being for all at all ages|5. Achieve gender equality and empower all women and girls|11. Make cities and human settlements inclusive|safe|resilient and sustainable|10. Reduce inequality within and among countries|13. Take urgent action to combat climate change and its impacts|16. Promote peaceful and inclusive societies for sustainable development|provide access to justice for all and build effective|accountable and inclusive institutions at all levels",
       "impacts": []
     },
     "21": {
       "id": 21,
-      "short": "Participatory planning",
-      "type": "",
-      "tags": "",
+      "short": "Disparities in access to education",
+      "type": "Equity",
       "long": "",
-      "references": [],
-      "unsdg": "11.3 Enable inclusive and sustainable urbanization through participatory planning",
-      "variables": [],
-      "impacts": []
+      "refs": [],
+      "unsdg": "4.5 Disparities in access to education",
+      "impacts": [52]
     },
     "22": {
       "id": 22,
-      "short": "Disparities in access to education",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "4.5 Disparities in access to education",
-      "variables": [],
-      "impacts": [55]
+      "short": "Investment in walking & cycling infrastructure",
+      "type": "Travel",
+      "long": "Investment in further walking and cycling infrastructure to connect different areas.",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [92, 113]
     },
     "23": {
       "id": 23,
-      "short": "investment in walking and cycling infrastructure",
-      "type": "",
-      "tags": "",
-      "long": "Investment in further walking and cycling infrastructure to connect different areas.",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [96, 117, 129]
+      "short": "Women's access to economic resources",
+      "type": "Equity",
+      "long": "",
+      "refs": [],
+      "unsdg": "5.7 Women's access to economic resources",
+      "impacts": []
     },
     "24": {
       "id": 24,
-      "short": "Women's access to economic resources",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "5.7 Women's access to economic resources",
-      "variables": [],
-      "impacts": []
+      "short": "Active transport use",
+      "type": "main element",
+      "long": "Defined as number of trips made by active transport, i.e. walking and cycling.",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [49, 72, 75, 89, 109, 133, 141]
     },
     "25": {
       "id": 25,
-      "short": "Active transportation usage",
-      "type": "main element",
-      "tags": "",
-      "long": "Defined as number of trips made by active transport, i.e. walking and cycling.",
-      "references": [],
-      "unsdg": "",
-      "variables": ["Trips_by_walking", "Trips_by_cycling"],
-      "impacts": [52, 76, 79, 93, 113, 140, 148]
-    },
-    "26": {
-      "id": 26,
-      "short": "Dense mixed  land use",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [141]
-    },
-    "27": {
-      "id": 27,
-      "short": "Tenure length",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [136]
-    },
-    "28": {
-      "id": 28,
-      "short": "Presence of people on local streets",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [78, 111, 131, 135]
-    },
-    "29": {
-      "id": 29,
-      "short": "Injuries",
-      "type": "Health meta-variable",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [69]
-    },
-    "30": {
-      "id": 30,
-      "short": "Speed of emergency  ground transportation",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [59]
-    },
-    "31": {
-      "id": 31,
-      "short": "Well-being",
-      "type": "Health meta-variable",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [87]
-    },
-    "32": {
-      "id": 32,
-      "short": "Exposure to traffic",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [85]
-    },
-    "33": {
-      "id": 33,
-      "short": "Communicable  diseases",
-      "type": "Health meta-variable",
-      "tags": "health variable",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [90]
-    },
-    "34": {
-      "id": 34,
-      "short": "Resilience to economic, social and environmental shocks",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "1.5 Resilience to economic, social and environmental shocks",
-      "variables": [],
-      "impacts": []
-    },
-    "35": {
-      "id": 35,
-      "short": "Private vehicle usage",
-      "type": "",
-      "tags": "",
-      "long": "Defined by number of local trips taken by private vehicles/individual automobile usage.",
-      "references": [],
-      "unsdg": "",
-      "variables": ["Trips_by_private_vehicle"],
-      "impacts": [61, 66, 91, 102, 106, 130, 133]
-    },
-    "36": {
-      "id": 36,
-      "short": "Number of local walking and cycling injuries",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "3.6 Number of local walking and cycling injuries",
-      "variables": [],
-      "impacts": [72, 116]
-    },
-    "37": {
-      "id": 37,
-      "short": "Local vehicle volumes",
-      "type": "",
-      "tags": "",
-      "long": "Defined by the traffic congestion and density in the local area.",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [56, 81, 105, 107, 123, 125]
-    },
-    "38": {
-      "id": 38,
-      "short": "Meaningful community participation in local design and planning",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "16.7 Meaningful community participation in local design and planning",
-      "variables": [],
-      "impacts": [70, 74, 147]
-    },
-    "39": {
-      "id": 39,
-      "short": "Accessibility to goods and services",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [138, 149]
-    },
-    "40": {
-      "id": 40,
-      "short": "Disease  diffusion rate",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [64]
-    },
-    "41": {
-      "id": 41,
-      "short": "Equity in access to healthcare services",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "3.8 Equity in access to healthcare services",
-      "variables": [],
-      "impacts": []
-    },
-    "42": {
-      "id": 42,
-      "short": "Local community  social connection",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [95, 98, 122, 146]
-    },
-    "43": {
-      "id": 43,
-      "short": "Perception of active transport safety from injury",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [84]
-    },
-    "44": {
-      "id": 44,
-      "short": "Disparities in access to work and training",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "8.5 and 8.6 Disparities in access to work and training",
-      "variables": [],
-      "impacts": []
-    },
-    "45": {
-      "id": 45,
-      "short": "Access to health goods and services",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [83, 128]
-    },
-    "46": {
-      "id": 46,
-      "short": "Local vehicle speeds",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [97, 127]
-    },
-    "47": {
-      "id": 47,
-      "short": "Urbanization",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [54]
-    },
-    "48": {
-      "id": 48,
-      "short": "Non-  communicable  diseases",
-      "type": "Health meta-variable",
-      "tags": "health variable",
-      "long": "Types of NCD health effects are coded in variables.",
-      "references": [],
-      "unsdg": "3.9 Deaths and illnesses from air pollution",
-      "variables": ["Cardiovascular_diseases", "Cancers", "Diabetes", "Chronic_respiratory_diseases", "Premature_NCD_mortality", "Mental_health_disorders", "Dementias"],
-      "impacts": [77]
-    },
-    "49": {
-      "id": 49,
-      "short": "Greenhouse gas  emissions",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "13.2 Transport greenhouse gas emissions",
-      "variables": [],
-      "impacts": []
-    },
-    "50": {
-      "id": 50,
-      "short": "Walk/bike  friendly & safe  environment",
-      "type": "",
-      "tags": "",
-      "long": "",
-      "references": [],
-      "unsdg": "",
-      "variables": [],
-      "impacts": [53, 60, 67, 68, 108, 142]
-    }
-  },
-  "impacts": {
-    "51": {
-      "id": 51,
-      "from": 12,
-      "to": 25,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "52": {
-      "id": 52,
-      "from": 25,
-      "to": 36,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "53": {
-      "id": 53,
-      "from": 50,
-      "to": 12,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "A less walk/bike friendly environment leads to more public transport network usage.\n\nIf parents perceive the environment as less safe (crime, transport infrastructure etc), children use public transport network more.",
-      "refs": ["10.1111/obr.13185"],
-      "unsdg": "",
-      "vars": []
-    },
-    "54": {
-      "id": 54,
-      "from": 47,
-      "to": 37,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "More urbanization leads to more traffic congestion and increased traffic density.",
-      "refs": ["10.1111/obr.13185"],
-      "unsdg": "",
-      "vars": []
-    },
-    "55": {
-      "id": 55,
-      "from": 22,
-      "to": 44,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "56": {
-      "id": 56,
-      "from": 37,
-      "to": 30,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "Increased traffic congestion/density leads to a decrease in the speed of emergency ground transportation.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "57": {
-      "id": 57,
-      "from": 1,
-      "to": 18,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "58": {
-      "id": 58,
-      "from": 14,
-      "to": 48,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["https://dx.doi.org/10.1016/j.scitotenv.2018.03.323"],
-      "unsdg": "",
-      "vars": []
-    },
-    "59": {
-      "id": 59,
-      "from": 30,
-      "to": 39,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "60": {
-      "id": 60,
-      "from": 50,
-      "to": 23,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "61": {
-      "id": 61,
-      "from": 35,
-      "to": 39,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "62": {
-      "id": 62,
-      "from": 8,
-      "to": 31,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "63": {
-      "id": 63,
-      "from": 10,
-      "to": 5,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "64": {
-      "id": 64,
-      "from": 40,
-      "to": 33,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "65": {
-      "id": 65,
-      "from": 19,
-      "to": 48,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "66": {
-      "id": 66,
-      "from": 35,
-      "to": 9,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "Increased automobile usage leads to increased direct environmental effects from automobiles (such as exhaust and other pollutants, road noise).",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "67": {
-      "id": 67,
-      "from": 50,
-      "to": 26,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "68": {
-      "id": 68,
-      "from": 50,
-      "to": 39,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "69": {
-      "id": 69,
-      "from": 29,
-      "to": 20,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "70": {
-      "id": 70,
-      "from": 38,
-      "to": 6,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "71": {
-      "id": 71,
-      "from": 1,
-      "to": 22,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "72": {
-      "id": 72,
-      "from": 36,
-      "to": 29,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "74": {
-      "id": 74,
-      "from": 38,
-      "to": 21,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "75": {
-      "id": 75,
-      "from": 12,
-      "to": 35,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "Increased public transport network usage leads to less individual automobile usage, and vice versa.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "76": {
-      "id": 76,
-      "from": 25,
-      "to": 49,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "77": {
-      "id": 77,
-      "from": 48,
-      "to": 20,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "78": {
-      "id": 78,
-      "from": 28,
-      "to": 13,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "79": {
-      "id": 79,
-      "from": 25,
-      "to": 46,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "80": {
-      "id": 80,
-      "from": 4,
-      "to": 27,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "81": {
-      "id": 81,
-      "from": 37,
-      "to": 9,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "82": {
-      "id": 82,
-      "from": 9,
-      "to": 50,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "Increased environmental effects from automobiles (such as exhaust and noise) leads to a less attractive environment for active travelers.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "83": {
-      "id": 83,
-      "from": 45,
-      "to": 48,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "84": {
-      "id": 84,
-      "from": 43,
-      "to": 25,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "85": {
-      "id": 85,
-      "from": 32,
-      "to": 50,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "86": {
-      "id": 86,
-      "from": 6,
-      "to": 8,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "87": {
-      "id": 87,
-      "from": 31,
-      "to": 20,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "88": {
-      "id": 88,
-      "from": 3,
-      "to": 48,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "89": {
-      "id": 89,
-      "from": 1,
-      "to": 41,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "90": {
-      "id": 90,
-      "from": 33,
-      "to": 20,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "91": {
-      "id": 91,
-      "from": 35,
-      "to": 11,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "92": {
-      "id": 92,
-      "from": 1,
-      "to": 24,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "93": {
-      "id": 93,
-      "from": 25,
-      "to": 48,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": ["Physical_activity"]
-    },
-    "94": {
-      "id": 94,
-      "from": 5,
-      "to": 15,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "95": {
-      "id": 95,
-      "from": 42,
-      "to": 34,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "96": {
-      "id": 96,
-      "from": 23,
-      "to": 50,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "97": {
-      "id": 97,
-      "from": 46,
-      "to": 43,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "98": {
-      "id": 98,
-      "from": 42,
-      "to": 13,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "99": {
-      "id": 99,
-      "from": 12,
-      "to": 7,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "100": {
-      "id": 100,
-      "from": 14,
-      "to": 31,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["https://dx.doi.org/10.1016/j.scitotenv.2018.03.323"],
-      "unsdg": "",
-      "vars": []
-    },
-    "101": {
-      "id": 101,
-      "from": 4,
-      "to": 42,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "102": {
-      "id": 102,
-      "from": 35,
-      "to": 37,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "Increased individual automobile usage causes more traffic congestion and density.",
-      "refs": ["10.1016/j.jth.2016.01.008", "10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "103": {
-      "id": 103,
-      "from": 13,
-      "to": 25,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "104": {
-      "id": 104,
-      "from": 15,
-      "to": 27,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "105": {
-      "id": 105,
-      "from": 37,
-      "to": 36,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "106": {
-      "id": 106,
-      "from": 35,
-      "to": 7,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "107": {
-      "id": 107,
-      "from": 37,
-      "to": 43,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "108": {
-      "id": 108,
-      "from": 50,
-      "to": 25,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "A more walk/bike friendly environment leads to more active transportation usage (cycling, walking).\n\nIf parents perceive the environment as safer (crime, transport infrastructure etc), children use active transport more.",
-      "refs": ["10.1016/j.jth.2016.01.008", "10.1111/obr.13185"],
-      "unsdg": "",
-      "vars": []
-    },
-    "110": {
-      "id": 110,
-      "from": 11,
-      "to": 37,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
-    },
-    "111": {
-      "id": 111,
-      "from": 28,
-      "to": 7,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008", "10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "112": {
-      "id": 112,
-      "from": 1,
-      "to": 44,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "113": {
-      "id": 113,
-      "from": 25,
-      "to": 3,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "114": {
-      "id": 114,
-      "from": 16,
-      "to": 10,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "115": {
-      "id": 115,
-      "from": 16,
-      "to": 38,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "116": {
-      "id": 116,
-      "from": 36,
-      "to": 43,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "117": {
-      "id": 117,
-      "from": 23,
-      "to": 1,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "10.3 Equity and affordability of access to education, employment, and health-promoting goods and services by income, gender, age and ethnicity",
-      "vars": []
-    },
-    "118": {
-      "id": 118,
-      "from": 17,
-      "to": 4,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "119": {
-      "id": 119,
-      "from": 5,
-      "to": 17,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "120": {
-      "id": 120,
-      "from": 5,
-      "to": 28,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
-    "121": {
-      "id": 121,
-      "from": 19,
-      "to": 12,
-      "short": "",
-      "type": "",
-      "tags": "",
+      "short": "Dense mixed land use",
+      "type": "Sustainable-development",
       "long": "",
       "refs": [],
       "unsdg": "",
-      "vars": []
+      "impacts": [134, 144]
+    },
+    "26": {
+      "id": 26,
+      "short": "Tenure length",
+      "type": "Community",
+      "long": "",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [130]
+    },
+    "27": {
+      "id": 27,
+      "short": "Presence of people on local streets",
+      "type": "Community",
+      "long": "",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [74, 107, 125, 129]
+    },
+    "28": {
+      "id": 28,
+      "short": "Injuries",
+      "type": "Health",
+      "long": "Among others, injuries can result from:\n\n- Car crashes\n- Striking the ground after falling",
+      "refs": [],
+      "unsdg": "3.6 Reduce injuries from road traffic accidents",
+      "impacts": [66]
+    },
+    "29": {
+      "id": 29,
+      "short": "Speed of emergency ground transportation",
+      "type": "Travel",
+      "long": "",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [56]
+    },
+    "30": {
+      "id": 30,
+      "short": "Wellbeing",
+      "type": "Health",
+      "long": "Wellbeing is about feeling good and functioning well and comprises an individual\u2019s experience of their life; and a comparison of life circumstances with social norms and values.",
+      "refs": ["https://www.gov.uk/government/publications/wellbeing-and-health"],
+      "unsdg": "3.4 Promote mental health and wellbeing",
+      "impacts": [83]
+    },
+    "31": {
+      "id": 31,
+      "short": "Exposure to traffic",
+      "type": "Travel",
+      "long": "",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [81]
+    },
+    "32": {
+      "id": 32,
+      "short": "Communicable diseases",
+      "type": "Health",
+      "long": "Communicable, or infectious diseases, are caused by microorganisms such as bacteria, viruses, parasites and fungi that can be spread, directly or indirectly, from one person to another.\n\nCommunicable diseases include:\n- Influenza\n- COVID-19\n- Tuberculosis\n- HIV/AIDS\n- Hepatitis",
+      "refs": ["https://www.euro.who.int/en/health-topics/communicable-diseases"],
+      "unsdg": "",
+      "impacts": [86]
+    },
+    "33": {
+      "id": 33,
+      "short": "Resilience to economic, social & environmental shocks",
+      "type": "Sustainable-development",
+      "long": "",
+      "refs": [],
+      "unsdg": "1.5 Resilience to economic, social and environmental shocks",
+      "impacts": []
+    },
+    "34": {
+      "id": 34,
+      "short": "Private vehicle use",
+      "type": "Travel",
+      "long": "Defined by number of local trips taken by private vehicles/individual car use.",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [58, 63, 87, 98, 102, 124, 127]
+    },
+    "35": {
+      "id": 35,
+      "short": "Number of local walking & cycling injuries",
+      "type": "Sustainable-development",
+      "long": "",
+      "refs": [],
+      "unsdg": "3.6 Number of local walking and cycling injuries",
+      "impacts": [69, 112]
+    },
+    "36": {
+      "id": 36,
+      "short": "Local vehicle volumes",
+      "type": "Travel",
+      "long": "Defined by the traffic congestion and density in the local area.",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [53, 77, 101, 103, 118, 120]
+    },
+    "37": {
+      "id": 37,
+      "short": "Community participation in planning",
+      "type": "Equity",
+      "long": "",
+      "refs": [],
+      "unsdg": "16.7 Meaningful community participation in local design and planning|11.3 Enable inclusive and sustainable urbanization through participatory planning",
+      "impacts": [67, 140]
+    },
+    "38": {
+      "id": 38,
+      "short": "Rate of disease spread",
+      "type": "Health",
+      "long": "",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [61]
+    },
+    "39": {
+      "id": 39,
+      "short": "Equity in access to healthcare services",
+      "type": "Equity",
+      "long": "",
+      "refs": [],
+      "unsdg": "3.8 Equity in access to healthcare services",
+      "impacts": [79, 123]
+    },
+    "40": {
+      "id": 40,
+      "short": "Local community social connection",
+      "type": "Community",
+      "long": "",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [91, 94, 117, 139]
+    },
+    "41": {
+      "id": 41,
+      "short": "Feeling safe during active transport",
+      "type": "Travel",
+      "long": "",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [80]
+    },
+    "42": {
+      "id": 42,
+      "short": "Disparities in access to work & training",
+      "type": "Equity",
+      "long": "",
+      "refs": [],
+      "unsdg": "8.5 and 8.6 Disparities in access to work and training",
+      "impacts": []
+    },
+    "43": {
+      "id": 43,
+      "short": "Local vehicle speeds",
+      "type": "Travel",
+      "long": "",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [93, 122]
+    },
+    "44": {
+      "id": 44,
+      "short": "Urbanization",
+      "type": "Sustainable-development",
+      "long": "",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [51]
+    },
+    "45": {
+      "id": 45,
+      "short": "Non-communicable diseases",
+      "type": "Health",
+      "long": "Noncommunicable diseases , also known as chronic diseases, tend to be of long duration and are the result of a combination of genetic, physiological, environmental and behavioural factors.\n\nNon-communicable diseases include:\n- Cardiovascular (heart) diseases\n- Cancers\n- Diabetes\n- Chronic respiratory diseases\n- Mental health disorders\n- Dementias",
+      "refs": ["https://www.who.int/news-room/fact-sheets/detail/noncommunicable-diseases"],
+      "unsdg": "3.4 Reduce non-communicable diseases",
+      "impacts": [73]
+    },
+    "46": {
+      "id": 46,
+      "short": "Greenhouse gas emissions",
+      "type": "Sustainable-development",
+      "long": "",
+      "refs": [],
+      "unsdg": "13.2 Transport greenhouse gas emissions",
+      "impacts": []
+    },
+    "47": {
+      "id": 47,
+      "short": "Walk/bike friendly & safe environment",
+      "type": "Equity",
+      "long": "",
+      "refs": [],
+      "unsdg": "",
+      "impacts": [50, 57, 64, 65, 104, 135]
+    }
+  },
+  "impacts": {
+    "48": {
+      "id": 48,
+      "from": 12,
+      "to": 24,
+      "type": "-",
+      "long": "Increased public transport use leads to a decrease in active transport use.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "49": {
+      "id": 49,
+      "from": 24,
+      "to": 35,
+      "type": "+",
+      "long": "Increased active transport use leads to increased local walking and cycling injuries.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "50": {
+      "id": 50,
+      "from": 47,
+      "to": 12,
+      "type": "-",
+      "long": "A less walk/bike friendly environment leads to more public transport network usage.\n\nIf parents perceive the environment as less safe (crime, transport infrastructure etc), children use public transport network more.",
+      "refs": ["10.1111/obr.13185"],
+      "unsdg": ""
+    },
+    "51": {
+      "id": 51,
+      "from": 44,
+      "to": 36,
+      "type": "+",
+      "long": "More urbanization leads to more traffic congestion and increased traffic density.",
+      "refs": ["10.1111/obr.13185"],
+      "unsdg": ""
+    },
+    "52": {
+      "id": 52,
+      "from": 21,
+      "to": 42,
+      "type": "+",
+      "long": "Increased disparities in access to education leads to increased disparities in access to work and training.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "53": {
+      "id": 53,
+      "from": 36,
+      "to": 29,
+      "type": "-",
+      "long": "Increased traffic congestion and density leads to a decrease in the speed of emergency ground transportation.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "54": {
+      "id": 54,
+      "from": 1,
+      "to": 18,
+      "type": "+",
+      "long": "Increased access to goods and services leads to an increase in equitable access to basic services.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "55": {
+      "id": 55,
+      "from": 14,
+      "to": 45,
+      "type": "-",
+      "long": "Increased access to safe and inclusive public green spaces leads to decreased non-communicable diseases in the community.",
+      "refs": ["https://dx.doi.org/10.1016/j.scitotenv.2018.03.323"],
+      "unsdg": ""
+    },
+    "56": {
+      "id": 56,
+      "from": 29,
+      "to": 1,
+      "type": "+",
+      "long": "Increased speed of emergency ground transportation leads to increased access & equity in access to goods and services.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "57": {
+      "id": 57,
+      "from": 47,
+      "to": 22,
+      "type": "+",
+      "long": "A more walk/bike friendly and safe environment leads to more investment in walking and cycling infrastructure.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "58": {
+      "id": 58,
+      "from": 34,
+      "to": 1,
+      "type": "+",
+      "long": "Increased private vehicle use leads to increased access to goods and services.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "59": {
+      "id": 59,
+      "from": 8,
+      "to": 30,
+      "type": "+",
+      "long": "Increased cultural wellbeing and increased protection of cultural heritage lead to increased general wellbeing of the community.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "60": {
+      "id": 60,
+      "from": 10,
+      "to": 5,
+      "type": "+",
+      "long": "Increased community action to resolve minor anti-social behaviour leads to streets and parks which are more attractive to locals.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "61": {
+      "id": 61,
+      "from": 38,
+      "to": 32,
+      "type": "+",
+      "long": "An increase in the rate of disease spread leads to an increase in communicable diseases.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "62": {
+      "id": 62,
+      "from": 19,
+      "to": 45,
+      "type": "-",
+      "long": "A decrease in local air quality leads to an increase in non-communicable diseases.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "63": {
+      "id": 63,
+      "from": 34,
+      "to": 9,
+      "type": "+",
+      "long": "Increased automobile usage leads to increased direct environmental effects from automobiles (such as exhaust and other pollutants, road noise).",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "64": {
+      "id": 64,
+      "from": 47,
+      "to": 25,
+      "type": "+",
+      "long": "A more walk/bike friendly and safe environment leads to more dense mixed land use.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "65": {
+      "id": 65,
+      "from": 47,
+      "to": 1,
+      "type": "+",
+      "long": "A more walk/bike friendly and safe environment leads to more access to goods and services.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "66": {
+      "id": 66,
+      "from": 28,
+      "to": 20,
+      "type": "-",
+      "long": "More injuries lead to a decline in public health and wellbeing.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "67": {
+      "id": 67,
+      "from": 37,
+      "to": 6,
+      "type": "+",
+      "long": "Increased community participation in planning leads to increased incorporation of culture & indigenous biodiversity in design.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "68": {
+      "id": 68,
+      "from": 1,
+      "to": 21,
+      "type": "-",
+      "long": "Increased access to goods and services leads to less disparities in access to education.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "69": {
+      "id": 69,
+      "from": 35,
+      "to": 28,
+      "type": "+",
+      "long": "Increased local walking and cycling injuries mean an increase in the overall number of injuries in the community.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "71": {
+      "id": 71,
+      "from": 12,
+      "to": 34,
+      "type": "-",
+      "long": "Increased public transport network usage leads to less individual automobile usage.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "72": {
+      "id": 72,
+      "from": 24,
+      "to": 46,
+      "type": "-",
+      "long": "An increase in active transport use leads to a decrease in greenhouse gas emissions.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "73": {
+      "id": 73,
+      "from": 45,
+      "to": 20,
+      "type": "-",
+      "long": "Increased non-communicable diseases lead to a decline in public health and wellbeing.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "74": {
+      "id": 74,
+      "from": 27,
+      "to": 13,
+      "type": "+",
+      "long": "Increased presence of people on local streets leads to an increase in local sense of security.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "75": {
+      "id": 75,
+      "from": 24,
+      "to": 43,
+      "type": "-",
+      "long": "Increased active transport use leads to a decrease in local vehicle speeds.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "76": {
+      "id": 76,
+      "from": 4,
+      "to": 26,
+      "type": "-",
+      "long": "Increased gentrification leads to decreased tenure length.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "77": {
+      "id": 77,
+      "from": 36,
+      "to": 9,
+      "type": "+",
+      "long": "Increased local vehicle volumes lead to more environmental effects from cars.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "78": {
+      "id": 78,
+      "from": 9,
+      "to": 47,
+      "type": "-",
+      "long": "Increased environmental effects from automobiles (such as exhaust and noise) leads to a less attractive environment for active travelers.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "79": {
+      "id": 79,
+      "from": 39,
+      "to": 45,
+      "type": "-",
+      "long": "More equitable access to healthcare services leads to a decrease in non-communicable diseases.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "80": {
+      "id": 80,
+      "from": 41,
+      "to": 24,
+      "type": "+",
+      "long": "More people feeling safe during active transport use leads to increased use of active transport.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "81": {
+      "id": 81,
+      "from": 31,
+      "to": 47,
+      "type": "-",
+      "long": "Increased exposure to traffic leads to a less walk/bike friendly and safe environment.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "82": {
+      "id": 82,
+      "from": 6,
+      "to": 8,
+      "type": "+",
+      "long": "Increased incorporation of culture & indigenous biodiversity in design leads to better cultural wellbeing and the protection of cultural heritage.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "83": {
+      "id": 83,
+      "from": 30,
+      "to": 20,
+      "type": "+",
+      "long": "An increase in community wellbeing leads to better public health and wellbeing.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "84": {
+      "id": 84,
+      "from": 3,
+      "to": 45,
+      "type": "-",
+      "long": "Increased proportion of people getting enough daily exercise leads to a decrease in non-communicable diseases.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "85": {
+      "id": 85,
+      "from": 1,
+      "to": 39,
+      "type": "+",
+      "long": "Increased access to goods and services leads to an increase in equitable access to healthcare services.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "86": {
+      "id": 86,
+      "from": 32,
+      "to": 20,
+      "type": "-",
+      "long": "Increased communicable diseases lead to a decline in public health and wellbeing.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "87": {
+      "id": 87,
+      "from": 34,
+      "to": 11,
+      "type": "+",
+      "long": "Increased private vehicle use leads to more car accidents.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "88": {
+      "id": 88,
+      "from": 1,
+      "to": 23,
+      "type": "+",
+      "long": "Increased access to goods and services leads to an increase in women's access to economic resources.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "89": {
+      "id": 89,
+      "from": 24,
+      "to": 45,
+      "type": "-",
+      "long": "Increased active transport by the community leads to a decrease in non-communicable diseases.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "90": {
+      "id": 90,
+      "from": 5,
+      "to": 15,
+      "type": "+",
+      "long": "Streets and parks which are more attractive to locals lead to increased place attachment.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "91": {
+      "id": 91,
+      "from": 40,
+      "to": 33,
+      "type": "+",
+      "long": "Increased social connection in the local community leads to increased resilience to economic, social & environmental shocks.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "92": {
+      "id": 92,
+      "from": 22,
+      "to": 47,
+      "type": "+",
+      "long": "Increased investment in walking and cycling infrastructure leads to a more walk/bike friendly and safe environment.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "93": {
+      "id": 93,
+      "from": 43,
+      "to": 41,
+      "type": "-",
+      "long": "Increased local vehicle speeds lead to feeling less safe during active transport.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "94": {
+      "id": 94,
+      "from": 40,
+      "to": 13,
+      "type": "+",
+      "long": "Increased social connection in the local community leads to people feeling safer.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "95": {
+      "id": 95,
+      "from": 12,
+      "to": 7,
+      "type": "+",
+      "long": "Increased public transport use leads to increased exposure to other people.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "96": {
+      "id": 96,
+      "from": 14,
+      "to": 30,
+      "type": "+",
+      "long": "Increased access to safe and inclusive public green spaces leads to increased wellbeing in the community.",
+      "refs": ["https://dx.doi.org/10.1016/j.scitotenv.2018.03.323"],
+      "unsdg": ""
+    },
+    "97": {
+      "id": 97,
+      "from": 4,
+      "to": 40,
+      "type": "-",
+      "long": "Increased gentrification leads to increased social connection in the local community.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "98": {
+      "id": 98,
+      "from": 34,
+      "to": 36,
+      "type": "+",
+      "long": "Increased individual car use causes more traffic congestion and density.",
+      "refs": ["10.1016/j.jth.2016.01.008", "10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "99": {
+      "id": 99,
+      "from": 13,
+      "to": 24,
+      "type": "+",
+      "long": "Increased local sense of security (feeling safe) leads to increased active transport use.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "100": {
+      "id": 100,
+      "from": 15,
+      "to": 26,
+      "type": "+",
+      "long": "Increased place attachment leads to an increase in tenure length.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "101": {
+      "id": 101,
+      "from": 36,
+      "to": 35,
+      "type": "+",
+      "long": "Increased local vehicle volumes lead to increased local walking and cycling injuries.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "102": {
+      "id": 102,
+      "from": 34,
+      "to": 7,
+      "type": "-",
+      "long": "Increased private vehicle use leads to decreased exposure to other people.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "103": {
+      "id": 103,
+      "from": 36,
+      "to": 41,
+      "type": "-",
+      "long": "Increased local vehicle volumes lead to feeling more safe during active transport.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "104": {
+      "id": 104,
+      "from": 47,
+      "to": 24,
+      "type": "+",
+      "long": "A more walk/bike friendly environment leads to more active transportation usage (cycling, walking).\n\nIf parents perceive the environment as safer (crime, transport infrastructure etc), children use active transport more.",
+      "refs": ["10.1016/j.jth.2016.01.008", "10.1111/obr.13185"],
+      "unsdg": ""
+    },
+    "106": {
+      "id": 106,
+      "from": 11,
+      "to": 36,
+      "type": "+",
+      "long": "Increased car accidents cause increased traffic density and congestion.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "107": {
+      "id": 107,
+      "from": 27,
+      "to": 7,
+      "type": "+",
+      "long": "Increased presence of people on local streets leads to more exposure to other people.",
+      "refs": ["10.1016/j.jth.2016.01.008", "10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "108": {
+      "id": 108,
+      "from": 1,
+      "to": 42,
+      "type": "-",
+      "long": "Increased access to goods and services leads to less disparities in access to work and training.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "109": {
+      "id": 109,
+      "from": 24,
+      "to": 3,
+      "type": "+",
+      "long": "Increased use of active transport leads to more people getting enough daily exercise.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "110": {
+      "id": 110,
+      "from": 16,
+      "to": 10,
+      "type": "+",
+      "long": "Increased community capacity and empowerment leads to increased community action to resolve minor anti-social behaviour.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "111": {
+      "id": 111,
+      "from": 16,
+      "to": 37,
+      "type": "+",
+      "long": "Increased community capacity and empowerment leads to more community participation in planning.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "112": {
+      "id": 112,
+      "from": 35,
+      "to": 41,
+      "type": "-",
+      "long": "Increased local walking and cycling injuries lead to feeling less safe during active transport.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "113": {
+      "id": 113,
+      "from": 22,
+      "to": 1,
+      "type": "+",
+      "long": "Increased investment in walking and cycling infrastructure leads to increased access to goods and services.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": "10.3 Equity and affordability of access to education, employment, and health-promoting goods and services by income, gender, age and ethnicity"
+    },
+    "114": {
+      "id": 114,
+      "from": 17,
+      "to": 4,
+      "type": "+",
+      "long": "Increase in local property values leads to more gentrification.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "115": {
+      "id": 115,
+      "from": 5,
+      "to": 17,
+      "type": "+",
+      "long": "Streets and parks which are more attractive to locals lead to increased relative local property values.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "116": {
+      "id": 116,
+      "from": 5,
+      "to": 27,
+      "type": "+",
+      "long": "Increased attractiveness of streets and parks to locals leads to more people being on the local streets.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "117": {
+      "id": 117,
+      "from": 40,
+      "to": 16,
+      "type": "+",
+      "long": "Increased social connection in the local community leads to increased community capacity and empowerment.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "118": {
+      "id": 118,
+      "from": 36,
+      "to": 45,
+      "type": "+",
+      "long": "Increased local vehicle volumes lead to an increase in non-communicable diseases.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    },
+    "119": {
+      "id": 119,
+      "from": 9,
+      "to": 19,
+      "type": "-",
+      "long": "Increasing environmental effects from cars decrease local air quality.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "120": {
+      "id": 120,
+      "from": 36,
+      "to": 47,
+      "type": "-",
+      "long": "Increased traffic congestion and density leads to a less attractive environment for active travelers.\n\nIncreased traffic density leads to a perception of decreased safety for parents and children.",
+      "refs": ["10.1111/obr.13185"],
+      "unsdg": ""
     },
     "122": {
       "id": 122,
-      "from": 42,
-      "to": 16,
-      "short": "",
+      "from": 43,
+      "to": 35,
       "type": "+",
-      "tags": "",
-      "long": "",
+      "long": "Increased local vehicle speeds lead to increased walking and cycling injuries.",
       "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "unsdg": ""
     },
     "123": {
       "id": 123,
-      "from": 37,
-      "to": 48,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
+      "from": 39,
+      "to": 32,
+      "type": "-",
+      "long": "More equitable access to healthcare services leads to a decrease in communicable diseases.",
       "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
+      "unsdg": ""
     },
     "124": {
       "id": 124,
-      "from": 9,
-      "to": 19,
-      "short": "",
+      "from": 34,
+      "to": 25,
       "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "long": "Increased private vehicle use leads to less dense mixed land use.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
     },
     "125": {
       "id": 125,
-      "from": 37,
-      "to": 50,
-      "short": "",
+      "from": 27,
+      "to": 2,
       "type": "-",
-      "tags": "",
-      "long": "Increased traffic congestion and density leads to a less attractive environment for active travelers.\n\nIncreased traffic density leads to a perception of decreased safety for parents and children.",
-      "refs": ["10.1111/obr.13185"],
-      "unsdg": "",
-      "vars": []
+      "long": "Increased presence of people on local streets leads to a decrease in local crime.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
+    },
+    "126": {
+      "id": 126,
+      "from": 9,
+      "to": 46,
+      "type": "+",
+      "long": "Increasing environmental effects from cars increase greenhouse gas emissions.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
     },
     "127": {
       "id": 127,
-      "from": 46,
-      "to": 36,
-      "short": "",
+      "from": 34,
+      "to": 31,
       "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "long": "Increased individual automobile usage leads to increased exposure to traffic.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
     },
     "128": {
       "id": 128,
-      "from": 45,
-      "to": 33,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
+      "from": 11,
+      "to": 28,
+      "type": "+",
+      "long": "More car accidents lead to more injuries in the community.",
       "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
+      "unsdg": ""
     },
     "129": {
       "id": 129,
-      "from": 23,
-      "to": 39,
-      "short": "",
+      "from": 27,
+      "to": 5,
       "type": "+",
-      "tags": "",
-      "long": "",
+      "long": "Presence of more people on local streets leads to more attractive streets and parks to locals.",
       "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "unsdg": ""
     },
     "130": {
       "id": 130,
-      "from": 35,
-      "to": 26,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
+      "from": 26,
+      "to": 40,
+      "type": "+",
+      "long": "Increased tenure length in the local community leads to increased social connection.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
     },
     "131": {
       "id": 131,
-      "from": 28,
-      "to": 2,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "from": 7,
+      "to": 38,
+      "type": "+",
+      "long": "Increased exposure to other people leads to an increase in the rate of disease spread.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
     },
     "132": {
       "id": 132,
-      "from": 9,
-      "to": 49,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "from": 1,
+      "to": 45,
+      "type": "-",
+      "long": "Increased access to goods and services leads to decreased non-communicable disease in the community.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
     },
     "133": {
       "id": 133,
-      "from": 35,
-      "to": 32,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "Increased individual automobile usage leads to increased exposure to traffic.",
+      "from": 24,
+      "to": 34,
+      "type": "-",
+      "long": "Increased active transport use leads to decreased private vehicle use.",
       "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
+      "unsdg": ""
     },
     "134": {
       "id": 134,
-      "from": 11,
-      "to": 29,
-      "short": "",
+      "from": 25,
+      "to": 7,
       "type": "+",
-      "tags": "",
-      "long": "",
+      "long": "Increased dense mixed land use leads to increased exposure to other people.",
       "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
+      "unsdg": ""
     },
     "135": {
       "id": 135,
-      "from": 28,
-      "to": 5,
-      "short": "",
+      "from": 47,
+      "to": 30,
       "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "long": "A more active-transport-friendly and safe environment leads to better wellbeing in the community.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
     },
     "136": {
       "id": 136,
-      "from": 27,
-      "to": 42,
-      "short": "",
+      "from": 5,
+      "to": 14,
       "type": "+",
-      "tags": "",
-      "long": "",
+      "long": "More attractive streets and parks leads to increased access to safe and inclusive public green spaces.",
       "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "unsdg": ""
     },
     "137": {
       "id": 137,
-      "from": 7,
-      "to": 40,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
+      "from": 2,
+      "to": 13,
+      "type": "-",
+      "long": "Increased local crime decreases the local sense of security (how safe people feel).",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
     },
     "138": {
       "id": 138,
-      "from": 39,
-      "to": 48,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
+      "from": 6,
+      "to": 5,
+      "type": "+",
+      "long": "Increased incorporation of culture & indigenous biodiversity in design leads to streets and parks which are more attractive to locals.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
     },
     "139": {
       "id": 139,
-      "from": 1,
-      "to": 45,
-      "short": "",
+      "from": 40,
+      "to": 15,
       "type": "+",
-      "tags": "",
-      "long": "",
+      "long": "Increased social connection in the local community leads to higher place attachment.",
       "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "unsdg": ""
     },
     "140": {
       "id": 140,
-      "from": 25,
-      "to": 35,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
+      "from": 37,
+      "to": 40,
+      "type": "+",
+      "long": "Increased community participation in planning leads to increased social connection in the local community.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
     },
     "141": {
       "id": 141,
-      "from": 26,
-      "to": 7,
-      "short": "",
+      "from": 24,
+      "to": 27,
       "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
+      "long": "Increased use of active transport leads to more people on local streets.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
     },
     "142": {
       "id": 142,
-      "from": 50,
-      "to": 31,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
+      "from": 2,
+      "to": 40,
+      "type": "-",
+      "long": "Increased local crime leads to decreased social connection in the local community.",
+      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "unsdg": ""
     },
     "143": {
       "id": 143,
-      "from": 5,
+      "from": 1,
       "to": 14,
-      "short": "",
       "type": "+",
-      "tags": "",
-      "long": "",
+      "long": "Increased access to goods and services leads to an increase in inclusive and safe access to public green spaces.",
       "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "unsdg": ""
     },
     "144": {
       "id": 144,
-      "from": 2,
-      "to": 13,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
-    },
+      "from": 25,
+      "to": 47,
+      "type": "+",
+      "long": "More dense mixed land use leads to a more walk/bike friendly and safe environment.",
+      "refs": ["10.1016/j.jth.2016.01.008"],
+      "unsdg": ""
+    }
+  },
+  "adaptations": {
     "145": {
       "id": 145,
-      "from": 6,
-      "to": 5,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "related": [41, 33, 47, 22, 5, 3],
+      "short": "Install permeable paving",
+      "long": "Permeable pavings drain stormwater more rapidly and reduce the chance of pavements/roads flooding. ",
+      "refs": ["https://dx.doi.org/10.3390/su12031057 ", " https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"],
+      "case": "",
+      "caseref": ""
     },
     "146": {
       "id": 146,
-      "from": 42,
-      "to": 15,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "related": [41, 33, 47, 22, 5, 3],
+      "short": "Improve drainage",
+      "long": "Improving drainage will maintain road use for active travel during periods of increased rainfall.",
+      "refs": ["https://dx.doi.org/10.3390/su12031057 ", " https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"],
+      "case": "",
+      "caseref": ""
     },
     "147": {
       "id": 147,
-      "from": 38,
-      "to": 42,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "related": [41, 33, 47, 22, 5],
+      "short": "Raise road surface levels",
+      "long": "Where flooding is frequent, raising road surface levels to a higher level relative to the surrounding ground will maintain its use for active travel.",
+      "refs": ["https://dx.doi.org/10.3390/su12031057"],
+      "case": "",
+      "caseref": ""
     },
     "148": {
       "id": 148,
-      "from": 25,
-      "to": 28,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "related": [41, 11, 33, 47, 22, 5],
+      "short": "Reduce use of fine materials in unbound granular layers",
+      "long": "This should be done where existing groundwater levels are high. This process reduces moisture content in paving, decreases risk of pavement/road damage in the future and prevents accidents related to paving deterioration.",
+      "refs": ["https://dx.doi.org/10.3390/su12031057"],
+      "case": "",
+      "caseref": ""
     },
     "149": {
       "id": 149,
-      "from": 39,
-      "to": 45,
-      "short": "",
-      "type": "+",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.jth.2016.01.008"],
-      "unsdg": "",
-      "vars": []
+      "related": [41, 33, 47, 22, 5],
+      "short": "Install porous asphalt",
+      "long": "Porous asphalt provides a surface that is free of water and improves driving safety. This will also create a safer active transport environment. \nHowever, porous asphalt is more prone to surface moisture damage and should be designed carefully.",
+      "refs": ["https://dx.doi.org/10.3390/su12031057"],
+      "case": "",
+      "caseref": ""
     },
     "150": {
       "id": 150,
-      "from": 2,
-      "to": 42,
-      "short": "",
-      "type": "-",
-      "tags": "",
-      "long": "",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
-      "unsdg": "",
-      "vars": []
+      "related": [33, 47, 22],
+      "short": "Make cycle hire flood-proof ",
+      "long": "The electrical infrastructure for cycle hire stations need to be flood proof to keep operational after heavy rain.",
+      "refs": ["https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"],
+      "case": "",
+      "caseref": ""
+    },
+    "151": {
+      "id": 151,
+      "related": [41, 33, 47, 22, 5, 3],
+      "short": "Improve visibility",
+      "long": "Improving visibility by installing appropriate street lighting helps maintain road use for active travel during periods of increased rainfall and decreased visibility.",
+      "refs": ["https://dx.doi.org/10.1161/cir.0000000000000878"],
+      "case": "Ruggedised: Designing smart, resilient cities for all",
+      "caseref": "https://ruggedised.eu/fileadmin/repository/Factsheets/Ruggedised-factsheet-R11-Rotterdam.pdf|https://ruggedised.eu/fileadmin/repository/Factsheets/Ruggedised-factsheet-G6.pdf"
+    },
+    "152": {
+      "id": 152,
+      "related": [33, 47, 22, 5, 3],
+      "short": "Install windbreaks",
+      "long": "Windbreaks using planting, trees, hedges or fences, can help mitigate the effects of strong prevailing winds and make walking and cycling more attractive.",
+      "refs": ["https://www.gov.uk/government/publications/cycle-infrastructure-design-ltn-120", "https://dx.doi.org/10.1161/cir.0000000000000878"],
+      "case": "",
+      "caseref": ""
+    },
+    "153": {
+      "id": 153,
+      "related": [33, 47, 22, 5],
+      "short": "Install permeable paving",
+      "long": "Permeable pavings have a cooling effect and decrease nearby temperatures.",
+      "refs": ["https://dx.doi.org/10.3390/su12031057"],
+      "case": "",
+      "caseref": ""
+    },
+    "154": {
+      "id": 154,
+      "related": [33, 47, 22, 5],
+      "short": "Install cool paving",
+      "long": "Cool pavements/roads with highly reflective coating reduces air temperatures near paved surfaces. Consider installing these  in pedestrianized areas, cycling lanes and cycle hire stations. This is especially important in more urbanized areas.",
+      "refs": ["https://dx.doi.org/10.3390/su12031057 ", " https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"],
+      "case": "Cool pavement pilot program, City of Los Angeles",
+      "caseref": "https://www.irf.global/information-on-cool-pavement-pilot-program-city-of-los-angeles/"
+    },
+    "155": {
+      "id": 155,
+      "related": [33, 47, 22, 5, 3],
+      "short": "Increase tree cover near pavements and roads",
+      "long": "Shading provided by tree cover is effective in reducing temperature of pavings and the surrounding temperature.",
+      "refs": ["https://dx.doi.org/10.3390/su12031057 ", " https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US", "https://dx.doi.org/10.1161/cir.0000000000000878", "https://www.fs.fed.us/psw/topics/urban_forestry/products/cufr639mcpherson-JOA-pavingshade.pdf"],
+      "case": "Street Tree Master Plan, Miami",
+      "caseref": "https://www8.miamidade.gov/global/recreation/milliontrees/street-tree-master-plan.page"
+    },
+    "156": {
+      "id": 156,
+      "related": [33, 47, 22, 5, 3],
+      "short": "Install drinking fountains",
+      "long": "Drinking fountains next to cycle hire stations, along bike lanes and in pedestrianized areas help community stay hydrated during active travel.",
+      "refs": ["https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"],
+      "case": "",
+      "caseref": ""
+    },
+    "157": {
+      "id": 157,
+      "related": [33, 47, 22, 5, 3],
+      "short": "Improve shading",
+      "long": "Shading areas next to cycle hire stations and in pedestrianized zones decrease exposure to heat and make active travel a more attractive option.",
+      "refs": ["https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US", "https://dx.doi.org/10.1161/cir.0000000000000878"],
+      "case": "Street Tree Master Plan, Miami",
+      "caseref": "https://www8.miamidade.gov/global/recreation/milliontrees/street-tree-master-plan.page"
+    },
+    "158": {
+      "id": 158,
+      "related": [33, 47, 22, 5, 3],
+      "short": "Route bikers through parks",
+      "long": "Designing cycling routes through parks provide cooling and promote active travel.",
+      "refs": ["https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"],
+      "case": "",
+      "caseref": ""
+    },
+    "159": {
+      "id": 159,
+      "related": [33, 47, 22, 5],
+      "short": "Plan for increased and more frequent maintenance on pavings",
+      "long": "Paving damage (such as longitudinal cracking, alligator cracking, and rutting) will be exacerbated by climate change, and maintenance will have to be performed earlier to mitigate the impact.",
+      "refs": ["https://dx.doi.org/10.3390/su12031057"],
+      "case": "",
+      "caseref": ""
     }
   }
 };
@@ -41276,13 +40841,11 @@ exports.Network = void 0;
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 const $ = require("jquery");
 
-const adapt = require("./adaptation_finder.js");
+const finder = require("./adaptation_finder.js");
 
 const net = require("./net.js");
 
-const vis = require("vis-network/standalone"); //import { Network, DataSet, Node, Edge } from 'vis-network/standalone';
-// Cause -> Factor -> Impact -> Factor ->??? Adaptation
-
+const vis = require("vis-network/standalone");
 
 const node_size = 25;
 const preview_font_size = 6;
@@ -41295,6 +40858,68 @@ class Network {
     this.nodes = [];
     this.edges = [];
     this.url_cache = {};
+    this.finder = new finder.AdaptationFinder();
+    this.type_cols = {
+      "Equity": "#e6e6e6",
+      "Community": "#e6e6e6",
+      "Health": "#e6e6e6",
+      "Travel": "#e6e6e6",
+      "Sustainable-development": "#e6e6e6"
+    };
+    this.types = ["Health", "Equity", "Community", "Travel", "Sustainable-development"];
+    this.filter = [];
+    this.iconCache = {};
+    this.iconCacheLoading = false;
+    this.iconFnFix = {
+      "Attractiveness of streets/parks to locals": "Attractiveness of streets parks to locals FILE NAME",
+      "Community action to resolve minor anti-social behaviour": "Community action to resolve minor antisocial behaviour",
+      "Walk/bike friendly & safe environment": "Walk bike friendly & safe environment FILE NAME",
+      "Number of local walking & cycling injuries": "Number of walking & cycling injuries"
+    };
+    this.notFoundIcon = `<circle
+             style="fill:#254747;fill-opacity:1;stroke-width:0.46499997"
+             id="circle1093-0-8"
+             cx="150"
+             cy="125"
+             r="100" />`;
+  }
+
+  async loadIcon(fn) {
+    let name = fn;
+
+    if (this.iconFnFix[fn] != null) {
+      name = this.iconFnFix[fn];
+    }
+
+    let xhr = new XMLHttpRequest();
+    await xhr.open("GET", "images/icons/" + name + ".svg", false);
+    xhr.overrideMimeType("image/svg+xml");
+
+    xhr.onload = e => {
+      if (xhr.responseXML != null) {
+        this.iconCache[fn] = xhr.responseXML.documentElement.innerHTML;
+      }
+    };
+
+    xhr.onerror = e => {
+      console.log("problem loading: " + name);
+    };
+
+    await xhr.send("");
+  }
+
+  async loadIconCache() {
+    if (!this.iconCacheLoading) {
+      this.iconCacheLoading = true;
+
+      for (let f in this.net.factors) {
+        this.loadIcon(this.net.factors[f].short);
+      }
+
+      for (let f in this.net.causes) {
+        this.loadIcon(this.net.causes[f].short);
+      }
+    }
   }
 
   printable(str) {
@@ -41304,15 +40929,40 @@ class Network {
   nodeImageURL(id, title, text, bg) {
     let height = 450;
     if (text == "") height = 350;
+    if (bg == undefined) bg = "#e6e6e6";
+    let icon = this.notFoundIcon;
+
+    if (this.iconCache[title] != null) {
+      icon = `<g transform="translate(40,10) scale(7)">` + this.iconCache[title] + `</g>`;
+    } else {
+      console.log("icon for " + title + " not found");
+    }
+
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="` + height + `" style="overflow:visible;">
                    <rect x="0" y="0" width="100%" height="100%" fill="` + bg + `" stroke-width="5" stroke="#a4b3cd"  rx="15" ></rect>
 
-			<circle
-             style="fill:#254747;fill-opacity:1;stroke-width:0.46499997"
-             id="circle1093-0-8"
-             cx="150"
-             cy="125"
-             r="100" />
+        ` + icon + `			
+
+        <foreignObject x="0" y="220" width="100%" height="100%">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
+        <center style="font-size: 2em;">` + this.printable(title) + `</center>
+        <p>` + this.printable(text) + `</p>
+        </div>
+        </foreignObject>
+        </svg>`;
+    let url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    return url;
+  }
+
+  adaptationImageURL(id, title, text, bg) {
+    let height = 450;
+    if (text == "") height = 350;
+    if (bg == undefined) bg = "#e6e6e6";
+    let icon = this.notFoundIcon;
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="` + height + `" style="overflow:visible;">
+                   <rect x="0" y="0" width="100%" height="100%" fill="` + bg + `" stroke-width="5" stroke="#a4b3cd"  rx="15" ></rect>
+
+        ` + icon + `			
 
         <foreignObject x="0" y="220" width="100%" height="100%">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
@@ -41339,25 +40989,11 @@ class Network {
       s += "<li><b>UN SDG</b>: " + factor.unsdg + "</li>";
     }
 
-    if (factor.tags != "") {
-      s += "<li><b>Tags</b>: " + factor.tags + "</li>";
-    }
-
-    if (factor.references.length > 0) {
+    if (factor.refs.length > 0) {
       s += "<li><b>References</b>: <ol>";
 
       for (let ref of factor.references) {
         s += "<li><a href='" + ref + "'>" + ref + "</a></li>";
-      }
-
-      s += "</ol></li>";
-    }
-
-    if (factor.variables.length > 0) {
-      s += "<li><b>Variables</b>: <ol>";
-
-      for (let ref of factor.variables) {
-        s += "<li>" + ref + "</li>";
       }
 
       s += "</ol></li>";
@@ -41390,25 +41026,11 @@ class Network {
       s += "<li><b>UN SDG</b>: " + impact.unsdg + "</li>";
     }
 
-    if (impact.tags != "") {
-      s += "<li><b>Tags</b>: " + impact.tags + "</li>";
-    }
-
     if (impact.refs.length > 0) {
       s += "<li><b>Referencess</b>: <ol>";
 
       for (let ref of impact.refs) {
         s += "<li><a href='" + ref + "'>" + ref + "</a></li>";
-      }
-
-      s += "</ol></li>";
-    }
-
-    if (impact.vars.length > 0) {
-      s += "<li><b>Variables</b>: <ol>";
-
-      for (let ref of impact.vars) {
-        s += "<li>" + ref + "</li>";
       }
 
       s += "</ol></li>";
@@ -41424,7 +41046,8 @@ class Network {
       shape: "image",
       label: "",
       size: node_size,
-      image: this.nodeImageURL(factor.id, factor.short, factor.long, "#e6e6e6"),
+      // "#e6e6e6"
+      image: this.nodeImageURL(factor.id, factor.short, factor.long, this.type_cols[factor.type]),
       preview: false
     };
   }
@@ -41442,34 +41065,72 @@ class Network {
   }
 
   factorEdgeFull(factor, impact, new_factor) {
+    let colour = "#ff0000";
+
+    if (impact.type == "+") {
+      colour = "#00ff00";
+    }
+
     return {
       id: impact.id,
       from: factor.id,
       to: impact.to,
       arrows: "middle",
       label: impact.type,
+      font: {
+        color: colour,
+        size: 50
+      },
       //label: new_factor.short,
       //length: 0.5,
       //font: { size: 6 },
       //arrowStrikethrough: false,					
       color: {
-        color: "#a4b3cd"
+        color: this.type_cols[factor.type]
       }
     };
   }
 
   factorEdgePreview(factor, impact, new_factor) {
+    let colour = "#ff0000";
+
+    if (impact.type == "+") {
+      colour = "#00ff00";
+    }
+
     return {
       id: impact.id,
       from: factor.id,
       to: impact.to,
       arrows: "to",
       label: impact.type,
-      //value: 0.05,
+      font: {
+        color: colour,
+        size: 50
+      },
       arrowStrikethrough: false,
       color: {
-        color: "#a4b3cd"
+        color: this.type_cols[factor.type]
       }
+    };
+  }
+
+  adaptationEdge(factor_id, adaptation) {
+    return {
+      from: factor_id,
+      to: adaptation.id,
+      arrows: "to" //value: 0.05,
+
+    };
+  }
+
+  adaptationToNode(adaptation) {
+    return {
+      id: adaptation.id,
+      shape: "image",
+      label: "",
+      size: node_size,
+      image: this.adaptationImageURL(adaptation.id, adaptation.short, adaptation.long, "#ff0000")
     };
   }
 
@@ -41485,7 +41146,7 @@ class Network {
         y: pos.y + (i - factor.impacts.length / 2) * node_size
       };
 
-      if (new_factor.type != "") {
+      if (new_factor.type == "main element" || this.filter.includes(new_factor.type)) {
         this.addFactor(new_factor, false, fpos);
         this.edges.add([this.factorEdgeFull(factor, impact, new_factor)]);
       } else {
@@ -41512,6 +41173,7 @@ class Network {
           x: n.x,
           y: n.y
         });
+        this.searchAdaptations(factor.id, pos);
       } else {
         let n = this.factorToNodePreview(factor);
         n.x = pos.x;
@@ -41536,18 +41198,22 @@ class Network {
         x: 100,
         y: y * 75
       });
-      let label = "+";
+      let colour = "#00ff00";
 
-      if (cause.operator == "decrease") {
-        label = "-";
+      if (cause.type == "-") {
+        let colour = "#ff0000";
       }
 
       this.edges.add([{
         from: cause.id,
         to: cause.factor,
         arrows: "to",
-        label: label,
-        value: 0.05,
+        label: cause.type,
+        font: {
+          color: colour,
+          size: 50
+        },
+        //value: 0.05,
         arrowStrikethrough: false,
         color: {
           color: "#ffbc42"
@@ -41556,14 +41222,52 @@ class Network {
     }
   }
 
+  addAdaptation(adaptation, pos) {
+    if (!this.nodes.get(adaptation.id)) {
+      let n = this.adaptationToNode(adaptation);
+      n.x = pos.x;
+      n.y = pos.y;
+      this.nodes.add([n]);
+    }
+  }
+
+  searchAdaptations(factor_id, pos) {
+    for (let aid in this.net.adaptations) {
+      let a = this.net.adaptations[aid];
+
+      if (a.related.includes(factor_id)) {
+        this.addAdaptation(a, pos);
+        this.edges.add([this.adaptationEdge(factor_id, a)]);
+      }
+    }
+  }
+
   async buildGraph() {
     this.nodes = new vis.DataSet([]);
-    this.edges = new vis.DataSet([]);
+    this.edges = new vis.DataSet([]); // read filter:
+
+    this.filter = [];
+
+    for (var t of this.types) {
+      if ($('#' + t).prop('checked')) {
+        this.filter.push(t);
+      }
+    }
+
     let c = 0;
 
     for (let cause of this.net.causes) {
-      this.addCause(cause, c);
-      c += 1;
+      console.log(cause);
+
+      if (true || (await this.finder.isCauseActive("future_year_avg", this.tiles, 2, 9, cause))) {
+        console.log("cause is active");
+        console.log(cause);
+        this.addCause(cause, c);
+        c += 1;
+      } else {
+        console.log("cause not active");
+        console.log(cause);
+      }
     }
 
     const options = {

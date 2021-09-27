@@ -167,8 +167,9 @@ class Network {
 */
 	addToCauseToFactor(cause,factor) {
 		this.addCause(cause)
-
-		if (this.style=="complex" || factor.type!="") {
+		console.log(this.style)
+		
+		if (this.style=="complex" || factor.type=="main element") {
 
 			this.addFactor(factor)
 
@@ -190,11 +191,11 @@ class Network {
 	}
 
 	addFactorToImpact(factor,impact,depth) {
-		if (this.style=="complex" ||factor.type!="") {
+		if (this.style=="complex" || factor.type=="main element") {
 
 			let next_factor = this.net.factors[impact.to]
 
-			if (this.style=="complex" || next_factor.type!="") {
+			if (this.style=="complex" || next_factor.type=="main element") {
 
 				let label="<span style='color:green'>+</span>"
 				if (impact.type == "-") {
@@ -288,5 +289,7 @@ class Network {
 		
 	}
 }
+
+console.log("hello")
 
 export { Network }
