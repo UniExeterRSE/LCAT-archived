@@ -103,7 +103,7 @@ class LSOAZones {
 		this.zones=new_zones;
 	}
 
-	update_list(net) {
+	async update_list(net) {
 		$('#selected-list').empty()
 		let zone_names=[]
 		for (let zone of this.zones) {
@@ -121,6 +121,7 @@ class LSOAZones {
 			}
 
 			net.tiles=tiles
+			await net.updateVariables();
 			net.buildGraph();
 
 		} else {

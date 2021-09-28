@@ -73,6 +73,10 @@ async function setup() {
 			net.buildGraph()
 		})
 	}
+
+	$("#climate_variables").on("change", () => {
+		net.updateVariables($("#climate_variables").val());
+	})
 	
 	$("#graph").html(graph.no_data)
 

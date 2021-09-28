@@ -38812,18 +38812,22 @@ const utils = require("./utils"); // two values for a specific variable to use f
 
 
 class ClimateVariable {
-  constructor(table, variable_name, reference, value) {
+  constructor(table, reference, value) {
     this.table = table;
-    this.variable_name = variable_name;
     this.reference = reference;
     this.value = value;
+    this.direction = "rising";
+
+    if (reference > value) {
+      this.direction = "falling";
+    }
   }
 
 }
 
 class AdaptationFinder {
   constructor() {
-    this.variable = [];
+    this.variables = {};
     this.tables = ["future_year_avg", "future_summer_avg", "future_winter_avg"];
     this.variable_names = ["daily_precip", "mean_temp", //"max_temp",
     //"min_temp",
@@ -38832,49 +38836,49 @@ class AdaptationFinder {
     ];
   }
 
-  async getVariable(table, variable_name, zones, reference_decade, value_decade) {
-    // todo cache these so we don't need to reload all zones
-    this.variables = [];
+  async loadVariable(table, variable_name, zones, reference_decade, value_decade) {
+    console.log(variable_name); // todo cache these so we don't need to reload all zones
+
     await $.getJSON("/api/future", {
       table: table,
       zones: zones,
       data_type: variable_name
     }, (data, status) => {
       let decades = utils.calculate_decades(data);
-      this.variable = [decades[reference_decade], decades[value_decade]];
+      this.variables[variable_name] = new ClimateVariable(table, decades[reference_decade], decades[value_decade]);
+      console.log(table + " " + variable_name + "=" + this.variables[variable_name].direction);
     });
   }
 
-  async isCauseActive(table, zones, reference_decade, value_decade, cause) {
-    // load variables for these zones
-    await this.getVariable(table, cause.variable, zones, reference_decade, value_decade);
-    console.log(this.variable);
-    let ref = this.variable[0];
-    let val = this.variable[1];
-    let variable = cause.variable;
-    console.log(cause.operator);
-    console.log(variable);
+  async loadVariables(table, zones, variable_names, reference_decade, value_decade) {
+    this.variables = {};
 
-    if (val > ref) {
-      console.log(table + " " + variable + " rising " + ref.toFixed(2) + " -> " + val.toFixed(2));
-    } else {
-      console.log(table + " " + variable + " falling " + ref.toFixed(2) + " -> " + val.toFixed(2));
+    for (let v of variable_names) {
+      await this.loadVariable(table, v, zones, reference_decade, value_decade);
+    }
+  }
+
+  causePolarityMatch(cause) {
+    if (!this.variables[cause.variable]) {
+      console.log("variable " + cause.variable + " not loaded");
+      console.log(cause);
+      return false;
     }
 
-    switch (cause.operator) {
-      case "increase":
-        if (ref < val) return true;
-        return false;
-        break;
+    console.log(cause.variable + " " + cause.operator);
 
-      case "decrease":
-        if (ref > val) return true;
-        return false;
-        break;
-
-      default:
-        return false;
+    if (cause.operator == "increase" && this.variables[cause.variable].direction == "rising") {
+      console.log("match");
+      return true;
     }
+
+    if (cause.operator == "decrease" && this.variables[cause.variable].direction == "falling") {
+      console.log("match");
+      return true;
+    }
+
+    console.log("mismatch");
+    return false;
   }
 
 }
@@ -39120,6 +39124,10 @@ async function setup() {
 			net.buildGraph()
 		})
 	}
+
+	$("#climate_variables").on("change", () => {
+		net.updateVariables($("#climate_variables").val());
+	})
 	
 	$("#graph").html(graph.no_data)
 
@@ -39248,7 +39256,7 @@ class LSOAZones {
     this.zones = new_zones;
   }
 
-  update_list(net) {
+  async update_list(net) {
     $('#selected-list').empty();
     let zone_names = [];
 
@@ -39268,6 +39276,7 @@ class LSOAZones {
       }
 
       net.tiles = tiles;
+      await net.updateVariables();
       net.buildGraph();
     } else {
       $("#results").css("display", "none");
@@ -40858,6 +40867,7 @@ class Network {
     this.nodes = [];
     this.edges = [];
     this.url_cache = {};
+    this.table = "future_year_avg";
     this.finder = new finder.AdaptationFinder();
     this.type_cols = {
       "Equity": "#e6e6e6",
@@ -41172,8 +41182,7 @@ class Network {
         this.addImpacts(factor, {
           x: n.x,
           y: n.y
-        });
-        this.searchAdaptations(factor.id, pos);
+        }); //this.searchAdaptations(factor.id,pos)
       } else {
         let n = this.factorToNodePreview(factor);
         n.x = pos.x;
@@ -41183,7 +41192,7 @@ class Network {
     }
   }
 
-  addCause(cause, y) {
+  addCause(cause, y, polarity_match) {
     if (!this.nodes.get(cause.id)) {
       this.nodes.add([{
         id: cause.id,
@@ -41198,9 +41207,15 @@ class Network {
         x: 100,
         y: y * 75
       });
+      let label = cause.type;
+
+      if (!polarity_match) {
+        if (label == "-") label = "+";else label = "-";
+      }
+
       let colour = "#00ff00";
 
-      if (cause.type == "-") {
+      if (label == "-") {
         let colour = "#ff0000";
       }
 
@@ -41208,7 +41223,7 @@ class Network {
         from: cause.id,
         to: cause.factor,
         arrows: "to",
-        label: cause.type,
+        label: label,
         font: {
           color: colour,
           size: 50
@@ -41242,6 +41257,17 @@ class Network {
     }
   }
 
+  async updateVariables(table) {
+    console.log("updating variables");
+
+    if (table != undefined) {
+      this.table = table;
+    }
+
+    await this.finder.loadVariables(this.table, this.tiles, ["daily_precip", "mean_temp", "mean_windspeed"], 2, 9);
+    this.buildGraph();
+  }
+
   async buildGraph() {
     this.nodes = new vis.DataSet([]);
     this.edges = new vis.DataSet([]); // read filter:
@@ -41257,17 +41283,8 @@ class Network {
     let c = 0;
 
     for (let cause of this.net.causes) {
-      console.log(cause);
-
-      if (true || (await this.finder.isCauseActive("future_year_avg", this.tiles, 2, 9, cause))) {
-        console.log("cause is active");
-        console.log(cause);
-        this.addCause(cause, c);
-        c += 1;
-      } else {
-        console.log("cause not active");
-        console.log(cause);
-      }
+      this.addCause(cause, c, this.finder.causePolarityMatch(cause));
+      c += 1;
     }
 
     const options = {

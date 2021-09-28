@@ -30,6 +30,7 @@ class Network {
 		this.nodes = []
 		this.edges = []
 		this.url_cache = {}
+		this.table = "future_year_avg"
 		this.finder = new finder.AdaptationFinder()
 		this.type_cols = {
 			"Equity": "#e6e6e6",
@@ -325,7 +326,7 @@ class Network {
 				n.y = pos.y;
 				this.nodes.add([n])
 				this.addImpacts(factor,{x: n.x, y: n.y})
-				this.searchAdaptations(factor.id,pos)
+				//this.searchAdaptations(factor.id,pos)
 			} else {
 				let n = this.factorToNodePreview(factor)
 				n.x = pos.x;
@@ -335,7 +336,7 @@ class Network {
 		}
 	}
 	
-	addCause(cause,y) {
+	addCause(cause,y,polarity_match) {
 		if (!this.nodes.get(cause.id)) {
 			this.nodes.add([{
 				id: cause.id,
@@ -349,8 +350,15 @@ class Network {
 			
 			this.addFactor(this.net.factors[cause.factor],false,{x: 100, y: y*75})
 
+			let label = cause.type
+			
+			if (!polarity_match) {
+				if (label=="-") label="+"
+				else label="-"
+			}
+
 			let colour="#00ff00"
-			if (cause.type == "-") {
+			if (label == "-") {
 				let colour="#ff0000"
 			}
 
@@ -358,7 +366,7 @@ class Network {
 				from: cause.id,
 				to: cause.factor,
 				arrows: "to",
-				label: cause.type,
+				label: label,
 				font: {
 					color: colour,
 					size: 50
@@ -390,6 +398,19 @@ class Network {
 			}
 		}
 	}
+
+	async updateVariables(table) {
+		console.log("updating variables")
+		if (table!=undefined) {
+			this.table=table
+		}
+		await this.finder.loadVariables(
+			this.table,this.tiles,
+			["daily_precip","mean_temp","mean_windspeed"]
+			,2,9)		
+		this.buildGraph()
+	}
+
 	
 	async buildGraph() {
 
@@ -403,19 +424,11 @@ class Network {
 				this.filter.push(t)
 			}
 		}
-
+		
 		let c = 0
 		for (let cause of this.net.causes) {
-			console.log(cause)
-			if (true || await this.finder.isCauseActive("future_year_avg",this.tiles,2,9,cause)) {
-				console.log("cause is active")
-				console.log(cause)
-				this.addCause(cause,c)
-				c+=1
-			} else {
-				console.log("cause not active")
-				console.log(cause)
-			}
+			this.addCause(cause,c,this.finder.causePolarityMatch(cause))
+			c+=1
 		}
 		
 		const options = {

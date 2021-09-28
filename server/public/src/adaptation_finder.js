@@ -3,17 +3,20 @@ const utils = require("./utils")
 
 // two values for a specific variable to use for comparisons
 class ClimateVariable {
-	constructor (table,variable_name,reference,value) {
+	constructor (table,reference,value) {
 		this.table=table
-		this.variable_name=variable_name
 		this.reference=reference
 		this.value=value
+		this.direction = "rising"
+		if (reference>value) {
+			this.direction = "falling"
+		}
 	}
 }
 
 class AdaptationFinder {
 	constructor () {
-		this.variable = []
+		this.variables = {}
 		this.tables = [
 			"future_year_avg",
 			"future_summer_avg",
@@ -30,9 +33,9 @@ class AdaptationFinder {
 		]
 	}
 
-	async getVariable(table,variable_name,zones,reference_decade,value_decade) {
+	async loadVariable(table,variable_name,zones,reference_decade,value_decade) {
+		console.log(variable_name);
 		// todo cache these so we don't need to reload all zones
-		this.variables = []
 		await $.getJSON(
 			"/api/future",
 			{
@@ -42,40 +45,45 @@ class AdaptationFinder {
 			},
 			(data,status) => {
 				let decades = utils.calculate_decades(data)
-				this.variable=[decades[reference_decade],
-							   decades[value_decade]]
+				this.variables[variable_name]=new ClimateVariable(
+					table,
+					decades[reference_decade],
+					decades[value_decade]
+				)
+				console.log(table+" "+variable_name+"="+this.variables[variable_name].direction)
 			})
 	}
+
+	async loadVariables(table,zones,variable_names,reference_decade,value_decade) {
+		this.variables = {}
+		for (let v of variable_names) {
+			await this.loadVariable(table,v,zones,reference_decade,value_decade)
+		}		
+	}
 	
-	async isCauseActive(table,zones,reference_decade,value_decade,cause) {
-		// load variables for these zones
-		await this.getVariable(table,cause.variable,zones,reference_decade,value_decade)
-		console.log(this.variable)
-
-		let ref = this.variable[0]
-		let val = this.variable[1]
-
-		let variable = cause.variable;
-		console.log(cause.operator)
-		console.log(variable)
-
-		if (val>ref) {
-			console.log(table+" "+variable+" rising "+ref.toFixed(2)+" -> "+val.toFixed(2))
-		} else {
-			console.log(table+" "+variable+" falling "+ref.toFixed(2)+" -> "+val.toFixed(2))
+	causePolarityMatch(cause) {
+		if (!this.variables[cause.variable]) {
+			console.log("variable "+cause.variable+" not loaded")
+			console.log(cause)
+			return false
 		}
+
+		console.log(cause.variable+" "+cause.operator)
 		
-		switch (cause.operator) {			
-		case "increase":
-			if (ref<val) return true
-			return false
-			break;
-		case "decrease":
-			if (ref>val) return true
-			return false
-			break;
-		default: return false;
+		if (cause.operator=="increase" && 
+			this.variables[cause.variable].direction=="rising") {
+			console.log("match")
+			return true
 		}
+
+		if (cause.operator=="decrease" && 
+			this.variables[cause.variable].direction=="falling") {
+			console.log("match")
+			return true
+		}
+
+		console.log("mismatch")
+		return false		
 	}
 }
  				 
