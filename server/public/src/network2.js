@@ -435,7 +435,7 @@ class Network {
 
 			let colour="#00ff00"
 			if (label == "-") {
-				let colour="#ff0000"
+				colour="#ff0000"
 			}
 
 			this.edges.add([{
