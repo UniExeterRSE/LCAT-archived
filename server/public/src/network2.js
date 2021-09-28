@@ -164,7 +164,7 @@ class Network {
 		let url= "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 		return url
 	}
-
+	
 	adaptationImageURL(id,title,text,bg) {
 		let height = 450
 		if (text=="") height=350
@@ -189,6 +189,22 @@ class Network {
 	}
 	
 
+	causeToHTML(cause) {
+		let s=""
+		s+=`<h3>`+cause.short+`</h3>`
+		s+=`<p>`+cause.long+`</p>`
+		s+="<ul>"
+		if (cause.refs.length>0) {
+			s+="<li><b>References</b>: <ol>"
+			for (let ref of cause.refs) {
+				s+="<li><a href='"+ref+"'>"+ref+"</a></li>";
+			}
+			s+="</ol></li>"
+		}
+		s+="</ul>"
+		return s
+	}
+	
 	factorToHTML(factor) {
 		let s=""
 		s+=`<h3>`+factor.short+`</h3>`
@@ -202,7 +218,7 @@ class Network {
 		}
 		if (factor.refs.length>0) {
 			s+="<li><b>References</b>: <ol>"
-			for (let ref of factor.references) {
+			for (let ref of factor.refs) {
 				s+="<li><a href='"+ref+"'>"+ref+"</a></li>";
 			}
 			s+="</ol></li>"
@@ -213,11 +229,7 @@ class Network {
 	
 	impactToHTML(impact) {
 		let s=""
-		if (impact.short!="") {
-			s+=`<h3>`+impact.short+`</h3>`
-		} else {
-			s+=`<b>`+this.net.factors[impact.from].short+`</b> impacts <b>`+this.net.factors[impact.to].short+`</b><br>`
-		}
+		s+=`<b>`+this.net.factors[impact.from].short+`</b> impacts <b>`+this.net.factors[impact.to].short+`</b><br>`
 		if (impact.long!="") {
 			s+=`<p>`+impact.long+`</p>`
 		}
@@ -439,6 +451,7 @@ class Network {
 			}
 
 			this.edges.add([{
+				id: cause.id,
 				from: cause.id,
 				to: cause.factor,
 				arrows: "to",
@@ -536,6 +549,7 @@ class Network {
 		// list adaptations
 		let adaptations = this.finder.find(this.net.adaptations)
 		$("#adaptation-count").html(adaptations.length)
+		$("#adaptations").empty()
 		for (let a of adaptations) {
 			$("#adaptations").append(
 				$('<p>').attr("class","adaptation")
@@ -557,13 +571,22 @@ class Network {
 			for (let node of this.nodes.get(ids)) {
 				let factor = this.net.factors[node.id]
 				let pos=network.getPositions(node.id)[node.id]
-				if (node.preview==true) {					
-					this.nodes.update(this.factorToNodeFull(factor))
-					this.addImpacts(factor,pos)
+
+				if (factor!=undefined) {
+					if (node.preview==true) {					
+						this.nodes.update(this.factorToNodeFull(factor))
+						this.addImpacts(factor,pos)
+					} else {
+						$("#network-info").html(this.factorToHTML(factor))
+					}
+					node_selected=true;
 				} else {
-					$("#network-info").html(this.factorToHTML(factor))
+					for (let c of this.net.causes) {
+						if (c.id==node.id) {
+							$("#network-info").html(this.causeToHTML(c))
+						}
+					}
 				}
-				node_selected=true;
 			}
 
 			if (!node_selected) {
@@ -573,6 +596,12 @@ class Network {
 					if (impact!=undefined) {
 						console.log(impact)
 						$("#network-info").html(this.impactToHTML(impact))
+					} else {
+						for (let c of this.net.causes) {
+							if (c.id==edge.id) {
+								$("#network-info").html(this.causeToHTML(c))
+							}
+						}
 					}
 				}
 			}

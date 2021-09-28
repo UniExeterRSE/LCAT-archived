@@ -68,11 +68,12 @@ def load_connections(fn):
                         "id": next_id,
                         "short": row[0],
                         "type": row[2],
-                        "long": row[4],
+                        "long": row[3],
                         "factor": t["id"],
                         "operator": op,
                         "variable": var,
-                        "refs": str2arr(row[5])
+                        "refs": str2arr(row[4]),
+                        "unsdg": row[5],
                     })
                     next_id+=1
                     

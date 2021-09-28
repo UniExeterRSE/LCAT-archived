@@ -39402,29 +39402,32 @@ const net = {
     "id": 70,
     "short": "Temperature",
     "type": "+",
-    "long": "10.1186/1476-069x-11-12|10.1016/j.trd.2019.09.022",
+    "long": "in general, an increase in temperature leads to an increase in active transport use.",
     "factor": 24,
     "operator": "increase",
     "variable": "mean_temp",
-    "refs": []
+    "refs": ["10.1186/1476-069x-11-12", "10.1016/j.trd.2019.09.022"],
+    "unsdg": ""
   }, {
     "id": 105,
     "short": "Rain",
     "type": "-",
-    "long": "https://dx.doi.org/10.1007/s11116-012-9398-5|https://dx.doi.org/10.1186/1476-069x-11-12|10.1016/j.jtrangeo.2019.04.016|10.1186/1476-069x-11-12|10.1016/j.trd.2019.09.022",
+    "long": "In general, an increase in precipitation leads to decreased use of active transport.",
     "factor": 24,
     "operator": "increase",
     "variable": "daily_precip",
-    "refs": []
+    "refs": ["https://dx.doi.org/10.1007/s11116-012-9398-5", "https://dx.doi.org/10.1186/1476-069x-11-12", "10.1016/j.jtrangeo.2019.04.016", "10.1186/1476-069x-11-12", "10.1016/j.trd.2019.09.022"],
+    "unsdg": ""
   }, {
     "id": 121,
     "short": "Wind speed",
     "type": "-",
-    "long": "10.1186/1476-069x-11-12|10.1016/j.trd.2019.09.022",
+    "long": "In general, an increase in wind speed leads to a decrease in active transport use.",
     "factor": 24,
     "operator": "increase",
     "variable": "mean_windspeed",
-    "refs": []
+    "refs": ["10.1186/1476-069x-11-12", "10.1016/j.trd.2019.09.022"],
+    "unsdg": ""
   }],
   "factors": {
     "1": {
@@ -41074,6 +41077,26 @@ class Network {
     return url;
   }
 
+  causeToHTML(cause) {
+    let s = "";
+    s += `<h3>` + cause.short + `</h3>`;
+    s += `<p>` + cause.long + `</p>`;
+    s += "<ul>";
+
+    if (cause.refs.length > 0) {
+      s += "<li><b>References</b>: <ol>";
+
+      for (let ref of cause.refs) {
+        s += "<li><a href='" + ref + "'>" + ref + "</a></li>";
+      }
+
+      s += "</ol></li>";
+    }
+
+    s += "</ul>";
+    return s;
+  }
+
   factorToHTML(factor) {
     let s = "";
     s += `<h3>` + factor.short + `</h3>`;
@@ -41091,7 +41114,7 @@ class Network {
     if (factor.refs.length > 0) {
       s += "<li><b>References</b>: <ol>";
 
-      for (let ref of factor.references) {
+      for (let ref of factor.refs) {
         s += "<li><a href='" + ref + "'>" + ref + "</a></li>";
       }
 
@@ -41104,12 +41127,7 @@ class Network {
 
   impactToHTML(impact) {
     let s = "";
-
-    if (impact.short != "") {
-      s += `<h3>` + impact.short + `</h3>`;
-    } else {
-      s += `<b>` + this.net.factors[impact.from].short + `</b> impacts <b>` + this.net.factors[impact.to].short + `</b><br>`;
-    }
+    s += `<b>` + this.net.factors[impact.from].short + `</b> impacts <b>` + this.net.factors[impact.to].short + `</b><br>`;
 
     if (impact.long != "") {
       s += `<p>` + impact.long + `</p>`;
@@ -41348,6 +41366,7 @@ class Network {
       }
 
       this.edges.add([{
+        id: cause.id,
         from: cause.id,
         to: cause.factor,
         arrows: "to",
@@ -41445,6 +41464,7 @@ class Network {
 
     let adaptations = this.finder.find(this.net.adaptations);
     $("#adaptation-count").html(adaptations.length);
+    $("#adaptations").empty();
 
     for (let a of adaptations) {
       $("#adaptations").append($('<p>').attr("class", "adaptation").html(this.adaptationToHTML(a)));
@@ -41464,14 +41484,22 @@ class Network {
         let factor = this.net.factors[node.id];
         let pos = network.getPositions(node.id)[node.id];
 
-        if (node.preview == true) {
-          this.nodes.update(this.factorToNodeFull(factor));
-          this.addImpacts(factor, pos);
-        } else {
-          $("#network-info").html(this.factorToHTML(factor));
-        }
+        if (factor != undefined) {
+          if (node.preview == true) {
+            this.nodes.update(this.factorToNodeFull(factor));
+            this.addImpacts(factor, pos);
+          } else {
+            $("#network-info").html(this.factorToHTML(factor));
+          }
 
-        node_selected = true;
+          node_selected = true;
+        } else {
+          for (let c of this.net.causes) {
+            if (c.id == node.id) {
+              $("#network-info").html(this.causeToHTML(c));
+            }
+          }
+        }
       }
 
       if (!node_selected) {
@@ -41483,6 +41511,12 @@ class Network {
           if (impact != undefined) {
             console.log(impact);
             $("#network-info").html(this.impactToHTML(impact));
+          } else {
+            for (let c of this.net.causes) {
+              if (c.id == edge.id) {
+                $("#network-info").html(this.causeToHTML(c));
+              }
+            }
           }
         }
       }
