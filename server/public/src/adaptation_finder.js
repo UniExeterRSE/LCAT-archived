@@ -3,8 +3,9 @@ const utils = require("./utils")
 
 // two values for a specific variable to use for comparisons
 class ClimateVariable {
-	constructor (table,reference,value) {
+	constructor (table,variable_name,reference,value) {
 		this.table=table
+		this.variable_name=variable_name
 		this.reference=reference
 		this.value=value
 		this.direction = "rising"
@@ -34,7 +35,6 @@ class AdaptationFinder {
 	}
 
 	async loadVariable(table,variable_name,zones,reference_decade,value_decade) {
-		console.log(variable_name);
 		// todo cache these so we don't need to reload all zones
 		await $.getJSON(
 			"/api/future",
@@ -47,10 +47,11 @@ class AdaptationFinder {
 				let decades = utils.calculate_decades(data)
 				this.variables[variable_name]=new ClimateVariable(
 					table,
+					variable_name,
 					decades[reference_decade],
 					decades[value_decade]
 				)
-				console.log(table+" "+variable_name+"="+this.variables[variable_name].direction)
+				//console.log(table+" "+variable_name+"="+this.variables[variable_name].direction)
 			})
 	}
 
@@ -68,21 +69,16 @@ class AdaptationFinder {
 			return false
 		}
 
-		console.log(cause.variable+" "+cause.operator)
-		
 		if (cause.operator=="increase" && 
 			this.variables[cause.variable].direction=="rising") {
-			console.log("match")
 			return true
 		}
 
 		if (cause.operator=="decrease" && 
 			this.variables[cause.variable].direction=="falling") {
-			console.log("match")
 			return true
 		}
 
-		console.log("mismatch")
 		return false		
 	}
 

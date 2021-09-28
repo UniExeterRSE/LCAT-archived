@@ -120,7 +120,51 @@ class Network {
 		let url= "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 		return url
 	}
-	
+
+	climateVariableText(variable) {
+		let units = "celsius"
+		if (variable.variable_name=="daily_precip") {
+			units = "cm/day"
+		}
+		if (variable.variable_name=="mean_windspeed") {
+			units = "m/s"
+		}
+
+		if (variable.direction=="rising") {
+			return "Rising by "+(variable.value-variable.reference).toFixed(2)+" "+units+" in next 80 years"
+		} else {
+			return "Falling by "+(variable.reference-variable.value).toFixed(2)+" "+units+" in next 80 years"
+		}
+	}
+
+	causeImageURL(id,title,text,bg,variable) {
+		let height = 450
+		if (text=="") height=350
+		if (bg==undefined) bg="#e6e6e6"
+		let icon=this.notFoundIcon
+		if (this.iconCache[title]!=null) {
+			icon=`<g transform="translate(40,10) scale(7)">` + this.iconCache[title] + `</g>`
+		} else {
+			console.log("icon for "+title+" not found")
+		}
+		
+		let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="`+height+`" style="overflow:visible;">
+                   <rect x="0" y="0" width="100%" height="100%" fill="`+bg+`" stroke-width="5" stroke="#a4b3cd"  rx="15" ></rect>
+
+        ` + icon + `			
+
+        <foreignObject x="0" y="220" width="100%" height="100%">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
+        <center style="font-size: 2em;">`+this.printable(title)+`</center>
+        <center style="font-size: 1.5em;">`+this.climateVariableText(variable)+`</center>
+        </div>
+        </foreignObject>
+        </svg>`
+
+		let url= "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+		return url
+	}
+
 	adaptationImageURL(id,title,text,bg) {
 		let height = 450
 		if (text=="") height=350
@@ -364,13 +408,17 @@ class Network {
 		}
 	}
 	
-	addCause(cause,y,polarity_match) {
+	addCause(cause,y) {
 		if (!this.nodes.get(cause.id)) {
+
+			let polarity_match = this.finder.causePolarityMatch(cause)
+			let variable = this.finder.variables[cause.variable]
+			
 			this.nodes.add([{
 				id: cause.id,
 				shape: "image",
 				size: node_size,
-				image: this.nodeImageURL(cause.id,cause.short,"","#a4f9c8"),
+				image: this.causeImageURL(cause.id,cause.short,"","#a4f9c8",variable),
 				x: 0,
 				y: y*75,
 				fixed: true
@@ -455,7 +503,7 @@ class Network {
 		
 		let c = 0
 		for (let cause of this.net.causes) {
-			this.addCause(cause,c,this.finder.causePolarityMatch(cause))
+			this.addCause(cause,c)
 			c+=1
 		}
 		
