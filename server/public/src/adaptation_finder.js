@@ -85,6 +85,26 @@ class AdaptationFinder {
 		console.log("mismatch")
 		return false		
 	}
+
+	find(adaptations) {
+		let ret = []
+
+		for (let aid in adaptations) {
+			let a = adaptations[aid]
+			a.variable
+			if (a.direction=="increase" &&
+				this.variables[a.variable].direction=="rising") {
+				ret.push(a)
+			}
+			if (a.direction=="decrease" &&
+				this.variables[a.variable].direction=="falling") {
+				ret.push(a)
+			}
+		}
+		
+		return ret		
+	}
+
 }
  				 
 export { AdaptationFinder }

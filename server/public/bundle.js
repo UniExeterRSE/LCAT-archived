@@ -38881,6 +38881,25 @@ class AdaptationFinder {
     return false;
   }
 
+  find(adaptations) {
+    let ret = [];
+
+    for (let aid in adaptations) {
+      let a = adaptations[aid];
+      a.variable;
+
+      if (a.direction == "increase" && this.variables[a.variable].direction == "rising") {
+        ret.push(a);
+      }
+
+      if (a.direction == "decrease" && this.variables[a.variable].direction == "falling") {
+        ret.push(a);
+      }
+    }
+
+    return ret;
+  }
+
 }
 
 exports.AdaptationFinder = AdaptationFinder;
@@ -40689,6 +40708,8 @@ const net = {
   "adaptations": {
     "145": {
       "id": 145,
+      "variable": "daily_precip",
+      "direction": "increase",
       "related": [41, 33, 47, 22, 5, 3],
       "short": "Install permeable paving",
       "long": "Permeable pavings drain stormwater more rapidly and reduce the chance of pavements/roads flooding. ",
@@ -40698,6 +40719,8 @@ const net = {
     },
     "146": {
       "id": 146,
+      "variable": "daily_precip",
+      "direction": "increase",
       "related": [41, 33, 47, 22, 5, 3],
       "short": "Improve drainage",
       "long": "Improving drainage will maintain road use for active travel during periods of increased rainfall.",
@@ -40707,6 +40730,8 @@ const net = {
     },
     "147": {
       "id": 147,
+      "variable": "daily_precip",
+      "direction": "increase",
       "related": [41, 33, 47, 22, 5],
       "short": "Raise road surface levels",
       "long": "Where flooding is frequent, raising road surface levels to a higher level relative to the surrounding ground will maintain its use for active travel.",
@@ -40716,6 +40741,8 @@ const net = {
     },
     "148": {
       "id": 148,
+      "variable": "daily_precip",
+      "direction": "increase",
       "related": [41, 11, 33, 47, 22, 5],
       "short": "Reduce use of fine materials in unbound granular layers",
       "long": "This should be done where existing groundwater levels are high. This process reduces moisture content in paving, decreases risk of pavement/road damage in the future and prevents accidents related to paving deterioration.",
@@ -40725,6 +40752,8 @@ const net = {
     },
     "149": {
       "id": 149,
+      "variable": "daily_precip",
+      "direction": "increase",
       "related": [41, 33, 47, 22, 5],
       "short": "Install porous asphalt",
       "long": "Porous asphalt provides a surface that is free of water and improves driving safety. This will also create a safer active transport environment. \nHowever, porous asphalt is more prone to surface moisture damage and should be designed carefully.",
@@ -40734,6 +40763,8 @@ const net = {
     },
     "150": {
       "id": 150,
+      "variable": "daily_precip",
+      "direction": "increase",
       "related": [33, 47, 22],
       "short": "Make cycle hire flood-proof ",
       "long": "The electrical infrastructure for cycle hire stations need to be flood proof to keep operational after heavy rain.",
@@ -40743,6 +40774,8 @@ const net = {
     },
     "151": {
       "id": 151,
+      "variable": "daily_precip",
+      "direction": "increase",
       "related": [41, 33, 47, 22, 5, 3],
       "short": "Improve visibility",
       "long": "Improving visibility by installing appropriate street lighting helps maintain road use for active travel during periods of increased rainfall and decreased visibility.",
@@ -40752,6 +40785,8 @@ const net = {
     },
     "152": {
       "id": 152,
+      "variable": "mean_windspeed",
+      "direction": "increase",
       "related": [33, 47, 22, 5, 3],
       "short": "Install windbreaks",
       "long": "Windbreaks using planting, trees, hedges or fences, can help mitigate the effects of strong prevailing winds and make walking and cycling more attractive.",
@@ -40761,6 +40796,8 @@ const net = {
     },
     "153": {
       "id": 153,
+      "variable": "mean_temp",
+      "direction": "increase",
       "related": [33, 47, 22, 5],
       "short": "Install permeable paving",
       "long": "Permeable pavings have a cooling effect and decrease nearby temperatures.",
@@ -40770,6 +40807,8 @@ const net = {
     },
     "154": {
       "id": 154,
+      "variable": "mean_temp",
+      "direction": "increase",
       "related": [33, 47, 22, 5],
       "short": "Install cool paving",
       "long": "Cool pavements/roads with highly reflective coating reduces air temperatures near paved surfaces. Consider installing these  in pedestrianized areas, cycling lanes and cycle hire stations. This is especially important in more urbanized areas.",
@@ -40779,6 +40818,8 @@ const net = {
     },
     "155": {
       "id": 155,
+      "variable": "mean_temp",
+      "direction": "increase",
       "related": [33, 47, 22, 5, 3],
       "short": "Increase tree cover near pavements and roads",
       "long": "Shading provided by tree cover is effective in reducing temperature of pavings and the surrounding temperature.",
@@ -40788,6 +40829,8 @@ const net = {
     },
     "156": {
       "id": 156,
+      "variable": "mean_temp",
+      "direction": "increase",
       "related": [33, 47, 22, 5, 3],
       "short": "Install drinking fountains",
       "long": "Drinking fountains next to cycle hire stations, along bike lanes and in pedestrianized areas help community stay hydrated during active travel.",
@@ -40797,6 +40840,8 @@ const net = {
     },
     "157": {
       "id": 157,
+      "variable": "mean_temp",
+      "direction": "increase",
       "related": [33, 47, 22, 5, 3],
       "short": "Improve shading",
       "long": "Shading areas next to cycle hire stations and in pedestrianized zones decrease exposure to heat and make active travel a more attractive option.",
@@ -40806,6 +40851,8 @@ const net = {
     },
     "158": {
       "id": 158,
+      "variable": "mean_temp",
+      "direction": "increase",
       "related": [33, 47, 22, 5, 3],
       "short": "Route bikers through parks",
       "long": "Designing cycling routes through parks provide cooling and promote active travel.",
@@ -40815,6 +40862,8 @@ const net = {
     },
     "159": {
       "id": 159,
+      "variable": "",
+      "direction": "",
       "related": [33, 47, 22, 5],
       "short": "Plan for increased and more frequent maintenance on pavings",
       "long": "Paving damage (such as longitudinal cracking, alligator cracking, and rutting) will be exacerbated by climate change, and maintenance will have to be performed earlier to mitigate the impact.",
@@ -41037,13 +41086,50 @@ class Network {
     }
 
     if (impact.refs.length > 0) {
-      s += "<li><b>Referencess</b>: <ol>";
+      s += "<li><b>References</b>: <ol>";
 
       for (let ref of impact.refs) {
         s += "<li><a href='" + ref + "'>" + ref + "</a></li>";
       }
 
       s += "</ol></li>";
+    }
+
+    s += "</ul>";
+    return s;
+  }
+
+  adaptationToHTML(a) {
+    let s = "";
+
+    if (a.short != "") {
+      s += `<h3>` + a.short + `</h3>`;
+    }
+
+    if (a.long != "") {
+      s += `<p>` + a.long + `</p>`;
+    }
+
+    s += "<ul>";
+
+    if (a.refs.length > 0) {
+      s += "<li><b>References</b>: <ol>";
+
+      for (let ref of a.refs) {
+        s += "<li><a href='" + ref + "'>" + ref + "</a></li>";
+      }
+
+      s += "</ol></li>";
+    }
+
+    if (a.case != "") {
+      s += `<li><b>Case study</b>: ` + a.case;
+
+      if (a.caseref != "") {
+        s += ` <a href="` + a.caseref + `">Link</a>`;
+      }
+
+      s += `</li>`;
     }
 
     s += "</ul>";
@@ -41313,7 +41399,15 @@ class Network {
         },*/
 
       }
-    }; // create a network
+    }; // list adaptations
+
+    let adaptations = this.finder.find(this.net.adaptations);
+    $("#adaptation-count").html(adaptations.length);
+
+    for (let a of adaptations) {
+      $("#adaptations").append($('<p>').attr("class", "adaptation").html(this.adaptationToHTML(a)));
+    } // create a network
+
 
     var container = document.getElementById("network-holder");
     var network = new vis.Network(container, {

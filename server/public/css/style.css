@@ -140,12 +140,14 @@ button {
 }
 
 
-.placeholder {
+.adaptations {
 	border-radius: 5px;
 	border: 4px solid #a4b3cd;
-	height: 10em;
-	line-height: 10em;
-	text-align: center;
+}
+
+.adaptation {
+	margin: 1em;
+	border-bottom: 4px solid #a4b3cd;
 }
 
 #results span {

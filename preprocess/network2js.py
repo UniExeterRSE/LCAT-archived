@@ -111,8 +111,25 @@ def load_adaptations(fn):
         reader = csv.reader(csvfile)
         for i,row in enumerate(reader):
             if i>0:
+                variable = ""
+                direction = ""
+                if row[0] == "Increased rain":
+                    variable = "daily_precip"
+                    direction = "increase"
+                if row[0] == "Increased wind":
+                    variable = "mean_windspeed"
+                    direction = "increase"
+                if row[0] == "Increased temperature":
+                    variable = "mean_temp"
+                    direction = "increase"
+
+                if variable=="" or direction=="":
+                    print("problem with "+row[2])
+                    
                 adaptations[next_id]={
                     "id": next_id,
+                    "variable": variable,
+                    "direction": direction,
                     "related": lookup_factors(row[1]),
                     "short": row[2],
                     "long": row[3],

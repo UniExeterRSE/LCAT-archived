@@ -185,7 +185,7 @@ class Network {
 			s+="<li><b>UN SDG</b>: "+impact.unsdg+"</li>"
 		}
 		if (impact.refs.length>0) {
-			s+="<li><b>Referencess</b>: <ol>"
+			s+="<li><b>References</b>: <ol>"
 			for (let ref of impact.refs) {
 				s+="<li><a href='"+ref+"'>"+ref+"</a></li>";
 			}
@@ -195,6 +195,34 @@ class Network {
 		return s
 	}
 
+	adaptationToHTML(a) {
+		let s=""
+		if (a.short!="") {
+			s+=`<h3>`+a.short+`</h3>`
+		}
+		if (a.long!="") {
+			s+=`<p>`+a.long+`</p>`
+		}
+		s+="<ul>"
+		if (a.refs.length>0) {
+			s+="<li><b>References</b>: <ol>"
+			for (let ref of a.refs) {
+				s+="<li><a href='"+ref+"'>"+ref+"</a></li>";
+			}
+			s+="</ol></li>"
+		}
+
+		if (a.case!="") {
+			s+=`<li><b>Case study</b>: `+a.case
+			if (a.caseref!="") {
+				s+=` <a href="`+a.caseref+`">Link</a>`
+			}
+			s+=`</li>`
+		}
+
+		s+="</ul>"
+		return s
+	}
 
 	factorToNodeFull(factor) {
 		return {
@@ -455,6 +483,17 @@ class Network {
 				},*/
 			},
 		};
+
+
+		// list adaptations
+		let adaptations = this.finder.find(this.net.adaptations)
+		$("#adaptation-count").html(adaptations.length)
+		for (let a of adaptations) {
+			$("#adaptations").append(
+				$('<p>').attr("class","adaptation")
+					.html(this.adaptationToHTML(a))
+			)
+		}
 		
 		// create a network
 		var container = document.getElementById("network-holder");
