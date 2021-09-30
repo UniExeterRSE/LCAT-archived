@@ -117,8 +117,8 @@ section {
 	display: block;
 }
 
-#graph-csv {
-	font-size: 0.75em;
+#graph {
+	padding: 2em;
 }
 
 .hidden-section {
@@ -317,4 +317,8 @@ g span {
 }
 
 
-
+.final {
+	border: none;
+	font-size: 200%;
+	text-align: center;
+}
