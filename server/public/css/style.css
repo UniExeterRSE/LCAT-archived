@@ -18,15 +18,25 @@ body {
 select {
     font-family: 'nunito',Arial,Helvetica,sans-serif;
 	border: none;
-	background: #e6e6e6;
+	background: #b0cacc;
 	font-size: 1em;
+	border-radius: 2px;
+}
+
+select:hover {
+	background: #ffbc42;
 }
 
 button {
     font-family: 'nunito',Arial,Helvetica,sans-serif;
 	border: none;
-	background: #e6e6e6;
+	background: #b0cacc;
 	font-size: 1em;
+	border-radius: 2px;
+}
+
+button:hover {
+	background: #ffbc42;
 }
 
 @media (min-width: 1000px) {
@@ -131,7 +141,7 @@ section {
 
 #network-info {		
 	border-radius: 5px;
-	background: #a4b3cd;	
+	background: #e6e6e6;	
 	padding: 1em;
 }
 
@@ -188,6 +198,19 @@ section {
     transition: max-height 0.5s ease-in;
 }
 
+.final {
+	border: none;
+	font-size: 200%;
+	text-align: center;
+}
+
+.final button {
+	border-radius: 5px;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+
+
 #results span {
 	padding-left: 0.25em;
 	padding-right: 0.25em;
@@ -216,10 +239,6 @@ section {
     font-size: 1em;	
 }
 
-.outputs button:hover {
-	background: #ffbc42;
-}
-
 .legend {
     font-family: 'nunito',Arial,Helvetica,sans-serif;
     font-size: 1em;
@@ -244,10 +263,7 @@ section {
 	height: 1em;
 }
 
-
-svg {
-
-}
+/* network styles -------------------------------------- */
 
 g span {
 	background: none !important;
@@ -316,9 +332,3 @@ g span {
 	text-align: center;	
 }
 
-
-.final {
-	border: none;
-	font-size: 200%;
-	text-align: center;
-}

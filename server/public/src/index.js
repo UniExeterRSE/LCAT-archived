@@ -17,7 +17,7 @@ const $ = require("jquery")
 const L = require("leaflet")
 const zones = require("./lsoa.js")
 const graph = require("./graph.js")
-const network = require("./network2.js")
+const network = require("./network.js")
 const esri = require("esri-leaflet")
 
 var leaflet_map = L.map('leaflet-map').setView([50.26123046875, -5.052745342254639], 10);

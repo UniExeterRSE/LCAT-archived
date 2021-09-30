@@ -13,6 +13,10 @@ class ClimateVariable {
 			this.direction = "falling"
 		}
 	}
+
+	getDelta() {
+		return this.value-this.reference
+	}
 }
 
 class AdaptationFinder {
@@ -34,6 +38,19 @@ class AdaptationFinder {
 		]
 	}
 
+	// only works for active transport use
+	// as that is the only thing we have data for
+	calculateFactorChange(factor) {
+		let rainDelta = -1.5
+		let windDelta = -0.9
+		let tempDelta = 2.6
+		let v = this.variables["daily_precip"].getDelta()*rainDelta +
+			this.variables["mean_windspeed"].getDelta()*windDelta +
+			this.variables["mean_temp"].getDelta()*tempDelta;
+		return v;
+	}
+
+	
 	async loadVariable(table,variable_name,zones,reference_decade,value_decade) {
 		// todo cache these so we don't need to reload all zones
 		await $.getJSON(

@@ -17,7 +17,7 @@ const $ = require("jquery")
 const L = require("leaflet")
 const graph = require("./graph.js")
 const colormap = require('colormap')
-const network = require("./network2.js")
+const network = require("./network.js")
 
 // helpers for map geometry
 function lerp(a,b,t) {

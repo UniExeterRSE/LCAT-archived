@@ -38824,6 +38824,10 @@ class ClimateVariable {
     }
   }
 
+  getDelta() {
+    return this.value - this.reference;
+  }
+
 }
 
 class AdaptationFinder {
@@ -38835,6 +38839,16 @@ class AdaptationFinder {
     "mean_windspeed" //"max_windspeed",
     //"min_windspeed"
     ];
+  } // only works for active transport use
+  // as that is the only thing we have data for
+
+
+  calculateFactorChange(factor) {
+    let rainDelta = -1.5;
+    let windDelta = -0.9;
+    let tempDelta = 2.6;
+    let v = this.variables["daily_precip"].getDelta() * rainDelta + this.variables["mean_windspeed"].getDelta() * windDelta + this.variables["mean_temp"].getDelta() * tempDelta;
+    return v;
   }
 
   async loadVariable(table, variable_name, zones, reference_decade, value_decade) {
@@ -39136,7 +39150,7 @@ const $ = require("jquery")
 const L = require("leaflet")
 const zones = require("./lsoa.js")
 const graph = require("./graph.js")
-const network = require("./network2.js")
+const network = require("./network.js")
 const esri = require("esri-leaflet")
 
 var leaflet_map = L.map('leaflet-map').setView([50.26123046875, -5.052745342254639], 10);
@@ -39204,7 +39218,7 @@ async function setup() {
 
 setup()
 
-},{"./graph.js":36,"./lsoa.js":38,"./network2.js":40,"esri-leaflet":5,"jquery":28,"leaflet":29}],38:[function(require,module,exports){
+},{"./graph.js":36,"./lsoa.js":38,"./network.js":40,"esri-leaflet":5,"jquery":28,"leaflet":29}],38:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39234,7 +39248,7 @@ const graph = require("./graph.js");
 
 const colormap = require('colormap');
 
-const network = require("./network2.js"); // helpers for map geometry
+const network = require("./network.js"); // helpers for map geometry
 
 
 function lerp(a, b, t) {
@@ -39450,7 +39464,7 @@ class LSOAZones {
 
 exports.LSOAZones = LSOAZones;
 
-},{"./graph.js":36,"./network2.js":40,"colormap":3,"jquery":28,"leaflet":29}],39:[function(require,module,exports){
+},{"./graph.js":36,"./network.js":40,"colormap":3,"jquery":28,"leaflet":29}],39:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41043,27 +41057,25 @@ class Network {
   }
 
   nodeImageURL(id, title, text, bg) {
-    let height = 450;
-    if (text == "") height = 350;
+    let height = 500;
     if (bg == undefined) bg = "#e6e6e6";
     let icon = this.notFoundIcon;
 
     if (this.iconCache[title] != null) {
-      icon = `<g transform="translate(40,10) scale(7)">` + this.iconCache[title] + `</g>`;
+      icon = `<g transform="translate(40,130) scale(7)">` + this.iconCache[title] + `</g>`;
     } else {
       console.log("icon for " + title + " not found");
     }
 
-    let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="` + height + `" style="overflow:visible;">
-                   <rect x="0" y="0" width="100%" height="100%" fill="` + bg + `" stroke-width="5" stroke="#a4b3cd"  rx="15" ></rect>
+    let extra = "";
 
-        ` + icon + `			
+    if (text != "") {
+      extra = `<center style="font-size: 1.5em;">` + text + `</center>`;
+    }
 
-        <foreignObject x="0" y="220" width="100%" height="100%">
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="` + height + `" style="overflow:visible;">` + icon + `<foreignObject x="0" y="340" width="100%" height="100%">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
-        <center style="font-size: 2em;">` + this.printable(title) + `</center>
-        <p>` + this.printable(text) + `</p>
-        </div>
+        <center style="font-size: 2em;">` + this.printable(title) + `</center>` + extra + `</div>
         </foreignObject>
         </svg>`;
     let url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
@@ -41082,30 +41094,26 @@ class Network {
     }
 
     if (variable.direction == "rising") {
-      return "Rising by " + (variable.value - variable.reference).toFixed(2) + " " + units + " in next 80 years";
+      return "Increasing by " + (variable.value - variable.reference).toFixed(2) + " " + units + " in next 80 years";
     } else {
-      return "Falling by " + (variable.reference - variable.value).toFixed(2) + " " + units + " in next 80 years";
+      return "Decreasing by " + (variable.reference - variable.value).toFixed(2) + " " + units + " in next 80 years";
     }
   }
 
   causeImageURL(id, title, text, bg, variable) {
-    let height = 450;
-    if (text == "") height = 350;
+    let height = 500;
     if (bg == undefined) bg = "#e6e6e6";
     let icon = this.notFoundIcon;
 
     if (this.iconCache[title] != null) {
-      icon = `<g transform="translate(40,10) scale(7)">` + this.iconCache[title] + `</g>`;
+      icon = `<g transform="translate(40,130) scale(7)">` + this.iconCache[title] + `</g>`;
     } else {
       console.log("icon for " + title + " not found");
     }
 
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="` + height + `" style="overflow:visible;">
-                   <rect x="0" y="0" width="100%" height="100%" fill="` + bg + `" stroke-width="5" stroke="#a4b3cd"  rx="15" ></rect>
-
         ` + icon + `			
-
-        <foreignObject x="0" y="220" width="100%" height="100%">
+        <foreignObject x="0" y="340" width="100%" height="100%">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
         <center style="font-size: 2em;">` + this.printable(title) + `</center>
         <center style="font-size: 1.5em;">` + this.climateVariableText(variable) + `</center>
@@ -41123,9 +41131,7 @@ class Network {
     let icon = this.notFoundIcon;
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="` + height + `" style="overflow:visible;">
                    <rect x="0" y="0" width="100%" height="100%" fill="` + bg + `" stroke-width="5" stroke="#a4b3cd"  rx="15" ></rect>
-
         ` + icon + `			
-
         <foreignObject x="0" y="220" width="100%" height="100%">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
         <center style="font-size: 2em;">` + this.printable(title) + `</center>
@@ -41218,13 +41224,25 @@ class Network {
   }
 
   factorToNodeFull(factor) {
+    let text = "";
+
+    if (factor.short == "Active transport use") {
+      let v = this.finder.calculateFactorChange(factor);
+
+      if (v > 0) {
+        text = "Estimated increase of " + v.toFixed(2) + "% in your area";
+      } else {
+        text = "Estimated decrease of " + (-v).toFixed(2) + "% in your area";
+      }
+    }
+
     return {
       id: factor.id,
       shape: "image",
       label: "",
       size: node_size,
       // "#e6e6e6"
-      image: this.nodeImageURL(factor.id, factor.short, factor.long, this.type_cols[factor.type]),
+      image: this.nodeImageURL(factor.id, factor.short, text, this.type_cols[factor.type]),
       preview: false
     };
   }
@@ -41242,52 +41260,65 @@ class Network {
   }
 
   factorEdgeFull(factor, impact, new_factor) {
-    let colour = "#ff0000";
-
-    if (impact.type == "+") {
-      colour = "#00ff00";
-    }
-
-    return {
-      id: impact.id,
-      from: factor.id,
-      to: impact.to,
-      arrows: "middle",
-      label: impact.type,
-      font: {
-        color: colour,
-        size: 50
-      },
-      //label: new_factor.short,
-      //length: 0.5,
-      //font: { size: 6 },
-      //arrowStrikethrough: false,					
-      color: {
-        color: this.type_cols[factor.type]
-      }
-    };
-  }
-
-  factorEdgePreview(factor, impact, new_factor) {
-    let colour = "#ff0000";
-
-    if (impact.type == "+") {
-      colour = "#00ff00";
-    }
-
+    let label = impact.type;
+    if (label == "-") label = "‐";
     return {
       id: impact.id,
       from: factor.id,
       to: impact.to,
       arrows: "to",
-      label: impact.type,
-      font: {
-        color: colour,
-        size: 50
-      },
+      label: " " + label + " ",
+      labelHighlightBold: false,
       arrowStrikethrough: false,
+      font: {
+        //background: "#fff",
+        color: "#b0cacc",
+        size: 30 //vadjust: 10,
+        //align: "bottom"
+
+      },
       color: {
-        color: this.type_cols[factor.type]
+        color: "#b0cacc",
+        highlight: "#b0cacc"
+      }
+    };
+  }
+
+  factorEdgePreview(factor, impact, new_factor) {
+    let edge = this.factorEdgeFull(factor, impact, new_factor);
+    edge.arrows = "to";
+    return edge;
+  }
+
+  causeEdge(cause, polarity_match) {
+    let label = cause.type;
+
+    if (!polarity_match) {
+      if (label == "-") label = "+";else label = "-";
+    }
+
+    if (label == "-") {
+      label = "‐";
+    }
+
+    return {
+      id: cause.id,
+      from: cause.id,
+      to: cause.factor,
+      arrows: "to",
+      label: " " + label + " ",
+      labelHighlightBold: false,
+      arrowStrikethrough: false,
+      font: {
+        //background: "#fff",
+        color: "#b0cacc",
+        size: 30 //vadjust: 10,
+        //align: "bottom"
+
+      },
+      color: {
+        color: "#b0cacc",
+        highlight: "#b0cacc"
       }
     };
   }
@@ -41296,8 +41327,12 @@ class Network {
     return {
       from: factor_id,
       to: adaptation.id,
-      arrows: "to" //value: 0.05,
-
+      arrows: "to",
+      //value: 0.05,
+      color: {
+        color: "#b0cacc",
+        highlight: "#b0cacc"
+      }
     };
   }
 
@@ -41376,34 +41411,7 @@ class Network {
         x: 100,
         y: y * 75
       });
-      let label = cause.type;
-
-      if (!polarity_match) {
-        if (label == "-") label = "+";else label = "-";
-      }
-
-      let colour = "#00ff00";
-
-      if (label == "-") {
-        colour = "#ff0000";
-      }
-
-      this.edges.add([{
-        id: cause.id,
-        from: cause.id,
-        to: cause.factor,
-        arrows: "to",
-        label: label,
-        font: {
-          color: colour,
-          size: 50
-        },
-        //value: 0.05,
-        arrowStrikethrough: false,
-        color: {
-          color: "#ffbc42"
-        }
-      }]);
+      this.edges.add([this.causeEdge(cause, polarity_match)]);
     }
   }
 
