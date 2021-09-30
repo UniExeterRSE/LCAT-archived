@@ -101,6 +101,57 @@ class AdaptationFinder {
 		return ret		
 	}
 
+	adaptationToHTML(a) {
+		let s=""
+		if (a.long!="") {
+			s+=`<p>`+a.long+`</p>`
+		}
+		s+="<ul>"
+		if (a.refs.length>0) {
+			s+="<li><b>References</b>: <ol>"
+			for (let ref of a.refs) {
+				s+="<li><a href='"+ref+"'>"+ref+"</a></li>";
+			}
+			s+="</ol></li>"
+		}
+
+		if (a.case!="") {
+			s+=`<li><b>Case study</b>: `+a.case
+			if (a.caseref!="") {
+				s+=` <a href="`+a.caseref+`">Link</a>`
+			}
+			s+=`</li>`
+		}
+
+		s+="</ul>"
+		return s
+	}
+
+	updateHTML(adaptations_list) {
+		// list adaptations
+		let adaptations = this.find(adaptations_list)
+		$("#adaptation-count").html(adaptations.length)
+		$("#adaptations").empty()
+		
+		for (let a of adaptations) {
+			$("#adaptations").append(
+				$('<button>').attr("class","collapsible")
+					.html(a.short))			
+			$("#adaptations").append(
+				$('<div>').attr("class","collapsible-content")
+					.html(this.adaptationToHTML(a)))
+		}
+
+		let coll = document.getElementsByClassName("collapsible");
+		for (let i = 0; i < coll.length; i++) {
+			coll[i].addEventListener("click", function() {
+				this.classList.toggle("active");
+				var content = this.nextElementSibling;
+				content.classList.toggle("visible");
+			});
+		} 
+	}
+	
 }
  				 
 export { AdaptationFinder }

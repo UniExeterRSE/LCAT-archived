@@ -47,9 +47,7 @@ esri.basemapLayer('ImageryLabels').addTo(leaflet_map);
 async function setup() {
 	const z = new zones.LSOAZones(leaflet_map)
 	const net = new network.Network()
-
-	await net.loadIconCache()
-
+	
 	leaflet_map.on("moveend", () => {
 		z.update(leaflet_map,net);
 	});
@@ -79,6 +77,8 @@ async function setup() {
 	})
 	
 	$("#graph").html(graph.no_data)
+
+	await net.loadIconCache()
 
 	z.update(leaflet_map,net)
 }

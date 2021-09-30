@@ -38894,6 +38894,61 @@ class AdaptationFinder {
     return ret;
   }
 
+  adaptationToHTML(a) {
+    let s = "";
+
+    if (a.long != "") {
+      s += `<p>` + a.long + `</p>`;
+    }
+
+    s += "<ul>";
+
+    if (a.refs.length > 0) {
+      s += "<li><b>References</b>: <ol>";
+
+      for (let ref of a.refs) {
+        s += "<li><a href='" + ref + "'>" + ref + "</a></li>";
+      }
+
+      s += "</ol></li>";
+    }
+
+    if (a.case != "") {
+      s += `<li><b>Case study</b>: ` + a.case;
+
+      if (a.caseref != "") {
+        s += ` <a href="` + a.caseref + `">Link</a>`;
+      }
+
+      s += `</li>`;
+    }
+
+    s += "</ul>";
+    return s;
+  }
+
+  updateHTML(adaptations_list) {
+    // list adaptations
+    let adaptations = this.find(adaptations_list);
+    $("#adaptation-count").html(adaptations.length);
+    $("#adaptations").empty();
+
+    for (let a of adaptations) {
+      $("#adaptations").append($('<button>').attr("class", "collapsible").html(a.short));
+      $("#adaptations").append($('<div>').attr("class", "collapsible-content").html(this.adaptationToHTML(a)));
+    }
+
+    let coll = document.getElementsByClassName("collapsible");
+
+    for (let i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        content.classList.toggle("visible");
+      });
+    }
+  }
+
 }
 
 exports.AdaptationFinder = AdaptationFinder;
@@ -39111,9 +39166,7 @@ esri.basemapLayer('ImageryLabels').addTo(leaflet_map);
 async function setup() {
 	const z = new zones.LSOAZones(leaflet_map)
 	const net = new network.Network()
-
-	await net.loadIconCache()
-
+	
 	leaflet_map.on("moveend", () => {
 		z.update(leaflet_map,net);
 	});
@@ -39143,6 +39196,8 @@ async function setup() {
 	})
 	
 	$("#graph").html(graph.no_data)
+
+	await net.loadIconCache()
 
 	z.update(leaflet_map,net)
 }
@@ -41162,43 +41217,6 @@ class Network {
     return s;
   }
 
-  adaptationToHTML(a) {
-    let s = "";
-
-    if (a.short != "") {
-      s += `<h3>` + a.short + `</h3>`;
-    }
-
-    if (a.long != "") {
-      s += `<p>` + a.long + `</p>`;
-    }
-
-    s += "<ul>";
-
-    if (a.refs.length > 0) {
-      s += "<li><b>References</b>: <ol>";
-
-      for (let ref of a.refs) {
-        s += "<li><a href='" + ref + "'>" + ref + "</a></li>";
-      }
-
-      s += "</ol></li>";
-    }
-
-    if (a.case != "") {
-      s += `<li><b>Case study</b>: ` + a.case;
-
-      if (a.caseref != "") {
-        s += ` <a href="` + a.caseref + `">Link</a>`;
-      }
-
-      s += `</li>`;
-    }
-
-    s += "</ul>";
-    return s;
-  }
-
   factorToNodeFull(factor) {
     return {
       id: factor.id,
@@ -41410,14 +41428,14 @@ class Network {
   }
 
   async updateVariables(table) {
-    console.log("updating variables");
-
     if (table != undefined) {
       this.table = table;
     }
 
     await this.finder.loadVariables(this.table, this.tiles, ["daily_precip", "mean_temp", "mean_windspeed"], 2, 9);
-    this.buildGraph();
+    this.buildGraph(); // update adaptations from climate variables
+
+    this.finder.updateHTML(this.net.adaptations);
   }
 
   async buildGraph() {
@@ -41465,16 +41483,7 @@ class Network {
         },*/
 
       }
-    }; // list adaptations
-
-    let adaptations = this.finder.find(this.net.adaptations);
-    $("#adaptation-count").html(adaptations.length);
-    $("#adaptations").empty();
-
-    for (let a of adaptations) {
-      $("#adaptations").append($('<p>').attr("class", "adaptation").html(this.adaptationToHTML(a)));
-    } // create a network
-
+    }; // create a network
 
     var container = document.getElementById("network-holder");
     var network = new vis.Network(container, {

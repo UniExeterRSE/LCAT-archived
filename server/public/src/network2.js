@@ -251,35 +251,6 @@ class Network {
 		return s
 	}
 
-	adaptationToHTML(a) {
-		let s=""
-		if (a.short!="") {
-			s+=`<h3>`+a.short+`</h3>`
-		}
-		if (a.long!="") {
-			s+=`<p>`+a.long+`</p>`
-		}
-		s+="<ul>"
-		if (a.refs.length>0) {
-			s+="<li><b>References</b>: <ol>"
-			for (let ref of a.refs) {
-				s+="<li><a href='"+ref+"'>"+ref+"</a></li>";
-			}
-			s+="</ol></li>"
-		}
-
-		if (a.case!="") {
-			s+=`<li><b>Case study</b>: `+a.case
-			if (a.caseref!="") {
-				s+=` <a href="`+a.caseref+`">Link</a>`
-			}
-			s+=`</li>`
-		}
-
-		s+="</ul>"
-		return s
-	}
-
 	factorToNodeFull(factor) {
 		return {
 			id: factor.id,
@@ -489,7 +460,6 @@ class Network {
 	}
 
 	async updateVariables(table) {
-		console.log("updating variables")
 		if (table!=undefined) {
 			this.table=table
 		}
@@ -498,9 +468,11 @@ class Network {
 			["daily_precip","mean_temp","mean_windspeed"]
 			,2,9)		
 		this.buildGraph()
+
+		// update adaptations from climate variables
+		this.finder.updateHTML(this.net.adaptations)
 	}
 
-	
 	async buildGraph() {
 
 		this.nodes = new vis.DataSet([])
@@ -545,17 +517,7 @@ class Network {
 			},
 		};
 
-
-		// list adaptations
-		let adaptations = this.finder.find(this.net.adaptations)
-		$("#adaptation-count").html(adaptations.length)
-		$("#adaptations").empty()
-		for (let a of adaptations) {
-			$("#adaptations").append(
-				$('<p>').attr("class","adaptation")
-					.html(this.adaptationToHTML(a))
-			)
-		}
+	
 		
 		// create a network
 		var container = document.getElementById("network-holder");
