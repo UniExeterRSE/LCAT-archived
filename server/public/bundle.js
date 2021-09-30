@@ -39279,9 +39279,12 @@ class LSOAZones {
     }
 
     if (zone_names.length > 0) {
-      $("#results").css("display", "block");
-      $("#projected-regions").html(stringify_list(zone_names));
-      $("#adaption-regions").html(stringify_list(zone_names));
+      $(".hidden-section").each(function (i) {
+        $(this).css("display", "block");
+      });
+      $(".projected-regions").each(function (i) {
+        $(this).html(stringify_list(zone_names));
+      });
       let tiles = [];
 
       for (let z of this.zones) {
@@ -39292,7 +39295,9 @@ class LSOAZones {
       await net.updateVariables();
       net.buildGraph();
     } else {
-      $("#results").css("display", "none");
+      $(".hidden-section").each(function (i) {
+        $(this).css("display", "none");
+      });
     }
 
     graph.update_graph(this.zones, $("#graph-time").val());

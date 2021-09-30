@@ -19,17 +19,13 @@ select {
     font-family: 'nunito',Arial,Helvetica,sans-serif;
 	border: none;
 	background: #e6e6e6;
-	margin-left: 0.5em;
-	margin-top: 0.5em;
 	font-size: 1em;
 }
 
 button {
     font-family: 'nunito',Arial,Helvetica,sans-serif;
 	border: none;
-	background: #a4b3cd;
-	margin-left: 0.5em;
-	margin-top: 0.5em;
+	background: #e6e6e6;
 	font-size: 1em;
 }
 
@@ -39,6 +35,15 @@ button {
 		padding-left: 10em;
 		padding-right: 10em;
     }
+}
+
+section {
+	border-radius: 2em;
+	border: 2px solid black;
+	padding-left: 2em;
+	padding-right: 2em;
+	padding-bottom: 1em;
+	margin-bottom: 2em;
 }
 
 .map-container {
@@ -73,6 +78,10 @@ button {
 	}
 }
 
+.map-selection h2 {
+	font-size: 1em;
+}
+
 .map-selection ul {
 	padding: 0;
 	margin: 0;
@@ -84,14 +93,6 @@ button {
 	margin-right: 1em;
 }
 
-.graph-container {
-	/*border: 1px solid #42273b;*/
-	/*background: #e6e6e6;*/
-}
-
-#graph {
-	margin-top: 1em;
-}
 
 .title{
 	width: 100%;
@@ -120,15 +121,11 @@ button {
 	font-size: 0.75em;
 }
 
-#results {
-	margin-top: 1em;
+.hidden-section {
 	display: none; 
-	font-size: 1.2em;
 }
 
 #network-holder {
-	border-radius: 5px;
-	border: 4px solid #a4b3cd;
 	height: 500px;
 }
 

@@ -4,147 +4,155 @@
   <head>
     <meta charset="utf-8">
     <meta name='viewport' content='width=device-width'>
-    <title>A Climate Tool</title>
+    <title>Climate and Health Tool (beta)</title>
     <link href="css/style.css" rel="stylesheet" type="text/css">
     <link href="css/leaflet.css" rel="stylesheet" type="text/css">
   </head>
 
   <body>
     <article>
-	  <section class="title">
-		<h2>ECEHH Climate tool (beta)</h2>
-	  </section>
-      <section class="map-container">
-		<div id="leaflet-map"></div>
-		<div class="map-selection">
-		  <h2>Lower Layer Super Output Areas (LSOA)</h2>
-		  <ul id="selected-list"></ul>
-		</div>
-      </section>
+	  <h1>Climate and Health Tool (beta)</h1>
 
-	  <section class="title">
-		<h2>Graph of future averages per decade in your selected region</h2>
-	  </section>
+	  <p>
+		This prototype tool allows you to see climate change forecasts for 
+		local areas, the expected impacts on health and wellbeing, and 
+		suggested adaptation priorities. All information presented is based 
+		on scientific research, and links to relevant publications are available.
+	  </p>
 	  
-	  <section class="graph-container">
-		<select id="graph-type">
-		  <option value="daily_precip">Daily precipitation</option>
-		  <option value="mean_temp">Mean temperature</option>
-		  <option value="max_temp">Max temperature</option>
-		  <option value="min_temp">Min temperature</option>
-		  <option value="mean_windspeed">Mean windspeed</option>
-		  <option value="max_windspeed">Max windspeed</option>
-		  <option value="min_windspeed">Min windspeed</option>
-		</select>
-		<select id="graph-time">
-		  <option value="seasonal">Seasonal averages</option>
-		  <option value="yearly">Yearly averages</option>
-		</select>
-
-		<div class="dropdown">
-		  <span>*</span>
-		  <div class="dropdown-content">
-			<p>Original data acquired from the UKCP18 future climate dataset, and processed by Alexandra Gardner & Ilya Maclean (University of Exeter). For more info see <a href="https://www.metoffice.gov.uk/binaries/content/assets/metofficegovuk/pdf/research/ukcp/ukcp18-guidance-data-availability-access-and-formats.pdf">Met Office UKCP18 Guidance</a>.</p>
-		  </div>
-		</div>
-		
-		<div id="graph"></div>
-
-		<button id="graph-csv">Download CSV</button>
-		
-	  </section>
-<!--
-	  <section id="search-adaptations">
-		Compare 2021
-		<select id="search-data">
-		  <option value="future_year_avg">Whole year averages</option>
-		  <option value="future_summer_avg">Summer averages</option>
-		  <option value="future_winter_avg">Winter averages</option>
-		</select>
-		with: 
-		<select id="search-year">
-		  <option value="2030">2030</option>
-		  <option value="2040">2040</option>
-		  <option value="2050">2050</option>
-		  <option value="2060">2060</option>
-		  <option value="2070">2070</option>
-		  <option value="2080">2080</option>
-		  <option value="2090">2090</option>
-		</select>
-		
-		<button id="search">Search adaptations</button>	 
-	  
-		<section id="results">
-		  <div id="results-list">
-		  </div>
-		</section>
--->
-		
-	  <section id="results">
-		<h2>Causes and impacts in your selected areas</h2>
-				
-		<p>The research indicates that we would expect the projected
-		climate change in <span id="projected-regions"></span> to
-		result in: <span id="health-impacts">X, Y & Z</span>.</p>
-		
-
-		Area of interest:
-		<select id="focus">
-		  <option value="">Active transport</option>
-		  <option value="" disabled>Something else</option>
-		  <option value="" disabled>Another thing</option>
-		  <option value="" disabled>Blah</option>
-		</select>
-
-		Climate variables:
-		<select id="climate_variables">
-		  <option value="future_year_avg">Yearly Average</option>
-		  <option value="future_summer_avg">Summer Average</option>
-		  <option value="future_winter_avg">Winter Average</option>
-		</select>
-		
-<!--		<p>
-		  Details:
-		  <input type="checkbox" id="Equity" name="Equity">
-		  <label for="Equity">Equity</label>
-		  <input type="checkbox" id="Community" name="Community">
-		  <label for="Community">Community</label>
-		  <input type="checkbox" id="Health" name="Health">
-		  <label for="Health">Health</label>
-		  <input type="checkbox" id="Travel" name="Travel">
-		  <label for="Travel">Travel</label>
-		  <input type="checkbox" id="Sustainable-development" name="Sustainable-development">
-		  <label for="Sustainable-development">Sustainable development</label>
+	  <section>
+		<p>
+		  To begin, click/tap on the map to select the area/s you are 
+		  interested in. The Index of Multiple Deprivation is shown 
+		  to help guide you to priority areas.
 		</p>
--->
-
-		<div id="network-holder">		  
-<!--		  <svg id="mapsvg" width=100% height=600>
-			<g/>
-		  </svg>
--->
-		</div>
-		<div id="network-info">
-		</div>
-
-		<h2>Suggested adaptations</h2>
 		
-		<p>Using the research, we think the <span id="adaptation-count"></span> most important adaptations
-		in <span id="adaption-regions"></span> will be:</p>
+		<div class="map-container">
+		  <div id="leaflet-map"></div>
+		  <div class="map-selection">
+			<h2>Lower Layer Super Output Areas (LSOA)</h2>
+			<ul id="selected-list"></ul>
+		  </div>
+		</div>
+	  </section>
+	  
+	  <section class="hidden-section">
+		<p>
+		  The graph below shows the future climate change 
+		  expected in
 
+		  <span class="projected-regions"></span>
+	
+		  You are viewing 
+		  
+		  <select id="graph-time">
+			<option value="seasonal">Seasonal averages</option>
+			<option value="yearly">Yearly averages</option>
+		  </select>
+
+		  for
+		  
+		  <select id="graph-type">
+			<option value="daily_precip">Daily precipitation</option>
+			<option value="mean_temp">Mean temperature</option>
+			<option value="max_temp">Max temperature</option>
+			<option value="min_temp">Min temperature</option>
+			<option value="mean_windspeed">Mean windspeed</option>
+			<option value="max_windspeed">Max windspeed</option>
+			<option value="min_windspeed">Min windspeed</option>
+		  </select>
+		</p>
+				  
+		<div id="graph"></div>
+		
+		The original data for your selected areas can be 
+
+		<button id="graph-csv">downloaded here</button>
+
+		and comes from MET Office UKCP18 future climate dataset, and
+		processed by Alexandra Gardner & Ilya Maclean (University of
+		Exeter). For more info see
+
+		<a href="https://www.metoffice.gov.uk/binaries/content/assets/metofficegovuk/pdf/research/ukcp/ukcp18-guidance-data-availability-access-and-formats.pdf">
+		  UKCP18 Guidance
+		</a>.
+
+	  </section>
+
+	  <section class="hidden-section">
+		<p>
+		  You can explore the impacts on
+		  <span class="projected-regions"></span>
+		  using the network below. Nodes can be expanded 
+		  for more detail, and moved around for clarity. 
+		</p>
+		
+		<p>
+		  You are viewing how
+
+		  <select id="climate_variables">
+			<option value="future_year_avg">Yearly Average</option>
+			<option value="future_summer_avg">Summer Average</option>
+			<option value="future_winter_avg">Winter Average</option>
+		  </select>
+
+		  climate change will affect 
+
+		  <select id="focus">
+			<option value="">Active transport</option>
+			<option value="" disabled>Something else</option>
+			<option value="" disabled>Another thing</option>
+			<option value="" disabled>Blah</option>
+		  </select>
+		</p>
+		
+		<!--		<p>
+					Details:
+					<input type="checkbox" id="Equity" name="Equity">
+					<label for="Equity">Equity</label>
+					<input type="checkbox" id="Community" name="Community">
+					<label for="Community">Community</label>
+					<input type="checkbox" id="Health" name="Health">
+					<label for="Health">Health</label>
+					<input type="checkbox" id="Travel" name="Travel">
+					<label for="Travel">Travel</label>
+					<input type="checkbox" id="Sustainable-development" name="Sustainable-development">
+					<label for="Sustainable-development">Sustainable development</label>
+		</p>
+		-->
+
+		<div id="network-holder"></div>
+		<div id="network-info"></div>
+	  </section>
+	  	  
+	  <section class="hidden-section">
+
+		<p>
+		  The following
+		  <span id="adaptation-count"></span>
+		  adaptations are expected to be the most important for
+		  <span id="adaptation-focus">Active Transport</span>
+		  in
+		  <span class="projected-regions"></span>
+		</p>
+		
 		<div id="adaptations" class="adaptations">
 		</div>
-
-		<section class="outputs">
-		  <button>View publications</button>	 
-		  <button>Download report</button>
-		</section>
-		
 	  </section>
- 
-    </article>
+	  
+	  <button>Download report</button>
 
-    
+	  <p>
+		The prototype Climate and Health Tool has been developed by the European Centre for 
+		Human Health, Cornwall Council, and Then Try This, with co-design partners from the 
+		NHS and emergency services, and funding from the Net Zero Innovation Portfolio, Local 
+		Government Association, and University College London. 
+	  </p>
+	  <p>
+		Insert logos here
+	  </p>
+    </article>
+	
     <script src="bundle.js"></script>
     
   </body>
