@@ -118,6 +118,24 @@ class AdaptationFinder {
 		return ret		
 	}
 
+	referenceToHTML(ref) {
+		if (ref.type=="link") {
+			return "<a href='"+ref.link+"'>"+ref.link+"</a>"
+		} else {
+			let ret = "<b><a href='http://doi.org/"+ref.doi+"'>"+ref.title+"</a></b> "
+			ret+=ref.authors.join(", ")
+			ret+=": "+ref.journal
+			if (ref.date!="") {
+				ret+=" "+ref.date
+			}
+			if (ref.issue!="") {
+				ret+=" Issue: "+ref.issue
+			}
+			ret+=" DOI: "+ref.doi
+			return ret
+		}
+	}
+
 	adaptationToHTML(a) {
 		let s=""
 		if (a.long!="") {
@@ -127,15 +145,17 @@ class AdaptationFinder {
 		if (a.refs.length>0) {
 			s+="<li><b>References</b>: <ol>"
 			for (let ref of a.refs) {
-				s+="<li><a href='"+ref+"'>"+ref+"</a></li>";
+				s+="<li>"+this.referenceToHTML(ref)+"</li>";
 			}
 			s+="</ol></li>"
 		}
 
 		if (a.case!="") {
-			s+=`<li><b>Case study</b>: `+a.case
+			s+=`<li><b>Case study</b>: `
 			if (a.caseref!="") {
-				s+=` <a href="`+a.caseref+`">Link</a>`
+				s+=` <a href="`+a.caseref+`">`+a.case+`</a>`
+			} else {
+				s+=`a.case`
 			}
 			s+=`</li>`
 		}

@@ -183,7 +183,25 @@ class Network {
 		return url
 	}
 	
-
+	referenceToHTML(ref) {
+		if (ref.type=="link") {
+			return "<a href='"+ref.link+"'>"+ref.link+"</a>"
+		} else {
+			let ret = "<b><a href='http://doi.org/"+ref.doi+"'>"+ref.title+"</a></b> "
+			ret+=ref.authors.join(", ")
+			ret+=": "+ref.journal
+			if (ref.date!="") {
+				ret+=" "+ref.date
+			}
+			if (ref.issue!="") {
+				ret+=" Issue: "+ref.issue
+			}
+			ret+=" DOI: "+ref.doi
+			return ret
+		}
+	}
+	
+	
 	causeToHTML(cause) {
 		let s=""
 		s+=`<h3>`+cause.short+`</h3>`
@@ -192,7 +210,7 @@ class Network {
 		if (cause.refs.length>0) {
 			s+="<li><b>References</b>: <ol>"
 			for (let ref of cause.refs) {
-				s+="<li><a href='"+ref+"'>"+ref+"</a></li>";
+				s+="<li>"+this.referenceToHTML(ref)+"</li>";
 			}
 			s+="</ol></li>"
 		}
@@ -214,7 +232,7 @@ class Network {
 		if (factor.refs.length>0) {
 			s+="<li><b>References</b>: <ol>"
 			for (let ref of factor.refs) {
-				s+="<li><a href='"+ref+"'>"+ref+"</a></li>";
+				s+="<li>"+this.referenceToHTML(ref)+"</li>";
 			}
 			s+="</ol></li>"
 		}
@@ -238,7 +256,7 @@ class Network {
 		if (impact.refs.length>0) {
 			s+="<li><b>References</b>: <ol>"
 			for (let ref of impact.refs) {
-				s+="<li><a href='"+ref+"'>"+ref+"</a></li>";
+				s+="<li>"+this.referenceToHTML(ref)+"</li>";
 			}
 			s+="</ol></li>"
 		}

@@ -38908,6 +38908,27 @@ class AdaptationFinder {
     return ret;
   }
 
+  referenceToHTML(ref) {
+    if (ref.type == "link") {
+      return "<a href='" + ref.link + "'>" + ref.link + "</a>";
+    } else {
+      let ret = "<b><a href='http://doi.org/" + ref.doi + "'>" + ref.title + "</a></b> ";
+      ret += ref.authors.join(", ");
+      ret += ": " + ref.journal;
+
+      if (ref.date != "") {
+        ret += " " + ref.date;
+      }
+
+      if (ref.issue != "") {
+        ret += " Issue: " + ref.issue;
+      }
+
+      ret += " DOI: " + ref.doi;
+      return ret;
+    }
+  }
+
   adaptationToHTML(a) {
     let s = "";
 
@@ -38921,17 +38942,19 @@ class AdaptationFinder {
       s += "<li><b>References</b>: <ol>";
 
       for (let ref of a.refs) {
-        s += "<li><a href='" + ref + "'>" + ref + "</a></li>";
+        s += "<li>" + this.referenceToHTML(ref) + "</li>";
       }
 
       s += "</ol></li>";
     }
 
     if (a.case != "") {
-      s += `<li><b>Case study</b>: ` + a.case;
+      s += `<li><b>Case study</b>: `;
 
       if (a.caseref != "") {
-        s += ` <a href="` + a.caseref + `">Link</a>`;
+        s += ` <a href="` + a.caseref + `">` + a.case + `</a>`;
+      } else {
+        s += `a.case`;
       }
 
       s += `</li>`;
@@ -39480,7 +39503,23 @@ const net = {
     "factor": 24,
     "operator": "increase",
     "variable": "mean_temp",
-    "refs": ["10.1186/1476-069x-11-12", "10.1016/j.trd.2019.09.022"],
+    "refs": [{
+      "type": "article",
+      "doi": "10.1186/1476-069x-11-12",
+      "title": "Temporal, seasonal and weather effects on cycle volume: an ecological study",
+      "authors": ["Sandar Tin Tin", "Alistair Woodward", "Elizabeth Robinson", "Shanthi Ameratunga"],
+      "date": "2012",
+      "journal": "Environmental Health",
+      "issue": "1"
+    }, {
+      "type": "article",
+      "doi": "10.1016/j.trd.2019.09.022",
+      "title": "Impacts of weather on cycling and walking on twin trails in Seattle",
+      "authors": ["Jinbao Zhao", "Cong Guo", "Ruhua Zhang", "Dong Guo", "Mathew Palmer"],
+      "date": "2019",
+      "journal": "Transportation Research Part D: Transport and Environment",
+      "issue": ""
+    }],
     "unsdg": ""
   }, {
     "id": 105,
@@ -39490,7 +39529,47 @@ const net = {
     "factor": 24,
     "operator": "increase",
     "variable": "daily_precip",
-    "refs": ["https://dx.doi.org/10.1007/s11116-012-9398-5", "https://dx.doi.org/10.1186/1476-069x-11-12", "10.1016/j.jtrangeo.2019.04.016", "10.1186/1476-069x-11-12", "10.1016/j.trd.2019.09.022"],
+    "refs": [{
+      "type": "article",
+      "doi": "10.1007/s11116-012-9398-5",
+      "title": "Exploring temporal fluctuations of daily cycling demand on Dutch cycle paths: the influence of weather on cycling",
+      "authors": ["Tom Thomas", "Rinus Jaarsma", "Bas Tutert"],
+      "date": "2013",
+      "journal": "Transportation",
+      "issue": "1"
+    }, {
+      "type": "article",
+      "doi": "10.1186/1476-069x-11-12",
+      "title": "Temporal, seasonal and weather effects on cycle volume: an ecological study",
+      "authors": ["Sandar Tin Tin", "Alistair Woodward", "Elizabeth Robinson", "Shanthi Ameratunga"],
+      "date": "2012",
+      "journal": "Environmental Health",
+      "issue": "1"
+    }, {
+      "type": "article",
+      "doi": "10.1016/j.jtrangeo.2019.04.016",
+      "title": "Weather and cycling in New York: The case of Citibike",
+      "authors": ["Ran An", "Renee Zahnow", "Dorina Pojani", "Jonathan Corcoran"],
+      "date": "2019",
+      "journal": "Journal of Transport Geography",
+      "issue": ""
+    }, {
+      "type": "article",
+      "doi": "10.1186/1476-069x-11-12",
+      "title": "Temporal, seasonal and weather effects on cycle volume: an ecological study",
+      "authors": ["Sandar Tin Tin", "Alistair Woodward", "Elizabeth Robinson", "Shanthi Ameratunga"],
+      "date": "2012",
+      "journal": "Environmental Health",
+      "issue": "1"
+    }, {
+      "type": "article",
+      "doi": "10.1016/j.trd.2019.09.022",
+      "title": "Impacts of weather on cycling and walking on twin trails in Seattle",
+      "authors": ["Jinbao Zhao", "Cong Guo", "Ruhua Zhang", "Dong Guo", "Mathew Palmer"],
+      "date": "2019",
+      "journal": "Transportation Research Part D: Transport and Environment",
+      "issue": ""
+    }],
     "unsdg": ""
   }, {
     "id": 121,
@@ -39500,7 +39579,23 @@ const net = {
     "factor": 24,
     "operator": "increase",
     "variable": "mean_windspeed",
-    "refs": ["10.1186/1476-069x-11-12", "10.1016/j.trd.2019.09.022"],
+    "refs": [{
+      "type": "article",
+      "doi": "10.1186/1476-069x-11-12",
+      "title": "Temporal, seasonal and weather effects on cycle volume: an ecological study",
+      "authors": ["Sandar Tin Tin", "Alistair Woodward", "Elizabeth Robinson", "Shanthi Ameratunga"],
+      "date": "2012",
+      "journal": "Environmental Health",
+      "issue": "1"
+    }, {
+      "type": "article",
+      "doi": "10.1016/j.trd.2019.09.022",
+      "title": "Impacts of weather on cycling and walking on twin trails in Seattle",
+      "authors": ["Jinbao Zhao", "Cong Guo", "Ruhua Zhang", "Dong Guo", "Mathew Palmer"],
+      "date": "2019",
+      "journal": "Transportation Research Part D: Transport and Environment",
+      "issue": ""
+    }],
     "unsdg": ""
   }],
   "factors": {
@@ -39770,7 +39865,11 @@ const net = {
       "short": "Wellbeing",
       "type": "Health",
       "long": "Wellbeing is about feeling good and functioning well and comprises an individual\u2019s experience of their life; and a comparison of life circumstances with social norms and values.",
-      "refs": ["https://www.gov.uk/government/publications/wellbeing-and-health"],
+      "refs": [{
+        "doi": "https://www.gov.uk/government/publications/wellbeing-and-health",
+        "type": "link",
+        "link": "https://www.gov.uk/government/publications/wellbeing-and-health"
+      }],
       "unsdg": "3.4 Promote mental health and wellbeing",
       "impacts": [83]
     },
@@ -39788,7 +39887,11 @@ const net = {
       "short": "Communicable diseases",
       "type": "Health",
       "long": "Communicable, or infectious diseases, are caused by microorganisms such as bacteria, viruses, parasites and fungi that can be spread, directly or indirectly, from one person to another.\n\nCommunicable diseases include:\n- Influenza\n- COVID-19\n- Tuberculosis\n- HIV/AIDS\n- Hepatitis",
-      "refs": ["https://www.euro.who.int/en/health-topics/communicable-diseases"],
+      "refs": [{
+        "doi": "https://www.euro.who.int/en/health-topics/communicable-diseases",
+        "type": "link",
+        "link": "https://www.euro.who.int/en/health-topics/communicable-diseases"
+      }],
       "unsdg": "",
       "impacts": [86]
     },
@@ -39905,7 +40008,11 @@ const net = {
       "short": "Non-communicable diseases",
       "type": "Health",
       "long": "Noncommunicable diseases , also known as chronic diseases, tend to be of long duration and are the result of a combination of genetic, physiological, environmental and behavioural factors.\n\nNon-communicable diseases include:\n- Cardiovascular (heart) diseases\n- Cancers\n- Diabetes\n- Chronic respiratory diseases\n- Mental health disorders\n- Dementias",
-      "refs": ["https://www.who.int/news-room/fact-sheets/detail/noncommunicable-diseases"],
+      "refs": [{
+        "doi": "https://www.who.int/news-room/fact-sheets/detail/noncommunicable-diseases",
+        "type": "link",
+        "link": "https://www.who.int/news-room/fact-sheets/detail/noncommunicable-diseases"
+      }],
       "unsdg": "3.4 Reduce non-communicable diseases",
       "impacts": [73]
     },
@@ -39935,7 +40042,15 @@ const net = {
       "to": 24,
       "type": "-",
       "long": "Increased public transport use leads to a decrease in active transport use.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "49": {
@@ -39944,7 +40059,15 @@ const net = {
       "to": 35,
       "type": "+",
       "long": "Increased active transport use leads to increased local walking and cycling injuries.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "50": {
@@ -39953,7 +40076,15 @@ const net = {
       "to": 12,
       "type": "-",
       "long": "A less walk/bike friendly environment leads to more public transport network usage.\n\nIf parents perceive the environment as less safe (crime, transport infrastructure etc), children use public transport network more.",
-      "refs": ["10.1111/obr.13185"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1111/obr.13185",
+        "title": "Understanding obesity\u2010related behaviors in youth from a systems dynamics perspective: The use of causal loop diagrams",
+        "authors": ["Wilma E. Waterlander", "Amika Singh", "Teatske Altenburg", "Coosje Dijkstra", "Angie Luna Pinzon", "Manou Anselma", "Vincent Busch", "Lieke Houtum", "Helga Emke", "Meredith L. Overman", "Mai J.M. Chinapaw", "Karien Stronks"],
+        "date": "2021",
+        "journal": "Obesity Reviews",
+        "issue": "7"
+      }],
       "unsdg": ""
     },
     "51": {
@@ -39962,7 +40093,15 @@ const net = {
       "to": 36,
       "type": "+",
       "long": "More urbanization leads to more traffic congestion and increased traffic density.",
-      "refs": ["10.1111/obr.13185"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1111/obr.13185",
+        "title": "Understanding obesity\u2010related behaviors in youth from a systems dynamics perspective: The use of causal loop diagrams",
+        "authors": ["Wilma E. Waterlander", "Amika Singh", "Teatske Altenburg", "Coosje Dijkstra", "Angie Luna Pinzon", "Manou Anselma", "Vincent Busch", "Lieke Houtum", "Helga Emke", "Meredith L. Overman", "Mai J.M. Chinapaw", "Karien Stronks"],
+        "date": "2021",
+        "journal": "Obesity Reviews",
+        "issue": "7"
+      }],
       "unsdg": ""
     },
     "52": {
@@ -39971,7 +40110,15 @@ const net = {
       "to": 42,
       "type": "+",
       "long": "Increased disparities in access to education leads to increased disparities in access to work and training.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "53": {
@@ -39980,7 +40127,15 @@ const net = {
       "to": 29,
       "type": "-",
       "long": "Increased traffic congestion and density leads to a decrease in the speed of emergency ground transportation.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "54": {
@@ -39989,7 +40144,15 @@ const net = {
       "to": 18,
       "type": "+",
       "long": "Increased access to goods and services leads to an increase in equitable access to basic services.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "55": {
@@ -39998,7 +40161,15 @@ const net = {
       "to": 45,
       "type": "-",
       "long": "Increased access to safe and inclusive public green spaces leads to decreased non-communicable diseases in the community.",
-      "refs": ["https://dx.doi.org/10.1016/j.scitotenv.2018.03.323"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2018.03.323",
+        "title": "The nexus between climate change, ecosystem services and human health: Towards a conceptual framework",
+        "authors": ["Aline Chiabai", "Sonia Quiroga", "Pablo Martinez-Juarez", "Sahran Higgins", "Tim Taylor"],
+        "date": "2018",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "56": {
@@ -40007,7 +40178,15 @@ const net = {
       "to": 1,
       "type": "+",
       "long": "Increased speed of emergency ground transportation leads to increased access & equity in access to goods and services.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "57": {
@@ -40016,7 +40195,15 @@ const net = {
       "to": 22,
       "type": "+",
       "long": "A more walk/bike friendly and safe environment leads to more investment in walking and cycling infrastructure.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "58": {
@@ -40025,7 +40212,15 @@ const net = {
       "to": 1,
       "type": "+",
       "long": "Increased private vehicle use leads to increased access to goods and services.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "59": {
@@ -40034,7 +40229,15 @@ const net = {
       "to": 30,
       "type": "+",
       "long": "Increased cultural wellbeing and increased protection of cultural heritage lead to increased general wellbeing of the community.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "60": {
@@ -40043,7 +40246,15 @@ const net = {
       "to": 5,
       "type": "+",
       "long": "Increased community action to resolve minor anti-social behaviour leads to streets and parks which are more attractive to locals.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "61": {
@@ -40052,7 +40263,15 @@ const net = {
       "to": 32,
       "type": "+",
       "long": "An increase in the rate of disease spread leads to an increase in communicable diseases.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "62": {
@@ -40061,7 +40280,15 @@ const net = {
       "to": 45,
       "type": "-",
       "long": "A decrease in local air quality leads to an increase in non-communicable diseases.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "63": {
@@ -40070,7 +40297,15 @@ const net = {
       "to": 9,
       "type": "+",
       "long": "Increased automobile usage leads to increased direct environmental effects from automobiles (such as exhaust and other pollutants, road noise).",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "64": {
@@ -40079,7 +40314,15 @@ const net = {
       "to": 25,
       "type": "+",
       "long": "A more walk/bike friendly and safe environment leads to more dense mixed land use.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "65": {
@@ -40088,7 +40331,15 @@ const net = {
       "to": 1,
       "type": "+",
       "long": "A more walk/bike friendly and safe environment leads to more access to goods and services.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "66": {
@@ -40097,7 +40348,15 @@ const net = {
       "to": 20,
       "type": "-",
       "long": "More injuries lead to a decline in public health and wellbeing.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "67": {
@@ -40106,7 +40365,15 @@ const net = {
       "to": 6,
       "type": "+",
       "long": "Increased community participation in planning leads to increased incorporation of culture & indigenous biodiversity in design.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "68": {
@@ -40115,7 +40382,15 @@ const net = {
       "to": 21,
       "type": "-",
       "long": "Increased access to goods and services leads to less disparities in access to education.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "69": {
@@ -40124,7 +40399,15 @@ const net = {
       "to": 28,
       "type": "+",
       "long": "Increased local walking and cycling injuries mean an increase in the overall number of injuries in the community.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "71": {
@@ -40133,7 +40416,15 @@ const net = {
       "to": 34,
       "type": "-",
       "long": "Increased public transport network usage leads to less individual automobile usage.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "72": {
@@ -40142,7 +40433,15 @@ const net = {
       "to": 46,
       "type": "-",
       "long": "An increase in active transport use leads to a decrease in greenhouse gas emissions.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "73": {
@@ -40151,7 +40450,15 @@ const net = {
       "to": 20,
       "type": "-",
       "long": "Increased non-communicable diseases lead to a decline in public health and wellbeing.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "74": {
@@ -40160,7 +40467,15 @@ const net = {
       "to": 13,
       "type": "+",
       "long": "Increased presence of people on local streets leads to an increase in local sense of security.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "75": {
@@ -40169,7 +40484,15 @@ const net = {
       "to": 43,
       "type": "-",
       "long": "Increased active transport use leads to a decrease in local vehicle speeds.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "76": {
@@ -40178,7 +40501,15 @@ const net = {
       "to": 26,
       "type": "-",
       "long": "Increased gentrification leads to decreased tenure length.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "77": {
@@ -40187,7 +40518,15 @@ const net = {
       "to": 9,
       "type": "+",
       "long": "Increased local vehicle volumes lead to more environmental effects from cars.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "78": {
@@ -40196,7 +40535,15 @@ const net = {
       "to": 47,
       "type": "-",
       "long": "Increased environmental effects from automobiles (such as exhaust and noise) leads to a less attractive environment for active travelers.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "79": {
@@ -40205,7 +40552,15 @@ const net = {
       "to": 45,
       "type": "-",
       "long": "More equitable access to healthcare services leads to a decrease in non-communicable diseases.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "80": {
@@ -40214,7 +40569,15 @@ const net = {
       "to": 24,
       "type": "+",
       "long": "More people feeling safe during active transport use leads to increased use of active transport.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "81": {
@@ -40223,7 +40586,15 @@ const net = {
       "to": 47,
       "type": "-",
       "long": "Increased exposure to traffic leads to a less walk/bike friendly and safe environment.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "82": {
@@ -40232,7 +40603,15 @@ const net = {
       "to": 8,
       "type": "+",
       "long": "Increased incorporation of culture & indigenous biodiversity in design leads to better cultural wellbeing and the protection of cultural heritage.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "83": {
@@ -40241,7 +40620,15 @@ const net = {
       "to": 20,
       "type": "+",
       "long": "An increase in community wellbeing leads to better public health and wellbeing.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "84": {
@@ -40250,7 +40637,15 @@ const net = {
       "to": 45,
       "type": "-",
       "long": "Increased proportion of people getting enough daily exercise leads to a decrease in non-communicable diseases.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "85": {
@@ -40259,7 +40654,15 @@ const net = {
       "to": 39,
       "type": "+",
       "long": "Increased access to goods and services leads to an increase in equitable access to healthcare services.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "86": {
@@ -40268,7 +40671,15 @@ const net = {
       "to": 20,
       "type": "-",
       "long": "Increased communicable diseases lead to a decline in public health and wellbeing.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "87": {
@@ -40277,7 +40688,15 @@ const net = {
       "to": 11,
       "type": "+",
       "long": "Increased private vehicle use leads to more car accidents.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "88": {
@@ -40286,7 +40705,15 @@ const net = {
       "to": 23,
       "type": "+",
       "long": "Increased access to goods and services leads to an increase in women's access to economic resources.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "89": {
@@ -40295,7 +40722,15 @@ const net = {
       "to": 45,
       "type": "-",
       "long": "Increased active transport by the community leads to a decrease in non-communicable diseases.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "90": {
@@ -40304,7 +40739,15 @@ const net = {
       "to": 15,
       "type": "+",
       "long": "Streets and parks which are more attractive to locals lead to increased place attachment.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "91": {
@@ -40313,7 +40756,15 @@ const net = {
       "to": 33,
       "type": "+",
       "long": "Increased social connection in the local community leads to increased resilience to economic, social & environmental shocks.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "92": {
@@ -40322,7 +40773,15 @@ const net = {
       "to": 47,
       "type": "+",
       "long": "Increased investment in walking and cycling infrastructure leads to a more walk/bike friendly and safe environment.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "93": {
@@ -40331,7 +40790,15 @@ const net = {
       "to": 41,
       "type": "-",
       "long": "Increased local vehicle speeds lead to feeling less safe during active transport.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "94": {
@@ -40340,7 +40807,15 @@ const net = {
       "to": 13,
       "type": "+",
       "long": "Increased social connection in the local community leads to people feeling safer.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "95": {
@@ -40349,7 +40824,15 @@ const net = {
       "to": 7,
       "type": "+",
       "long": "Increased public transport use leads to increased exposure to other people.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "96": {
@@ -40358,7 +40841,15 @@ const net = {
       "to": 30,
       "type": "+",
       "long": "Increased access to safe and inclusive public green spaces leads to increased wellbeing in the community.",
-      "refs": ["https://dx.doi.org/10.1016/j.scitotenv.2018.03.323"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2018.03.323",
+        "title": "The nexus between climate change, ecosystem services and human health: Towards a conceptual framework",
+        "authors": ["Aline Chiabai", "Sonia Quiroga", "Pablo Martinez-Juarez", "Sahran Higgins", "Tim Taylor"],
+        "date": "2018",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "97": {
@@ -40367,7 +40858,15 @@ const net = {
       "to": 40,
       "type": "-",
       "long": "Increased gentrification leads to increased social connection in the local community.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "98": {
@@ -40376,7 +40875,23 @@ const net = {
       "to": 36,
       "type": "+",
       "long": "Increased individual car use causes more traffic congestion and density.",
-      "refs": ["10.1016/j.jth.2016.01.008", "10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }, {
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "99": {
@@ -40385,7 +40900,15 @@ const net = {
       "to": 24,
       "type": "+",
       "long": "Increased local sense of security (feeling safe) leads to increased active transport use.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "100": {
@@ -40394,7 +40917,15 @@ const net = {
       "to": 26,
       "type": "+",
       "long": "Increased place attachment leads to an increase in tenure length.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "101": {
@@ -40403,7 +40934,15 @@ const net = {
       "to": 35,
       "type": "+",
       "long": "Increased local vehicle volumes lead to increased local walking and cycling injuries.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "102": {
@@ -40412,7 +40951,15 @@ const net = {
       "to": 7,
       "type": "-",
       "long": "Increased private vehicle use leads to decreased exposure to other people.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "103": {
@@ -40421,7 +40968,15 @@ const net = {
       "to": 41,
       "type": "-",
       "long": "Increased local vehicle volumes lead to feeling more safe during active transport.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "104": {
@@ -40430,7 +40985,23 @@ const net = {
       "to": 24,
       "type": "+",
       "long": "A more walk/bike friendly environment leads to more active transportation usage (cycling, walking).\n\nIf parents perceive the environment as safer (crime, transport infrastructure etc), children use active transport more.",
-      "refs": ["10.1016/j.jth.2016.01.008", "10.1111/obr.13185"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }, {
+        "type": "article",
+        "doi": "10.1111/obr.13185",
+        "title": "Understanding obesity\u2010related behaviors in youth from a systems dynamics perspective: The use of causal loop diagrams",
+        "authors": ["Wilma E. Waterlander", "Amika Singh", "Teatske Altenburg", "Coosje Dijkstra", "Angie Luna Pinzon", "Manou Anselma", "Vincent Busch", "Lieke Houtum", "Helga Emke", "Meredith L. Overman", "Mai J.M. Chinapaw", "Karien Stronks"],
+        "date": "2021",
+        "journal": "Obesity Reviews",
+        "issue": "7"
+      }],
       "unsdg": ""
     },
     "106": {
@@ -40439,7 +41010,15 @@ const net = {
       "to": 36,
       "type": "+",
       "long": "Increased car accidents cause increased traffic density and congestion.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "107": {
@@ -40448,7 +41027,23 @@ const net = {
       "to": 7,
       "type": "+",
       "long": "Increased presence of people on local streets leads to more exposure to other people.",
-      "refs": ["10.1016/j.jth.2016.01.008", "10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }, {
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "108": {
@@ -40457,7 +41052,15 @@ const net = {
       "to": 42,
       "type": "-",
       "long": "Increased access to goods and services leads to less disparities in access to work and training.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "109": {
@@ -40466,7 +41069,15 @@ const net = {
       "to": 3,
       "type": "+",
       "long": "Increased use of active transport leads to more people getting enough daily exercise.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "110": {
@@ -40475,7 +41086,15 @@ const net = {
       "to": 10,
       "type": "+",
       "long": "Increased community capacity and empowerment leads to increased community action to resolve minor anti-social behaviour.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "111": {
@@ -40484,7 +41103,15 @@ const net = {
       "to": 37,
       "type": "+",
       "long": "Increased community capacity and empowerment leads to more community participation in planning.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "112": {
@@ -40493,7 +41120,15 @@ const net = {
       "to": 41,
       "type": "-",
       "long": "Increased local walking and cycling injuries lead to feeling less safe during active transport.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "113": {
@@ -40502,7 +41137,15 @@ const net = {
       "to": 1,
       "type": "+",
       "long": "Increased investment in walking and cycling infrastructure leads to increased access to goods and services.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": "10.3 Equity and affordability of access to education, employment, and health-promoting goods and services by income, gender, age and ethnicity"
     },
     "114": {
@@ -40511,7 +41154,15 @@ const net = {
       "to": 4,
       "type": "+",
       "long": "Increase in local property values leads to more gentrification.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "115": {
@@ -40520,7 +41171,15 @@ const net = {
       "to": 17,
       "type": "+",
       "long": "Streets and parks which are more attractive to locals lead to increased relative local property values.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "116": {
@@ -40529,7 +41188,15 @@ const net = {
       "to": 27,
       "type": "+",
       "long": "Increased attractiveness of streets and parks to locals leads to more people being on the local streets.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "117": {
@@ -40538,7 +41205,15 @@ const net = {
       "to": 16,
       "type": "+",
       "long": "Increased social connection in the local community leads to increased community capacity and empowerment.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "118": {
@@ -40547,7 +41222,15 @@ const net = {
       "to": 45,
       "type": "+",
       "long": "Increased local vehicle volumes lead to an increase in non-communicable diseases.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "119": {
@@ -40556,7 +41239,15 @@ const net = {
       "to": 19,
       "type": "-",
       "long": "Increasing environmental effects from cars decrease local air quality.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "120": {
@@ -40565,7 +41256,15 @@ const net = {
       "to": 47,
       "type": "-",
       "long": "Increased traffic congestion and density leads to a less attractive environment for active travelers.\n\nIncreased traffic density leads to a perception of decreased safety for parents and children.",
-      "refs": ["10.1111/obr.13185"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1111/obr.13185",
+        "title": "Understanding obesity\u2010related behaviors in youth from a systems dynamics perspective: The use of causal loop diagrams",
+        "authors": ["Wilma E. Waterlander", "Amika Singh", "Teatske Altenburg", "Coosje Dijkstra", "Angie Luna Pinzon", "Manou Anselma", "Vincent Busch", "Lieke Houtum", "Helga Emke", "Meredith L. Overman", "Mai J.M. Chinapaw", "Karien Stronks"],
+        "date": "2021",
+        "journal": "Obesity Reviews",
+        "issue": "7"
+      }],
       "unsdg": ""
     },
     "122": {
@@ -40574,7 +41273,15 @@ const net = {
       "to": 35,
       "type": "+",
       "long": "Increased local vehicle speeds lead to increased walking and cycling injuries.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "123": {
@@ -40583,7 +41290,15 @@ const net = {
       "to": 32,
       "type": "-",
       "long": "More equitable access to healthcare services leads to a decrease in communicable diseases.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "124": {
@@ -40592,7 +41307,15 @@ const net = {
       "to": 25,
       "type": "-",
       "long": "Increased private vehicle use leads to less dense mixed land use.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "125": {
@@ -40601,7 +41324,15 @@ const net = {
       "to": 2,
       "type": "-",
       "long": "Increased presence of people on local streets leads to a decrease in local crime.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "126": {
@@ -40610,7 +41341,15 @@ const net = {
       "to": 46,
       "type": "+",
       "long": "Increasing environmental effects from cars increase greenhouse gas emissions.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "127": {
@@ -40619,7 +41358,15 @@ const net = {
       "to": 31,
       "type": "+",
       "long": "Increased individual automobile usage leads to increased exposure to traffic.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "128": {
@@ -40628,7 +41375,15 @@ const net = {
       "to": 28,
       "type": "+",
       "long": "More car accidents lead to more injuries in the community.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "129": {
@@ -40637,7 +41392,15 @@ const net = {
       "to": 5,
       "type": "+",
       "long": "Presence of more people on local streets leads to more attractive streets and parks to locals.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "130": {
@@ -40646,7 +41409,15 @@ const net = {
       "to": 40,
       "type": "+",
       "long": "Increased tenure length in the local community leads to increased social connection.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "131": {
@@ -40655,7 +41426,15 @@ const net = {
       "to": 38,
       "type": "+",
       "long": "Increased exposure to other people leads to an increase in the rate of disease spread.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "132": {
@@ -40664,7 +41443,15 @@ const net = {
       "to": 45,
       "type": "-",
       "long": "Increased access to goods and services leads to decreased non-communicable disease in the community.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "133": {
@@ -40673,7 +41460,15 @@ const net = {
       "to": 34,
       "type": "-",
       "long": "Increased active transport use leads to decreased private vehicle use.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "134": {
@@ -40682,7 +41477,15 @@ const net = {
       "to": 7,
       "type": "+",
       "long": "Increased dense mixed land use leads to increased exposure to other people.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "135": {
@@ -40691,7 +41494,15 @@ const net = {
       "to": 30,
       "type": "+",
       "long": "A more active-transport-friendly and safe environment leads to better wellbeing in the community.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     },
     "136": {
@@ -40700,7 +41511,15 @@ const net = {
       "to": 14,
       "type": "+",
       "long": "More attractive streets and parks leads to increased access to safe and inclusive public green spaces.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "137": {
@@ -40709,7 +41528,15 @@ const net = {
       "to": 13,
       "type": "-",
       "long": "Increased local crime decreases the local sense of security (how safe people feel).",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "138": {
@@ -40718,7 +41545,15 @@ const net = {
       "to": 5,
       "type": "+",
       "long": "Increased incorporation of culture & indigenous biodiversity in design leads to streets and parks which are more attractive to locals.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "139": {
@@ -40727,7 +41562,15 @@ const net = {
       "to": 15,
       "type": "+",
       "long": "Increased social connection in the local community leads to higher place attachment.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "140": {
@@ -40736,7 +41579,15 @@ const net = {
       "to": 40,
       "type": "+",
       "long": "Increased community participation in planning leads to increased social connection in the local community.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "141": {
@@ -40745,7 +41596,15 @@ const net = {
       "to": 27,
       "type": "+",
       "long": "Increased use of active transport leads to more people on local streets.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "142": {
@@ -40754,7 +41613,15 @@ const net = {
       "to": 40,
       "type": "-",
       "long": "Increased local crime leads to decreased social connection in the local community.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "143": {
@@ -40763,7 +41630,15 @@ const net = {
       "to": 14,
       "type": "+",
       "long": "Increased access to goods and services leads to an increase in inclusive and safe access to public green spaces.",
-      "refs": ["10.1016/j.scitotenv.2020.136678"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.scitotenv.2020.136678",
+        "title": "Suburb-level changes for active transport to meet the SDGs: Causal theory and a New Zealand case study",
+        "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
+        "date": "2020",
+        "journal": "Science of The Total Environment",
+        "issue": ""
+      }],
       "unsdg": ""
     },
     "144": {
@@ -40772,7 +41647,15 @@ const net = {
       "to": 47,
       "type": "+",
       "long": "More dense mixed land use leads to a more walk/bike friendly and safe environment.",
-      "refs": ["10.1016/j.jth.2016.01.008"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1016/j.jth.2016.01.008",
+        "title": "Contextualizing research on transportation and health: A systems perspective",
+        "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
+        "date": "2016",
+        "journal": "Journal of Transport & Health",
+        "issue": "3"
+      }],
       "unsdg": ""
     }
   },
@@ -40784,7 +41667,19 @@ const net = {
       "related": [41, 33, 47, 22, 5, 3],
       "short": "Install permeable paving",
       "long": "Permeable pavings drain stormwater more rapidly and reduce the chance of pavements/roads flooding. ",
-      "refs": ["https://dx.doi.org/10.3390/su12031057 ", " https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.3390/su12031057",
+        "title": "Flexible Pavements and Climate Change: A Comprehensive Review and Implications",
+        "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
+        "date": "2020",
+        "journal": "Sustainability",
+        "issue": "3"
+      }, {
+        "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
+        "type": "link",
+        "link": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"
+      }],
       "case": "",
       "caseref": ""
     },
@@ -40795,7 +41690,19 @@ const net = {
       "related": [41, 33, 47, 22, 5, 3],
       "short": "Improve drainage",
       "long": "Improving drainage will maintain road use for active travel during periods of increased rainfall.",
-      "refs": ["https://dx.doi.org/10.3390/su12031057 ", " https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.3390/su12031057",
+        "title": "Flexible Pavements and Climate Change: A Comprehensive Review and Implications",
+        "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
+        "date": "2020",
+        "journal": "Sustainability",
+        "issue": "3"
+      }, {
+        "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
+        "type": "link",
+        "link": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"
+      }],
       "case": "",
       "caseref": ""
     },
@@ -40806,7 +41713,15 @@ const net = {
       "related": [41, 33, 47, 22, 5],
       "short": "Raise road surface levels",
       "long": "Where flooding is frequent, raising road surface levels to a higher level relative to the surrounding ground will maintain its use for active travel.",
-      "refs": ["https://dx.doi.org/10.3390/su12031057"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.3390/su12031057",
+        "title": "Flexible Pavements and Climate Change: A Comprehensive Review and Implications",
+        "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
+        "date": "2020",
+        "journal": "Sustainability",
+        "issue": "3"
+      }],
       "case": "",
       "caseref": ""
     },
@@ -40817,7 +41732,15 @@ const net = {
       "related": [41, 11, 33, 47, 22, 5],
       "short": "Reduce use of fine materials in unbound granular layers",
       "long": "This should be done where existing groundwater levels are high. This process reduces moisture content in paving, decreases risk of pavement/road damage in the future and prevents accidents related to paving deterioration.",
-      "refs": ["https://dx.doi.org/10.3390/su12031057"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.3390/su12031057",
+        "title": "Flexible Pavements and Climate Change: A Comprehensive Review and Implications",
+        "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
+        "date": "2020",
+        "journal": "Sustainability",
+        "issue": "3"
+      }],
       "case": "",
       "caseref": ""
     },
@@ -40828,7 +41751,15 @@ const net = {
       "related": [41, 33, 47, 22, 5],
       "short": "Install porous asphalt",
       "long": "Porous asphalt provides a surface that is free of water and improves driving safety. This will also create a safer active transport environment. \nHowever, porous asphalt is more prone to surface moisture damage and should be designed carefully.",
-      "refs": ["https://dx.doi.org/10.3390/su12031057"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.3390/su12031057",
+        "title": "Flexible Pavements and Climate Change: A Comprehensive Review and Implications",
+        "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
+        "date": "2020",
+        "journal": "Sustainability",
+        "issue": "3"
+      }],
       "case": "",
       "caseref": ""
     },
@@ -40839,7 +41770,11 @@ const net = {
       "related": [33, 47, 22],
       "short": "Make cycle hire flood-proof ",
       "long": "The electrical infrastructure for cycle hire stations need to be flood proof to keep operational after heavy rain.",
-      "refs": ["https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"],
+      "refs": [{
+        "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
+        "type": "link",
+        "link": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"
+      }],
       "case": "",
       "caseref": ""
     },
@@ -40850,7 +41785,15 @@ const net = {
       "related": [41, 33, 47, 22, 5, 3],
       "short": "Improve visibility",
       "long": "Improving visibility by installing appropriate street lighting helps maintain road use for active travel during periods of increased rainfall and decreased visibility.",
-      "refs": ["https://dx.doi.org/10.1161/cir.0000000000000878"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.1161/cir.0000000000000878",
+        "title": "Creating Built Environments That Expand Active Transportation and Active Living Across the United States: A Policy Statement From the American Heart Association",
+        "authors": ["Deborah R. Young", "Angie L. Cradock", "Amy A. Eyler", "Mark Fenton", "Margo Pedroso", "James F. Sallis", "Laurie P. Whitsel"],
+        "date": "2020",
+        "journal": "Circulation",
+        "issue": "11"
+      }],
       "case": "Ruggedised: Designing smart, resilient cities for all",
       "caseref": "https://ruggedised.eu/fileadmin/repository/Factsheets/Ruggedised-factsheet-R11-Rotterdam.pdf|https://ruggedised.eu/fileadmin/repository/Factsheets/Ruggedised-factsheet-G6.pdf"
     },
@@ -40861,7 +41804,19 @@ const net = {
       "related": [33, 47, 22, 5, 3],
       "short": "Install windbreaks",
       "long": "Windbreaks using planting, trees, hedges or fences, can help mitigate the effects of strong prevailing winds and make walking and cycling more attractive.",
-      "refs": ["https://www.gov.uk/government/publications/cycle-infrastructure-design-ltn-120", "https://dx.doi.org/10.1161/cir.0000000000000878"],
+      "refs": [{
+        "doi": "https://www.gov.uk/government/publications/cycle-infrastructure-design-ltn-120",
+        "type": "link",
+        "link": "https://www.gov.uk/government/publications/cycle-infrastructure-design-ltn-120"
+      }, {
+        "type": "article",
+        "doi": "10.1161/cir.0000000000000878",
+        "title": "Creating Built Environments That Expand Active Transportation and Active Living Across the United States: A Policy Statement From the American Heart Association",
+        "authors": ["Deborah R. Young", "Angie L. Cradock", "Amy A. Eyler", "Mark Fenton", "Margo Pedroso", "James F. Sallis", "Laurie P. Whitsel"],
+        "date": "2020",
+        "journal": "Circulation",
+        "issue": "11"
+      }],
       "case": "",
       "caseref": ""
     },
@@ -40872,7 +41827,15 @@ const net = {
       "related": [33, 47, 22, 5],
       "short": "Install permeable paving",
       "long": "Permeable pavings have a cooling effect and decrease nearby temperatures.",
-      "refs": ["https://dx.doi.org/10.3390/su12031057"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.3390/su12031057",
+        "title": "Flexible Pavements and Climate Change: A Comprehensive Review and Implications",
+        "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
+        "date": "2020",
+        "journal": "Sustainability",
+        "issue": "3"
+      }],
       "case": "",
       "caseref": ""
     },
@@ -40883,7 +41846,19 @@ const net = {
       "related": [33, 47, 22, 5],
       "short": "Install cool paving",
       "long": "Cool pavements/roads with highly reflective coating reduces air temperatures near paved surfaces. Consider installing these  in pedestrianized areas, cycling lanes and cycle hire stations. This is especially important in more urbanized areas.",
-      "refs": ["https://dx.doi.org/10.3390/su12031057 ", " https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.3390/su12031057",
+        "title": "Flexible Pavements and Climate Change: A Comprehensive Review and Implications",
+        "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
+        "date": "2020",
+        "journal": "Sustainability",
+        "issue": "3"
+      }, {
+        "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
+        "type": "link",
+        "link": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"
+      }],
       "case": "Cool pavement pilot program, City of Los Angeles",
       "caseref": "https://www.irf.global/information-on-cool-pavement-pilot-program-city-of-los-angeles/"
     },
@@ -40894,7 +41869,31 @@ const net = {
       "related": [33, 47, 22, 5, 3],
       "short": "Increase tree cover near pavements and roads",
       "long": "Shading provided by tree cover is effective in reducing temperature of pavings and the surrounding temperature.",
-      "refs": ["https://dx.doi.org/10.3390/su12031057 ", " https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US", "https://dx.doi.org/10.1161/cir.0000000000000878", "https://www.fs.fed.us/psw/topics/urban_forestry/products/cufr639mcpherson-JOA-pavingshade.pdf"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.3390/su12031057",
+        "title": "Flexible Pavements and Climate Change: A Comprehensive Review and Implications",
+        "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
+        "date": "2020",
+        "journal": "Sustainability",
+        "issue": "3"
+      }, {
+        "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
+        "type": "link",
+        "link": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"
+      }, {
+        "type": "article",
+        "doi": "10.1161/cir.0000000000000878",
+        "title": "Creating Built Environments That Expand Active Transportation and Active Living Across the United States: A Policy Statement From the American Heart Association",
+        "authors": ["Deborah R. Young", "Angie L. Cradock", "Amy A. Eyler", "Mark Fenton", "Margo Pedroso", "James F. Sallis", "Laurie P. Whitsel"],
+        "date": "2020",
+        "journal": "Circulation",
+        "issue": "11"
+      }, {
+        "doi": "https://www.fs.fed.us/psw/topics/urban_forestry/products/cufr639mcpherson-JOA-pavingshade.pdf",
+        "type": "link",
+        "link": "https://www.fs.fed.us/psw/topics/urban_forestry/products/cufr639mcpherson-JOA-pavingshade.pdf"
+      }],
       "case": "Street Tree Master Plan, Miami",
       "caseref": "https://www8.miamidade.gov/global/recreation/milliontrees/street-tree-master-plan.page"
     },
@@ -40905,7 +41904,11 @@ const net = {
       "related": [33, 47, 22, 5, 3],
       "short": "Install drinking fountains",
       "long": "Drinking fountains next to cycle hire stations, along bike lanes and in pedestrianized areas help community stay hydrated during active travel.",
-      "refs": ["https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"],
+      "refs": [{
+        "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
+        "type": "link",
+        "link": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"
+      }],
       "case": "",
       "caseref": ""
     },
@@ -40916,7 +41919,19 @@ const net = {
       "related": [33, 47, 22, 5, 3],
       "short": "Improve shading",
       "long": "Shading areas next to cycle hire stations and in pedestrianized zones decrease exposure to heat and make active travel a more attractive option.",
-      "refs": ["https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US", "https://dx.doi.org/10.1161/cir.0000000000000878"],
+      "refs": [{
+        "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
+        "type": "link",
+        "link": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"
+      }, {
+        "type": "article",
+        "doi": "10.1161/cir.0000000000000878",
+        "title": "Creating Built Environments That Expand Active Transportation and Active Living Across the United States: A Policy Statement From the American Heart Association",
+        "authors": ["Deborah R. Young", "Angie L. Cradock", "Amy A. Eyler", "Mark Fenton", "Margo Pedroso", "James F. Sallis", "Laurie P. Whitsel"],
+        "date": "2020",
+        "journal": "Circulation",
+        "issue": "11"
+      }],
       "case": "Street Tree Master Plan, Miami",
       "caseref": "https://www8.miamidade.gov/global/recreation/milliontrees/street-tree-master-plan.page"
     },
@@ -40927,7 +41942,11 @@ const net = {
       "related": [33, 47, 22, 5, 3],
       "short": "Route bikers through parks",
       "long": "Designing cycling routes through parks provide cooling and promote active travel.",
-      "refs": ["https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"],
+      "refs": [{
+        "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
+        "type": "link",
+        "link": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US"
+      }],
       "case": "",
       "caseref": ""
     },
@@ -40938,7 +41957,15 @@ const net = {
       "related": [33, 47, 22, 5],
       "short": "Plan for increased and more frequent maintenance on pavings",
       "long": "Paving damage (such as longitudinal cracking, alligator cracking, and rutting) will be exacerbated by climate change, and maintenance will have to be performed earlier to mitigate the impact.",
-      "refs": ["https://dx.doi.org/10.3390/su12031057"],
+      "refs": [{
+        "type": "article",
+        "doi": "10.3390/su12031057",
+        "title": "Flexible Pavements and Climate Change: A Comprehensive Review and Implications",
+        "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
+        "date": "2020",
+        "journal": "Sustainability",
+        "issue": "3"
+      }],
       "case": "",
       "caseref": ""
     }
@@ -41094,9 +42121,9 @@ class Network {
     }
 
     if (variable.direction == "rising") {
-      return "Increasing by " + (variable.value - variable.reference).toFixed(2) + " " + units + " in next 80 years";
+      return "Increasing by " + (variable.value - variable.reference).toFixed(2) + " " + units + " in next 70 years";
     } else {
-      return "Decreasing by " + (variable.reference - variable.value).toFixed(2) + " " + units + " in next 80 years";
+      return "Decreasing by " + (variable.reference - variable.value).toFixed(2) + " " + units + " in next 70 years";
     }
   }
 
@@ -41143,6 +42170,27 @@ class Network {
     return url;
   }
 
+  referenceToHTML(ref) {
+    if (ref.type == "link") {
+      return "<a href='" + ref.link + "'>" + ref.link + "</a>";
+    } else {
+      let ret = "<b><a href='http://doi.org/" + ref.doi + "'>" + ref.title + "</a></b> ";
+      ret += ref.authors.join(", ");
+      ret += ": " + ref.journal;
+
+      if (ref.date != "") {
+        ret += " " + ref.date;
+      }
+
+      if (ref.issue != "") {
+        ret += " Issue: " + ref.issue;
+      }
+
+      ret += " DOI: " + ref.doi;
+      return ret;
+    }
+  }
+
   causeToHTML(cause) {
     let s = "";
     s += `<h3>` + cause.short + `</h3>`;
@@ -41153,7 +42201,7 @@ class Network {
       s += "<li><b>References</b>: <ol>";
 
       for (let ref of cause.refs) {
-        s += "<li><a href='" + ref + "'>" + ref + "</a></li>";
+        s += "<li>" + this.referenceToHTML(ref) + "</li>";
       }
 
       s += "</ol></li>";
@@ -41181,7 +42229,7 @@ class Network {
       s += "<li><b>References</b>: <ol>";
 
       for (let ref of factor.refs) {
-        s += "<li><a href='" + ref + "'>" + ref + "</a></li>";
+        s += "<li>" + this.referenceToHTML(ref) + "</li>";
       }
 
       s += "</ol></li>";
@@ -41213,7 +42261,7 @@ class Network {
       s += "<li><b>References</b>: <ol>";
 
       for (let ref of impact.refs) {
-        s += "<li><a href='" + ref + "'>" + ref + "</a></li>";
+        s += "<li>" + this.referenceToHTML(ref) + "</li>";
       }
 
       s += "</ol></li>";
