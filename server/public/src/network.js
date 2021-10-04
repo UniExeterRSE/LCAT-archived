@@ -251,7 +251,12 @@ class Network {
 	
 	impactToHTML(impact) {
 		let s=""
-		s+=`<b>`+this.net.factors[impact.from].short+`</b> impacts <b>`+this.net.factors[impact.to].short+`</b><br>`
+		let direction="increases"
+		if (impact.type=="-") {
+			direction="decreases"
+		}
+		
+		s+=`<b>`+this.net.factors[impact.from].short+`</b> `+direction+` <b>`+this.net.factors[impact.to].short+`</b><br>`
 		if (impact.long!="") {
 			s+=`<p>`+impact.long+`</p>`
 		}
@@ -611,7 +616,6 @@ class Network {
 				for (let edge of this.edges.get(ids)) {				
 					let impact = this.net.impacts[edge.id]
 					if (impact!=undefined) {
-						console.log(impact)
 						$("#network-info").html(this.impactToHTML(impact))
 					} else {
 						for (let c of this.net.causes) {
