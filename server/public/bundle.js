@@ -42039,6 +42039,7 @@ class Network {
              cx="150"
              cy="125"
              r="100" />`;
+    this.paywalled = ["10.1016/j.jth.2016.01.008", "10.1016/j.scitotenv.2020.136678", "10.1016/j.trd.2019.09.022", "10.1016/j.jtrangeo.2019.04.016"];
   }
 
   async loadIcon(fn) {
@@ -42174,7 +42175,14 @@ class Network {
     if (ref.type == "link") {
       return "<a href='" + ref.link + "'>" + ref.link + "</a>";
     } else {
-      let ret = "<b><a href='http://doi.org/" + ref.doi + "'>" + ref.title + "</a></b> ";
+      let ret = "";
+
+      if (this.paywalled.includes(ref.doi)) {
+        ret += "<b><a style='color:red;' href='http://doi.org/" + ref.doi + "'>(PAYWALLED) " + ref.title + "</a></b> ";
+      } else {
+        ret += "<b><a href='http://doi.org/" + ref.doi + "'>" + ref.title + "</a></b> ";
+      }
+
       ret += ref.authors.join(", ");
       ret += ": " + ref.journal;
 
@@ -42307,8 +42315,24 @@ class Network {
     };
   }
 
+  isPaywalled(obj) {
+    for (let ref of obj.refs) {
+      if (ref.doi != undefined && this.paywalled.includes(ref.doi)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   factorEdgeFull(factor, impact, new_factor) {
     let label = impact.type;
+    let colour = "#b0cacc";
+
+    if (this.isPaywalled(impact)) {
+      colour = "#ffcaca";
+    }
+
     if (label == "-") label = "‐";
     return {
       id: impact.id,
@@ -42320,14 +42344,14 @@ class Network {
       arrowStrikethrough: false,
       font: {
         //background: "#fff",
-        color: "#b0cacc",
+        color: colour,
         size: 30 //vadjust: 10,
         //align: "bottom"
 
       },
       color: {
-        color: "#b0cacc",
-        highlight: "#b0cacc"
+        color: colour,
+        highlight: colour
       }
     };
   }
@@ -42349,6 +42373,12 @@ class Network {
       label = "‐";
     }
 
+    let colour = "#b0cacc";
+
+    if (this.isPaywalled(cause)) {
+      colour = "#ffcaca";
+    }
+
     return {
       id: cause.id,
       from: cause.id,
@@ -42359,14 +42389,14 @@ class Network {
       arrowStrikethrough: false,
       font: {
         //background: "#fff",
-        color: "#b0cacc",
+        color: colour,
         size: 30 //vadjust: 10,
         //align: "bottom"
 
       },
       color: {
-        color: "#b0cacc",
-        highlight: "#b0cacc"
+        color: colour,
+        highlight: colour
       }
     };
   }
