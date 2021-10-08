@@ -27,6 +27,8 @@ select:hover {
 	background: #ffbc42;
 }
 
+a { color: #4c9f70; }
+
 button {
     font-family: 'nunito',Arial,Helvetica,sans-serif;
 	border: none;

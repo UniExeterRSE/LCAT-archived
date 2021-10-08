@@ -307,13 +307,17 @@ class Network {
 	}
 
 	factorToNodePreview(factor) {
-		return {
+		let t = this.factorToNodeFull(factor)
+		t.preview = true
+		return t
+		
+		/*return {
  			id: factor.id,
 			shape: "text",
 			label: factor.short,
 			font: { size: preview_font_size },
 			preview: true
-		}
+		}*/
 	}
 
 	isPaywalled(obj) {
@@ -325,7 +329,7 @@ class Network {
 		return false
 	}
 	
-	factorEdgeFull(factor,impact,new_factor) {
+	factorEdge(factor,impact,new_factor) {
 		let label = impact.type
 		let colour = "#b0cacc"
 		if (this.isPaywalled(impact)) {
@@ -355,13 +359,6 @@ class Network {
 			}
 		}
 	}
-
-	factorEdgePreview(factor,impact,new_factor) {
-		let edge = this.factorEdgeFull(factor,impact,new_factor)
-		edge.arrows = "to"
-		return edge
-	}
-
 
 	causeEdge(cause,polarity_match) {			
 		let label = cause.type		
@@ -442,13 +439,13 @@ class Network {
 				y: pos.y+(i-(factor.impacts.length/2))*node_size
 			}
 			
-			if (new_factor.type=="main element" ||
+			if (new_factor.overview=="main element" ||
 				this.filter.includes(new_factor.type)) {
 				this.addFactor(new_factor,false,fpos)
-				this.edges.add([this.factorEdgeFull(factor,impact,new_factor)])
+				this.edges.add([this.factorEdge(factor,impact,new_factor)])
 			} else {
 				this.addFactor(new_factor,true,fpos)
-				this.edges.add([this.factorEdgePreview(factor,impact,new_factor)])
+				this.edges.add([this.factorEdge(factor,impact,new_factor)])
 			}
 			i+=1;
 		}
@@ -459,7 +456,7 @@ class Network {
 	}
 	
 	addFactor(factor,preview_node,pos) {
-		if (!this.nodes.get(factor.id)) {				
+		if (!this.nodes.get(factor.id)) {
 			if (preview_node==false) {
 				let n = this.factorToNodeFull(factor)
 				n.x = pos.x;
@@ -552,7 +549,14 @@ class Network {
 			this.addCause(cause,c)
 			c+=1
 		}
-		
+
+		/*for (let f in this.net.factors) {
+			let factor=this.net.factors[f]
+			if (factor.overview=="Y") {
+				this.addFactor(factor,false,{x:0, y:0})
+			}
+		}*/
+
 		const options = {
 			physics: {
 				enabled: true,

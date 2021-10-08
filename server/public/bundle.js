@@ -38958,15 +38958,15 @@ class AdaptationFinder {
     }
 
     if (a.case != "") {
-      s += `<li><b>Case study</b>: `;
+      s += `<li><b>Case studies</b>: <ol>`;
 
       if (a.caseref != "") {
-        s += ` <a href="` + a.caseref + `">` + a.case + `</a>`;
+        s += `<li> <a href="` + a.caseref + `">` + a.case + `</a></li>`;
       } else {
-        s += `a.case`;
+        s += `<li>a.case</li>`;
       }
 
-      s += `</li>`;
+      s += `</ol></li>`;
     }
 
     s += "</ul>";
@@ -39522,7 +39522,7 @@ const net = {
     "id": 70,
     "short": "Temperature",
     "type": "+",
-    "long": "in general, an increase in temperature leads to an increase in active transport use.",
+    "long": "In general, an increase in temperature leads to an increase in active transport use (note that in reality this will be more complex, and this is based on a single publication).",
     "factor": 24,
     "operator": "increase",
     "variable": "mean_temp",
@@ -39626,6 +39626,7 @@ const net = {
       "id": 1,
       "short": "Access to goods & services",
       "type": "Equity",
+      "overview": "Y",
       "long": "",
       "refs": [],
       "unsdg": "10.3 Equity and affordability of access to education, employment, and health-promoting goods and services by income, gender, age and ethnicity",
@@ -39635,6 +39636,7 @@ const net = {
       "id": 2,
       "short": "Local crime",
       "type": "Equity",
+      "overview": "",
       "long": "Local crime, including violence against women and girls.",
       "refs": [],
       "unsdg": "5.2 Violence against women and girls",
@@ -39644,6 +39646,7 @@ const net = {
       "id": 3,
       "short": "Proportion of people getting enough daily exercise",
       "type": "Equity",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "3.4 Proportion of people getting enough daily exercise",
@@ -39653,6 +39656,7 @@ const net = {
       "id": 4,
       "short": "Gentrification",
       "type": "Community",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39662,6 +39666,7 @@ const net = {
       "id": 5,
       "short": "Attractiveness of streets/parks to locals",
       "type": "Community",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39671,6 +39676,7 @@ const net = {
       "id": 6,
       "short": "Incorporation of culture & indigenous biodiversity in design",
       "type": "Equity",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "15.9 Appropriateness of design (cultural landscapes) and incorporation of indigenous biodiversity",
@@ -39680,6 +39686,7 @@ const net = {
       "id": 7,
       "short": "Exposure to other people",
       "type": "Health",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39689,6 +39696,7 @@ const net = {
       "id": 8,
       "short": "Cultural wellbeing & protection of cultural heritage",
       "type": "Equity",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "11.4 Cultural wellbeing and protection of cultural heritage",
@@ -39698,7 +39706,8 @@ const net = {
       "id": 9,
       "short": "Direct environmental effects from cars",
       "type": "Travel",
-      "long": "- Exhaust (from internal combustion engine cars)\n- Other auto-related pollutants (eg. microplastics from tyres)\n- Road noise",
+      "overview": "",
+      "long": "- Exhaust (from internal combustion engine cars)\n- Other auto-related pollutants (e.g. microplastics from tyres)\n- Road noise",
       "refs": [],
       "unsdg": "",
       "impacts": [78, 119, 126]
@@ -39707,6 +39716,7 @@ const net = {
       "id": 10,
       "short": "Community action to resolve minor anti-social behaviour",
       "type": "Community",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39716,6 +39726,7 @@ const net = {
       "id": 11,
       "short": "Car accidents",
       "type": "Travel",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39725,6 +39736,7 @@ const net = {
       "id": 12,
       "short": "Public transport use",
       "type": "Travel",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39734,6 +39746,7 @@ const net = {
       "id": 13,
       "short": "Local sense of security",
       "type": "Community",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39743,6 +39756,7 @@ const net = {
       "id": 14,
       "short": "Access to safe & inclusive public green spaces",
       "type": "Equity",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39752,6 +39766,7 @@ const net = {
       "id": 15,
       "short": "Place attachment",
       "type": "Community",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39761,6 +39776,7 @@ const net = {
       "id": 16,
       "short": "Community capacity & empowerment",
       "type": "Community",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39770,6 +39786,7 @@ const net = {
       "id": 17,
       "short": "Relative local property values",
       "type": "Community",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39779,6 +39796,7 @@ const net = {
       "id": 18,
       "short": "Equity in access to basic services",
       "type": "Equity",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "1.4 Equity in rights to access basic services",
@@ -39788,6 +39806,7 @@ const net = {
       "id": 19,
       "short": "Local air quality",
       "type": "Health",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "11.6 Local air pollution",
@@ -39797,7 +39816,8 @@ const net = {
       "id": 20,
       "short": "Public health & wellbeing",
       "type": "main element",
-      "long": "Good public health is described as an absence of disease and injuries.\n\nHigh wellbeing in community is described as the state when members of the community are feeling good and functioning well.",
+      "overview": "",
+      "long": "Good public health is described as an absence of disease and injuries.\n\nHigh wellbeing in a community is described as the state when members of the community are feeling good and functioning well.",
       "refs": [],
       "unsdg": "3. Ensure healthy lives and promote well-being for all at all ages|5. Achieve gender equality and empower all women and girls|11. Make cities and human settlements inclusive|safe|resilient and sustainable|10. Reduce inequality within and among countries|13. Take urgent action to combat climate change and its impacts|16. Promote peaceful and inclusive societies for sustainable development|provide access to justice for all and build effective|accountable and inclusive institutions at all levels",
       "impacts": []
@@ -39806,6 +39826,7 @@ const net = {
       "id": 21,
       "short": "Disparities in access to education",
       "type": "Equity",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "4.5 Disparities in access to education",
@@ -39815,6 +39836,7 @@ const net = {
       "id": 22,
       "short": "Investment in walking & cycling infrastructure",
       "type": "Travel",
+      "overview": "",
       "long": "Investment in further walking and cycling infrastructure to connect different areas.",
       "refs": [],
       "unsdg": "",
@@ -39824,6 +39846,7 @@ const net = {
       "id": 23,
       "short": "Women's access to economic resources",
       "type": "Equity",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "5.7 Women's access to economic resources",
@@ -39833,7 +39856,8 @@ const net = {
       "id": 24,
       "short": "Active transport use",
       "type": "main element",
-      "long": "Defined as number of trips made by active transport, i.e. walking and cycling.",
+      "overview": "Y",
+      "long": "Defined as the number of trips made by active transport, i.e. walking and cycling.",
       "refs": [],
       "unsdg": "",
       "impacts": [49, 72, 75, 89, 109, 133, 141]
@@ -39842,6 +39866,7 @@ const net = {
       "id": 25,
       "short": "Dense mixed land use",
       "type": "Sustainable-development",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39851,6 +39876,7 @@ const net = {
       "id": 26,
       "short": "Tenure length",
       "type": "Community",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39860,6 +39886,7 @@ const net = {
       "id": 27,
       "short": "Presence of people on local streets",
       "type": "Community",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39869,7 +39896,8 @@ const net = {
       "id": 28,
       "short": "Injuries",
       "type": "Health",
-      "long": "Among others, injuries can result from:\n\n- Car crashes\n- Striking the ground after falling",
+      "overview": "Y",
+      "long": "Among others, injuries can result from:\n- Car crashes\n- Striking the ground after falling",
       "refs": [],
       "unsdg": "3.6 Reduce injuries from road traffic accidents",
       "impacts": [66]
@@ -39878,6 +39906,7 @@ const net = {
       "id": 29,
       "short": "Speed of emergency ground transportation",
       "type": "Travel",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39887,19 +39916,17 @@ const net = {
       "id": 30,
       "short": "Wellbeing",
       "type": "Health",
-      "long": "Wellbeing is about feeling good and functioning well and comprises an individual\u2019s experience of their life; and a comparison of life circumstances with social norms and values.",
-      "refs": [{
-        "doi": "https://www.gov.uk/government/publications/wellbeing-and-health",
-        "type": "link",
-        "link": "https://www.gov.uk/government/publications/wellbeing-and-health"
-      }],
-      "unsdg": "3.4 Promote mental health and wellbeing",
+      "overview": "Y",
+      "long": "Wellbeing is about feeling good and functioning well, and comprises an individual\u2019s experience of their life, and a comparison of life circumstances with social norms and values.",
+      "refs": [],
+      "unsdg": "https://www.gov.uk/government/publications/wellbeing-and-health",
       "impacts": [83]
     },
     "31": {
       "id": 31,
       "short": "Exposure to traffic",
       "type": "Travel",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39909,6 +39936,7 @@ const net = {
       "id": 32,
       "short": "Communicable diseases",
       "type": "Health",
+      "overview": "Y",
       "long": "Communicable, or infectious diseases, are caused by microorganisms such as bacteria, viruses, parasites and fungi that can be spread, directly or indirectly, from one person to another.\n\nCommunicable diseases include:\n- Influenza\n- COVID-19\n- Tuberculosis\n- HIV/AIDS\n- Hepatitis",
       "refs": [{
         "doi": "https://www.euro.who.int/en/health-topics/communicable-diseases",
@@ -39922,6 +39950,7 @@ const net = {
       "id": 33,
       "short": "Resilience to economic, social & environmental shocks",
       "type": "Sustainable-development",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "1.5 Resilience to economic, social and environmental shocks",
@@ -39931,7 +39960,8 @@ const net = {
       "id": 34,
       "short": "Private vehicle use",
       "type": "Travel",
-      "long": "Defined by number of local trips taken by private vehicles/individual car use.",
+      "overview": "Y",
+      "long": "Private vehicle use is defined by the number of local trips taken by private vehicles.",
       "refs": [],
       "unsdg": "",
       "impacts": [58, 63, 87, 98, 102, 124, 127]
@@ -39940,6 +39970,7 @@ const net = {
       "id": 35,
       "short": "Number of local walking & cycling injuries",
       "type": "Sustainable-development",
+      "overview": "Y",
       "long": "",
       "refs": [],
       "unsdg": "3.6 Number of local walking and cycling injuries",
@@ -39949,7 +39980,8 @@ const net = {
       "id": 36,
       "short": "Local vehicle volumes",
       "type": "Travel",
-      "long": "Defined by the traffic congestion and density in the local area.",
+      "overview": "",
+      "long": "Local vehicle volumes are defined by the traffic congestion and traffic density in the local area.",
       "refs": [],
       "unsdg": "",
       "impacts": [53, 77, 101, 103, 118, 120]
@@ -39958,6 +39990,7 @@ const net = {
       "id": 37,
       "short": "Community participation in planning",
       "type": "Equity",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "16.7 Meaningful community participation in local design and planning|11.3 Enable inclusive and sustainable urbanization through participatory planning",
@@ -39967,6 +40000,7 @@ const net = {
       "id": 38,
       "short": "Rate of disease spread",
       "type": "Health",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39976,6 +40010,7 @@ const net = {
       "id": 39,
       "short": "Equity in access to healthcare services",
       "type": "Equity",
+      "overview": "Y",
       "long": "",
       "refs": [],
       "unsdg": "3.8 Equity in access to healthcare services",
@@ -39985,6 +40020,7 @@ const net = {
       "id": 40,
       "short": "Local community social connection",
       "type": "Community",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -39994,6 +40030,7 @@ const net = {
       "id": 41,
       "short": "Feeling safe during active transport",
       "type": "Travel",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -40003,6 +40040,7 @@ const net = {
       "id": 42,
       "short": "Disparities in access to work & training",
       "type": "Equity",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "8.5 and 8.6 Disparities in access to work and training",
@@ -40012,6 +40050,7 @@ const net = {
       "id": 43,
       "short": "Local vehicle speeds",
       "type": "Travel",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -40021,6 +40060,7 @@ const net = {
       "id": 44,
       "short": "Urbanization",
       "type": "Sustainable-development",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -40030,7 +40070,8 @@ const net = {
       "id": 45,
       "short": "Non-communicable diseases",
       "type": "Health",
-      "long": "Noncommunicable diseases , also known as chronic diseases, tend to be of long duration and are the result of a combination of genetic, physiological, environmental and behavioural factors.\n\nNon-communicable diseases include:\n- Cardiovascular (heart) diseases\n- Cancers\n- Diabetes\n- Chronic respiratory diseases\n- Mental health disorders\n- Dementias",
+      "overview": "Y",
+      "long": "Non-communicable diseases, including chronic diseases, tend to be of long duration and are the result of a combination of genetic, physiological, environmental and behavioural factors.\n\nNon-communicable diseases include:\n- Cardiovascular (heart) diseases\n- Cancers\n- Diabetes\n- Chronic respiratory diseases\n- Mental health disorders\n- Dementias",
       "refs": [{
         "doi": "https://www.who.int/news-room/fact-sheets/detail/noncommunicable-diseases",
         "type": "link",
@@ -40043,6 +40084,7 @@ const net = {
       "id": 46,
       "short": "Greenhouse gas emissions",
       "type": "Sustainable-development",
+      "overview": "",
       "long": "",
       "refs": [],
       "unsdg": "13.2 Transport greenhouse gas emissions",
@@ -40052,6 +40094,7 @@ const net = {
       "id": 47,
       "short": "Walk/bike friendly & safe environment",
       "type": "Equity",
+      "overview": "Y",
       "long": "",
       "refs": [],
       "unsdg": "",
@@ -40064,7 +40107,7 @@ const net = {
       "from": 12,
       "to": 24,
       "type": "-",
-      "long": "Increased public transport use leads to a decrease in active transport use.",
+      "long": "Increased public transport use leads to decreased active transport use.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -40098,7 +40141,7 @@ const net = {
       "from": 47,
       "to": 12,
       "type": "-",
-      "long": "A less walk/bike friendly environment leads to more public transport network usage.\n\nIf parents perceive the environment as less safe (crime, transport infrastructure etc), children use public transport network more.",
+      "long": "A less walk/bike friendly environment leads to more public transport use.\n\nIf parents perceive the environment as less safe (crime, transport infrastructure etc), their children use public transport more.",
       "refs": [{
         "type": "article",
         "doi": "10.1111/obr.13185",
@@ -40149,7 +40192,7 @@ const net = {
       "from": 36,
       "to": 29,
       "type": "-",
-      "long": "Increased traffic congestion and density leads to a decrease in the speed of emergency ground transportation.",
+      "long": "Increased traffic congestion and density leads to decreased speed of emergency ground transportation.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -40268,7 +40311,7 @@ const net = {
       "from": 10,
       "to": 5,
       "type": "+",
-      "long": "Increased community action to resolve minor anti-social behaviour leads to streets and parks which are more attractive to locals.",
+      "long": "Increased community action to resolve minor anti-social behaviour leads to streets and parks that are more attractive to locals.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -40319,7 +40362,7 @@ const net = {
       "from": 34,
       "to": 9,
       "type": "+",
-      "long": "Increased automobile usage leads to increased direct environmental effects from automobiles (such as exhaust and other pollutants, road noise).",
+      "long": "Increased automobile use leads to increased direct environmental effects from automobiles (such as exhaust and other pollutants, road noise).",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -40404,7 +40447,7 @@ const net = {
       "from": 1,
       "to": 21,
       "type": "-",
-      "long": "Increased access to goods and services leads to less disparities in access to education.",
+      "long": "Increased access to goods and services leads to decreased disparities in access to education.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -40438,7 +40481,7 @@ const net = {
       "from": 12,
       "to": 34,
       "type": "-",
-      "long": "Increased public transport network usage leads to less individual automobile usage.",
+      "long": "Increased public transport network usage leads to decreased individual automobile usage.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -40455,7 +40498,7 @@ const net = {
       "from": 24,
       "to": 46,
       "type": "-",
-      "long": "An increase in active transport use leads to a decrease in greenhouse gas emissions.",
+      "long": "An increase in active transport use leads to decreased greenhouse gas emissions.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -40472,7 +40515,7 @@ const net = {
       "from": 45,
       "to": 20,
       "type": "-",
-      "long": "Increased non-communicable diseases lead to a decline in public health and wellbeing.",
+      "long": "Increased non-communicable diseases leads to decreased public health and wellbeing.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -40489,7 +40532,7 @@ const net = {
       "from": 27,
       "to": 13,
       "type": "+",
-      "long": "Increased presence of people on local streets leads to an increase in local sense of security.",
+      "long": "Increased presence of people on local streets leads to an increased local sense of security.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -40540,7 +40583,7 @@ const net = {
       "from": 36,
       "to": 9,
       "type": "+",
-      "long": "Increased local vehicle volumes lead to more environmental effects from cars.",
+      "long": "Increased local vehicle volumes leads to increased environmental effects from cars.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -40591,7 +40634,7 @@ const net = {
       "from": 41,
       "to": 24,
       "type": "+",
-      "long": "More people feeling safe during active transport use leads to increased use of active transport.",
+      "long": "More people feeling safe during active transport leads to increased use of active transport.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -40693,7 +40736,7 @@ const net = {
       "from": 32,
       "to": 20,
       "type": "-",
-      "long": "Increased communicable diseases lead to a decline in public health and wellbeing.",
+      "long": "Increased communicable diseases lead to decreased public health and wellbeing.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -40761,7 +40804,7 @@ const net = {
       "from": 5,
       "to": 15,
       "type": "+",
-      "long": "Streets and parks which are more attractive to locals lead to increased place attachment.",
+      "long": "Streets and parks that are more attractive to locals lead to increased place attachment.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -40812,7 +40855,7 @@ const net = {
       "from": 43,
       "to": 41,
       "type": "-",
-      "long": "Increased local vehicle speeds lead to feeling less safe during active transport.",
+      "long": "Increased local vehicle speeds leads to people feeling less safe during active transport.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -40880,7 +40923,7 @@ const net = {
       "from": 4,
       "to": 40,
       "type": "-",
-      "long": "Increased gentrification leads to increased social connection in the local community.",
+      "long": "Increased gentrification leads to decreased social connection in the local community.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -40990,7 +41033,7 @@ const net = {
       "from": 36,
       "to": 41,
       "type": "-",
-      "long": "Increased local vehicle volumes lead to feeling more safe during active transport.",
+      "long": "Increased local vehicle volumes lead to feeling less safe during active transport.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -41007,7 +41050,7 @@ const net = {
       "from": 47,
       "to": 24,
       "type": "+",
-      "long": "A more walk/bike friendly environment leads to more active transportation usage (cycling, walking).\n\nIf parents perceive the environment as safer (crime, transport infrastructure etc), children use active transport more.",
+      "long": "A more walk/bike friendly environment leads to more active transport (cycling, walking).\n\nIf parents perceive the environment as safer (crime, transport infrastructure etc), children use active transport more.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -41176,7 +41219,7 @@ const net = {
       "from": 17,
       "to": 4,
       "type": "+",
-      "long": "Increase in local property values leads to more gentrification.",
+      "long": "Increased local property values leads to increased gentrification.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -41193,7 +41236,7 @@ const net = {
       "from": 5,
       "to": 17,
       "type": "+",
-      "long": "Streets and parks which are more attractive to locals lead to increased relative local property values.",
+      "long": "Streets and parks that are more attractive to locals lead to increased relative local property values.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -41244,7 +41287,7 @@ const net = {
       "from": 36,
       "to": 45,
       "type": "+",
-      "long": "Increased local vehicle volumes lead to an increase in non-communicable diseases.",
+      "long": "Increased local vehicle volumes leads to an increase in non-communicable diseases.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -41261,7 +41304,7 @@ const net = {
       "from": 9,
       "to": 19,
       "type": "-",
-      "long": "Increasing environmental effects from cars decrease local air quality.",
+      "long": "Increasing environmental effects from cars lead to a decrease in local air quality.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -41278,7 +41321,7 @@ const net = {
       "from": 36,
       "to": 47,
       "type": "-",
-      "long": "Increased traffic congestion and density leads to a less attractive environment for active travelers.\n\nIncreased traffic density leads to a perception of decreased safety for parents and children.",
+      "long": "Increased traffic congestion and density lead to a less attractive environment for active travelers.\n\nIncreased traffic density leads to a perception of decreased safety for parents and children.",
       "refs": [{
         "type": "article",
         "doi": "10.1111/obr.13185",
@@ -41363,7 +41406,7 @@ const net = {
       "from": 9,
       "to": 46,
       "type": "+",
-      "long": "Increasing environmental effects from cars increase greenhouse gas emissions.",
+      "long": "Increased environmental effects from cars leads to increased greenhouse gas emissions.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -41380,7 +41423,7 @@ const net = {
       "from": 34,
       "to": 31,
       "type": "+",
-      "long": "Increased individual automobile usage leads to increased exposure to traffic.",
+      "long": "Increased individual automobile use leads to increased exposure to traffic.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -41397,7 +41440,7 @@ const net = {
       "from": 11,
       "to": 28,
       "type": "+",
-      "long": "More car accidents lead to more injuries in the community.",
+      "long": "Increased car accidents lead to increased injuries in the community.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -41448,7 +41491,7 @@ const net = {
       "from": 7,
       "to": 38,
       "type": "+",
-      "long": "Increased exposure to other people leads to an increase in the rate of disease spread.",
+      "long": "Increased exposure to other people leads to increased rate of disease spread.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -41516,7 +41559,7 @@ const net = {
       "from": 47,
       "to": 30,
       "type": "+",
-      "long": "A more active-transport-friendly and safe environment leads to better wellbeing in the community.",
+      "long": "A more active-transport-friendly and safe environment leads to increased wellbeing in the community.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.jth.2016.01.008",
@@ -41550,7 +41593,7 @@ const net = {
       "from": 2,
       "to": 13,
       "type": "-",
-      "long": "Increased local crime decreases the local sense of security (how safe people feel).",
+      "long": "Increased local crime leads to decreased local sense of security (how safe people feel).",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -41584,7 +41627,7 @@ const net = {
       "from": 40,
       "to": 15,
       "type": "+",
-      "long": "Increased social connection in the local community leads to higher place attachment.",
+      "long": "Increased social connection in the local community leads to increased place attachment.",
       "refs": [{
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -41689,7 +41732,7 @@ const net = {
       "direction": "increase",
       "related": [41, 33, 47, 22, 5, 3],
       "short": "Install permeable paving",
-      "long": "Permeable pavings drain stormwater more rapidly and reduce the chance of pavements/roads flooding. ",
+      "long": "Permeable pavings drain storm water more rapidly and reduce the chance of pavements/roads flooding. ",
       "refs": [{
         "type": "article",
         "doi": "10.3390/su12031057",
@@ -41735,7 +41778,7 @@ const net = {
       "direction": "increase",
       "related": [41, 33, 47, 22, 5],
       "short": "Raise road surface levels",
-      "long": "Where flooding is frequent, raising road surface levels to a higher level relative to the surrounding ground will maintain its use for active travel.",
+      "long": "Where flooding is frequent, raising road surface levels to a higher level relative to the surrounding ground will help maintain the road for active travel.",
       "refs": [{
         "type": "article",
         "doi": "10.3390/su12031057",
@@ -41754,7 +41797,7 @@ const net = {
       "direction": "increase",
       "related": [41, 11, 33, 47, 22, 5],
       "short": "Reduce use of fine materials in unbound granular layers",
-      "long": "This should be done where existing groundwater levels are high. This process reduces moisture content in paving, decreases risk of pavement/road damage in the future and prevents accidents related to paving deterioration.",
+      "long": "This should be done where existing groundwater levels are high. This process reduces the moisture content in paving, decreases the risk of pavement/road damage in the future, and prevents accidents related to paving deterioration.",
       "refs": [{
         "type": "article",
         "doi": "10.3390/su12031057",
@@ -41792,7 +41835,7 @@ const net = {
       "direction": "increase",
       "related": [33, 47, 22],
       "short": "Make cycle hire flood-proof ",
-      "long": "The electrical infrastructure for cycle hire stations need to be flood proof to keep operational after heavy rain.",
+      "long": "The electrical infrastructure for cycle hire stations needs to be flood proof so that the stations stay operational after heavy rain.",
       "refs": [{
         "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
         "type": "link",
@@ -41807,7 +41850,7 @@ const net = {
       "direction": "increase",
       "related": [41, 33, 47, 22, 5, 3],
       "short": "Improve visibility",
-      "long": "Improving visibility by installing appropriate street lighting helps maintain road use for active travel during periods of increased rainfall and decreased visibility.",
+      "long": "Improving visibility by installing appropriate street lighting helps to maintain road use for active travel during periods of increased rainfall and decreased visibility.",
       "refs": [{
         "type": "article",
         "doi": "10.1161/cir.0000000000000878",
@@ -41826,7 +41869,7 @@ const net = {
       "direction": "increase",
       "related": [33, 47, 22, 5, 3],
       "short": "Install windbreaks",
-      "long": "Windbreaks using planting, trees, hedges or fences, can help mitigate the effects of strong prevailing winds and make walking and cycling more attractive.",
+      "long": "Windbreaks using planting, trees, hedges or fences, can help mitigate the effects of strong prevailing winds, and make walking and cycling more attractive.",
       "refs": [{
         "doi": "https://www.gov.uk/government/publications/cycle-infrastructure-design-ltn-120",
         "type": "link",
@@ -41891,7 +41934,7 @@ const net = {
       "direction": "increase",
       "related": [33, 47, 22, 5, 3],
       "short": "Increase tree cover near pavements and roads",
-      "long": "Shading provided by tree cover is effective in reducing temperature of pavings and the surrounding temperature.",
+      "long": "Shading provided by tree cover is effective at reducing the temperature of paving and surrounding areas.",
       "refs": [{
         "type": "article",
         "doi": "10.3390/su12031057",
@@ -41926,7 +41969,7 @@ const net = {
       "direction": "increase",
       "related": [33, 47, 22, 5, 3],
       "short": "Install drinking fountains",
-      "long": "Drinking fountains next to cycle hire stations, along bike lanes and in pedestrianized areas help community stay hydrated during active travel.",
+      "long": "Drinking fountains next to cycle hire stations, along bike lanes and in pedestrianized areas help communities stay hydrated during active travel.",
       "refs": [{
         "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
         "type": "link",
@@ -41941,7 +41984,7 @@ const net = {
       "direction": "increase",
       "related": [33, 47, 22, 5, 3],
       "short": "Improve shading",
-      "long": "Shading areas next to cycle hire stations and in pedestrianized zones decrease exposure to heat and make active travel a more attractive option.",
+      "long": "Shading areas next to cycle hire stations and in pedestrianized zones decreases people\u2019s exposure to heat and makes active travel a more attractive option.",
       "refs": [{
         "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
         "type": "link",
@@ -41963,8 +42006,8 @@ const net = {
       "variable": "mean_temp",
       "direction": "increase",
       "related": [33, 47, 22, 5, 3],
-      "short": "Route bikers through parks",
-      "long": "Designing cycling routes through parks provide cooling and promote active travel.",
+      "short": "Route cyclists through parks",
+      "long": "Designing cycling routes through parks provides cooling and promotes the use of active transport.",
       "refs": [{
         "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
         "type": "link",
@@ -41978,8 +42021,8 @@ const net = {
       "variable": "",
       "direction": "",
       "related": [33, 47, 22, 5],
-      "short": "Plan for increased and more frequent maintenance on pavings",
-      "long": "Paving damage (such as longitudinal cracking, alligator cracking, and rutting) will be exacerbated by climate change, and maintenance will have to be performed earlier to mitigate the impact.",
+      "short": "Plan for more frequent maintenance on pavings",
+      "long": "Paving damage (such as longitudinal cracking, alligator cracking, and rutting) will be exacerbated by climate change, and maintenance will have to be performed earlier and more often to mitigate the impacts.",
       "refs": [{
         "type": "article",
         "doi": "10.3390/su12031057",
@@ -42336,15 +42379,16 @@ class Network {
   }
 
   factorToNodePreview(factor) {
-    return {
-      id: factor.id,
-      shape: "text",
-      label: factor.short,
-      font: {
-        size: preview_font_size
-      },
-      preview: true
-    };
+    let t = this.factorToNodeFull(factor);
+    t.preview = true;
+    return t;
+    /*return {
+    		id: factor.id,
+    	shape: "text",
+    	label: factor.short,
+    	font: { size: preview_font_size },
+    	preview: true
+    }*/
   }
 
   isPaywalled(obj) {
@@ -42357,7 +42401,7 @@ class Network {
     return false;
   }
 
-  factorEdgeFull(factor, impact, new_factor) {
+  factorEdge(factor, impact, new_factor) {
     let label = impact.type;
     let colour = "#b0cacc";
 
@@ -42386,12 +42430,6 @@ class Network {
         highlight: colour
       }
     };
-  }
-
-  factorEdgePreview(factor, impact, new_factor) {
-    let edge = this.factorEdgeFull(factor, impact, new_factor);
-    edge.arrows = "to";
-    return edge;
   }
 
   causeEdge(cause, polarity_match) {
@@ -42468,12 +42506,12 @@ class Network {
         y: pos.y + (i - factor.impacts.length / 2) * node_size
       };
 
-      if (new_factor.type == "main element" || this.filter.includes(new_factor.type)) {
+      if (new_factor.overview == "main element" || this.filter.includes(new_factor.type)) {
         this.addFactor(new_factor, false, fpos);
-        this.edges.add([this.factorEdgeFull(factor, impact, new_factor)]);
+        this.edges.add([this.factorEdge(factor, impact, new_factor)]);
       } else {
         this.addFactor(new_factor, true, fpos);
-        this.edges.add([this.factorEdgePreview(factor, impact, new_factor)]);
+        this.edges.add([this.factorEdge(factor, impact, new_factor)]);
       }
 
       i += 1;
@@ -42574,6 +42612,13 @@ class Network {
       this.addCause(cause, c);
       c += 1;
     }
+    /*for (let f in this.net.factors) {
+    	let factor=this.net.factors[f]
+    	if (factor.overview=="Y") {
+    		this.addFactor(factor,false,{x:0, y:0})
+    	}
+    }*/
+
 
     const options = {
       physics: {

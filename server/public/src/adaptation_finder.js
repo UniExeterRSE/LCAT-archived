@@ -159,13 +159,13 @@ class AdaptationFinder {
 		}
 
 		if (a.case!="") {
-			s+=`<li><b>Case study</b>: `
+			s+=`<li><b>Case studies</b>: <ol>`
 			if (a.caseref!="") {
-				s+=` <a href="`+a.caseref+`">`+a.case+`</a>`
+				s+=`<li> <a href="`+a.caseref+`">`+a.case+`</a></li>`
 			} else {
-				s+=`a.case`
+				s+=`<li>a.case</li>`
 			}
-			s+=`</li>`
+			s+=`</ol></li>`
 		}
 
 		s+="</ul>"

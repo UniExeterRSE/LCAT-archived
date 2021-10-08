@@ -24,6 +24,7 @@ def str2arr(s):
 doicache = {}
 
 def doi2info(doi):
+    print(doi)
     if doi in doicache:
         return doicache[doi]
 
@@ -109,9 +110,10 @@ def load_elements(fn):
                         "id": next_id,
                         "short": row[0],
                         "type": row[1],
-                        "long": row[2],
-                        "refs": refs2info(str2arr(row[3])),
-                        "unsdg": row[4],
+                        "overview": row[2],
+                        "long": row[3],
+                        "refs": refs2info(str2arr(row[4])),
+                        "unsdg": row[5],
                         "impacts": []
                     }
                     next_id+=1
@@ -228,9 +230,9 @@ def pp(arr):
 root = "/home/dave/projects/climate/data/ceren/"
 
 def go():
-    load_elements(root+"elements2.csv")
-    load_connections(root+"connections2.csv")
-    load_adaptations(root+"adaptations.csv")
+    load_elements(root+"elements3.csv")
+    load_connections(root+"connections3.csv")
+    load_adaptations(root+"adaptations3.csv")
 
     fact_by_id = {}
     for k,v in factors.items():
