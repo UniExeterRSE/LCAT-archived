@@ -90,6 +90,7 @@ class Network {
 			for (let f in this.net.causes) {
 				this.loadIcon(this.net.causes[f].short)
 			}
+			this.loadIcon("glow")
 		}
 	}
 
@@ -98,10 +99,14 @@ class Network {
 		return str.replace("&","&amp;");
 	}
 	
-	nodeImageURL(id,title,text,bg) {
+	nodeImageURL(id,title,text,bg,show_glow) {
 		let height = 500
 		if (bg==undefined) bg="#e6e6e6"
 		let icon=this.notFoundIcon
+		let glow=""
+		if (show_glow) {
+			glow=`<g transform="translate(0,95) scale(7.8)">` + this.iconCache["glow"] + `</g>`
+		}
 		if (this.iconCache[title]!=null) {
 			icon=`<g transform="translate(40,130) scale(7)">` + this.iconCache[title] + `</g>`
 		} else {
@@ -114,7 +119,7 @@ class Network {
 		}
 		
 		let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="`+height+`" style="overflow:visible;">`
-        + icon + 
+		+ glow + icon + 
         `<foreignObject x="0" y="340" width="100%" height="100%">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
         <center style="font-size: 2em;">`+this.printable(title)+`</center>`
@@ -300,16 +305,29 @@ class Network {
 				factor.id,
 				factor.short,
 				text,
-				this.type_cols[factor.type]
+				this.type_cols[factor.type],
+				false
 			),
 			preview: false
 		}
 	}
 
 	factorToNodePreview(factor) {
-		let t = this.factorToNodeFull(factor)
-		t.preview = true
-		return t
+		return {
+			id: factor.id,
+			shape: "image",
+			label: "",
+			size: node_size,
+			// "#e6e6e6"
+			image: this.nodeImageURL(
+				factor.id,
+				factor.short,
+				"",
+				this.type_cols[factor.type],
+				true
+			),
+			preview: true
+		}
 		
 		/*return {
  			id: factor.id,
@@ -457,7 +475,7 @@ class Network {
 	
 	addFactor(factor,preview_node,pos) {
 		if (!this.nodes.get(factor.id)) {
-			if (preview_node==false) {
+			if (preview_node==false || factor.impacts.length==0) {
 				let n = this.factorToNodeFull(factor)
 				n.x = pos.x;
 				n.y = pos.y;
