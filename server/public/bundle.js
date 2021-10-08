@@ -42177,14 +42177,14 @@ class Network {
 
   referenceToHTML(ref) {
     if (ref.type == "link") {
-      return "<a href='" + ref.link + "'>" + ref.link + "</a>";
+      return "<a target=”_blank” href='" + ref.link + "'>" + ref.link + "</a>";
     } else {
       let ret = "";
 
       if (this.paywalled.includes(ref.doi)) {
-        ret += "<b><a style='color:red;' href='http://doi.org/" + ref.doi + "'>(PAYWALLED) " + ref.title + "</a></b> ";
+        ret += "<b><a target=”_blank” style='color:red;' href='http://doi.org/" + ref.doi + "'>(PAYWALLED) " + ref.title + "</a></b> ";
       } else {
-        ret += "<b><a href='http://doi.org/" + ref.doi + "'>" + ref.title + "</a></b> ";
+        ret += "<b><a target=”_blank” href='http://doi.org/" + ref.doi + "'>" + ref.title + "</a></b> ";
       }
 
       ret += ref.authors.join(", ");
@@ -42266,10 +42266,9 @@ class Network {
     }
 
     s += "<ul>";
-
-    if (impact.type != "") {
-      s += "<li><b>Type</b>: " + impact.type + "</li>";
-    }
+    /*if (impact.type!="") {
+    	s+="<li><b>Type</b>: "+impact.type+"</li>"
+    }*/
 
     if (impact.unsdg != "") {
       s += "<li><b>UN SDG</b>: " + impact.unsdg + "</li>";
