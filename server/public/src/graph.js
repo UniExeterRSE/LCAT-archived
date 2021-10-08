@@ -92,7 +92,7 @@ function render_graph(decades_arr,scale) {
 
 function calc_scale(graph_data,height) {
 	// get the min/max for eventual graph scaling
-	let minimum = 999999;
+	/*let minimum = 999999;
 	let maximum = 0;
 
 	for (let decades of graph_data) {
@@ -100,7 +100,25 @@ function calc_scale(graph_data,height) {
 			if (minimum>decades[dec]) minimum = decades[dec]
 			if (maximum<decades[dec]) maximum = decades[dec]
 		}
+	}*/
+
+	let maximum = 0;
+
+	let data_type=$("#graph-type").val()
+	if(data_type=="daily_precip") {
+		maximum = 5.5
 	}
+	if(data_type=="mean_temp" ||
+	   data_type=="max_temp" ||
+	   data_type=="min_temp") {
+		maximum = 27
+	}
+	if(data_type=="mean_windspeed" ||
+	   data_type=="max_windspeed" ||
+	   data_type=="min_windspeed") {
+		maximum = 8
+	}
+
 	return height/maximum
 }
 
@@ -142,7 +160,9 @@ function update_graph(lsoa_zones,time) {
 					  zones: zones,
 					  data_type: $("#graph-type").val()
 				  },
-				  (data,status) => { redraw_graph(data); });
+				  (data,status) => {
+					  redraw_graph(data);
+				  });
 	} else {	
 		$.getJSON("/api/future",
 				  {

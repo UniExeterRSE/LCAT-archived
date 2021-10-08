@@ -41,9 +41,17 @@ class AdaptationFinder {
 	// only works for active transport use
 	// as that is the only thing we have data for
 	calculateFactorChange(factor) {
-		let rainDelta = -1.5
-		let windDelta = -0.9
-		let tempDelta = 2.6
+		let rainDelta = -1.5 // mm/day
+		let windDelta = -0.9 // km/hour
+		let tempDelta = 2.6  // 1C/day
+
+		// precip data = mm/day
+		// temp data = degrees avg per day
+		// wind = meters per second!
+		// 1 m/s= 3.6 km/h
+		// 1 km/h = 0.28 m/s
+		windDelta /= 3.6
+		
 		let v = this.variables["daily_precip"].getDelta()*rainDelta +
 			this.variables["mean_windspeed"].getDelta()*windDelta +
 			this.variables["mean_temp"].getDelta()*tempDelta;

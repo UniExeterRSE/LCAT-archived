@@ -130,7 +130,7 @@ class Network {
 	climateVariableText(variable) {
 		let units = "celsius"
 		if (variable.variable_name=="daily_precip") {
-			units = "cm/day"
+			units = "mm/day"
 		}
 		if (variable.variable_name=="mean_windspeed") {
 			units = "m/s"

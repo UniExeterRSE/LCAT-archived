@@ -38844,9 +38844,18 @@ class AdaptationFinder {
 
 
   calculateFactorChange(factor) {
-    let rainDelta = -1.5;
-    let windDelta = -0.9;
-    let tempDelta = 2.6;
+    let rainDelta = -1.5; // mm/day
+
+    let windDelta = -0.9; // km/hour
+
+    let tempDelta = 2.6; // 1C/day
+    // precip data = mm/day
+    // temp data = degrees avg per day
+    // wind = meters per second!
+    // 1 m/s= 3.6 km/h
+    // 1 km/h = 0.28 m/s
+
+    windDelta /= 3.6;
     let v = this.variables["daily_precip"].getDelta() * rainDelta + this.variables["mean_windspeed"].getDelta() * windDelta + this.variables["mean_temp"].getDelta() * tempDelta;
     return v;
   }
@@ -39087,14 +39096,28 @@ function render_graph(decades_arr, scale) {
 
 function calc_scale(graph_data, height) {
   // get the min/max for eventual graph scaling
-  let minimum = 999999;
-  let maximum = 0;
 
-  for (let decades of graph_data) {
-    for (let dec of Object.keys(decades)) {
-      if (minimum > decades[dec]) minimum = decades[dec];
-      if (maximum < decades[dec]) maximum = decades[dec];
-    }
+  /*let minimum = 999999;
+  let maximum = 0;
+  	for (let decades of graph_data) {
+  	for (let dec of Object.keys(decades)) {
+  		if (minimum>decades[dec]) minimum = decades[dec]
+  		if (maximum<decades[dec]) maximum = decades[dec]
+  	}
+  }*/
+  let maximum = 0;
+  let data_type = $("#graph-type").val();
+
+  if (data_type == "daily_precip") {
+    maximum = 5.5;
+  }
+
+  if (data_type == "mean_temp" || data_type == "max_temp" || data_type == "min_temp") {
+    maximum = 27;
+  }
+
+  if (data_type == "mean_windspeed" || data_type == "max_windspeed" || data_type == "min_windspeed") {
+    maximum = 8;
   }
 
   return height / maximum;
@@ -42118,7 +42141,7 @@ class Network {
     let units = "celsius";
 
     if (variable.variable_name == "daily_precip") {
-      units = "cm/day";
+      units = "mm/day";
     }
 
     if (variable.variable_name == "mean_windspeed") {
