@@ -42038,8 +42038,12 @@ class Network {
              id="circle1093-0-8"
              cx="150"
              cy="125"
-             r="100" />`;
-    this.paywalled = ["10.1016/j.jth.2016.01.008", "10.1016/j.scitotenv.2020.136678", "10.1016/j.trd.2019.09.022", "10.1016/j.jtrangeo.2019.04.016"];
+             r="100" />`; // this.paywalled = ["10.1016/j.jth.2016.01.008",
+    // 				  "10.1016/j.scitotenv.2020.136678",
+    // 				  "10.1016/j.trd.2019.09.022",
+    // 				  "10.1016/j.jtrangeo.2019.04.016"]
+
+    this.paywalled = [];
   }
 
   async loadIcon(fn) {
@@ -42582,6 +42586,7 @@ class Network {
       nodes: this.nodes,
       edges: this.edges
     }, options);
+    $("#network-info").empty();
     network.on('click', properties => {
       let ids = properties.nodes;
       let node_selected = false;
