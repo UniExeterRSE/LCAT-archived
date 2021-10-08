@@ -42349,7 +42349,7 @@ class Network {
       from: factor.id,
       to: impact.to,
       arrows: "to",
-      label: " " + label + " ",
+      //label: " "+label+" ",
       labelHighlightBold: false,
       arrowStrikethrough: false,
       font: {
@@ -42394,7 +42394,7 @@ class Network {
       from: cause.id,
       to: cause.factor,
       arrows: "to",
-      label: " " + label + " ",
+      //label: " "+label+" ",
       labelHighlightBold: false,
       arrowStrikethrough: false,
       font: {
