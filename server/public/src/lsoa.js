@@ -59,14 +59,14 @@ class LSOAZones {
 		this.current_layer_buffer=0;
 		this.other_layer_buffer=1;
 
-		let cols = colormap({
+		this.cols = colormap({
 			colormap: 'bathymetry',
 			nshades: 100,
 			format: 'hex',
 			alpha: 0.5
 		})
 
-		this.cols = cols;
+		this.cols.reverse();
 		this.score_adjust=0.7;
 		
 		var legend = L.control({position: 'bottomleft'});
@@ -75,7 +75,7 @@ class LSOAZones {
 			div.innerHTML += '<h3>Index of Multiple Deprivation Score</h3>'
 			for (let i = 1; i < 100; i+=10) {
 				div.innerHTML += 					
-				'<div class="key" style="background:' + cols[i] + '"></div> '+(i*this.score_adjust).toFixed(0)+"<br>"
+				'<div class="key" style="background:' + this.cols[i] + '"></div> '+(i*this.score_adjust).toFixed(0)+"<br>"
 					
 			}
 			return div;
