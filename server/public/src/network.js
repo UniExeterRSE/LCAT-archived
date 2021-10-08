@@ -29,7 +29,7 @@ class Network {
 		this.style = "simple"
 		this.nodes = []
 		this.edges = []
-		this.url_cache = {}
+		this.url_cache = {} 
 		this.table = "future_winter_avg"
 		this.finder = new finder.AdaptationFinder()
 		this.type_cols = {

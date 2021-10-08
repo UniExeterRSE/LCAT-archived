@@ -42014,7 +42014,7 @@ class Network {
     this.nodes = [];
     this.edges = [];
     this.url_cache = {};
-    this.table = "future_year_avg";
+    this.table = "future_winter_avg";
     this.finder = new finder.AdaptationFinder();
     this.type_cols = {
       "Equity": "#e6e6e6",
