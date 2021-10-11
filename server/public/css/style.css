@@ -147,6 +147,10 @@ section {
 	padding: 1em;
 }
 
+#network-info h3 {
+	margin-block-start: 0;
+}
+
  /* Style the button that is used to open and close the collapsible content */
 .collapsible {
 	box-sizing: content-box;
@@ -287,7 +291,7 @@ section {
 
 #cc-logo { width: 10% }
 #ecehh-logo { width: 40% }
-#ttt-logo { width: 10% }
+#ttt-logo { width: 12% }
 #uofe-logo { width: 20% }
 
 /* network styles -------------------------------------- */

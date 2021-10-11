@@ -172,6 +172,7 @@ class Network {
 		return url
 	}
 	
+	/*
 	adaptationImageURL(id,title,text,bg) {
 		let height = 450
 		if (text=="") height=350
@@ -192,6 +193,7 @@ class Network {
 		let url= "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 		return url
 	}
+	*/
 	
 	referenceToHTML(ref) {
 		if (ref.type=="link") {
@@ -504,7 +506,8 @@ class Network {
 				image: this.causeImageURL(cause.id,cause.short,"","#a4f9c8",variable),
 				x: 0,
 				y: y*75,
-				fixed: true
+				fixed: true,
+				size: 30
 			}])
 			
 			this.addFactor(this.net.factors[cause.factor],false,{x: 100, y: y*75})
@@ -512,7 +515,7 @@ class Network {
 		}
 	}
 
-	addAdaptation(adaptation,pos) {
+/*	addAdaptation(adaptation,pos) {
 		if (!this.nodes.get(adaptation.id)) {						
 			let n = this.adaptationToNode(adaptation)
 			n.x = pos.x;
@@ -530,7 +533,7 @@ class Network {
 			}
 		}
 	}
-
+*/
 	async updateVariables(table) {
 		if (table!=undefined) {
 			this.table=table

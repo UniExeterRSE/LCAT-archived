@@ -42356,25 +42356,27 @@ class Network {
     let url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
     return url;
   }
-
-  adaptationImageURL(id, title, text, bg) {
-    let height = 450;
-    if (text == "") height = 350;
-    if (bg == undefined) bg = "#e6e6e6";
-    let icon = this.notFoundIcon;
-    let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="` + height + `" style="overflow:visible;">
-                   <rect x="0" y="0" width="100%" height="100%" fill="` + bg + `" stroke-width="5" stroke="#a4b3cd"  rx="15" ></rect>
-        ` + icon + `			
-        <foreignObject x="0" y="220" width="100%" height="100%">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
-        <center style="font-size: 2em;">` + this.printable(title) + `</center>
-        <p>` + this.printable(text) + `</p>
-        </div>
-        </foreignObject>
-        </svg>`;
-    let url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-    return url;
+  /*
+  adaptationImageURL(id,title,text,bg) {
+  	let height = 450
+  	if (text=="") height=350
+  	if (bg==undefined) bg="#e6e6e6"
+  	let icon=this.notFoundIcon
+  		let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="`+height+`" style="overflow:visible;">
+                    <rect x="0" y="0" width="100%" height="100%" fill="`+bg+`" stroke-width="5" stroke="#a4b3cd"  rx="15" ></rect>
+         ` + icon + `			
+         <foreignObject x="0" y="220" width="100%" height="100%">
+         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
+         <center style="font-size: 2em;">`+this.printable(title)+`</center>
+         <p>`+this.printable(text)+`</p>
+         </div>
+         </foreignObject>
+         </svg>`
+  		let url= "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  	return url
   }
+  */
+
 
   referenceToHTML(ref) {
     if (ref.type == "link") {
@@ -42694,7 +42696,8 @@ class Network {
         image: this.causeImageURL(cause.id, cause.short, "", "#a4f9c8", variable),
         x: 0,
         y: y * 75,
-        fixed: true
+        fixed: true,
+        size: 30
       }]);
       this.addFactor(this.net.factors[cause.factor], false, {
         x: 100,
@@ -42703,26 +42706,26 @@ class Network {
       this.edges.add([this.causeEdge(cause, polarity_match)]);
     }
   }
+  /*	addAdaptation(adaptation,pos) {
+  		if (!this.nodes.get(adaptation.id)) {						
+  			let n = this.adaptationToNode(adaptation)
+  			n.x = pos.x;
+  			n.y = pos.y;
+  			this.nodes.add([n])
+  		}
+  	}
+  	
+  	searchAdaptations(factor_id,pos) {
+  		for (let aid in this.net.adaptations) {
+  			let a = this.net.adaptations[aid]
+  			if (a.related.includes(factor_id)) {
+  				this.addAdaptation(a,pos)				
+  				this.edges.add([this.adaptationEdge(factor_id,a)])
+  			}
+  		}
+  	}
+  */
 
-  addAdaptation(adaptation, pos) {
-    if (!this.nodes.get(adaptation.id)) {
-      let n = this.adaptationToNode(adaptation);
-      n.x = pos.x;
-      n.y = pos.y;
-      this.nodes.add([n]);
-    }
-  }
-
-  searchAdaptations(factor_id, pos) {
-    for (let aid in this.net.adaptations) {
-      let a = this.net.adaptations[aid];
-
-      if (a.related.includes(factor_id)) {
-        this.addAdaptation(a, pos);
-        this.edges.add([this.adaptationEdge(factor_id, a)]);
-      }
-    }
-  }
 
   async updateVariables(table) {
     if (table != undefined) {
