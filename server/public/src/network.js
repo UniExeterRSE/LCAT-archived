@@ -611,6 +611,7 @@ class Network {
 		}, options);
 
 		$("#network-info").empty()
+		$("#network-info").html("Click on a node to read more about it.")
 		
 		network.on( 'click', (properties) => {
 			let ids = properties.nodes;

@@ -203,7 +203,6 @@ section {
 
 .final {
 	border: none;
-	font-size: 200%;
 	text-align: center;
 }
 
@@ -211,6 +210,7 @@ section {
 	border-radius: 5px;
 	padding-left: 0.5em;
 	padding-right: 0.5em;
+	font-size: 2em;
 }
 
 
@@ -265,6 +265,30 @@ section {
 	width: 3em;
 	height: 1em;
 }
+
+.is-disabled {
+  color: currentColor;
+  cursor: not-allowed;
+  opacity: 0.5;
+  text-decoration: none;
+}
+
+.logo-row {
+	display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-row img {
+	margin: 0.5em;
+}
+
+#cc-logo { width: 10% }
+#ecehh-logo { width: 40% }
+#ttt-logo { width: 10% }
+#uofe-logo { width: 20% }
 
 /* network styles -------------------------------------- */
 
