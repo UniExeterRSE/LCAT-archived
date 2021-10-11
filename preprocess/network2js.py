@@ -23,6 +23,11 @@ def str2arr(s):
 
 doicache = {}
 
+link_overrides = {
+    "10.1016/j.scitotenv.2020.136678":"https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study",
+    "10.1016/j.jtrangeo.2019.04.016":"https://www.researchgate.net/publication/332932885_Weather_and_cycling_in_New_York_The_case_of_Citibike"    
+}
+
 def doi2info(doi):
     print(doi)
     if doi in doicache:
@@ -69,7 +74,12 @@ def doi2info(doi):
             if "journal_issue" in journal:
                 if "issue" in journal["journal_issue"]:
                     issue = journal["journal_issue"]["issue"]
-                      
+
+            link = "http://doi.org/"+doi
+
+            if doi in link_overrides:
+                link = link_overrides[doi]
+                    
             doicache[doi]={
                 "type": "article",
                 "doi": doi,
@@ -77,7 +87,8 @@ def doi2info(doi):
                 "authors": authors,
                 "date": date,
                 "journal": journal_title,
-                "issue": issue
+                "issue": issue,
+                "link": link
             }
 
             return doicache[doi]

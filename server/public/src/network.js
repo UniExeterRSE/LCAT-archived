@@ -199,9 +199,9 @@ class Network {
 		} else {
 			let ret = ""
 			if (this.paywalled.includes(ref.doi)) {
-				ret += "<b><a target=”_blank” style='color:red;' href='http://doi.org/"+ref.doi+"'>(PAYWALLED) "+ref.title+"</a></b> "
+				ret += "<b><a target=”_blank” style='color:red;' href='"+ref.link+"'>(PAYWALLED) "+ref.title+"</a></b> "
 			} else {
-				ret += "<b><a target=”_blank” href='http://doi.org/"+ref.doi+"'>"+ref.title+"</a></b> "				
+				ret += "<b><a target=”_blank” href='"+ref.link+"'>"+ref.title+"</a></b> "				
 			}
 			ret+=ref.authors.join(", ")
 			ret+=": "+ref.journal
@@ -238,9 +238,6 @@ class Network {
 		s+=`<h3>`+factor.short+`</h3>`
 		s+=`<p>`+factor.long+`</p>`
 		s+="<ul>"
-		if (factor.type!="") {
-			s+="<li><b>Type</b>: "+factor.type+"</li>"
-		}
 		if (factor.unsdg!="") {
 			s+="<li><b>UN SDG</b>: "+factor.unsdg+"</li>"
 		}
@@ -250,6 +247,9 @@ class Network {
 				s+="<li>"+this.referenceToHTML(ref)+"</li>";
 			}
 			s+="</ol></li>"
+		}
+		if (factor.type!="") {
+			s+="<li><b>Type</b>: "+factor.type+"</li>"
 		}
 		s+="</ul>"
 		return s

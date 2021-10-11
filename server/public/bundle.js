@@ -39533,7 +39533,8 @@ const net = {
       "authors": ["Sandar Tin Tin", "Alistair Woodward", "Elizabeth Robinson", "Shanthi Ameratunga"],
       "date": "2012",
       "journal": "Environmental Health",
-      "issue": "1"
+      "issue": "1",
+      "link": "http://doi.org/10.1186/1476-069x-11-12"
     }, {
       "type": "article",
       "doi": "10.1016/j.trd.2019.09.022",
@@ -39541,7 +39542,8 @@ const net = {
       "authors": ["Jinbao Zhao", "Cong Guo", "Ruhua Zhang", "Dong Guo", "Mathew Palmer"],
       "date": "2019",
       "journal": "Transportation Research Part D: Transport and Environment",
-      "issue": ""
+      "issue": "",
+      "link": "http://doi.org/10.1016/j.trd.2019.09.022"
     }],
     "unsdg": ""
   }, {
@@ -39559,7 +39561,8 @@ const net = {
       "authors": ["Tom Thomas", "Rinus Jaarsma", "Bas Tutert"],
       "date": "2013",
       "journal": "Transportation",
-      "issue": "1"
+      "issue": "1",
+      "link": "http://doi.org/10.1007/s11116-012-9398-5"
     }, {
       "type": "article",
       "doi": "10.1186/1476-069x-11-12",
@@ -39567,7 +39570,8 @@ const net = {
       "authors": ["Sandar Tin Tin", "Alistair Woodward", "Elizabeth Robinson", "Shanthi Ameratunga"],
       "date": "2012",
       "journal": "Environmental Health",
-      "issue": "1"
+      "issue": "1",
+      "link": "http://doi.org/10.1186/1476-069x-11-12"
     }, {
       "type": "article",
       "doi": "10.1016/j.jtrangeo.2019.04.016",
@@ -39575,7 +39579,8 @@ const net = {
       "authors": ["Ran An", "Renee Zahnow", "Dorina Pojani", "Jonathan Corcoran"],
       "date": "2019",
       "journal": "Journal of Transport Geography",
-      "issue": ""
+      "issue": "",
+      "link": "https://www.researchgate.net/publication/332932885_Weather_and_cycling_in_New_York_The_case_of_Citibike"
     }, {
       "type": "article",
       "doi": "10.1186/1476-069x-11-12",
@@ -39583,7 +39588,8 @@ const net = {
       "authors": ["Sandar Tin Tin", "Alistair Woodward", "Elizabeth Robinson", "Shanthi Ameratunga"],
       "date": "2012",
       "journal": "Environmental Health",
-      "issue": "1"
+      "issue": "1",
+      "link": "http://doi.org/10.1186/1476-069x-11-12"
     }, {
       "type": "article",
       "doi": "10.1016/j.trd.2019.09.022",
@@ -39591,7 +39597,8 @@ const net = {
       "authors": ["Jinbao Zhao", "Cong Guo", "Ruhua Zhang", "Dong Guo", "Mathew Palmer"],
       "date": "2019",
       "journal": "Transportation Research Part D: Transport and Environment",
-      "issue": ""
+      "issue": "",
+      "link": "http://doi.org/10.1016/j.trd.2019.09.022"
     }],
     "unsdg": ""
   }, {
@@ -39609,7 +39616,8 @@ const net = {
       "authors": ["Sandar Tin Tin", "Alistair Woodward", "Elizabeth Robinson", "Shanthi Ameratunga"],
       "date": "2012",
       "journal": "Environmental Health",
-      "issue": "1"
+      "issue": "1",
+      "link": "http://doi.org/10.1186/1476-069x-11-12"
     }, {
       "type": "article",
       "doi": "10.1016/j.trd.2019.09.022",
@@ -39617,7 +39625,8 @@ const net = {
       "authors": ["Jinbao Zhao", "Cong Guo", "Ruhua Zhang", "Dong Guo", "Mathew Palmer"],
       "date": "2019",
       "journal": "Transportation Research Part D: Transport and Environment",
-      "issue": ""
+      "issue": "",
+      "link": "http://doi.org/10.1016/j.trd.2019.09.022"
     }],
     "unsdg": ""
   }],
@@ -39857,8 +39866,17 @@ const net = {
       "short": "Active transport use",
       "type": "main element",
       "overview": "Y",
-      "long": "Defined as the number of trips made by active transport, i.e. walking and cycling.",
-      "refs": [],
+      "long": "Defined as the number of trips made by active transport, i.e. walking and cycling. See reference for how we estimate change in response to temperature, rainfall and wind speed climate variables. This provides a indication of how this tool can be used to understand how research findings interact, but more evidence would be required for better accuracy.",
+      "refs": [{
+        "type": "article",
+        "doi": "10.1186/1476-069x-11-12",
+        "title": "Temporal, seasonal and weather effects on cycle volume: an ecological study",
+        "authors": ["Sandar Tin Tin", "Alistair Woodward", "Elizabeth Robinson", "Shanthi Ameratunga"],
+        "date": "2012",
+        "journal": "Environmental Health",
+        "issue": "1",
+        "link": "http://doi.org/10.1186/1476-069x-11-12"
+      }],
       "unsdg": "",
       "impacts": [49, 72, 75, 89, 109, 133, 141]
     },
@@ -40115,7 +40133,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40132,7 +40151,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40149,7 +40169,8 @@ const net = {
         "authors": ["Wilma E. Waterlander", "Amika Singh", "Teatske Altenburg", "Coosje Dijkstra", "Angie Luna Pinzon", "Manou Anselma", "Vincent Busch", "Lieke Houtum", "Helga Emke", "Meredith L. Overman", "Mai J.M. Chinapaw", "Karien Stronks"],
         "date": "2021",
         "journal": "Obesity Reviews",
-        "issue": "7"
+        "issue": "7",
+        "link": "http://doi.org/10.1111/obr.13185"
       }],
       "unsdg": ""
     },
@@ -40166,7 +40187,8 @@ const net = {
         "authors": ["Wilma E. Waterlander", "Amika Singh", "Teatske Altenburg", "Coosje Dijkstra", "Angie Luna Pinzon", "Manou Anselma", "Vincent Busch", "Lieke Houtum", "Helga Emke", "Meredith L. Overman", "Mai J.M. Chinapaw", "Karien Stronks"],
         "date": "2021",
         "journal": "Obesity Reviews",
-        "issue": "7"
+        "issue": "7",
+        "link": "http://doi.org/10.1111/obr.13185"
       }],
       "unsdg": ""
     },
@@ -40183,7 +40205,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40200,7 +40223,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40217,7 +40241,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40234,7 +40259,8 @@ const net = {
         "authors": ["Aline Chiabai", "Sonia Quiroga", "Pablo Martinez-Juarez", "Sahran Higgins", "Tim Taylor"],
         "date": "2018",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "http://doi.org/10.1016/j.scitotenv.2018.03.323"
       }],
       "unsdg": ""
     },
@@ -40251,7 +40277,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40268,7 +40295,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40285,7 +40313,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40302,7 +40331,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40319,7 +40349,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40336,7 +40367,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40353,7 +40385,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40370,7 +40403,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40387,7 +40421,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40404,7 +40439,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40421,7 +40457,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40438,7 +40475,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40455,7 +40493,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40472,7 +40511,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40489,7 +40529,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40506,7 +40547,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40523,7 +40565,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40540,7 +40583,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40557,7 +40601,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40574,7 +40619,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40591,7 +40637,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40608,7 +40655,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40625,7 +40673,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40642,7 +40691,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40659,7 +40709,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40676,7 +40727,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40693,7 +40745,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40710,7 +40763,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40727,7 +40781,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40744,7 +40799,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40761,7 +40817,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40778,7 +40835,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40795,7 +40853,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40812,7 +40871,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40829,7 +40889,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40846,7 +40907,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40863,7 +40925,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40880,7 +40943,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40897,7 +40961,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -40914,7 +40979,8 @@ const net = {
         "authors": ["Aline Chiabai", "Sonia Quiroga", "Pablo Martinez-Juarez", "Sahran Higgins", "Tim Taylor"],
         "date": "2018",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "http://doi.org/10.1016/j.scitotenv.2018.03.323"
       }],
       "unsdg": ""
     },
@@ -40931,7 +40997,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40948,7 +41015,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }, {
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -40956,7 +41024,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40973,7 +41042,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -40990,7 +41060,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41007,7 +41078,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41024,7 +41096,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -41041,7 +41114,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41058,7 +41132,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }, {
         "type": "article",
         "doi": "10.1111/obr.13185",
@@ -41066,7 +41141,8 @@ const net = {
         "authors": ["Wilma E. Waterlander", "Amika Singh", "Teatske Altenburg", "Coosje Dijkstra", "Angie Luna Pinzon", "Manou Anselma", "Vincent Busch", "Lieke Houtum", "Helga Emke", "Meredith L. Overman", "Mai J.M. Chinapaw", "Karien Stronks"],
         "date": "2021",
         "journal": "Obesity Reviews",
-        "issue": "7"
+        "issue": "7",
+        "link": "http://doi.org/10.1111/obr.13185"
       }],
       "unsdg": ""
     },
@@ -41083,7 +41159,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -41100,7 +41177,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }, {
         "type": "article",
         "doi": "10.1016/j.scitotenv.2020.136678",
@@ -41108,7 +41186,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41125,7 +41204,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41142,7 +41222,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41159,7 +41240,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41176,7 +41258,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41193,7 +41276,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41210,7 +41294,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": "10.3 Equity and affordability of access to education, employment, and health-promoting goods and services by income, gender, age and ethnicity"
     },
@@ -41227,7 +41312,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41244,7 +41330,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41261,7 +41348,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41278,7 +41366,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41295,7 +41384,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -41312,7 +41402,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41329,7 +41420,8 @@ const net = {
         "authors": ["Wilma E. Waterlander", "Amika Singh", "Teatske Altenburg", "Coosje Dijkstra", "Angie Luna Pinzon", "Manou Anselma", "Vincent Busch", "Lieke Houtum", "Helga Emke", "Meredith L. Overman", "Mai J.M. Chinapaw", "Karien Stronks"],
         "date": "2021",
         "journal": "Obesity Reviews",
-        "issue": "7"
+        "issue": "7",
+        "link": "http://doi.org/10.1111/obr.13185"
       }],
       "unsdg": ""
     },
@@ -41346,7 +41438,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41363,7 +41456,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -41380,7 +41474,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -41397,7 +41492,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41414,7 +41510,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41431,7 +41528,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -41448,7 +41546,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -41465,7 +41564,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41482,7 +41582,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41499,7 +41600,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -41516,7 +41618,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -41533,7 +41636,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -41550,7 +41654,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -41567,7 +41672,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     },
@@ -41584,7 +41690,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41601,7 +41708,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41618,7 +41726,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41635,7 +41744,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41652,7 +41762,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41669,7 +41780,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41686,7 +41798,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41703,7 +41816,8 @@ const net = {
         "authors": ["Alexandra Macmillan", "Melody Smith", "Karen Witten", "Alistair Woodward", "Jamie Hosking", "Kirsty Wild", "Adrian Field"],
         "date": "2020",
         "journal": "Science of The Total Environment",
-        "issue": ""
+        "issue": "",
+        "link": "https://www.researchgate.net/publication/338601800_Suburb-level_changes_for_active_transport_to_meet_the_SDGs_Causal_theory_and_a_New_Zealand_case_study"
       }],
       "unsdg": ""
     },
@@ -41720,7 +41834,8 @@ const net = {
         "authors": ["Michael J. Widener", "Marianne Hatzopoulou"],
         "date": "2016",
         "journal": "Journal of Transport & Health",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.1016/j.jth.2016.01.008"
       }],
       "unsdg": ""
     }
@@ -41740,7 +41855,8 @@ const net = {
         "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
         "date": "2020",
         "journal": "Sustainability",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.3390/su12031057"
       }, {
         "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
         "type": "link",
@@ -41763,7 +41879,8 @@ const net = {
         "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
         "date": "2020",
         "journal": "Sustainability",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.3390/su12031057"
       }, {
         "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
         "type": "link",
@@ -41786,7 +41903,8 @@ const net = {
         "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
         "date": "2020",
         "journal": "Sustainability",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.3390/su12031057"
       }],
       "case": "",
       "caseref": ""
@@ -41805,7 +41923,8 @@ const net = {
         "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
         "date": "2020",
         "journal": "Sustainability",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.3390/su12031057"
       }],
       "case": "",
       "caseref": ""
@@ -41824,7 +41943,8 @@ const net = {
         "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
         "date": "2020",
         "journal": "Sustainability",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.3390/su12031057"
       }],
       "case": "",
       "caseref": ""
@@ -41858,7 +41978,8 @@ const net = {
         "authors": ["Deborah R. Young", "Angie L. Cradock", "Amy A. Eyler", "Mark Fenton", "Margo Pedroso", "James F. Sallis", "Laurie P. Whitsel"],
         "date": "2020",
         "journal": "Circulation",
-        "issue": "11"
+        "issue": "11",
+        "link": "http://doi.org/10.1161/cir.0000000000000878"
       }],
       "case": "Ruggedised: Designing smart, resilient cities for all",
       "caseref": "https://ruggedised.eu/fileadmin/repository/Factsheets/Ruggedised-factsheet-R11-Rotterdam.pdf|https://ruggedised.eu/fileadmin/repository/Factsheets/Ruggedised-factsheet-G6.pdf"
@@ -41881,7 +42002,8 @@ const net = {
         "authors": ["Deborah R. Young", "Angie L. Cradock", "Amy A. Eyler", "Mark Fenton", "Margo Pedroso", "James F. Sallis", "Laurie P. Whitsel"],
         "date": "2020",
         "journal": "Circulation",
-        "issue": "11"
+        "issue": "11",
+        "link": "http://doi.org/10.1161/cir.0000000000000878"
       }],
       "case": "",
       "caseref": ""
@@ -41900,7 +42022,8 @@ const net = {
         "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
         "date": "2020",
         "journal": "Sustainability",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.3390/su12031057"
       }],
       "case": "",
       "caseref": ""
@@ -41919,7 +42042,8 @@ const net = {
         "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
         "date": "2020",
         "journal": "Sustainability",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.3390/su12031057"
       }, {
         "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
         "type": "link",
@@ -41942,7 +42066,8 @@ const net = {
         "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
         "date": "2020",
         "journal": "Sustainability",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.3390/su12031057"
       }, {
         "doi": "https://www.c40knowledgehub.org/s/article/Reducing-climate-change-impacts-on-walking-and-cycling?language=en_US",
         "type": "link",
@@ -41954,7 +42079,8 @@ const net = {
         "authors": ["Deborah R. Young", "Angie L. Cradock", "Amy A. Eyler", "Mark Fenton", "Margo Pedroso", "James F. Sallis", "Laurie P. Whitsel"],
         "date": "2020",
         "journal": "Circulation",
-        "issue": "11"
+        "issue": "11",
+        "link": "http://doi.org/10.1161/cir.0000000000000878"
       }, {
         "doi": "https://www.fs.fed.us/psw/topics/urban_forestry/products/cufr639mcpherson-JOA-pavingshade.pdf",
         "type": "link",
@@ -41996,7 +42122,8 @@ const net = {
         "authors": ["Deborah R. Young", "Angie L. Cradock", "Amy A. Eyler", "Mark Fenton", "Margo Pedroso", "James F. Sallis", "Laurie P. Whitsel"],
         "date": "2020",
         "journal": "Circulation",
-        "issue": "11"
+        "issue": "11",
+        "link": "http://doi.org/10.1161/cir.0000000000000878"
       }],
       "case": "Street Tree Master Plan, Miami",
       "caseref": "https://www8.miamidade.gov/global/recreation/milliontrees/street-tree-master-plan.page"
@@ -42030,7 +42157,8 @@ const net = {
         "authors": ["Yaning Qiao", "Andrew R. Dawson", "Tony Parry", "Gerardo Flintsch", "Wenshun Wang"],
         "date": "2020",
         "journal": "Sustainability",
-        "issue": "3"
+        "issue": "3",
+        "link": "http://doi.org/10.3390/su12031057"
       }],
       "case": "",
       "caseref": ""
@@ -42255,9 +42383,9 @@ class Network {
       let ret = "";
 
       if (this.paywalled.includes(ref.doi)) {
-        ret += "<b><a target=”_blank” style='color:red;' href='http://doi.org/" + ref.doi + "'>(PAYWALLED) " + ref.title + "</a></b> ";
+        ret += "<b><a target=”_blank” style='color:red;' href='" + ref.link + "'>(PAYWALLED) " + ref.title + "</a></b> ";
       } else {
-        ret += "<b><a target=”_blank” href='http://doi.org/" + ref.doi + "'>" + ref.title + "</a></b> ";
+        ret += "<b><a target=”_blank” href='" + ref.link + "'>" + ref.title + "</a></b> ";
       }
 
       ret += ref.authors.join(", ");
@@ -42302,10 +42430,6 @@ class Network {
     s += `<p>` + factor.long + `</p>`;
     s += "<ul>";
 
-    if (factor.type != "") {
-      s += "<li><b>Type</b>: " + factor.type + "</li>";
-    }
-
     if (factor.unsdg != "") {
       s += "<li><b>UN SDG</b>: " + factor.unsdg + "</li>";
     }
@@ -42318,6 +42442,10 @@ class Network {
       }
 
       s += "</ol></li>";
+    }
+
+    if (factor.type != "") {
+      s += "<li><b>Type</b>: " + factor.type + "</li>";
     }
 
     s += "</ul>";
