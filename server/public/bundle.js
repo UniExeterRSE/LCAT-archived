@@ -42798,7 +42798,7 @@ class Network {
       edges: this.edges
     }, options);
     $("#network-info").empty();
-    $("#network-info").html("Click on a node to read more about it.");
+    $("#network-info").html("Click on a node or connection to read more about it.");
     network.on('click', properties => {
       let ids = properties.nodes;
       let node_selected = false;
