@@ -44,8 +44,8 @@ button:hover {
 @media (min-width: 1000px) {
     body {
 		font-size: 1.2em;
-		padding-left: 10em;
-		padding-right: 10em;
+		padding-left: 4em;
+		padding-right: 4em;
     }
 }
 
@@ -137,14 +137,43 @@ section {
 	display: none; 
 }
 
-#network-holder {
-	height: 500px;
+#network {
+	display: flex;
+	flex-direction: column;
 }
 
-#network-info {		
+@media (min-width: 1200px) {
+	#network {
+		flex-direction: row;
+	}
+}
+
+#network-holder {
+	display: block;
+	height: 600px;
+}
+
+@media (min-width: 1200px) {
+	#network-holder {
+		display: flex;
+		flex: 1;
+		height: 800px;
+	}
+}
+
+#network-info {
+	width: auto;
 	border-radius: 5px;
 	background: #e6e6e6;	
 	padding: 1em;
+	overflow-y: visible;
+}
+
+@media (min-width: 1200px) {
+	#network-info {
+		width: 20em;
+		overflow-y: scroll;
+	}
 }
 
 #network-info h3 {

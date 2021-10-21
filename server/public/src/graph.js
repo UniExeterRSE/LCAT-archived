@@ -92,7 +92,7 @@ function render_graph(decades_arr,scale) {
 	for (let i=0; i<=maximum; i+=tick_units) {
 		svg.add_text(46,(graph_height-i*scale)+10,15,""+i.toFixed(2));		
 	}
-
+	
 	return svg
 }
 
