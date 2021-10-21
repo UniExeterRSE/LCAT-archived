@@ -130,7 +130,7 @@ class AdaptationFinder {
 		if (ref.type=="link") {
 			return "<a href='"+ref.link+"'>"+ref.link+"</a>"
 		} else {
-			let ret = "<b><a href='http://doi.org/"+ref.doi+"'>"+ref.title+"</a></b> "
+			let ret = "<a href='http://doi.org/"+ref.doi+"'>"+ref.title+"</a> "
 			ret+=ref.authors.join(", ")
 			ret+=": "+ref.journal
 			if (ref.date!="") {

@@ -38921,7 +38921,7 @@ class AdaptationFinder {
     if (ref.type == "link") {
       return "<a href='" + ref.link + "'>" + ref.link + "</a>";
     } else {
-      let ret = "<b><a href='http://doi.org/" + ref.doi + "'>" + ref.title + "</a></b> ";
+      let ret = "<a href='http://doi.org/" + ref.doi + "'>" + ref.title + "</a> ";
       ret += ref.authors.join(", ");
       ret += ": " + ref.journal;
 
@@ -41986,7 +41986,7 @@ const net = {
         "link": "http://doi.org/10.1161/cir.0000000000000878"
       }],
       "case": "Ruggedised: Designing smart, resilient cities for all",
-      "caseref": "https://ruggedised.eu/fileadmin/repository/Factsheets/Ruggedised-factsheet-R11-Rotterdam.pdf|https://ruggedised.eu/fileadmin/repository/Factsheets/Ruggedised-factsheet-G6.pdf"
+      "caseref": "https://ruggedised.eu/fileadmin/repository/Factsheets/Ruggedised-factsheet-R11-Rotterdam.pdf"
     },
     "152": {
       "id": 152,
@@ -42389,9 +42389,9 @@ class Network {
       let ret = "";
 
       if (this.paywalled.includes(ref.doi)) {
-        ret += "<b><a target=”_blank” style='color:red;' href='" + ref.link + "'>(PAYWALLED) " + ref.title + "</a></b> ";
+        ret += "<a target=”_blank” style='color:red;' href='" + ref.link + "'>(PAYWALLED) " + ref.title + "</a> ";
       } else {
-        ret += "<b><a target=”_blank” href='" + ref.link + "'>" + ref.title + "</a></b> ";
+        ret += "<a target=”_blank” href='" + ref.link + "'>" + ref.title + "</a>< ";
       }
 
       ret += ref.authors.join(", ");

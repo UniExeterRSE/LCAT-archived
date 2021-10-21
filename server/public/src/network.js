@@ -201,9 +201,9 @@ class Network {
 		} else {
 			let ret = ""
 			if (this.paywalled.includes(ref.doi)) {
-				ret += "<b><a target=”_blank” style='color:red;' href='"+ref.link+"'>(PAYWALLED) "+ref.title+"</a></b> "
+				ret += "<a target=”_blank” style='color:red;' href='"+ref.link+"'>(PAYWALLED) "+ref.title+"</a> "
 			} else {
-				ret += "<b><a target=”_blank” href='"+ref.link+"'>"+ref.title+"</a></b> "				
+				ret += "<a target=”_blank” href='"+ref.link+"'>"+ref.title+"</a>< "				
 			}
 			ret+=ref.authors.join(", ")
 			ret+=": "+ref.journal
