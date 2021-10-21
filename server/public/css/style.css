@@ -15,6 +15,27 @@ body {
     margin: 0;
 }
 
+h1 {
+	font-size: 200%;
+	margin-bottom: 0em;
+}
+
+@media (min-width: 1000px) {
+    body {
+		font-size: 1.3em;
+		padding-left: 4em;
+		padding-right: 4em;
+    }
+}
+
+@media (min-width: 1500px) {
+    body {
+		font-size: 2em;
+		padding-left: 4em;
+		padding-right: 4em;
+    }
+}
+
 select {
     font-family: 'nunito',Arial,Helvetica,sans-serif;
 	border: none;
@@ -41,21 +62,12 @@ button:hover {
 	background: #ffbc42;
 }
 
-@media (min-width: 1000px) {
-    body {
-		font-size: 1.2em;
-		padding-left: 4em;
-		padding-right: 4em;
-    }
-}
-
 section {
 	border-radius: 2em;
 	border: 2px solid #42273b;
 	padding-left: 2em;
 	padding-right: 2em;
 	padding-bottom: 1em;
-	margin-bottom: 2em;
 }
 
 .map-container {
@@ -71,8 +83,14 @@ section {
 }
 
 #leaflet-map {
-	height: 600px;
+	height: 400px;
 	flex: 1 0 350px;
+}
+
+@media (min-width: 1000px) {
+	#leaflet-map {
+		height: 600px;
+	}
 }
 
 .map-selection {
@@ -137,6 +155,23 @@ section {
 	display: none; 
 }
 
+.arrow-holder {
+	margin-top: 1em;
+	margin-bottom: 0.5em;
+	width: 100%;
+	text-align: center;
+}
+
+.arrow-holder img {
+	width: 5em;
+}
+
+@media (min-width: 1000px) {
+	.arrow-holder img {
+		width: 8em;
+	}
+}
+
 #network {
 	display: flex;
 	flex-direction: column;
@@ -180,7 +215,7 @@ section {
 	margin-block-start: 0;
 }
 
- /* Style the button that is used to open and close the collapsible content */
+/* Style the button that is used to open and close the collapsible content */
 .collapsible {
 	box-sizing: content-box;
 	position: relative;
@@ -195,29 +230,29 @@ section {
 }
 
 .collapsible:after {
-  position: absolute;
-  content: "";
-  top: 10px;
-  right: 5px;
-  width: 0;
-  height: 0;
-  border: 8px solid transparent;
-  border-color: transparent transparent transparent black;
+	position: absolute;
+	content: "";
+	top: 10px;
+	right: 5px;
+	width: 0;
+	height: 0;
+	border: 8px solid transparent;
+	border-color: transparent transparent transparent black;
 }
 
 .active:after {
-  top: 14px;
-  right: 10px;
-  border-color: black transparent transparent transparent;
+	top: 14px;
+	right: 10px;
+	border-color: black transparent transparent transparent;
 }
 
 /* style the items (options), including the selected item: */
 .select-items div,.select-selected {
-  color: black;
-  padding: 5px 5px;
-  border: 1px solid transparent;
-  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
-  cursor: pointer;
+	color: black;
+	padding: 5px 5px;
+	border: 1px solid transparent;
+	border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+	cursor: pointer;
 }
 
 /* Style the collapsible content. Note: hidden by default */
@@ -225,13 +260,13 @@ section {
 	padding-left: 2em;
 	padding-right: 2em;
 	overflow: hidden;  /* Hide the element content, while height = 0 */
-    max-height: 0;
-    transition: max-height 0.5s ease-out;
+	max-height: 0;
+	transition: max-height 0.5s ease-out;
 }
 
 .collapsible-content.visible {
-    max-height: 500px;
-    transition: max-height 0.5s ease-in;
+	max-height: 500px;
+	transition: max-height 0.5s ease-in;
 }
 
 .final {
@@ -272,12 +307,12 @@ section {
 	background: #a4b3cd;
 	border-radius: 5px;
 	border: none;
-    font-size: 1em;	
+	font-size: 1em;	
 }
 
 .legend {
-    font-family: 'nunito',Arial,Helvetica,sans-serif;
-    font-size: 1em;
+	font-family: 'nunito',Arial,Helvetica,sans-serif;
+	font-size: 1em;
 	background: rgba(255,255,255,0.8);
 	padding: 0.5em;
 	padding-left: 2em;
@@ -300,18 +335,18 @@ section {
 }
 
 .is-disabled {
-  color: currentColor;
-  cursor: not-allowed;
-  opacity: 0.5;
-  text-decoration: none;
+	color: currentColor;
+	cursor: not-allowed;
+	opacity: 0.5;
+	text-decoration: none;
 }
 
 .logo-row {
 	display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: center;
 }
 
 .logo-row img {
@@ -338,22 +373,22 @@ g span {
 .node rect,
 .node circle,
 .node ellipse {
-  stroke: #333;
-  fill: #fff;
-  stroke-width: 1.5px;
+	stroke: #333;
+	fill: #fff;
+	stroke-width: 1.5px;
 }
 
 .cluster rect {
-  stroke: #333;
-  fill: #000;
-  fill-opacity: 0.1;
-  stroke-width: 1.5px;
+	stroke: #333;
+	fill: #000;
+	fill-opacity: 0.1;
+	stroke-width: 1.5px;
 }
 
 .edgePath path.path {
-  stroke: #333;
-  stroke-width: 1.5px;
-  fill: none;
+	stroke: #333;
+	stroke-width: 1.5px;
+	fill: none;
 }
 
 .net-node-simple {
@@ -366,12 +401,12 @@ g span {
 }
 
 .net-node-simple-vertical-center {
-  margin: 0;
-  position: absolute;
-  top: 50%;
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
-  width: 100%;
+	margin: 0;
+	position: absolute;
+	top: 50%;
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%);
+	width: 100%;
 }
 
 .net-node-complex {
