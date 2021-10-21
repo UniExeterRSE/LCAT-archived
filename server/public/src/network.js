@@ -203,7 +203,7 @@ class Network {
 			if (this.paywalled.includes(ref.doi)) {
 				ret += "<a target=”_blank” style='color:red;' href='"+ref.link+"'>(PAYWALLED) "+ref.title+"</a> "
 			} else {
-				ret += "<a target=”_blank” href='"+ref.link+"'>"+ref.title+"</a>< "				
+				ret += "<a target=”_blank” href='"+ref.link+"'>"+ref.title+"</a> "				
 			}
 			ret+=ref.authors.join(", ")
 			ret+=": "+ref.journal
