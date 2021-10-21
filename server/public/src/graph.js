@@ -68,11 +68,8 @@ function render_graph(decades_arr,scale) {
 	svg.add_line(90,graph_height+5,790,graph_height+5,1,"#000")
 	svg.add_line(90,graph_height+5,90,5,1,"#000")
 
-	for (let i=0; i<5; i++) {
-		let p = i*(graph_height/5);
-		svg.add_text(46,(graph_height-p),15,""+(p/scale).toFixed(2));		
-	}
-
+	let tick_units = 1;
+	let maximum = 6;
 	let data_type=$("#graph-type").val()
 	if(data_type=="daily_precip") {
 		svg.add_sideways_text(30,graph_height-50,"Millimetres per day");		
@@ -80,13 +77,22 @@ function render_graph(decades_arr,scale) {
 	if(data_type=="mean_temp" ||
 	   data_type=="max_temp" ||
 	   data_type=="min_temp") {
+		tick_units = 5;
+		maximum = 30;
 		svg.add_sideways_text(30,graph_height-50,"Degrees celsius");		
 	}
 	if(data_type=="mean_windspeed" ||
 	   data_type=="max_windspeed" ||
 	   data_type=="min_windspeed") {
+		tick_units = 2;
+		maximum = 8;
 		svg.add_sideways_text(30,graph_height-50,"Metres per second");		
 	}
+	
+	for (let i=0; i<=maximum; i+=tick_units) {
+		svg.add_text(46,(graph_height-i*scale)+10,15,""+i.toFixed(2));		
+	}
+
 	return svg
 }
 
