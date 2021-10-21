@@ -202,12 +202,14 @@ section {
 	background: #e6e6e6;	
 	padding: 1em;
 	overflow-y: visible;
+	height: 600px;
 }
 
 @media (min-width: 1200px) {
 	#network-info {
 		width: 20em;
 		overflow-y: scroll;
+		height: 800px;
 	}
 }
 

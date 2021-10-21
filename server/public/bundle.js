@@ -39870,7 +39870,7 @@ const net = {
       "short": "Active transport use",
       "type": "main element",
       "overview": "Y",
-      "long": "Defined as the number of trips made by active transport, i.e. walking and cycling. See reference for how we estimate change in response to temperature, rainfall and wind speed climate variables. This provides a indication of how this tool can be used to understand how research findings interact, but more evidence would be required for better accuracy.",
+      "long": "Defined as the number of trips made by active transport, i.e. walking and cycling. Cycle volume decreases 1.5% per day for every 1mm increase in rainfall, decreases 0.9% per day for every 1 km/h increase in wind speed and increases 2.6% per day for every 1\u00b0C increase in temperature (see reference). This provides a simple indication of how this tool can be used, but more evidence would be required for better accuracy.",
       "refs": [{
         "type": "article",
         "doi": "10.1186/1476-069x-11-12",
