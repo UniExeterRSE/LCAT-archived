@@ -42811,6 +42811,7 @@ class Network {
           if (node.preview == true) {
             this.nodes.update(this.factorToNodeFull(factor));
             this.addImpacts(factor, pos);
+            $("#network-info").html(this.factorToHTML(factor));
           } else {
             $("#network-info").html(this.factorToHTML(factor));
           }

@@ -616,7 +616,7 @@ class Network {
 		$("#network-info").empty()
 		$("#network-info").html("Click on a node to read more about it.")
 		
-		network.on( 'click', (properties) => {
+		network.on('click', (properties) => {
 			let ids = properties.nodes;
 			let node_selected=false;
 			for (let node of this.nodes.get(ids)) {
@@ -627,6 +627,7 @@ class Network {
 					if (node.preview==true) {					
 						this.nodes.update(this.factorToNodeFull(factor))
 						this.addImpacts(factor,pos)
+						$("#network-info").html(this.factorToHTML(factor))
 					} else {
 						$("#network-info").html(this.factorToHTML(factor))
 					}
