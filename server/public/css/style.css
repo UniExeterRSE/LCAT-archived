@@ -192,6 +192,12 @@ section {
 	#network-holder {
 		display: flex;
 		flex: 1;
+		height: 600px;
+	}
+}
+
+@media (min-width: 2000px) {
+	#network-holder {
 		height: 800px;
 	}
 }
@@ -209,6 +215,13 @@ section {
 	#network-info {
 		width: 20em;
 		overflow-y: scroll;
+		height: 600px;
+		font-size: 0.75em;
+	}
+}
+
+@media (min-width: 2000px) {
+	#network-info {
 		height: 800px;
 	}
 }
@@ -234,8 +247,8 @@ section {
 .collapsible:after {
 	position: absolute;
 	content: "";
-	top: 10px;
-	right: 5px;
+	top: 0.5em;
+	right: 0.25em;
 	width: 0;
 	height: 0;
 	border: 8px solid transparent;
@@ -243,8 +256,8 @@ section {
 }
 
 .active:after {
-	top: 14px;
-	right: 10px;
+	top: 0.6em;
+	right: 0.4em;
 	border-color: black transparent transparent transparent;
 }
 
