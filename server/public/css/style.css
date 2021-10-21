@@ -352,13 +352,14 @@ section {
 }
 
 .logo-row img {
-	margin: 0.5em;
+	margin-left: 2em;
+	margin-right: 2em;
 }
 
-#cc-logo { width: 10% }
-#ecehh-logo { width: 40% }
-#ttt-logo { width: 12% }
-#uofe-logo { width: 20% }
+#cc-logo { width: 7.5% }
+#ecehh-logo { width: 30% }
+#ttt-logo { width: 9% }
+#uofe-logo { width: 15% }
 
 /* network styles -------------------------------------- */
 
