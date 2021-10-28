@@ -211,9 +211,16 @@ section {
 	height: 600px;
 }
 
+#network-info ul {
+	padding-inline-start: 0;
+	list-style-type: none; /* Remove bullets */
+	padding: 0; /* Remove padding */
+	margin: 0; /* Remove margins */
+}
+
 @media (min-width: 1200px) {
 	#network-info {
-		width: 20em;
+		width: 16em;
 		overflow-y: scroll;
 		height: 600px;
 		font-size: 0.75em;
