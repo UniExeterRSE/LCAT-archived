@@ -6,6 +6,11 @@ You can try the [beta version here](http://climate-tool.thentrythis.org/).
  
 ## Installing
 
+### Requirements
+
+    $ sudo apt install npm postgres postgis
+    $ npm install browserify
+    
 ### Server
 
     $ cd server
