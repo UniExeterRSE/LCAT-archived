@@ -24,9 +24,14 @@ function lerp(a,b,t) {
 	return a*(1-t)+b*t;
 }
 
+
+// Meters/Pixel Zoom Level (1-19)
+var m2px = [78271.52,39135.76,19567.88,9783.94,4891.97,2445.98,1222.99,
+            611.50,305.75,152.87,76.44,38.22,19.11,9.55,4.78,2.39,1.19,
+            0.60,0.30];
+
 function zoom_to_tol(zoom) {
-	let t = zoom/18;
-	return lerp(0.001,0.000001,t);
+    return m2px[zoom-1];
 }
 
 function stringify_list(l) {
@@ -117,7 +122,9 @@ class LSOAZones {
 
 			let tiles = []
 			for (let z of this.zones) {
-				tiles.push(z.tile)
+                if (z.tile!=null) {
+				    tiles.push(z.tile)
+                }
 			}
 
 			net.tiles=tiles

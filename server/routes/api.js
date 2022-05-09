@@ -43,14 +43,14 @@ router.get('/lsoa', function (req, res) {
                 'type', 'FeatureCollection',
                 'features', json_agg(json_build_object(
                    'type', 'Feature',
-                   'properties', json_build_object('name', lsoa01nm, 
+                   'properties', json_build_object('name', lsoa11nm, 
                                                    'zone', zone, 
                                                    'imdscore', imdscore),
                    'geometry', ST_AsGeoJSON(
-                                   ST_Transform(ST_Simplify(wkb_geometry,`+tolerance+`),4326))::json
+                                   ST_Transform(ST_Simplify(geom,`+tolerance+`),4326))::json
                    ))
               )
-         	  from lsoa where wkb_geometry && ST_MakeEnvelope(`+left+`, `+bottom+`, `+right+`, `+top+`, 4326);`
+         	  from lsoa where geom && ST_TRANSFORM(ST_MakeEnvelope(`+left+`, `+bottom+`, `+right+`, `+top+`, 4326),27700);`
 
 	var query = client.query(new Query(lsoa_query));
 
@@ -66,29 +66,28 @@ router.get('/lsoa', function (req, res) {
 
 // return list of yearly averages for a data type
 router.get('/future', function (req, res) {
-	let zones = req.query.zones; 
-	let data_type = req.query.data_type;
-	let table = req.query.table; 
+	let zones = req.query.zones;
+    if (zones!=undefined) {
+	    let data_type = req.query.data_type;
+	    let table = req.query.table; 
 
-    var client = new Client(conString);
-    client.connect();
-
-	//console.log(zones);
-	
-	var q=`select year,avg(value) from `+table+` 
+        var client = new Client(conString);
+        client.connect();
+        
+	    var q=`select year,avg(value) from `+table+` 
            where zone in (`+zones.join()+`) and 
            type='`+data_type+`' group by year order by year`;
-	var query = client.query(new Query(q));
-	
-	query.on("row", function (row, result) {
-        result.addRow(row);
-    });
-    query.on("end", function (result) {
-        res.send(result.rows);
-        res.end();
-		client.end();
-    });
-
+	    var query = client.query(new Query(q));
+	    
+	    query.on("row", function (row, result) {
+            result.addRow(row);
+        });
+        query.on("end", function (result) {
+            res.send(result.rows);
+            res.end();
+		    client.end();
+        });
+    }
 });
 
 

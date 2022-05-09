@@ -60,3 +60,11 @@ Create a .env file in server and add the login info:
 * Make a symlink from `climate-tool/server/` to `/var/www/climate-tool`
 * Copy `ubuntu/climate-tool.service` to `/etc/systemd/system/`
 * Start with `sudo service climate-tool start` and set it to run after reboot via `sudo systemtl enable climate-tool`.
+
+## Importing ESRI shapefile data
+
+    shp2pgsql -I -s 2263 SHAPEFILE.shp DATATABLE | psql -U DATABASE_USER -d DATABASE_NAME
+
+Where 2263 is the spatial reference system or coordinate system of the shape file.
+
+    

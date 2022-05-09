@@ -25,9 +25,9 @@ def load_data():
                 if row[5].startswith("a.") and row[2]=="Score":
                     lsoa_code = row[0]
                     score = row[4]                                  
-                    q=f"update lsoa set imdscore='{score}' where lsoa01cd='{lsoa_code}';"
-                    #print(q)
-                    #cur.execute(q)                
-                    #conn.commit()
+                    q=f"update lsoa set imdscore='{score}' where lsoa11cd='{lsoa_code}';"
+                    print(q)
+                    cur.execute(q)                
+                    conn.commit()
                 
 load_data()
