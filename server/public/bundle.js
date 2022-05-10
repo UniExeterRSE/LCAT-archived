@@ -39059,7 +39059,108 @@ class AdaptationFinder {
 
 exports.AdaptationFinder = AdaptationFinder;
 
-},{"./utils":42,"jquery":28}],36:[function(require,module,exports){
+},{"./utils":43,"jquery":28}],36:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Geojson = void 0;
+
+// Copyright (C) 2021 Then Try This
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+const $ = require("jquery");
+
+const L = require("leaflet");
+
+const colormap = require('colormap'); // Meters/Pixel Zoom Level (1-19)
+
+
+var m2px = [78271.52, 39135.76, 19567.88, 9783.94, 4891.97, 2445.98, 1222.99, 611.50, 305.75, 152.87, 76.44, 38.22, 19.11, 9.55, 4.78, 2.39, 1.19, 0.60, 0.30];
+
+function zoom_to_tol(zoom) {
+  return m2px[zoom - 1];
+}
+
+class Geojson {
+  constructor(leaflet_map, table, prop, low, high) {
+    this.map = leaflet_map;
+    this.table = table;
+    this.prop = prop;
+    this.low = low;
+    this.high = high;
+    this.layer_buffer = [L.layerGroup().addTo(this.map), L.layerGroup().addTo(this.map)];
+    this.current_layer_buffer = 0;
+    this.other_layer_buffer = 1;
+    this.cols = colormap({
+      colormap: 'bathymetry',
+      nshades: 100,
+      format: 'hex',
+      alpha: 0.5
+    });
+  }
+
+  swap_buffers(leaflet_map) {
+    // double buffer to stop flickering
+    leaflet_map.removeLayer(this.layer_buffer[this.other_layer_buffer]);
+    this.layer_buffer[this.other_layer_buffer].clearLayers();
+    this.layer_buffer[this.current_layer_buffer].addTo(leaflet_map);
+
+    if (this.current_layer_buffer == 0) {
+      this.current_layer_buffer = 1;
+      this.other_layer_buffer = 0;
+    } else {
+      this.current_layer_buffer = 0;
+      this.other_layer_buffer = 1;
+    }
+  }
+
+  squash(v, a, b) {
+    return (v - a) / (b - a);
+  }
+
+  update(leaflet_map, net) {
+    let b = leaflet_map.getBounds();
+    $.getJSON("/api/geojson", {
+      table: this.table,
+      left: b._southWest.lng,
+      bottom: b._southWest.lat,
+      right: b._northEast.lng,
+      top: b._northEast.lat,
+      tolerance: zoom_to_tol(leaflet_map.getZoom())
+    }, (data, status) => {
+      console.log(data);
+      L.geoJSON(data, {
+        onEachFeature: (feature, layer) => {
+          layer.bindPopup(JSON.stringify(feature.properties));
+          let col = this.cols[Math.round(this.squash(feature.properties[this.prop], this.low, this.high) * this.cols.length)];
+          layer.setStyle({
+            'fillColor': col,
+            'fillOpacity': 0.75
+          });
+        }
+      }).addTo(this.layer_buffer[this.current_layer_buffer]);
+      this.swap_buffers(leaflet_map);
+    });
+  }
+
+}
+
+exports.Geojson = Geojson;
+
+},{"colormap":3,"jquery":28,"leaflet":29}],37:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39240,7 +39341,7 @@ function update_graph(lsoa_zones, time) {
   }
 }
 
-},{"./svg.js":41,"./utils.js":42,"jquery":28}],37:[function(require,module,exports){
+},{"./svg.js":42,"./utils.js":43,"jquery":28}],38:[function(require,module,exports){
 // Copyright (C) 2021 Then Try This
 //
 // This program is free software: you can redistribute it and/or modify
@@ -39262,6 +39363,7 @@ const zones = require("./lsoa.js")
 const graph = require("./graph.js")
 const network = require("./network.js")
 const esri = require("esri-leaflet")
+const geojson = require("./geojson.js")
 
 var leaflet_map = L.map('leaflet-map').setView([50.26123046875, -5.052745342254639], 10);
 
@@ -39288,21 +39390,23 @@ esri.basemapLayer('ImageryLabels').addTo(leaflet_map);
 //esri.basemapLayer('ShadedReliefLabels').addTo(leaflet_map);
 
 async function setup() {
-	const z = new zones.LSOAZones(leaflet_map)
+	//const z = new zones.LSOAZones(leaflet_map)
+    const test_geojson = new geojson.Geojson(leaflet_map,"baseline_grid","2019",0,15)
 	const net = new network.Network()
 	
 	leaflet_map.on("moveend", () => {
-		z.update(leaflet_map,net);
+		//z.update(leaflet_map,net);
+        test_geojson.update(leaflet_map);
 	});
 
-	$("#graph-type").on("change",() => {
+/*	$("#graph-type").on("change",() => {
 		graph.update_graph(z.zones,$("#graph-time").val())
 	})
 
 	$("#graph-time").on("change",() => {
 		console.log($("#graph-time").val());
 		graph.update_graph(z.zones,$("#graph-time").val())
-	})
+	})*/
 
 /*	$("#net-type").on("change", () => {
 		net.style=$("#net-type").val()
@@ -39323,12 +39427,13 @@ async function setup() {
 
 	await net.loadIconCache()
 
-	z.update(leaflet_map,net)
+	//z.update(leaflet_map,net)
+    test_geojson.update(leaflet_map)
 }
 
 setup()
 
-},{"./graph.js":36,"./lsoa.js":38,"./network.js":40,"esri-leaflet":5,"jquery":28,"leaflet":29}],38:[function(require,module,exports){
+},{"./geojson.js":36,"./graph.js":37,"./lsoa.js":39,"./network.js":41,"esri-leaflet":5,"jquery":28,"leaflet":29}],39:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39578,7 +39683,7 @@ class LSOAZones {
 
 exports.LSOAZones = LSOAZones;
 
-},{"./graph.js":36,"./network.js":40,"colormap":3,"jquery":28,"leaflet":29}],39:[function(require,module,exports){
+},{"./graph.js":37,"./network.js":41,"colormap":3,"jquery":28,"leaflet":29}],40:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42235,7 +42340,7 @@ const net = {
 };
 exports.net = net;
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -42918,7 +43023,7 @@ class Network {
 
 exports.Network = Network;
 
-},{"./adaptation_finder.js":35,"./net.js":39,"jquery":28,"vis-network/standalone":34}],41:[function(require,module,exports){
+},{"./adaptation_finder.js":35,"./net.js":40,"jquery":28,"vis-network/standalone":34}],42:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43044,7 +43149,7 @@ class SVG {
 
 exports.SVG = SVG;
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43097,4 +43202,4 @@ function calculate_decades(graph_data) {
   return decades;
 }
 
-},{}]},{},[37]);
+},{}]},{},[38]);

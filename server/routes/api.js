@@ -91,6 +91,53 @@ router.get('/future', function (req, res) {
 });
 
 
+router.get('/geojson', function (req, res) {
+    let table = req.query.table;
+	let tolerance = req.query.tolerance;
+	let left = req.query.left;
+	let bottom = req.query.bottom;
+	let right = req.query.right;
+	let top = req.query.top;
+
+    var client = new Client(conString);
+    client.connect();
+
+
+    
+    var str_query = `select json_build_object(
+                'type', 'FeatureCollection',
+                'features', json_agg(json_build_object(
+                   'type', 'Feature',
+                   'properties', properties,
+                   'geometry', ST_AsGeoJSON(ST_Transform(geom,4326))::json
+                   ))
+              )
+         	  from `+table+` where geom && ST_MakeEnvelope(`+left+`, `+bottom+`, `+right+`, `+top+`, 4326);`
+
+/*	var str_query = `select json_build_object(
+                'type', 'FeatureCollection',
+                'features', json_agg(json_build_object(
+                   'type', 'Feature',
+                   'properties', properties,
+                   'geometry', ST_AsGeoJSON(
+                                   ST_Transform(ST_Simplify(geom,`+tolerance+`),4326))::json
+                   ))
+              )
+         	  from `+table+` where geom && ST_MakeEnvelope(`+left+`, `+bottom+`, `+right+`, `+top+`, 4326);`
+*/
+	var query = client.query(new Query(str_query));
+
+	query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+        res.send(result.rows[0].json_build_object);
+        res.end();
+		client.end();
+    });
+});
+
+
 router.get('/ping', function (req, res) {
     res.send();
     res.end();

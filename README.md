@@ -67,4 +67,24 @@ Create a .env file in server and add the login info:
 
 Where 2263 is the spatial reference system or coordinate system of the shape file.
 
+# Data information
+
+## Geographical coordinates
+
+  * British National Grid (BNG) = EPSG:227700
+    - United Kingdom Ordnance Survey
+    - Used by grid location for model data (uk-cli)
+    - Used for LSOA geojsons
+
+  * EPSG:4326 - WGS 84, latitude/longitude coordinate system based on
+    the Earth's center of mass, used by the Global Positioning System
+    among others. EPSG:3857 - Web Mercator projection used for display
+    by many web-based mapping tools, including Google Maps and
+    OpenStreetMap
+    - Our target coordinate system for mapping
+
+## Baseline data
+
+Historical records from 1888 - 2019
     
+  * NetCDF files, grids in metres - lots o

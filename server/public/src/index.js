@@ -19,6 +19,7 @@ const zones = require("./lsoa.js")
 const graph = require("./graph.js")
 const network = require("./network.js")
 const esri = require("esri-leaflet")
+const geojson = require("./geojson.js")
 
 var leaflet_map = L.map('leaflet-map').setView([50.26123046875, -5.052745342254639], 10);
 
@@ -45,21 +46,23 @@ esri.basemapLayer('ImageryLabels').addTo(leaflet_map);
 //esri.basemapLayer('ShadedReliefLabels').addTo(leaflet_map);
 
 async function setup() {
-	const z = new zones.LSOAZones(leaflet_map)
+	//const z = new zones.LSOAZones(leaflet_map)
+    const test_geojson = new geojson.Geojson(leaflet_map,"baseline_grid","2019",0,15)
 	const net = new network.Network()
 	
 	leaflet_map.on("moveend", () => {
-		z.update(leaflet_map,net);
+		//z.update(leaflet_map,net);
+        test_geojson.update(leaflet_map);
 	});
 
-	$("#graph-type").on("change",() => {
+/*	$("#graph-type").on("change",() => {
 		graph.update_graph(z.zones,$("#graph-time").val())
 	})
 
 	$("#graph-time").on("change",() => {
 		console.log($("#graph-time").val());
 		graph.update_graph(z.zones,$("#graph-time").val())
-	})
+	})*/
 
 /*	$("#net-type").on("change", () => {
 		net.style=$("#net-type").val()
@@ -80,7 +83,8 @@ async function setup() {
 
 	await net.loadIconCache()
 
-	z.update(leaflet_map,net)
+	//z.update(leaflet_map,net)
+    test_geojson.update(leaflet_map)
 }
 
 setup()
