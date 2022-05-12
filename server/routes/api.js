@@ -64,7 +64,7 @@ router.get('/lsoa', function (req, res) {
     });
 });
 
-// return list of yearly averages for a data type
+/*// return list of yearly averages for a data type
 router.get('/future', function (req, res) {
 	let zones = req.query.zones;
     if (zones!=undefined) {
@@ -77,6 +77,29 @@ router.get('/future', function (req, res) {
 	    var q=`select year,avg(value) from `+table+` 
            where zone in (`+zones.join()+`) and 
            type='`+data_type+`' group by year order by year`;
+	    var query = client.query(new Query(q));
+	    
+	    query.on("row", function (row, result) {
+            result.addRow(row);
+        });
+        query.on("end", function (result) {
+            res.send(result.rows);
+            res.end();
+		    client.end();
+        });
+    }
+});
+*/
+// return list of decade averages for a data type
+router.get('/hadgem_rpc85', function (req, res) {
+	let locations = req.query.locations;
+    if (locations!=undefined) {
+	    let table = req.query.table; 
+        var client = new Client(conString);
+        client.connect();
+        
+	    var q=`select year,median from `+table+` 
+           where location in (`+locations.join()+`) order by year`;
 	    var query = client.query(new Query(q));
 	    
 	    query.on("row", function (row, result) {

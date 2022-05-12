@@ -71,7 +71,7 @@ Where 2263 is the spatial reference system or coordinate system of the shape fil
 
 ## Geographical coordinates
 
-  * British National Grid (BNG) = EPSG:227700
+  * British National Grid (BNG) = EPSG:27700
     - United Kingdom Ordnance Survey
     - Used by grid location for model data (uk-cli)
     - Used for LSOA geojsons

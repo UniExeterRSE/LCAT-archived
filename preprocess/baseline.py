@@ -53,6 +53,10 @@ end = 2019
 def mkfn(y):
     return path+'tas_hadukgrid_uk_12km_ann_'+str(y)+'01-'+str(y)+'12.nc'
 
+def print_info(year):
+    ds = nc.Dataset(mkfn(year))
+    print(ds)
+    
 def load_grid(year,tas):    
     ds = nc.Dataset(mkfn(year))
     print(ds.variables['latitude'])
@@ -94,6 +98,8 @@ def load_year(year):
         ret.append(s)
     return ret
 
-create_tables()
-load_grid(2019,load_year(2019))
+#print_info(2019)
+
+#create_tables()
+load_grid(1884,load_year(1884))
                 

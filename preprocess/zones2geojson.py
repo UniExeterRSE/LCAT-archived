@@ -4,6 +4,8 @@ import yaml
 import psycopg2
 from shapely.geometry import shape, Point
 
+# connect lsoa regions with model 12km grid locations
+
 with open('config.yml') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 

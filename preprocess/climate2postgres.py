@@ -2,6 +2,8 @@ import csv
 import yaml
 import psycopg2
 
+# old climate data import
+
 with open('config.yml') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
