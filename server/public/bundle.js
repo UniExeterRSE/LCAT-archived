@@ -39237,14 +39237,14 @@ function render_graph(decades_arr, offset, scale) {
   let maximum = 6;
   let data_type = $("#graph-type").val();
 
-  if (data_type == "daily_precip") {
-    svg.add_sideways_text(30, graph_height - 50, "Millimetres per day");
+  if (data_type == "hadgem_rcp85_rain_ann") {
+    svg.add_sideways_text(30, graph_height - 50, "% change");
   }
 
-  if (data_type == "mean_temp" || data_type == "max_temp" || data_type == "min_temp") {
+  if (data_type == "hadgem_rcp85_tavg_ann" || data_type == "hadgem_rcp85_tmin_ann" || data_type == "hadgem_rcp85_tmax_ann") {
     tick_units = 5;
     maximum = 30;
-    svg.add_sideways_text(30, graph_height - 50, "Degrees celsius");
+    svg.add_sideways_text(30, graph_height - 50, "Degrees celsius change");
   }
 
   if (data_type == "mean_windspeed" || data_type == "max_windspeed" || data_type == "min_windspeed") {
@@ -39252,10 +39252,11 @@ function render_graph(decades_arr, offset, scale) {
     maximum = 8;
     svg.add_sideways_text(30, graph_height - 50, "Metres per second");
   }
+  /*	for (let i=0; i<=maximum; i+=tick_units) {
+  		svg.add_text(46,(graph_height-i*scale)+10,15,""+i.toFixed(2));		
+  	}
+  */
 
-  for (let i = 0; i <= maximum; i += tick_units) {
-    svg.add_text(46, graph_height - i * scale + 10, 15, "" + i.toFixed(2));
-  }
 
   return svg;
 }
@@ -39381,8 +39382,9 @@ const graph = require("./graph.js")
 const network = require("./network.js")
 const esri = require("esri-leaflet")
 const geojson = require("./geojson.js")
+//[50.26123046875, -5.052745342254639]
+var leaflet_map = L.map('leaflet-map').setView([52,-2.2], 7);
 
-var leaflet_map = L.map('leaflet-map').setView([50.26123046875, -5.052745342254639], 10);
 
 var baseMaps = {
     "Terrain": L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}),

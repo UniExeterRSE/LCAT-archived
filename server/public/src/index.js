@@ -20,8 +20,9 @@ const graph = require("./graph.js")
 const network = require("./network.js")
 const esri = require("esri-leaflet")
 const geojson = require("./geojson.js")
+//[50.26123046875, -5.052745342254639]
+var leaflet_map = L.map('leaflet-map').setView([52,-2.2], 7);
 
-var leaflet_map = L.map('leaflet-map').setView([50.26123046875, -5.052745342254639], 10);
 
 var baseMaps = {
     "Terrain": L.tileLayer("http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png", {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'}),

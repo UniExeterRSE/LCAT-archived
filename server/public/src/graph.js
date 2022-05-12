@@ -73,15 +73,15 @@ function render_graph(decades_arr,offset,scale) {
 	let tick_units = 1;
 	let maximum = 6;
 	let data_type=$("#graph-type").val()
-	if(data_type=="daily_precip") {
-		svg.add_sideways_text(30,graph_height-50,"Millimetres per day");		
+	if(data_type=="hadgem_rcp85_rain_ann") {
+		svg.add_sideways_text(30,graph_height-50,"% change");		
 	}
-	if(data_type=="mean_temp" ||
-	   data_type=="max_temp" ||
-	   data_type=="min_temp") {
+	if(data_type=="hadgem_rcp85_tavg_ann" ||
+	   data_type=="hadgem_rcp85_tmin_ann" ||
+	   data_type=="hadgem_rcp85_tmax_ann") {
 		tick_units = 5;
 		maximum = 30;
-		svg.add_sideways_text(30,graph_height-50,"Degrees celsius");		
+		svg.add_sideways_text(30,graph_height-50,"Degrees celsius change");		
 	}
 	if(data_type=="mean_windspeed" ||
 	   data_type=="max_windspeed" ||
@@ -91,10 +91,10 @@ function render_graph(decades_arr,offset,scale) {
 		svg.add_sideways_text(30,graph_height-50,"Metres per second");		
 	}
 	
-	for (let i=0; i<=maximum; i+=tick_units) {
+/*	for (let i=0; i<=maximum; i+=tick_units) {
 		svg.add_text(46,(graph_height-i*scale)+10,15,""+i.toFixed(2));		
 	}
-	
+*/	
 	return svg
 }
 
