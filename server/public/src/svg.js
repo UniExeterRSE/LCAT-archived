@@ -56,6 +56,11 @@ class SVG {
 	}
 
 	add_bar(x,y,w,h,label,v,col) {
+        // flip if negative
+        if (h<0) {
+            y=y-h
+            h=-h
+        }
 		var c = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
 		c.setAttributeNS(null, 'x', x)
 		c.setAttributeNS(null, 'y', y-h)
@@ -64,7 +69,7 @@ class SVG {
 		c.setAttributeNS(null, 'fill', col)
 		this.svg.appendChild(c)
 
-		this.add_text(x+10,y+30,"25",label);
+		this.add_text(x+10,y+30,"15",label);
 		this.add_text(x+20,y-h+20,"15",""+v.toFixed(2));
 	}
 

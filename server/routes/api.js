@@ -44,7 +44,7 @@ router.get('/lsoa', function (req, res) {
                 'features', json_agg(json_build_object(
                    'type', 'Feature',
                    'properties', json_build_object('name', lsoa11nm, 
-                                                   'zone', zone, 
+                                                   'uk_cri_location', uk_cri_location, 
                                                    'imdscore', imdscore),
                    'geometry', ST_AsGeoJSON(
                                    ST_Transform(ST_Simplify(geom,`+tolerance+`),4326))::json
@@ -98,8 +98,8 @@ router.get('/hadgem_rpc85', function (req, res) {
         var client = new Client(conString);
         client.connect();
         
-	    var q=`select year,median from `+table+` 
-           where location in (`+locations.join()+`) order by year`;
+	    var q=`select year,avg(median) from `+table+` 
+           where location in (`+locations.join()+`) group by year order by year`;
 	    var query = client.query(new Query(q));
 	    
 	    query.on("row", function (row, result) {
@@ -113,7 +113,7 @@ router.get('/hadgem_rpc85', function (req, res) {
     }
 });
 
-
+// general purpose for debugging
 router.get('/geojson', function (req, res) {
     let table = req.query.table;
 	let tolerance = req.query.tolerance;
@@ -124,8 +124,6 @@ router.get('/geojson', function (req, res) {
 
     var client = new Client(conString);
     client.connect();
-
-
     
     var str_query = `select json_build_object(
                 'type', 'FeatureCollection',
@@ -137,17 +135,6 @@ router.get('/geojson', function (req, res) {
               )
          	  from `+table+` where geom && ST_MakeEnvelope(`+left+`, `+bottom+`, `+right+`, `+top+`, 4326);`
 
-/*	var str_query = `select json_build_object(
-                'type', 'FeatureCollection',
-                'features', json_agg(json_build_object(
-                   'type', 'Feature',
-                   'properties', properties,
-                   'geometry', ST_AsGeoJSON(
-                                   ST_Transform(ST_Simplify(geom,`+tolerance+`),4326))::json
-                   ))
-              )
-         	  from `+table+` where geom && ST_MakeEnvelope(`+left+`, `+bottom+`, `+right+`, `+top+`, 4326);`
-*/
 	var query = client.query(new Query(str_query));
 
 	query.on("row", function (row, result) {

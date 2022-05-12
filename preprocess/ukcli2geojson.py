@@ -19,7 +19,7 @@ cur = conn.cursor()
 
 def create_tables(data_cols):
     for t,c in data_cols.items():
-        #cur.execute(f"drop table {t}")
+        cur.execute(f"drop table {t}")
         cols = []
         for col in c:
             cols.append(f"{col[0]} {col[1]}")
@@ -74,6 +74,7 @@ def load_data(table,fn):
       "2nd_high":5,
       "highest":6
     }
+    print("loading "+table)
     with open(fn) as csvfile:
         reader = csv.reader(csvfile)
         for i,row in enumerate(reader):
@@ -81,8 +82,9 @@ def load_data(table,fn):
                 year=int(row[grid_cols["year"]])
                 location=int(row[grid_cols["location"]])
                 median=float(row[grid_cols["median"]])
-                q=f"insert into {table} ('location','year','median') values ({location},{year},{median});"               
-                conn.commit()
+                q=f"insert into {table} (location,year,median) values ({location},{year},{median});"               
+                cur.execute(q)
+        conn.commit()
 
     
 data_cols = {

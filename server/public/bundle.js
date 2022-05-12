@@ -39201,7 +39201,8 @@ const graph_height = 270;
 const winter_col = "#a4f9c8";
 const summer_col = "#4c9f70";
 
-function render_graph(decades_arr, scale) {
+function render_graph(decades_arr, offset, scale) {
+  console.log([offset, scale]);
   var svg = new svgUtil.SVG(800, 300); // assume decades list all are the same size
 
   let bar_width = graph_width / Object.keys(decades_arr[0]).length;
@@ -39211,14 +39212,14 @@ function render_graph(decades_arr, scale) {
     let x = 100;
 
     for (let dec of Object.keys(decades_arr[0])) {
-      svg.add_bar(x, graph_height, bar_width - 2, decades_arr[0][dec] * scale, "20" + dec + "0", decades_arr[0][dec], summer_col);
+      svg.add_bar(x, offset + graph_height, bar_width - 2, decades_arr[0][dec] * scale, dec, decades_arr[0][dec], summer_col);
       x += bar_width;
     }
   } else {
     let x = 100;
 
     for (let dec of Object.keys(decades_arr[0])) {
-      svg.add_2bar(x, graph_height, bar_width - 2, decades_arr[0][dec] * scale, decades_arr[1][dec] * scale, "20" + dec + "0", decades_arr[0][dec], decades_arr[1][dec], winter_col, summer_col);
+      svg.add_2bar(x, graph_height, bar_width - 2, decades_arr[0][dec] * scale, decades_arr[1][dec] * scale, dec, decades_arr[0][dec], decades_arr[1][dec], winter_col, summer_col);
       x += bar_width;
     }
   }
@@ -39261,37 +39262,48 @@ function render_graph(decades_arr, scale) {
 
 function calc_scale(graph_data, height) {
   // get the min/max for eventual graph scaling
-
-  /*let minimum = 999999;
+  let minimum = 999999;
   let maximum = 0;
-  	for (let decades of graph_data) {
-  	for (let dec of Object.keys(decades)) {
-  		if (minimum>decades[dec]) minimum = decades[dec]
-  		if (maximum<decades[dec]) maximum = decades[dec]
-  	}
-  }*/
-  let maximum = 0;
-  let data_type = $("#graph-type").val();
 
-  if (data_type == "daily_precip") {
-    maximum = 5.5;
-  }
+  for (let decades of graph_data) {
+    for (let dec of Object.keys(decades)) {
+      if (minimum > decades[dec]) minimum = decades[dec];
+      if (maximum < decades[dec]) maximum = decades[dec];
+    }
+  } //let maximum = 0;
+  // let data_type=$("#graph-type").val()
+  // if(data_type=="daily_precip") {
+  // 	maximum = 5.5
+  // }
+  // if(data_type=="mean_temp" ||
+  //    data_type=="max_temp" ||
+  //    data_type=="min_temp") {
+  // 	maximum = 27
+  // }
+  // if(data_type=="mean_windspeed" ||
+  //    data_type=="max_windspeed" ||
+  //    data_type=="min_windspeed") {
+  // 	maximum = 8
+  // }
 
-  if (data_type == "mean_temp" || data_type == "max_temp" || data_type == "min_temp") {
-    maximum = 27;
-  }
 
-  if (data_type == "mean_windspeed" || data_type == "max_windspeed" || data_type == "min_windspeed") {
-    maximum = 8;
-  }
-
-  return height / maximum;
+  var offset = 0;
+  var scale = height / (maximum - minimum);
+  if (minimum != 0) offset = minimum * scale;
+  return [offset, scale];
 }
 
 function redraw_graph(graph_data) {
-  let decades = utils.calculate_decades(graph_data);
+  let d = {};
+
+  for (let el of graph_data) {
+    d[el.year] = el.avg;
+  }
+
+  console.log(d);
+  let scale = calc_scale([d], graph_height - 50);
   $("#graph").empty();
-  $("#graph").append(render_graph([decades], calc_scale([decades], graph_height - 50)).svg);
+  $("#graph").append(render_graph([d], scale[0], scale[1]).svg);
 }
 
 function redraw_graph_seasonal(winter_data, summer_data) {
@@ -39302,43 +39314,48 @@ function redraw_graph_seasonal(winter_data, summer_data) {
 }
 
 function update_graph(lsoa_zones, time) {
-  let zones = [];
+  console.log(lsoa_zones);
+  let locations = [];
 
   for (let zone of lsoa_zones) {
     // keep duplicates for weighted averaging
-    if (zone.tile != undefined) {
-      zones.push(zone.tile);
+    if (zone.uk_cri_location != undefined) {
+      locations.push(zone.uk_cri_location);
     }
   }
 
-  if (zones.length == 0) {
+  if (locations.length == 0) {
     $("#graph").html(no_data);
     return;
   }
 
   if (time == "yearly") {
-    $.getJSON("/api/future", {
-      table: "future_year_avg",
-      zones: zones,
-      data_type: $("#graph-type").val()
+    $.getJSON("/api/hadgem_rpc85", {
+      table: $("#graph-type").val(),
+      locations: locations
     }, (data, status) => {
       redraw_graph(data);
     });
-  } else {
-    $.getJSON("/api/future", {
-      table: "future_winter_avg",
-      zones: zones,
-      data_type: $("#graph-type").val()
-    }, (winter_data, status) => {
-      $.getJSON("/api/future", {
-        table: "future_summer_avg",
-        zones: zones,
-        data_type: $("#graph-type").val()
-      }, (summer_data, status) => {
-        redraw_graph_seasonal(winter_data, summer_data);
-      });
-    });
-  }
+  } // else {	
+  // 	$.getJSON("/api/future",
+  // 			  {
+  // 				  table: "future_winter_avg",
+  // 				  zones: zones,
+  // 				  data_type: $("#graph-type").val()
+  // 			  },
+  // 			  (winter_data,status) => {
+  // 				  $.getJSON("/api/future",
+  // 							{
+  // 								table: "future_summer_avg",
+  // 								zones: zones,
+  // 								data_type: $("#graph-type").val()
+  // 							},
+  // 							(summer_data,status) => {									
+  // 								redraw_graph_seasonal(winter_data,summer_data);
+  // 							});
+  // 			  });
+  // }
+
 }
 
 },{"./svg.js":42,"./utils.js":43,"jquery":28}],38:[function(require,module,exports){
@@ -39390,19 +39407,19 @@ esri.basemapLayer('ImageryLabels').addTo(leaflet_map);
 //esri.basemapLayer('ShadedReliefLabels').addTo(leaflet_map);
 
 async function setup() {
-	//const z = new zones.LSOAZones(leaflet_map)
-    const test_geojson = new geojson.Geojson(leaflet_map,"uk_cri_grid","",0,15)
+	const z = new zones.LSOAZones(leaflet_map)
+    //const test_geojson = new geojson.Geojson(leaflet_map,"uk_cri_grid","",0,15)
 	const net = new network.Network()
 	
 	leaflet_map.on("moveend", () => {
-		//z.update(leaflet_map,net);
-        test_geojson.update(leaflet_map);
+		z.update(leaflet_map,net);
+        //test_geojson.update(leaflet_map);
 	});
 
-/*	$("#graph-type").on("change",() => {
+	$("#graph-type").on("change",() => {
 		graph.update_graph(z.zones,$("#graph-time").val())
 	})
-
+/*
 	$("#graph-time").on("change",() => {
 		console.log($("#graph-time").val());
 		graph.update_graph(z.zones,$("#graph-time").val())
@@ -39427,8 +39444,8 @@ async function setup() {
 
 	await net.loadIconCache()
 
-	//z.update(leaflet_map,net)
-    test_geojson.update(leaflet_map)
+	z.update(leaflet_map,net)
+    //test_geojson.update(leaflet_map)
 }
 
 setup()
@@ -39571,17 +39588,16 @@ class LSOAZones {
       $(".projected-regions").each(function (i) {
         $(this).html(stringify_list(zone_names));
       });
-      let tiles = [];
-
-      for (let z of this.zones) {
-        if (z.tile != null) {
-          tiles.push(z.tile);
-        }
-      }
-
-      net.tiles = tiles;
-      await net.updateVariables();
-      net.buildGraph();
+      /*			let locations = []
+      			for (let z of this.zones) {
+                      if (z.location!=null) {
+      				    locations.push(z.location)
+                      }
+      			}
+      */
+      //			net.tiles=locations
+      //			await net.updateVariables();
+      //			net.buildGraph();
     } else {
       $(".hidden-section").each(function (i) {
         $(this).css("display", "none");
@@ -39620,7 +39636,7 @@ class LSOAZones {
         });
         this.zones.push({
           name: feature.properties.name,
-          tile: feature.properties.zone
+          uk_cri_location: feature.properties.uk_cri_location
         });
       } else {
         layer.setStyle({
@@ -43087,6 +43103,12 @@ class SVG {
   }
 
   add_bar(x, y, w, h, label, v, col) {
+    // flip if negative
+    if (h < 0) {
+      y = y - h;
+      h = -h;
+    }
+
     var c = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     c.setAttributeNS(null, 'x', x);
     c.setAttributeNS(null, 'y', y - h);
@@ -43094,7 +43116,7 @@ class SVG {
     c.setAttributeNS(null, 'height', h);
     c.setAttributeNS(null, 'fill', col);
     this.svg.appendChild(c);
-    this.add_text(x + 10, y + 30, "25", label);
+    this.add_text(x + 10, y + 30, "15", label);
     this.add_text(x + 20, y - h + 20, "15", "" + v.toFixed(2));
   }
 

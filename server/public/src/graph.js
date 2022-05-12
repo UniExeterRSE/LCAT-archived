@@ -29,7 +29,9 @@ const graph_height = 270;
 const winter_col = "#a4f9c8"
 const summer_col = "#4c9f70"
 
-function render_graph(decades_arr,scale) {
+function render_graph(decades_arr,offset,scale) {
+    console.log([offset,scale]);
+    
 	var svg = new svgUtil.SVG(800,300);
 	// assume decades list all are the same size
 	let bar_width = graph_width/Object.keys(decades_arr[0]).length;
@@ -38,8 +40,8 @@ function render_graph(decades_arr,scale) {
 		// draw the bars
 		let x=100
 		for (let dec of Object.keys(decades_arr[0])) {
-			svg.add_bar(x,graph_height,bar_width-2,decades_arr[0][dec]*scale,
-						"20"+dec+"0",decades_arr[0][dec],summer_col);
+			svg.add_bar(x,offset+graph_height,bar_width-2,decades_arr[0][dec]*scale,
+						dec,decades_arr[0][dec],summer_col);
 			x+=bar_width;
 		}
 	} else {
@@ -48,7 +50,7 @@ function render_graph(decades_arr,scale) {
 			svg.add_2bar(x,graph_height,bar_width-2,
 						 decades_arr[0][dec]*scale,
 						 decades_arr[1][dec]*scale,
-						 "20"+dec+"0",
+						 dec,
 						 decades_arr[0][dec],
 						 decades_arr[1][dec],
 						 winter_col,
@@ -98,7 +100,7 @@ function render_graph(decades_arr,scale) {
 
 function calc_scale(graph_data,height) {
 	// get the min/max for eventual graph scaling
-	/*let minimum = 999999;
+	let minimum = 999999;
 	let maximum = 0;
 
 	for (let decades of graph_data) {
@@ -106,34 +108,46 @@ function calc_scale(graph_data,height) {
 			if (minimum>decades[dec]) minimum = decades[dec]
 			if (maximum<decades[dec]) maximum = decades[dec]
 		}
-	}*/
-
-	let maximum = 0;
-
-	let data_type=$("#graph-type").val()
-	if(data_type=="daily_precip") {
-		maximum = 5.5
-	}
-	if(data_type=="mean_temp" ||
-	   data_type=="max_temp" ||
-	   data_type=="min_temp") {
-		maximum = 27
-	}
-	if(data_type=="mean_windspeed" ||
-	   data_type=="max_windspeed" ||
-	   data_type=="min_windspeed") {
-		maximum = 8
 	}
 
-	return height/maximum
+	//let maximum = 0;
+
+	// let data_type=$("#graph-type").val()
+	// if(data_type=="daily_precip") {
+	// 	maximum = 5.5
+	// }
+	// if(data_type=="mean_temp" ||
+	//    data_type=="max_temp" ||
+	//    data_type=="min_temp") {
+	// 	maximum = 27
+	// }
+	// if(data_type=="mean_windspeed" ||
+	//    data_type=="max_windspeed" ||
+	//    data_type=="min_windspeed") {
+	// 	maximum = 8
+	// }
+
+    var offset=0;
+    var scale=height/(maximum-minimum)
+    
+    if (minimum!=0) offset=minimum*scale;
+    
+	return [offset,scale]
 }
 
 function redraw_graph(graph_data) {
-	let decades = utils.calculate_decades(graph_data)
+    let d = {}
 
+    for (let el of graph_data) {
+        d[el.year]=el.avg
+    }
+
+    console.log(d);
+
+    let scale = calc_scale([d],graph_height-50)
+    
 	$("#graph").empty();
-	$("#graph").append(render_graph([decades],
-									calc_scale([decades],graph_height-50)).svg);
+	$("#graph").append(render_graph([d],scale[0],scale[1]).svg);
 }
 
 function redraw_graph_seasonal(winter_data,summer_data) {
@@ -146,48 +160,50 @@ function redraw_graph_seasonal(winter_data,summer_data) {
 }
 
 function update_graph(lsoa_zones,time) {
-	let zones = []
+    console.log(lsoa_zones);
+	let locations = []
 	for (let zone of lsoa_zones) {
 		// keep duplicates for weighted averaging
-		if (zone.tile!=undefined) {			
-			zones.push(zone.tile)
+		if (zone.uk_cri_location!=undefined) {			
+			locations.push(zone.uk_cri_location)
 		}
 	}
 	
-	if (zones.length==0) {
+	if (locations.length==0) {
 		$("#graph").html(no_data);
 		return
 	}
 
 	if (time=="yearly") {
-		$.getJSON("/api/future",
+		$.getJSON("/api/hadgem_rpc85",
 				  {
-					  table: "future_year_avg",
-					  zones: zones,
-					  data_type: $("#graph-type").val()
+					  table: $("#graph-type").val(),
+					  locations: locations,
 				  },
 				  (data,status) => {
 					  redraw_graph(data);
 				  });
-	} else {	
-		$.getJSON("/api/future",
-				  {
-					  table: "future_winter_avg",
-					  zones: zones,
-					  data_type: $("#graph-type").val()
-				  },
-				  (winter_data,status) => {
-					  $.getJSON("/api/future",
-								{
-									table: "future_summer_avg",
-									zones: zones,
-									data_type: $("#graph-type").val()
-								},
-								(summer_data,status) => {									
-									redraw_graph_seasonal(winter_data,summer_data);
-								});
-				  });
 	}
+
+    // else {	
+	// 	$.getJSON("/api/future",
+	// 			  {
+	// 				  table: "future_winter_avg",
+	// 				  zones: zones,
+	// 				  data_type: $("#graph-type").val()
+	// 			  },
+	// 			  (winter_data,status) => {
+	// 				  $.getJSON("/api/future",
+	// 							{
+	// 								table: "future_summer_avg",
+	// 								zones: zones,
+	// 								data_type: $("#graph-type").val()
+	// 							},
+	// 							(summer_data,status) => {									
+	// 								redraw_graph_seasonal(winter_data,summer_data);
+	// 							});
+	// 			  });
+	// }
 }
 
 

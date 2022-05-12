@@ -120,16 +120,16 @@ class LSOAZones {
 			$(".hidden-section").each(function(i) { $(this).css("display","block") })
 			$(".projected-regions").each(function(i) { $(this).html(stringify_list(zone_names)) })
 
-			let tiles = []
+/*			let locations = []
 			for (let z of this.zones) {
-                if (z.tile!=null) {
-				    tiles.push(z.tile)
+                if (z.location!=null) {
+				    locations.push(z.location)
                 }
 			}
-
-			net.tiles=tiles
-			await net.updateVariables();
-			net.buildGraph();
+*/
+//			net.tiles=locations
+//			await net.updateVariables();
+//			net.buildGraph();
 
 		} else {
 			$(".hidden-section").each(function(i) { $(this).css("display","none") })
@@ -168,7 +168,7 @@ class LSOAZones {
 				});
 				this.zones.push({
 					name: feature.properties.name,
-					tile: feature.properties.zone
+					uk_cri_location: feature.properties.uk_cri_location
 				})
 			} else {
 				layer.setStyle({
@@ -181,8 +181,7 @@ class LSOAZones {
 		});
 
 		layer.bindTooltip(feature.properties.name+"<br>IMD Score: "+feature.properties.imdscore).addTo(this.map);
-
-		
+        		
 	    layer.on('mouseover', function(e) {
 		layer.bringToFront();
 		layer.setStyle({'weight': 3});
