@@ -84,7 +84,8 @@ class Geojson {
 				L.geoJSON(data, {
 					onEachFeature: (feature,layer) => {						
 		                layer.bindPopup(JSON.stringify(feature.properties))
-                        let col = this.cols[Math.round(this.squash(feature.properties[this.prop],this.low,this.high)*this.cols.length)]
+                        let col = "#000"
+                        //this.cols[Math.round(this.squash(feature.properties[this.prop],this.low,this.high)*this.cols.length)]
                         layer.setStyle({
 				            'fillColor': col,
 				            'fillOpacity': 0.75

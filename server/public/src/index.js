@@ -48,12 +48,12 @@ esri.basemapLayer('ImageryLabels').addTo(leaflet_map);
 
 async function setup() {
 	const z = new zones.LSOAZones(leaflet_map)
-    //const test_geojson = new geojson.Geojson(leaflet_map,"uk_cri_grid","",0,15)
+    const test_geojson = new geojson.Geojson(leaflet_map,"msoa","",0,15)
 	const net = new network.Network()
 	
 	leaflet_map.on("moveend", () => {
-		z.update(leaflet_map,net);
-        //test_geojson.update(leaflet_map);
+		//z.update(leaflet_map,net);
+        test_geojson.update(leaflet_map);
 	});
 
 	$("#graph-type").on("change",() => {
@@ -84,8 +84,8 @@ async function setup() {
 
 	await net.loadIconCache()
 
-	z.update(leaflet_map,net)
-    //test_geojson.update(leaflet_map)
+	//z.update(leaflet_map,net)
+    test_geojson.update(leaflet_map)
 }
 
 setup()

@@ -63,7 +63,7 @@ Create a .env file in server and add the login info:
 
 ## Importing ESRI shapefile data
 
-    shp2pgsql -I -s 2263 SHAPEFILE.shp DATATABLE | psql -U DATABASE_USER -d DATABASE_NAME
+    shp2pgsql -I -s 2263 SHAPEFILE.shp DATATABLE | psql -U DATABASE_USER -d DATABASE_NAME -h localhost
 
 Where 2263 is the spatial reference system or coordinate system of the shape file.
 
@@ -71,12 +71,12 @@ Where 2263 is the spatial reference system or coordinate system of the shape fil
 
 ## Geographical coordinates
 
-  * British National Grid (BNG) = EPSG:27700
+  * British National Grid (BNG) OSGB 1936 = EPSG:27700
     - United Kingdom Ordnance Survey
     - Used by grid location for model data (uk-cli)
     - Used for LSOA geojsons
 
-  * EPSG:4326 - WGS 84, latitude/longitude coordinate system based on
+  * EPSG:4326 / WGS 84, latitude/longitude coordinate system based on
     the Earth's center of mass, used by the Global Positioning System
     among others. EPSG:3857 - Web Mercator projection used for display
     by many web-based mapping tools, including Google Maps and

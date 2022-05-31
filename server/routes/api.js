@@ -129,11 +129,10 @@ router.get('/geojson', function (req, res) {
                 'type', 'FeatureCollection',
                 'features', json_agg(json_build_object(
                    'type', 'Feature',
-                   'properties', properties,
                    'geometry', ST_AsGeoJSON(ST_Transform(geom,4326))::json
                    ))
               )
-         	  from `+table+` where geom && ST_MakeEnvelope(`+left+`, `+bottom+`, `+right+`, `+top+`, 4326);`
+         	  from `+table+`;` // where geom && ST_MakeEnvelope(`+left+`, `+bottom+`, `+right+`, `+top+`, 4326);`
 
 	var query = client.query(new Query(str_query));
 
