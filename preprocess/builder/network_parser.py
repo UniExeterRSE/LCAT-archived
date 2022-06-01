@@ -79,24 +79,22 @@ class network_parser:
                             var="mean_temp"
                         
                         e_id=self.ndb.add_edge({
-                            "title": esc(row[0]),
-                            "type": row[2],
+                            "type": esc(row[0]),
                             "description": esc(row[3]),
                             "operator": op,
                             "variable": var,
-                            "direction": "",
+                            "direction": row[2],
                             "unsdg": esc(row[5]),
                             # no node_from for a climate causation
                             "node_to": self.factors[row[1]],
                         })
                     else:                
                         e_id=self.ndb.add_edge({
-                            "title": esc(row[0]),
                             "type": row[2],
                             "description": esc(row[3]),
                             "operator": "",
                             "variable": "",
-                            "direction": "",
+                            "direction": row[2],
                             "unsdg": esc(row[5]),
                             "node_from": self.factors[row[0]],
                             "node_to": self.factors[row[1]],                            

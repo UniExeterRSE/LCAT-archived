@@ -9,76 +9,21 @@ admin.setup = function(app) {
 
     AdminJS.registerAdapter(AdminJSSequelize)
     //const db = require('../models');
-    const db = new Sequelize('postgres://climate_geo_data:onetwothree@localhost:5432/climate_geo_data') 
+    const db = new Sequelize('postgres://'+
+                             process.env.DB_USER+':'+
+                             process.env.DB_PASS+'@'+
+                             process.env.DB_HOST+'/'+
+                             process.env.DB_DATABASE) 
 
     const adminJs = new AdminJS({
         databases: [db],
         rootPath: '/admin',
         resources: [
             {
-                resource: db.define('network_nodes', {
-                    node_id: {
-                        autoIncrement: true,
-                        type: Sequelize.DataTypes.INTEGER,
-                        allowNull: false,
-                        primaryKey: true
-                    },
-                    name: {
-                        type: Sequelize.DataTypes.STRING,
-                        allowNull: true
-                    },
-                    details: {
-                        type: Sequelize.DataTypes.STRING,
-                        allowNull: true
-                    }
-                }, {
-                    db,
-                    tableName: 'network_nodes',
-                    schema: 'public',
-                    timestamps: false
-                }),
+                resource: require('./models/network_nodes')(db, Sequelize.DataTypes)
             },
             {
-                resource: db.define('network_edges', {
-                    edge_id: {
-                        autoIncrement: true,
-                        type: Sequelize.DataTypes.INTEGER,
-                        allowNull: false,
-                        primaryKey: true
-                    },
-                    name: {
-                        type: Sequelize.DataTypes.STRING,
-                        allowNull: true
-                    },
-                    details: {
-                        type: Sequelize.DataTypes.STRING,
-                        allowNull: true
-                    },
-                    direction: {
-                        type: Sequelize.DataTypes.INTEGER,
-                        allowNull: true
-                    },
-                    node_from: {
-                        type: Sequelize.DataTypes.INTEGER,
-                        references: {
-                            model: "network_nodes", 
-                            key: 'node_id'
-                        }
-                    },
-                    node_to: {
-                        type: Sequelize.DataTypes.INTEGER,
-                        references: {
-                            model: "network_nodes", 
-                            key: 'node_id'
-                        }
-                    },
-                    
-                }, {
-                    db,
-                    tableName: 'network_edges',
-                    schema: 'public',
-                    timestamps: false
-                }),
+                resource: require('./models/network_edges')(db, Sequelize.DataTypes),
                 options: {
                     properties: {
                         direction: {
@@ -89,22 +34,60 @@ admin.setup = function(app) {
                         }
                     }
                 }                        
-            }
+            },
+            {
+                resource: require('./models/articles')(db, Sequelize.DataTypes)
+            },
+            {
+                resource: require('./models/node_article_mapping')(db, Sequelize.DataTypes)
+            },
+            {
+                resource: require('./models/edge_article_mapping')(db, Sequelize.DataTypes)
+            },
+
         ],
+        locale: {
+            translations: {
+                labels: {
+                    "network_nodes": 'Elements',
+                    "network_edges": 'Connections',
+                    "unsdgs": "UN SDGs",
+                }
+            }
+        },
         branding: {
-            companyName: "Local Climate Tool",
+            companyName: "Local Climate Tool Admin",
+            logo: false,
         },
         dashboard: {
             handler: async () => {
                 
             },
-            component: null //AdminJS.bundle('./dashboard')
+            component: AdminJS.bundle('./dashboard')
         },
     })
 
+
     const adminRouter = AdminJSExpress.buildRouter(adminJs)
+
+    app.use(adminJs.options.rootPath, (req, res, next) => {
+        const auth = {login: 'admin', password: process.env.ADMIN_PASS} // change this        
+        // parse login and password from headers
+        const b64auth = (req.headers.authorization || '').split(' ')[1] || ''
+        const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':')
+        
+        if (login && password && login === auth.login && password === auth.password) {
+            // Access granted...
+            return next()
+        }
+        
+        // Access denied...
+        res.set('WWW-Authenticate', 'Basic realm="401"') // change this
+        res.status(401).send('Authentication required.') // custom message        
+    })
+
     app.use(adminJs.options.rootPath, adminRouter)
-    app.listen(8080, () => console.log('AdminJS is under localhost:8080/admin'))
+    //app.listen(3000, () => console.log('AdminJS is under localhost:8080/admin'))
 }
 
 module.exports = admin

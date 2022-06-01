@@ -23,7 +23,6 @@ class network_db:
         self.db.cur.execute(q)
         self.db.cur.execute("drop table if exists network_edges cascade")
         q = """create table network_edges (edge_id serial primary key, 
-        title text,
         type text,
         description text,
         unsdgs text,
@@ -73,9 +72,8 @@ class network_db:
 
     def add_edge(self,edge):
         if "node_from" not in edge:
-            self.db.cur.execute(f"""insert into network_edges (title, type, description, unsdgs, operator, variable, direction, node_to) values
-            ('{edge["title"]}',
-            '{edge["type"]}',
+            self.db.cur.execute(f"""insert into network_edges (type, description, unsdgs, operator, variable, direction, node_to) values
+            ('{edge["type"]}',
             '{edge["description"]}',
             '{edge["unsdg"]}',
             '{edge["operator"]}',
@@ -83,9 +81,8 @@ class network_db:
             '{edge["direction"]}',        
             '{edge["node_to"]}') returning edge_id""")
         else:
-            self.db.cur.execute(f"""insert into network_edges (title, type, description, unsdgs, operator, variable, direction, node_from, node_to) values
-            ('{edge["title"]}',
-            '{edge["type"]}',
+            self.db.cur.execute(f"""insert into network_edges (type, description, unsdgs, operator, variable, direction, node_from, node_to) values
+            ('{edge["type"]}',
             '{edge["description"]}',
             '{edge["unsdg"]}',
             '{edge["operator"]}',
