@@ -22,16 +22,17 @@ import csv
 import yaml
 import psycopg2
 import geojson
-import json
+import json, os
 from psycopg2.extras import Json
 
 class db:
     def __init__(self,config):
-            self.conn = psycopg2.connect(f"host={config['host']}\
+        self.conf = config
+        self.conn = psycopg2.connect(f"host={config['host']}\
                                       dbname={config['dbname']} \
                                       user={config['user']} \
                                       password={config['password']}")
-            self.cur = self.conn.cursor()
+        self.cur = self.conn.cursor()
 
             
     def create_tables(self,data_cols):
@@ -64,3 +65,8 @@ class db:
             str_dict = dict((str(k), str(v)) for k, v in feature_data['properties'].items())
             self.cur.execute(INSERT_STATEMENT, (feature_data['id'], geojson, json.dumps(feature_data['properties'])))
 
+    def load_shp_geom(self,fn,table,projection):
+        # import lsoa from GCS_OSGB_1936 (27700)
+        self.delete_tables([table])
+        cmd = f"shp2pgsql -I -s {projection} \"{fn}\" {table} | psql postgresql://{self.conf['user']}:{self.conf['password']}@{self.conf['host']}/{self.conf['dbname']}"
+        os.system(cmd)

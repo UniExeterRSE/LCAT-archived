@@ -20,13 +20,15 @@
 
 import csv
 
-# Insert IMD scores into each lsoa zone where the name matches (We
-# need the lsoa zones present to do this) - might need to:
+# Insert IMD scores into each lsoa zone GEOJSON where the name matches
+# (We need the lsoa zones present to do this)
 
-# ALTER TABLE lsoa ADD imdscore real;
-
-def import(data_dir):    
-    with open(data_dir+"imd2019lsoa.csv", newline='') as csvfile:
+def load_lsoa(db,fn):
+    # add the column to the lsoa GEOJSON
+    q="alter table lsoa add column if not exists imdscore real;"
+    db.cur.execute(q)
+    db.conn.commit()
+    with open(fn, newline='') as csvfile:
         reader = csv.reader(csvfile)
         for i,row in enumerate(reader):
             if i>0:
@@ -37,7 +39,5 @@ def import(data_dir):
                     score = row[4]                                  
                     q=f"update lsoa set imdscore='{score}' where lsoa11cd='{lsoa_code}';"
                     print(q)
-                    cur.execute(q)                
-                    conn.commit()
-                
-
+                    db.cur.execute(q)                
+        db.conn.commit()        

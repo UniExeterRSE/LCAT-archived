@@ -74,7 +74,7 @@ def load_data(db,table,fn):
 
 data_cols = {
     "uk_cri_grid":
-    [["id","serial"],
+    [["id","serial primary key"],
      ["geom","geometry(geometry, 27700)"],
      ["properties","jsonb"]]
 }
@@ -97,9 +97,12 @@ def remove(db):
 def load(db,path):    
     for variable in variables:
         for period in periods:        
-            data_cols[model+"_"+variable+"_"+period]=[["location","int"],
-                                                      ["year","int"],
-                                                      ["median","real"]]
+            data_cols[model+"_"+variable+"_"+period]=[
+                ["id","serial primary key"],
+                ["location","int"],
+                ["year","int"],
+                ["median","real"]
+            ]
 
     db.create_tables(data_cols)
 
