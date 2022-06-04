@@ -48,7 +48,7 @@ esri.basemapLayer('ImageryLabels').addTo(leaflet_map);
 
 async function setup() {
 	const z = new zones.LSOAZones(leaflet_map)
-    const test_geojson = new geojson.Geojson(leaflet_map,"msoa","",0,15)
+    const test_geojson = new geojson.Geojson(leaflet_map,"counties","",0,15)
 	const net = new network.Network()
 	
 	leaflet_map.on("moveend", () => {
