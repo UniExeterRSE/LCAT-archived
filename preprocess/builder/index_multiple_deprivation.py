@@ -23,6 +23,12 @@ import csv
 # Insert IMD scores into each lsoa zone GEOJSON where the name matches
 # (We need the lsoa zones present to do this)
 
+
+def prepare_col(db,table):
+    q='alter table '+table+' add column if exists "imdscore" real default 0;'
+    db.cur.execute(q)
+    db.conn.commit()
+    
 def load_lsoa(db,fn):
     # add the column to the lsoa GEOJSON
     q="alter table lsoa add column if not exists imdscore real;"
