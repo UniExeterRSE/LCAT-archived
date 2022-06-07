@@ -19,6 +19,9 @@
 # their own tables indexed by grid cell id
 
 import csv
+import geojson
+import psycopg2
+from shapely.geometry import shape, Point
 
 # Insert IMD scores into each lsoa zone GEOJSON where the name matches
 # (We need the lsoa zones present to do this)
@@ -46,4 +49,47 @@ def load_lsoa(db,fn):
                     q=f"update lsoa set imdscore='{score}' where lsoa11cd='{lsoa_code}';"
                     print(q)
                     db.cur.execute(q)                
+        db.conn.commit()        
+
+def load_msoa(db,fn):
+    # a slightly different csv file
+    q="alter table msoa add column if not exists imdscore real;"
+    db.cur.execute(q)
+    db.conn.commit()
+    with open(fn, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        for i,row in enumerate(reader):
+            if i>0:
+                msoa_code = row[0]
+                score = row[7]                                  
+                q=f"update msoa set imdscore='{score}' where msoa11cd='{msoa_code}';"
+                print(q)
+                db.cur.execute(q)                
+        db.conn.commit()        
+
+def load_counties(db):
+    q=f"select imdscore,ST_AsGeoJSON(ST_Transform(geom,4326))::json from msoa;"
+    db.cur.execute(q)
+    msoas = db.cur.fetchall()
+    
+    # for each county
+    q=f"select gid from counties;"
+    db.cur.execute(q)
+    for geo_id in db.cur.fetchall():
+        q=f"select ST_AsGeoJSON(ST_Transform(geom,4326))::json from counties where gid={geo_id[0]}"
+        db.cur.execute(q)
+        geo = db.cur.fetchone()[0]
+        count=0
+        imd_total=0
+        for msoa in msoas:
+            if shape(msoa[1]).intersects(shape(geo)):        
+                # add if inside
+                imd_total+=msoa[0]
+                count+=1
+            
+        # average update
+        imd = imd_total/float(count)
+        q=f"update counties set imdscore='{imd}' where gid='{geo_id[0]}';"
+        print(q)
+        db.cur.execute(q)                
         db.conn.commit()        

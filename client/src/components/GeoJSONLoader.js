@@ -1,7 +1,7 @@
 import { useMap, useMapEvents } from 'react-leaflet';
 import React, { useState, useEffect } from 'react';
 
-// Meters/Pixel Zoom Level (1-19)
+// Meters/Pixel Zoom Level (1-19) - requires geometry in OS 27700
 const m2px = [78271.52,39135.76,19567.88,9783.94,4891.97,2445.98,1222.99,
               611.50,305.75,152.87,76.44,38.22,19.11,9.55,4.78,2.39,1.19,
               0.60,0.30];

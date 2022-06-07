@@ -70,7 +70,7 @@ router.get('/region', function (req, res) {
     if (table=="msoa") name_col="msoa11nm";
     if (table=="counties") name_col="ctyua16nm";
 
-    // lsoa and msoa are in british national grid
+    // lsoa and msoa are in british national grid 27700
     var srid = 27700
     // counties in lat/lng
     if (table=="counties") srid=4326
@@ -78,10 +78,12 @@ router.get('/region', function (req, res) {
     if (is_valid_region_table(table)) {
         var client = new Client(conString);
         client.connect();
-        
-        
-	    // build a new geojson given the bounding box and zoom detail
-        // add the name of the region and it's IMD score
+                
+	    // build a new geojson in 4326 coords given the bounding box
+        // and zoom detail, add the name of the region and it's IMD
+        // score (simplify is specified in metres/pixel so need to
+        // ensure geometry e.g. counties are in 27700 coords before
+        // ST_Simplify)
 	    var lsoa_query = `select json_build_object(
                 'type', 'FeatureCollection',
                 'features', json_agg(json_build_object(
@@ -89,7 +91,9 @@ router.get('/region', function (req, res) {
                    'properties', json_build_object('name', `+name_col+`, 
                                                    'imdscore', imdscore),
                    'geometry', ST_AsGeoJSON(
-                                   ST_Transform(ST_Simplify(geom,$1),4326))::json
+                                 ST_Transform(
+                                   ST_Simplify(
+                                     ST_Transform(geom,27700),$1),4326))::json
                    ))
               )
          	  from `+table+` where geom && ST_TRANSFORM(ST_MakeEnvelope($2,$3,$4,$5,4326),`+srid+`);`

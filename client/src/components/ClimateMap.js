@@ -18,7 +18,7 @@ class ClimateMap extends React.Component {
         this.state={
             geojson_key: 0,
             geojson: false,
-            region: "lsoa"
+            region: "counties"
         };
 
 		this.cols = colormap({
@@ -29,14 +29,24 @@ class ClimateMap extends React.Component {
 		});
 
 		this.cols.reverse();
+        this.score_adjust=0.7;
+
     }
         
     onEachFeature = (feature, layer) => {
-        let col = "#f00";
         
-		layer.bindTooltip(feature.properties.name+"<br>IMD Score: ");
-		layer.setStyle({'weight': 1});
-                         
+        let col = this.cols[Math.round(feature.properties.imdscore/this.score_adjust)];
+
+		layer.bindTooltip(feature.properties.name+
+                          "<br>IMD Score: "+
+                          feature.properties.imdscore);
+	
+        layer.setStyle({
+            'weight': 1,
+			'fillColor': col,
+			'fillOpacity': 1
+		});
+                 
 	    layer.on('mouseover', function(e) {
 		    layer.bringToFront();
 		    layer.setStyle({'weight': 3});
@@ -62,13 +72,13 @@ class ClimateMap extends React.Component {
         return (
             <div>
               <select onChange={this.regionChange}>
-                <option value="lsoa">LSOA</option>
-                <option value="msoa">MSOA</option>
                 <option value="counties">Counties</option>
+                <option value="msoa">MSOA</option>
+                <option value="lsoa">LSOA</option>
               </select>
               <MapContainer
                 center={center}
-                zoom={15}
+                zoom={7}
                 scrollWheelZoom={true}>
                 <GeoJSONLoader
                   apicall="http://localhost:3000/api/region"
