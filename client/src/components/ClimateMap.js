@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON, FeatureGroup, Popup, useMap } from 'react-leaflet';
 import GeoJSONLoader from './GeoJSONLoader.js';
 import './ClimateMap.css';
@@ -11,6 +11,16 @@ const tileLayer = {
 }
 
 const center = [52, -2.2];
+const highlight_col = "#ffbc42";
+
+function RegionsListener(props) {
+    useEffect(() => {
+        console.log("calling callback "+props.regions);
+        props.callback(props.regions);
+    }, [props.regions]);
+    return null;
+}
+    
 
 class ClimateMap extends React.Component {
     constructor(props) {
@@ -18,7 +28,8 @@ class ClimateMap extends React.Component {
         this.state={
             geojson_key: 0,
             geojson: false,
-            region: "counties"
+            region: "counties",
+            regions: []
         };
 
 		this.cols = colormap({
@@ -30,23 +41,32 @@ class ClimateMap extends React.Component {
 
 		this.cols.reverse();
         this.score_adjust=0.7;
-
     }
-        
-    onEachFeature = (feature, layer) => {
-        
-        let col = this.cols[Math.round(feature.properties.imdscore/this.score_adjust)];
 
+/*    onComponentDidMount() {
+        useEffect(() => {
+	        this.props.regionsCallback(this.state.regions);
+        }, [this.state.regions]);
+    }*/
+
+    onEachFeature = async (feature, layer) => {        
+        let col = this.cols[Math.round(feature.properties.imdscore/this.score_adjust)];
+        let gid = feature.properties.gid;
 		layer.bindTooltip(feature.properties.name+
                           "<br>IMD Score: "+
                           feature.properties.imdscore);
-	
+        
         layer.setStyle({
             'weight': 1,
 			'fillColor': col,
 			'fillOpacity': 1
 		});
-                 
+
+        
+        if (this.state.regions.includes(gid)) {
+            layer.setStyle({'fillColor': highlight_col});
+        }
+
 	    layer.on('mouseover', function(e) {
 		    layer.bringToFront();
 		    layer.setStyle({'weight': 3});
@@ -55,13 +75,37 @@ class ClimateMap extends React.Component {
 		    layer.setStyle({'weight': 1});
 	    });
 
+		layer.on('click', () => {
+ 			if (!this.state.regions.includes(gid)) {
+                console.log("adding");
+				layer.setStyle({
+					'fillColor': highlight_col,
+					'fillOpacity': 1
+				});
+                
+                this.setState((prev) => ({
+                    // do not use push because [].push(1) = 1!? 
+                    regions: [...prev.regions,gid]
+                }));
+			} else {
+                console.log("removing");
+				layer.setStyle({
+					'fillColor': col,
+					'fillOpacity': 1
+				});
+                
+                this.setState((prev) => ({
+                    regions: prev.regions.filter((v,i) => v!=gid)
+                }));
+			}
+		});
     }
 
     geojsonCallback = (data) => {
-        this.setState({
+        this.setState(() => ({
             geojson: data,
             geojson_key: this.state.geojson_key+1
-        });
+        }));
     }
 
     regionChange = (e) => {
@@ -76,6 +120,10 @@ class ClimateMap extends React.Component {
                 <option value="msoa">MSOA</option>
                 <option value="lsoa">LSOA</option>
               </select>
+              <RegionsListener
+                regions={this.state.regions}
+                callback={this.props.regionsCallback}
+              />
               <MapContainer
                 center={center}
                 zoom={7}

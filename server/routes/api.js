@@ -47,7 +47,7 @@ function is_valid_hadgem_table(table) {
 function is_valid_grid_table(table) {
     return ["lsoa_grid_mapping",
             "msoa_grid_mapping",
-            "county_grid_mapping"].includes(table);
+            "counties_grid_mapping"].includes(table);
 }
 
 function is_valid_region_table(table) {
@@ -88,7 +88,8 @@ router.get('/region', function (req, res) {
                 'type', 'FeatureCollection',
                 'features', json_agg(json_build_object(
                    'type', 'Feature',
-                   'properties', json_build_object('name', `+name_col+`, 
+                   'properties', json_build_object('gid', gid,
+                                                   'name', `+name_col+`, 
                                                    'imdscore', imdscore),
                    'geometry', ST_AsGeoJSON(
                                  ST_Transform(
@@ -112,6 +113,7 @@ router.get('/region', function (req, res) {
         });
         query.on("error", function (err, result) {
             console.log("------------------error-------------------------");
+            console.log(req);
             console.log(err);
         });
     }
@@ -148,18 +150,33 @@ router.get('/future', function (req, res) {
 router.get('/hadgem_rpc85', function (req, res) {
 	let locations = req.query.locations;
 	let table = req.query.table; 
-	let region_grid = req.query.region+"_grid_mapping"; 
+	let region_grid = req.query.region+"_grid_mapping";
+
+    
+    console.log(req.query);
+    
     if (locations!=undefined &&
         is_valid_hadgem_table(table) &&
-        is_valid_gird_table(region_grid)) {
+        is_valid_grid_table(region_grid)) {
+
+        if (!Array.isArray(locations)) {
+            locations=[locations];
+        }
+
+        console.log("checks out");
 	    var client = new Client(conString);
         client.connect();
-        
-        var q=`select year,avg(median) from `+table+` 
-               where location in (select tile_id from `+region_grid+`
-               where geo_id in (?)) group by year order by year;`
 
-	    var query = client.query(new Query(q,locations.join()));
+        // find all the tiles covered by the selected geometry, use
+        // distinct to remove duplicates and average the selected
+        // climate variable for each year in the model data
+        var q=`select year,avg(median) from `+table+` 
+               where location in (select distinct tile_id from `+region_grid+`
+               where geo_id in (`+locations.join()+`)) group by year order by year;`
+
+        console.log(locations);
+        
+	    var query = client.query(new Query(q));
 	    
 	    query.on("row", function (row, result) {
             result.addRow(row);
@@ -168,6 +185,11 @@ router.get('/hadgem_rpc85', function (req, res) {
             res.send(result.rows);
             res.end();
 		    client.end();
+        });
+        query.on("error", function (err, result) {
+            console.log("------------------error-------------------------");
+            console.log(req);
+            console.log(err);
         });
     }
 });
