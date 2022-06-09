@@ -10,13 +10,14 @@ class App extends React.Component {
         super(props);
 
         this.state = {
-            regions: []
+            regions: [],
+            regionType: "counties"
         };
     }
 
-    regionsCallback = (regions) => {
-        console.log(regions);
+    regionsCallback = (regions,regionType) => {
         this.setState({
+            regionType: regionType,
             regions: regions
         });
     }
@@ -32,8 +33,7 @@ class App extends React.Component {
               />
               <Graph
                 regions={this.state.regions}
-                table={"hadgem_rcp85_tavg_ann"}
-                region={"counties"}                
+                region={this.state.regionType}                
               />
             </div>
             

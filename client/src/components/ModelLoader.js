@@ -1,3 +1,5 @@
+// -*- mode: rjsx;  -*-
+
 import React, { Component, useEffect } from 'react';
 
 function ModelLoader(props) {
@@ -12,11 +14,10 @@ function ModelLoader(props) {
                     new URLSearchParams(
                         props.regions.map(v => ["locations",v]));
 
-                console.log(url);
-                
                 let response = await fetch(url);
                 response.json()
                     .then( v => {
+                        console.log("calling callback");
                         props.callback(v);
                     });
             } catch(error) {
