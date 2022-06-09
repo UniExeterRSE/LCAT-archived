@@ -1,3 +1,15 @@
+// -*- mode: rjsx-mode;  -*-
+// Copyright (C) 2022 Then Try This
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the Common Good Public License Beta 1.0 as
+// published at http://www.cgpl.org
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Common Good Public License Beta 1.0 for more details.
+
 import React from 'react';
 
 import './App.css';
@@ -26,8 +38,9 @@ class App extends React.Component {
         return (
             <div className="App">
               <header className="App-header">
-                <h2>Local Climate Tool V2.0</h2>
+                <h1>Local Climate Tool V2.0</h1>
               </header>
+                You are looking at the national level testing version. <a href="http://climate-tool.thentrythis.org">The working Cornwall prototype is here.</a>
               <ClimateMap
                 regionsCallback={this.regionsCallback}
               />

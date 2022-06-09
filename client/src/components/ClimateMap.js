@@ -1,4 +1,14 @@
 // -*- mode: rjsx-mode;  -*-
+// Copyright (C) 2022 Then Try This
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the Common Good Public License Beta 1.0 as
+// published at http://www.cgpl.org
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Common Good Public License Beta 1.0 for more details.
 
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON, FeatureGroup, Popup, useMap } from 'react-leaflet';
@@ -45,6 +55,10 @@ class ClimateMap extends React.Component {
         this.score_adjust=0.7;
     }
 
+    regionsIncludes = (id) => {
+        return this.state.regions.filter(e => e.id===id).length>0;
+    }
+    
     // responsible for styling and callbacks for each region
     onEachFeature = async (feature, layer) => {        
         // colour based on IMD score
@@ -61,7 +75,7 @@ class ClimateMap extends React.Component {
 		});
 
         
-        if (this.state.regions.includes(gid)) {
+        if (this.regionsIncludes(gid)) {
             layer.setStyle({'fillColor': highlight_col});
         }
 
@@ -75,7 +89,7 @@ class ClimateMap extends React.Component {
 	    });
 
 		layer.on('click', () => {
- 			if (!this.state.regions.includes(gid)) {
+ 			if (!this.regionsIncludes(gid)) {
                 console.log("adding");
 				layer.setStyle({
 					'fillColor': highlight_col,
@@ -84,7 +98,10 @@ class ClimateMap extends React.Component {
                 
                 this.setState((prev) => ({
                     // do not use push because [].push(1) = 1!? 
-                    regions: [...prev.regions,gid]
+                    regions: [...prev.regions,{
+                        id: gid,
+                        name: feature.properties.name
+                    }]
                 }));
 			} else {
                 console.log("removing");
@@ -94,7 +111,7 @@ class ClimateMap extends React.Component {
 				});
                 
                 this.setState((prev) => ({
-                    regions: prev.regions.filter((v,i) => v!=gid)
+                    regions: prev.regions.filter((v,i) => v.id!=gid)
                 }));
 			}
 		});
@@ -110,15 +127,23 @@ class ClimateMap extends React.Component {
     render() {
         return (
             <div>
-              <select onChange={(e) => { this.setState(() => ({
-                  regionType: e.target.value,
-                  // clear regions when the type changes
-                  regions: []
-              }));}}>
-                <option value="counties">Counties</option>
-                <option value="msoa">MSOA</option>
-                <option value="lsoa">LSOA</option>
-              </select>
+		      <h2>Select Zones</h2>		
+		      <p>
+		        To begin, click/tap on the map to select the 
+                <select onChange={(e) => { this.setState(() => ({
+                    regionType: e.target.value,
+                    // clear regions when the type changes
+                    regions: []
+                }));}}>
+                  <option value="counties">Counties</option>
+                  <option value="msoa">MSOA</option>
+                  <option value="lsoa">LSOA</option>
+                </select>
+                 you are 
+		        interested in. The Index of Multiple Deprivation is shown 
+		        to help guide you to priority areas.
+		      </p>
+              
               <RegionsListener
                 regions={this.state.regions}
                 regionType={this.state.regionType}
@@ -139,6 +164,13 @@ class ClimateMap extends React.Component {
                     onEachFeature={this.onEachFeature}/> }
                 <TileLayer {...tileLayer} />
               </MapContainer>
+
+              <p>
+		        English Indices of Deprivation 2019 Open Data from
+		        <a href="https://opendatacommunities.org/resource?uri=http%3A%2F%2Fopendatacommunities.org%2Fdata%2Fsocietal-wellbeing%2Fimd2019%2Findices">
+			      Ministry of Housing, Communities and Local Government</a>
+		      </p>
+
             </div>
         );
     }
