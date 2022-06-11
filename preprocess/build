@@ -51,7 +51,12 @@ else:
         # import lsoa from lat/lng
         db.load_shp_geom(conf['counties_data_shp'],"counties","4326") 
         imd.prepare_col(db,"counties")
-       
+
+    if sys.argv[1]=="add_imd":
+        imd.prepare_col(db,"lsoa")
+        imd.prepare_col(db,"msoa")
+        imd.prepare_col(db,"counties")
+        
     if sys.argv[1]=="lsoa_imd":
         # v slow
         imd.load_lsoa(db,conf['imd_data_lsoa_csv'])
@@ -79,14 +84,17 @@ else:
         
     if sys.argv[1]=="all":
         #ukcri.load(db,conf['uk_cri_data_path'])
-        db.load_shp_geom(conf['lsoa_data_shp'],"lsoa","27700")
+        #db.load_shp_geom(conf['lsoa_data_shp'],"lsoa","27700")
         #db.load_shp_geom(conf['msoa_data_shp'],"msoa","27700")
         #db.load_shp_geom(conf['counties_data_shp'],"counties","4326")
+        #imd.prepare_col(db,"lsoa")
+        #imd.prepare_col(db,"msoa")
+        #imd.prepare_col(db,"counties")
 
-        link_geom_climate.simple(db,"lsoa")
-        link_geom_climate.multi(db,"msoa")
-        link_geom_climate.multi(db,"counties")
+        #link_geom_climate.simple(db,"lsoa")
+        #link_geom_climate.multi(db,"msoa")
+        #link_geom_climate.multi(db,"counties")
 
-        imd.load_msoa(db,conf['imd_data_msoa_csv'])
+        #imd.load_msoa(db,conf['imd_data_msoa_csv'])
         imd.load_counties(db);
         imd.load_lsoa(db,conf['imd_data_lsoa_csv'])

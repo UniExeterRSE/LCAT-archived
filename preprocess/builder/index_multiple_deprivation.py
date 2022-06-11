@@ -28,7 +28,7 @@ from shapely.geometry import shape, Point
 
 
 def prepare_col(db,table):
-    q='alter table '+table+' add column if exists "imdscore" real default 0;'
+    q='alter table '+table+' add column if not exists imdscore real default 0;'
     db.cur.execute(q)
     db.conn.commit()
     
