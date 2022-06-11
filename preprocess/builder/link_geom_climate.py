@@ -21,8 +21,13 @@ from shapely.geometry import shape, Point
 # grid into the geometry table
 def simple(db,geo_table):
     # get the tile geometry in lat/lng
-    q=f"alter table {geo_table} add column if not exists uk_cri_location integer"
-    db.cur.execute(q)
+    # get the tile geometry in lat/lng
+    db.create_tables({
+        f"{geo_table}_grid_mapping":
+        [["id","serial primary key"],
+         ["geo_id","int"], # foreign key???
+         ["tile_id","int"]]})
+    
     q=f"select id,ST_AsGeoJSON(ST_Transform(geom,4326))::json from uk_cri_grid"
     db.cur.execute(q)
     location_squares = db.cur.fetchall()
@@ -41,7 +46,7 @@ def simple(db,geo_table):
                     # find the tiles they are in
                     # todo - get closest if none
                     location = square[0]
-                    q=f"update {geo_table} set uk_cri_location={location} where gid={i}"
+                    q=f"insert into {geo_table}_grid_mapping (geo_id,tile_id) values ({i},{location})"
                     db.cur.execute(q)
                     db.conn.commit()
         print(i)

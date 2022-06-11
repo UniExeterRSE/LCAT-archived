@@ -154,7 +154,7 @@ class ClimateMap extends React.Component {
                 zoom={7}
                 scrollWheelZoom={true}>
                 <GeoJSONLoader
-                  apicall="http://localhost:3000/api/region"
+                  apicall="/api/region"
                   table={this.state.regionType}
                   callback={this.geojsonCallback}/>
                 { this.state.geojson &&               

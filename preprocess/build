@@ -35,7 +35,7 @@ if len(sys.argv)<2 or sys.argv[1]=="-?" or sys.argv[1]=="--help":
     print("Welcome to the climate tool database builder")
 else:
     if sys.argv[1]=="uk_cri":
-        ukcri.loadm(db,conf['uk_cri_data_path'])
+        ukcri.load(db,conf['uk_cri_data_path'])
 
     if sys.argv[1]=="lsoa":
         # import lsoa from GCS_OSGB_1936 (27700)
@@ -78,14 +78,15 @@ else:
         network.load(db,conf['network_path'])
         
     if sys.argv[1]=="all":
-        ukcri.load(db,conf['uk_cri_data_path'])
+        #ukcri.load(db,conf['uk_cri_data_path'])
         db.load_shp_geom(conf['lsoa_data_shp'],"lsoa","27700")
-        db.load_shp_geom(conf['msoa_data_shp'],"msoa","27700")
-        db.load_shp_geom(conf['counties_data_shp'],"counties","4326")
-        imd.load(db,conf['imd_data_lsoa_csv'])
-        link_geom_climate.multi(db,"lsoa")
+        #db.load_shp_geom(conf['msoa_data_shp'],"msoa","27700")
+        #db.load_shp_geom(conf['counties_data_shp'],"counties","4326")
+
+        link_geom_climate.simple(db,"lsoa")
         link_geom_climate.multi(db,"msoa")
         link_geom_climate.multi(db,"counties")
+
         imd.load_msoa(db,conf['imd_data_msoa_csv'])
         imd.load_counties(db);
         imd.load_lsoa(db,conf['imd_data_lsoa_csv'])
