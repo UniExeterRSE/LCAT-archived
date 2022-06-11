@@ -1,4 +1,4 @@
-// -*- mode: rjsx-mode;  -*-
+// -*- mode: rjsx;  -*-
 // Copyright (C) 2022 Then Try This
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -11,7 +11,7 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import { useMap, useMapEvents } from 'react-leaflet';
-import React, { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 
 // Meters/Pixel Zoom Level (1-19) - requires geometry in OS 27700
 const m2px = [78271.52,39135.76,19567.88,9783.94,4891.97,2445.98,1222.99,
@@ -22,6 +22,7 @@ function GeoJSONLoader(props) {
     const map = useMap();
 
     async function getGeojson() {
+        props.loadingCallback(true);
         try {
             let b = map.getBounds();
             
@@ -35,6 +36,7 @@ function GeoJSONLoader(props) {
             }));
             response.json()
                 .then( v => {
+                    props.loadingCallback(false);
                     props.callback(v);
                 });
         } catch(error) {
