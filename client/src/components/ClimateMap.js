@@ -1,4 +1,4 @@
-// -*- mode: rjsx-mode;  -*-
+// -*- mode: rjsx;  -*-
 // Copyright (C) 2022 Then Try This
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -11,9 +11,10 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, GeoJSON, FeatureGroup, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import GeoJSONLoader from './GeoJSONLoader.js';
 import './ClimateMap.css';
+import LoadingOverlay from "react-loading-overlay";
 
 const colormap = require('colormap');
 
@@ -23,7 +24,7 @@ const tileLayer = {
 }
 
 const center = [52, -2.2];
-const highlight_col = "#ffbc42";
+const highlightCol = "#ffbc42";
 
 function RegionsListener(props) {
     useEffect(() => {
@@ -41,7 +42,9 @@ class ClimateMap extends React.Component {
             geojson_key: 0,
             geojson: false,
             regionType: "counties",
-            regions: []
+            regions: [],
+            loading: true,
+            triggerLoadingIndicator: true
         };
 
 		this.cols = colormap({
@@ -76,7 +79,7 @@ class ClimateMap extends React.Component {
 
         
         if (this.regionsIncludes(gid)) {
-            layer.setStyle({'fillColor': highlight_col});
+            layer.setStyle({'fillColor': highlightCol});
         }
 
 	    layer.on('mouseover', function(e) {
@@ -92,7 +95,7 @@ class ClimateMap extends React.Component {
  			if (!this.regionsIncludes(gid)) {
                 console.log("adding");
 				layer.setStyle({
-					'fillColor': highlight_col,
+					'fillColor': highlightCol,
 					'fillOpacity': 1
 				});
                 
@@ -111,7 +114,7 @@ class ClimateMap extends React.Component {
 				});
                 
                 this.setState((prev) => ({
-                    regions: prev.regions.filter((v,i) => v.id!=gid)
+                    regions: prev.regions.filter((v,i) => v.id!==gid)
                 }));
 			}
 		});
@@ -120,7 +123,8 @@ class ClimateMap extends React.Component {
     geojsonCallback = (data) => {
         this.setState(() => ({
             geojson: data,
-            geojson_key: this.state.geojson_key+1
+            geojson_key: this.state.geojson_key+1,
+            triggerLoadingIndicator: false
         }));
     }
 
@@ -133,15 +137,18 @@ class ClimateMap extends React.Component {
                 <select onChange={(e) => { this.setState(() => ({
                     regionType: e.target.value,
                     // clear regions when the type changes
-                    regions: []
+                    regions: [],
+                    triggerLoadingIndicator: true
                 }));}}>
                   <option value="counties">Counties</option>
                   <option value="msoa">MSOA</option>
                   <option value="lsoa">LSOA</option>
                 </select>
-                 you are 
-		        interested in. The Index of Multiple Deprivation is shown 
-		        to help guide you to priority areas.
+                 you are interested in. The
+                <select>
+                  <option value="IMD">Index of Multiple Deprivation</option>
+                </select>
+                is shown to help guide you to priority areas.
 		      </p>
               
               <RegionsListener
@@ -149,6 +156,11 @@ class ClimateMap extends React.Component {
                 regionType={this.state.regionType}
                 callback={this.props.regionsCallback}
               />
+
+            <LoadingOverlay
+              active={this.state.loading}
+              spinner
+              text='Loading regions'>
               <MapContainer
                 center={center}
                 zoom={7}
@@ -156,7 +168,9 @@ class ClimateMap extends React.Component {
                 <GeoJSONLoader
                   apicall="http://localhost:3000/api/region"
                   table={this.state.regionType}
-                  callback={this.geojsonCallback}/>
+                  callback={this.geojsonCallback}
+                  loadingCallback={ loading => { this.setState(() => ({ loading: loading && this.state.triggerLoadingIndicator })); }}
+                />
                 { this.state.geojson &&               
                   <GeoJSON
                     key={this.state.geojson_key}
@@ -164,10 +178,9 @@ class ClimateMap extends React.Component {
                     onEachFeature={this.onEachFeature}/> }
                 <TileLayer {...tileLayer} />
               </MapContainer>
-
+            </LoadingOverlay>
               <p>
-		        English Indices of Deprivation 2019 Open Data from
-		        <a href="https://opendatacommunities.org/resource?uri=http%3A%2F%2Fopendatacommunities.org%2Fdata%2Fsocietal-wellbeing%2Fimd2019%2Findices">
+		        English Indices of Deprivation 2019 Open Data from <a href="https://opendatacommunities.org/resource?uri=http%3A%2F%2Fopendatacommunities.org%2Fdata%2Fsocietal-wellbeing%2Fimd2019%2Findices">
 			      Ministry of Housing, Communities and Local Government</a>
 		      </p>
 

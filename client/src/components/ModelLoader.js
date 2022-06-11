@@ -10,10 +10,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
-import React, { Component, useEffect } from 'react';
+import { useEffect } from 'react';
 
 function ModelLoader(props) {
-    async function getModel() {
+    useEffect(() => {
         // don't bother loading if we have no regions yet
         if (props.regions.length>0) {
             try {
@@ -26,19 +26,16 @@ function ModelLoader(props) {
                     new URLSearchParams(
                         props.regions.map(v => ["locations",v.id]));
 
-                let response = await fetch(url);
-                response.json()
-                    .then( v => {
-                        props.callback(v);
-                    });
+                fetch(url).then(response => {
+                    response.json()
+                        .then( v => {
+                            props.callback(v);
+                        });
+                });
             } catch(error) {
                 console.error(error);
             }
         }
-    }
-    
-    useEffect(() => {
-        getModel();
     },[props.regions,
        props.table,
        props.region]);

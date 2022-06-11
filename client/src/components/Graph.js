@@ -1,4 +1,4 @@
-// -*- mode: rjsx-mode;  -*-
+// -*- mode: rjsx;  -*-
 // Copyright (C) 2022 Then Try This
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -10,7 +10,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
-import React, { Component, useEffect } from 'react';
+import React, { Component } from 'react';
 import {XYPlot, XAxis, YAxis, VerticalBarSeries, makeWidthFlexible, LabelSeries} from 'react-vis';
 
 import '../../node_modules/react-vis/dist/style.css';
@@ -51,7 +51,7 @@ class Graph extends Component {
         return (            
             <div>
               <h1>Climate Graphs</h1>
-              
+              <p>
 		      The graph below shows the future climate change 
 		      expected in 
               
@@ -77,9 +77,7 @@ class Graph extends Component {
                 <option value="hadgem_rcp85_rain_djf">Winter mean rain</option>
                 <option value="hadgem_rcp85_rain_jja">Summer mean rain</option>
               </select>
-
-
-              
+              </p>
               <ModelLoader
                 regions={this.props.regions}
                 table={this.state.table}
@@ -105,6 +103,10 @@ class Graph extends Component {
                           d.y.toFixed(2)+'°C';
                   }}/>
               </FlexibleXYPlot>
+
+              <p>
+                Climate model data from <a href="https://uk-cri.org/">Climate Risk Indicators</a>
+              </p>
             </div>
         );
     }

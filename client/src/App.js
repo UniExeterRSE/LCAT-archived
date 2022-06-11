@@ -1,4 +1,4 @@
-// -*- mode: rjsx-mode;  -*-
+// -*- mode: rjsx;  -*-
 // Copyright (C) 2022 Then Try This
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -33,21 +33,25 @@ class App extends React.Component {
             regions: regions
         });
     }
-    
+  
     render() {
         return (
             <div className="App">
               <header className="App-header">
                 <h1>Local Climate Tool V2.0</h1>
               </header>
+                <p>
                 You are looking at the national level testing version. <a href="http://climate-tool.thentrythis.org">The working Cornwall prototype is here.</a>
+                </p>
+
               <ClimateMap
                 regionsCallback={this.regionsCallback}
               />
+            { this.state.regions.length > 0 &&
               <Graph
                 regions={this.state.regions}
                 region={this.state.regionType}                
-              />
+              /> }
             </div>
             
         );

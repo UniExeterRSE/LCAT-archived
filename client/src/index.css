@@ -15,14 +15,47 @@ body {
     margin: 0;
 }
 
+p {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+@media (min-width: 1000px) {
+    p {
+        margin-left: 50px;
+        margin-right: 50px;
+    }
+}
+
 h1 {
 	font-size: 200%;
 	margin-bottom: 0em;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+h2 {
+    margin-left: 0;
+    margin-right: 0;
 }
 
 @media (min-width: 1000px) {
     body {
 		font-size: 1.3em;
+    }
+}    
+
+@media (min-width: 1000px) {
+    h1 {
+        margin-left: 50px;
+        margin-right: 50px;
+    }    
+}
+
+@media (min-width: 1000px) {
+    h2 {
+        margin-left: 50px;
+        margin-right: 50px;
     }
 }
 
