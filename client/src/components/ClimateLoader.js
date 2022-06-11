@@ -1,4 +1,4 @@
-// -*- mode: rjsx-mode;  -*-
+// -*- mode: rjsx;  -*-
 // Copyright (C) 2022 Then Try This
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -23,8 +23,12 @@ function GeoJSONLoader(props) {
     async function getGeojson() {
         try {
             let b = map.getBounds();
-            
-            let response = await fetch(props.apicall+"?"+new URLSearchParams({
+            let prepend="";
+            if (process.env.NODE_ENV==="development") {
+                prepend="http://localhost:3000";
+            }
+
+            let response = await fetch(prepend+props.apicall+"?"+new URLSearchParams({
                 table: props.table,
  				left: b._southWest.lng,
 				bottom: b._southWest.lat,

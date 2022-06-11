@@ -17,7 +17,12 @@ function ModelLoader(props) {
         // don't bother loading if we have no regions yet
         if (props.regions.length>0) {
             try {
-                var url = "/api/hadgem_rpc85?"+
+                let prepend="";
+                if (process.env.NODE_ENV==="development") {
+                    prepend="http://localhost:3000";
+                }
+
+                var url = prepend+"/api/hadgem_rpc85?"+
                     new URLSearchParams({          
                         table: props.table,
                         region: props.region

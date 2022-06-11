@@ -25,8 +25,12 @@ function GeoJSONLoader(props) {
         props.loadingCallback(true);
         try {
             let b = map.getBounds();
+            let prepend="";
+            if (process.env.NODE_ENV==="development") {
+                prepend="http://localhost:3000";
+            }
             
-            let response = await fetch(props.apicall+"?"+new URLSearchParams({
+            let response = await fetch(prepend+props.apicall+"?"+new URLSearchParams({
                 table: props.table,
  				left: b._southWest.lng,
 				bottom: b._southWest.lat,

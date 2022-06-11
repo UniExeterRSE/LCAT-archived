@@ -11,11 +11,22 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import React from 'react';
+import DocumentMeta from 'react-document-meta';
 
 import './App.css';
 
 import ClimateMap from "./components/ClimateMap.js";
 import Graph from "./components/Graph.js";
+
+const meta = {
+    title: 'Local Climate Tool',
+    description: 'This is a tool for local climate adaptation',
+    canonical: 'http://beta-climate-tool.thentrythis.org',
+    meta: {
+        charset: 'utf-8',
+    }
+}
+
 
 class App extends React.Component {
     constructor(props) {
@@ -37,6 +48,7 @@ class App extends React.Component {
     render() {
         return (
             <div className="App">
+              <DocumentMeta {...meta}/>
               <header className="App-header">
                 <h1>Local Climate Tool V2.0</h1>
               </header>
