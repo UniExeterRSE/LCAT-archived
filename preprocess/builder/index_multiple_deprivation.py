@@ -49,7 +49,7 @@ def load_lsoa(db,fn):
                     q=f"update lsoa set imdscore='{score}' where lsoa11cd='{lsoa_code}';"
                     print(q)
                     db.cur.execute(q)                
-        db.conn.commit()        
+                    db.conn.commit()        
 
 def load_msoa(db,fn):
     # a slightly different csv file

@@ -96,5 +96,5 @@ else:
         #link_geom_climate.multi(db,"counties")
 
         #imd.load_msoa(db,conf['imd_data_msoa_csv'])
-        imd.load_counties(db);
+        #imd.load_counties(db);
         imd.load_lsoa(db,conf['imd_data_lsoa_csv'])
