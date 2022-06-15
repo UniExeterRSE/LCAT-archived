@@ -17,6 +17,7 @@ import './App.css';
 
 import ClimateMap from "./components/ClimateMap.js";
 import Graph from "./components/Graph.js";
+import Network from "./components/Network.js";
 
 const meta = {
     title: 'Local Climate Tool',
@@ -59,11 +60,14 @@ class App extends React.Component {
               <ClimateMap
                 regionsCallback={this.regionsCallback}
               />
-            { this.state.regions.length > 0 &&
-              <Graph
-                regions={this.state.regions}
-                region={this.state.regionType}                
-              /> }
+              { this.state.regions.length > 0 &&
+                <div>
+                  <Graph
+                    regions={this.state.regions}
+                    region={this.state.regionType}                
+                  />
+                  <Network/>
+                </div> }
             </div>
             
         );

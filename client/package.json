@@ -16,6 +16,7 @@
     "react-loading-overlay": "^1.0.1",
     "react-scripts": "5.0.1",
     "react-vis": "^1.11.7",
+    "vis-react": "^0.5.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
