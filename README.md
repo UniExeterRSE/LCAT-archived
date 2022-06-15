@@ -6,7 +6,7 @@ You can try the [beta version here](http://climate-tool.thentrythis.org/).
  
 ## Installing
 
-### Server
+### NodeJS Server
 
     $ cd server
     $ npm install
@@ -15,11 +15,14 @@ To run:
 
     $ npm start
 
-### Building the client (only needed for development):
+### React client:
 
-    $ cd public
+    $ cd client
     $ npm install
-	$ browserify -p esmify src/index.js -o bundle.js
+
+To run:
+    
+  	$ npm start
 
 ## Setting up the PostGIS database
 
@@ -42,13 +45,37 @@ Create a .env file in server and add the login info:
     DB_PASS=<insert password here>
     DB_HOST=localhost:5432
     DB_DATABASE=climate_geo_data
+    ADMIN_PASS=<insert password here>
 
-### Importing GeoJSON into a table
+### Building the database
 
-    $ sudo apt install gdal-bin
+The database links together a lot of [public open data repositories](https://docs.google.com/spreadsheets/d/15-o9i60fOi0MoV2siL9rCrqPTOReYOt4TiaoGsuA5SA/edit?ouid=102175944541338588070&usp=sheets_home&ths=true)
+which we have [archived here](https://static.thentrythis.org/data/climate-data/).
+    
+The data directory contains a set of python scripts to build the final
+database from this data. We use a virtual environment to install all
+the packages required.
 
-    $ ogr2ogr -f "PostgreSQL" PG:"dbname=climate_geo_data user=climate_geo_data password=<insert password here> host=localhost" "MyData.geojson" -nln lsoa -append
+Setting up the virtual environment:
+   
+    $ cd data
+    $ python3 -m venv venv
+    $ source venv/bin/activate
+    $ pip install -r requirements.txt
 
+Building the data (this takes a long time):
+    
+    $ cd data
+    $ source venv/bin/activate
+    $ ./build all
+
+There are also separate build commands to build/rebuilt parts one at
+time (see in the 'build' script). When running on a server, we don't
+want to overheat, so you can leave this running for several days at
+max 25% cpu:
+    
+    $ nohup cpulimit -l 25 -- ./build all 
+        
 ### Backing up and restoring the whole database:
 
     pg_dump -h localhost -U climate_geo_data -W climate_geo_data > climate_geo_data_bak.sql
@@ -60,3 +87,19 @@ Create a .env file in server and add the login info:
 * Make a symlink from `climate-tool/server/` to `/var/www/climate-tool`
 * Copy `ubuntu/climate-tool.service` to `/etc/systemd/system/`
 * Start with `sudo service climate-tool start` and set it to run after reboot via `sudo systemtl enable climate-tool`.
+
+## Geographical coordinates used
+
+  * British National Grid (BNG) OSGB 1936 = EPSG:27700
+    - United Kingdom Ordnance Survey
+    - Used by grid location for model data (uk-cli)
+    - Used for LSOA geojsons
+
+  * EPSG:4326 / WGS 84, latitude/longitude coordinate system based on
+    the Earth's center of mass, used by the Global Positioning System
+    among others. EPSG:3857 - Web Mercator projection used for display
+    by many web-based mapping tools, including Google Maps and
+    OpenStreetMap
+    - Our target coordinate system for mapping
+
+

@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+# Copyright (C) 2022 Then Try This
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the Common Good Public License Beta 1.0 as
+# published at http://www.cgpl.org
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# Common Good Public License Beta 1.0 for more details.
+
+# This script creates a command line interface for building and updating
+# the climate tool database, as well as providing documentation of the
+# recipes for how it's done
+
+import yaml
+import os,sys
+from builder import climate_db
+from builder import ukcri
+from builder import index_multiple_deprivation as imd
+from builder import link_geom_climate
+from builder import network
+
+def load_config():
+    with open('config.yml') as f:
+        return yaml.load(f,Loader=yaml.FullLoader)
+
+conf = load_config()
+db = climate_db.db(conf)
+
+# all tables should be dropped and recreated when rerunning commands
+
+if len(sys.argv)<2 or sys.argv[1]=="-?" or sys.argv[1]=="--help":
+    print("Welcome to the climate tool database builder")
+else:
+    if sys.argv[1]=="uk_cri":
+        ukcri.load(db,conf['uk_cri_data_path'])
+
+    if sys.argv[1]=="lsoa":
+        # import lsoa from GCS_OSGB_1936 (27700)
+        db.load_shp_geom(conf['lsoa_data_shp'],"lsoa","27700")
+        imd.prepare_col(db,"lsoa")
+
+    if sys.argv[1]=="msoa": 
+        # import msoa from GCS_OSGB_1936 (27700)
+        db.load_shp_geom(conf['msoa_data_shp'],"msoa","27700")
+        imd.prepare_col(db,"msoa")
+
+    if sys.argv[1]=="counties": 
+        # import lsoa from lat/lng
+        db.load_shp_geom(conf['counties_data_shp'],"counties","4326") 
+        imd.prepare_col(db,"counties")
+
+    if sys.argv[1]=="add_imd":
+        imd.prepare_col(db,"lsoa")
+        imd.prepare_col(db,"msoa")
+        imd.prepare_col(db,"counties")
+        
+    if sys.argv[1]=="lsoa_imd":
+        # v slow
+        imd.load_lsoa(db,conf['imd_data_lsoa_csv'])
+
+    if sys.argv[1]=="msoa_imd":
+        imd.load_msoa(db,conf['imd_data_msoa_csv'])
+
+    if sys.argv[1]=="counties_imd":
+        imd.load_counties(db);
+
+    if sys.argv[1]=="link_lsoa":
+        link_geom_climate.multi(db,"lsoa")
+
+    if sys.argv[1]=="link_msoa":
+        link_geom_climate.multi(db,"msoa")
+
+    if sys.argv[1]=="link_counties":
+        link_geom_climate.multi(db,"counties")
+
+    if sys.argv[1]=="nuke_network":
+        network.reset(db)
+
+    if sys.argv[1]=="network":
+        network.load(db,conf['network_path'])
+        
+    if sys.argv[1]=="all":
+        #ukcri.load(db,conf['uk_cri_data_path'])
+        #db.load_shp_geom(conf['lsoa_data_shp'],"lsoa","27700")
+        #db.load_shp_geom(conf['msoa_data_shp'],"msoa","27700")
+        #db.load_shp_geom(conf['counties_data_shp'],"counties","4326")
+        #imd.prepare_col(db,"lsoa")
+        #imd.prepare_col(db,"msoa")
+        #imd.prepare_col(db,"counties")
+
+        #link_geom_climate.simple(db,"lsoa")
+        #link_geom_climate.multi(db,"msoa")
+        #link_geom_climate.multi(db,"counties")
+
+        #imd.load_msoa(db,conf['imd_data_msoa_csv'])
+        #imd.load_counties(db);
+        imd.load_lsoa(db,conf['imd_data_lsoa_csv'])
