@@ -3,7 +3,7 @@
 A tool for connecting together scientific information across climate, health and policy in Cornwall.
 
 You can try the [beta version here](http://climate-tool.thentrythis.org/).
- 
+
 ## Installing
 
 ### NodeJS Server
@@ -15,7 +15,10 @@ To run:
 
     $ npm start
 
-### React client:
+The server also provides an admin interface to allow editing of
+network data, see below for setting of passwords.
+   
+### React client for development:
 
     $ cd client
     $ npm install
@@ -24,6 +27,24 @@ To run:
     
   	$ npm start
 
+If running locally, we can use the React development server which will
+detect a conflict on port 3000 (where the climate tool server is
+running), and launch on port 3001 instead. When running in development
+mode, the client routes it's API calls to the correct port 3000 so it
+mimics running on the production server for debugging.
+
+The server is also set up to allow same-origin requests from
+localhost:3001 to allow this to work.
+
+### Building the client for production use
+
+    $ cd client
+    $ npm run build
+    $ cp build/* ../server/public -r
+
+This installs a production build that will be served by the climate
+tool nodejs server.
+    
 ## Setting up the PostGIS database
 
     $ sudo apt install postgis
@@ -63,6 +84,23 @@ Setting up the virtual environment:
     $ source venv/bin/activate
     $ pip install -r requirements.txt
 
+Setting up config.yml - this needs to be in the data directory root
+and has the database login (same as the server above) as well as paths
+to the source GeoJSON shapefiles, climate model data, deprivation csv
+files and network data:
+    
+    user: "climate_geo_data"
+    password: "<insert password here>"
+    host: "localhost"
+    dbname: "climate_geo_data"
+    uk_cri_data_path: "path/to/uk-cri-climate/"
+    lsoa_data_shp: "path/to/wales-eng-lsoa/LSOA_2011_EW_BFC.shp"
+    msoa_data_shp: "path/to/msoa/Middle_Layer_Super_Output_Areas_December_2011_Generalised_Clipped_Boundaries_in_England_and_Wales.shp"
+    counties_data_shp: "path/to/counties/Counties_and_Unitary_Authorities_(December_2016)_Boundaries.shp"
+    imd_data_lsoa_csv: "path/to/imd2019lsoa.csv"
+    imd_data_msoa_csv: "path/to/imd2019_msoa_level_data.csv"
+    network_path: "path/to/network_csvs/"
+
 Building the data (this takes a long time):
     
     $ cd data
@@ -71,8 +109,8 @@ Building the data (this takes a long time):
 
 There are also separate build commands to build/rebuilt parts one at
 time (see in the 'build' script). When running on a server, we don't
-want to overheat, so you can leave this running for several days at
-max 25% cpu:
+want to overheat the datacentre and get complaints, so you can leave
+this running for several days at max 25% cpu:
     
     $ nohup cpulimit -l 25 -- ./build all 
         

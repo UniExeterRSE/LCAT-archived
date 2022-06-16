@@ -152,9 +152,6 @@ router.get('/hadgem_rpc85', function (req, res) {
 	let table = req.query.table; 
 	let region_grid = req.query.region+"_grid_mapping";
 
-    
-    console.log(req.query);
-    
     if (locations!=undefined &&
         is_valid_hadgem_table(table) &&
         is_valid_grid_table(region_grid)) {
@@ -163,7 +160,6 @@ router.get('/hadgem_rpc85', function (req, res) {
             locations=[locations];
         }
 
-        console.log("checks out");
 	    var client = new Client(conString);
         client.connect();
 
@@ -174,8 +170,6 @@ router.get('/hadgem_rpc85', function (req, res) {
                where location in (select distinct tile_id from `+region_grid+`
                where geo_id in (`+locations.join()+`)) group by year order by year;`
 
-        console.log(locations);
-        
 	    var query = client.query(new Query(q));
 	    
 	    query.on("row", function (row, result) {
@@ -194,10 +188,56 @@ router.get('/hadgem_rpc85', function (req, res) {
     }
 });
 
-// get the network for a given area of interest
-router.get('/network', function (req, res) {
-    
+router.get('/network_edges', function (req, res) {
+	var client = new Client(conString);
+    client.connect();
 
+    // find all the tiles covered by the selected geometry, use
+    // distinct to remove duplicates and average the selected
+    // climate variable for each year in the model data
+    var q=`select * from network_edges;`
+
+	var query = client.query(new Query(q));
+	
+	query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+        res.send(result.rows);
+        res.end();
+		client.end();
+    });
+    query.on("error", function (err, result) {
+        console.log("------------------error-------------------------");
+        console.log(req);
+        console.log(err);
+    });
+});
+
+router.get('/network_nodes', function (req, res) {
+	var client = new Client(conString);
+    client.connect();
+
+    // find all the tiles covered by the selected geometry, use
+    // distinct to remove duplicates and average the selected
+    // climate variable for each year in the model data
+    var q=`select * from network_nodes;`
+
+	var query = client.query(new Query(q));
+	
+	query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+        res.send(result.rows);
+        res.end();
+		client.end();
+    });
+    query.on("error", function (err, result) {
+        console.log("------------------error-------------------------");
+        console.log(req);
+        console.log(err);
+    });    
 });
 
 /*

@@ -12,6 +12,7 @@
 
 import React, { Component } from 'react';
 import Graph from 'vis-react';
+import NetworkLoader from './NetworkLoader';
 
 var graph = {
     nodes: [
@@ -46,18 +47,30 @@ var events = {
 };
 
 class Network extends React.Component {
+    
+    callback = (nodes, edges) => {
+        console.log(nodes);
+        console.log(edges);
+    }
+
     render () {
         return (
-            <Graph
-              graph={graph}
-              options={options}
-              events={events}
-              style={{height: 400}}
-              getNetwork={this.getNetwork}
-              getEdges={this.getEdges}
-              getNodes={this.getNodes}
-              vis={vis => (this.vis = vis)}
-            />
+            <div>
+              <NetworkLoader
+                id={0}
+                callback={this.callback}
+              />
+              <Graph
+                graph={graph}
+                options={options}
+                events={events}
+                style={{height: 400}}
+                getNetwork={this.getNetwork}
+                getEdges={this.getEdges}
+                getNodes={this.getNodes}
+                vis={vis => (this.vis = vis)}
+              />
+            </div>
         );
     }
 }
