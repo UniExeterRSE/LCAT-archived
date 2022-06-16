@@ -14,22 +14,8 @@ import React, { Component } from 'react';
 import Graph from 'vis-react';
 import NetworkLoader from './NetworkLoader';
 
-var graph = {
-    nodes: [
-        { id: 1, label: 'Node 1' },
-        { id: 2, label: 'Node 2' },
-        { id: 3, label: 'Node 3' },
-        { id: 4, label: 'Node 4' },
-        { id: 5, label: 'Node 5' }
-    ],
-    edges: [
-        { from: 1, to: 2 },
-        { from: 1, to: 3 },
-        { from: 2, to: 4 },
-        { from: 2, to: 5 }
-    ]
-};
- 
+import { renderGraph } from '../core/network_renderer.js';
+
 var options = {
     layout: {
         hierarchical: true
@@ -47,10 +33,25 @@ var events = {
 };
 
 class Network extends React.Component {
+
+    constructor(props) {
+        super(props);
+        
+        this.state={
+            graph: {
+                nodes: [],
+                edges: []
+            }
+        };
+    }
     
     callback = (nodes, edges) => {
         console.log(nodes);
         console.log(edges);
+
+        this.setState(() => ({
+            graph: renderGraph(nodes,edges)
+        }));        
     }
 
     render () {
@@ -61,7 +62,7 @@ class Network extends React.Component {
                 callback={this.callback}
               />
               <Graph
-                graph={graph}
+                graph={this.state.graph}
                 options={options}
                 events={events}
                 style={{height: 400}}
