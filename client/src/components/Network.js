@@ -13,17 +13,31 @@
 import React, { Component } from 'react';
 import Graph from 'vis-react';
 import NetworkLoader from './NetworkLoader';
-
-import { renderGraph } from '../core/network_renderer.js';
+import { NetworkRenderer } from '../core/NetworkRenderer';
 
 var options = {
-    layout: {
-        hierarchical: true
+	physics: {
+		enabled: true,
+		//solver: "forceAtlas2Based",
+		solver: "barnesHut",
+		maxVelocity: 20,
+		barnesHut: {
+			//avoidOverlap: 0.5,
+			//gravitationalConstant: -10000
+		},
+		wind: { x: 0.5, y: 0}
     },
-    edges: {
-        color: '#000000'
-    },
-    interaction: { hoverEdges: true }
+	layout: {
+		randomSeed: 5,
+		improvedLayout: true,
+		clusterThreshold: 1,
+		/*hierarchical: {
+		  shakeTowards: "roots",
+		  enabled: false,
+		  direction: "LR",
+		  levelSeparation: 200,
+		  },*/
+	},
 };
  
 var events = {
@@ -36,6 +50,10 @@ class Network extends React.Component {
 
     constructor(props) {
         super(props);
+
+        this.networkRenderer = new NetworkRenderer();
+
+        console.log(this.networkRenderer);
         
         this.state={
             graph: {
@@ -50,7 +68,7 @@ class Network extends React.Component {
         console.log(edges);
 
         this.setState(() => ({
-            graph: renderGraph(nodes,edges)
+            graph: this.networkRenderer.buildGraph(nodes,edges)
         }));        
     }
 
