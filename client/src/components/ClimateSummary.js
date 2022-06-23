@@ -48,19 +48,22 @@ function ClimateSummary(props) {
             
             by { props.year } is          
           </p>
-          
-          <TempSvg/>
-
-          <p>
-            {predict(props.climatePrediction,
-                     props.year,"tavg_median","Temperature","°C")}
-          </p>
-          <RainSvg/>
-          
-          <p>
-            {predict(props.climatePrediction,
-                     props.year,"rain_median","Rainfall","%")}
-          </p>
+          <div className={"horiz-container"}>
+            <div className={"vert-container"}>
+              <TempSvg/>
+              <p>
+                {predict(props.climatePrediction,
+                         props.year,"tavg_median","Temperature","°C")}
+              </p>
+            </div>
+            <div className={"vert-container"}>
+              <RainSvg/>              
+              <p>
+                {predict(props.climatePrediction,
+                         props.year,"rain_median","Rainfall","%")}
+              </p>
+            </div>
+          </div>
         </div>
     );
 }

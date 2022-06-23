@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import Graph from 'react-graph-vis';
 import { NetworkRenderer } from '../core/NetworkRenderer';
+import { andify } from '../utils/utils';
 
 var options = {
 	physics: {
@@ -70,6 +71,20 @@ class Network extends React.Component {
     render () {
         return (
             <div>
+              <h1>Health Impacts</h1>
+              <p>
+                The network below show how climate change will impact health in
+
+                <span className={"projected-regions"}>
+                  { andify(this.props.regions.map(e => e.name)) }.
+                </span>
+                
+                you are currently viewing impacts in
+
+                <select>
+                  <option value="all">All sectors</option>
+                </select>
+              </p>
               <NetworkListener
                 network = {this.props.network}
                 callback = {(network) => {
@@ -80,7 +95,6 @@ class Network extends React.Component {
                     }));
                 }}
               />
-              <h1>Impact Network</h1>
               <Graph
                 key={this.state.version}
                 graph={this.state.graph}

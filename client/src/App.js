@@ -141,10 +141,10 @@ class App extends React.Component {
                 />
 
                 <HealthWellbeing
-                  nodes={this.state.healthWellbeingNodes}
                   network = {this.state.network}
                   year = {this.state.year}
                   climatePrediction = {this.state.climatePrediction}
+                  regions={this.state.regions}
                 />
                 
                 <Network

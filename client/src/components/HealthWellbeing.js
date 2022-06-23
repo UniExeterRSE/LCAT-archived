@@ -12,7 +12,9 @@
 
 import React, { useEffect, useState } from 'react';
 
+import { ReactComponent as HealthAndWellbeingSvg } from '../images/icons/Public health & wellbeing.svg';
 import { NetworkParser } from '../core/NetworkParser';
+import { andify } from '../utils/utils';
 
 function HealthWellbeing(props) {
 
@@ -27,14 +29,35 @@ function HealthWellbeing(props) {
     
     return (
         <div>
-          <h1>Health and Wellbeing Summary</h1>
+          <h1>Health Impact Summary</h1>
+
+          <p>
+            The climate change forcast in
+            
+            <span className={"projected-regions"}>
+              { andify(props.regions.map(e => e.name)) }.
+            </span>
+
+            is expected to cause these health and wellbeing impacts:
+          </p>
           
-          { networkParser.calculateHealthWellbeing(
-              props.climatePrediction,
-              props.year).map((node) => (
-                  <p>{node.title}:{node.state}</p>
-              )) }
-          
+          <div className={"horiz-container"}>        
+            { networkParser.calculateHealthWellbeing(
+                props.climatePrediction,
+                props.year).map((node) => (
+                    <div className={"vert-container"}>
+                      <HealthAndWellbeingSvg/>
+                      <p><center>
+                           {node.title}
+                           <br/>
+                           <b>
+                             {node.state == "increase" ?
+                              "Increases" : "Decreases"}
+                           </b>
+                         </center></p>
+                    </div>
+                )) }
+          </div>  
         </div>
     );
 }

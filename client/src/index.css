@@ -485,3 +485,17 @@ g span {
 	text-align: center;	
 }
 
+
+.horiz-container {
+	display: flex;
+	flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.vert-container {
+	display: flex;
+	flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
