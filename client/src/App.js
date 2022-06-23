@@ -61,7 +61,6 @@ class App extends React.Component {
     networkCallback = (nodes, edges) => {
         this.setState((state) => ({
             network: { nodes: nodes, edges: edges },            
-            healthWellbeingNodes: this.networkRenderer.getHealthWellbeing()
         }));        
     }
 
@@ -143,7 +142,7 @@ class App extends React.Component {
 
                 <HealthWellbeing
                   nodes={this.state.healthWellbeingNodes}
-                  networkRenderer = {this.networkRenderer}
+                  network = {this.state.network}
                   year = {this.state.year}
                   climatePrediction = {this.state.climatePrediction}
                 />

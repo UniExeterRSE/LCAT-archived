@@ -37,12 +37,13 @@ class NetworkParser {
     }
 
     searchNode(id) {
-        for (let node in this.nodes) {
-            if (node.id===id) {
+        for (let node of this.nodes) {
+            if (node.node_id==id) {
                 return node;
             }
         }
         console.log("could not find node: "+id);
+        console.log(this.nodes);
         return null;
     }
 
@@ -64,12 +65,10 @@ class NetworkParser {
     }
     
     recurCalculate(node,state,fn) {
-        console.log(this.edges);
-        node.state=state;
-        for (let edge in this.edges) {
-            if (edge.node_from==node.id) {
+        node.state=state;       
+        for (let edge of this.edges) {
+            if (edge.node_from==node.node_id) {
                 let child = this.searchNode(edge.node_to);
-                console.log(["child",child,edge]);
                 if (edge.direction==0) {                
                     this.recurCalculate(child,state);
                 } else {
@@ -98,4 +97,4 @@ class NetworkParser {
 }
 
 
-export default NetworkParser;
+export { NetworkParser };

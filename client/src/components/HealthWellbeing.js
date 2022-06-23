@@ -10,16 +10,26 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
-
+import { NetworkParser } from '../core/NetworkParser';
 
 function HealthWellbeing(props) {
+
+    const [ networkParser, setNetworkParser ] = useState(
+        new NetworkParser(props.network.nodes,
+                          props.network.edges));
+
+    useEffect(() => {
+        setNetworkParser(new NetworkParser(props.network.nodes,
+                                           props.network.edges));
+    }, [props.network]);
+    
     return (
         <div>
           <h1>Health and Wellbeing Summary</h1>
           
-          { props.networkRenderer.calculateHealthWellbeing(
+          { networkParser.calculateHealthWellbeing(
               props.climatePrediction,
               props.year).map((node) => (
                   <p>{node.title}:{node.state}</p>
