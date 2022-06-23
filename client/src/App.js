@@ -34,7 +34,6 @@ const meta = {
     }
 }
 
-
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -125,7 +124,7 @@ class App extends React.Component {
                     <option value="2056">2056</option>
                     <option value="2066">2066</option>
                     <option value="2076">2076</option>
-                    <option value="2086">2086</option>
+                    <option selected value="2086">2086</option>
                   </select>
                 </p>
                 
@@ -134,6 +133,7 @@ class App extends React.Component {
                   network = {this.state.network}
                   year = {this.state.year}
                   average = {this.state.average}
+                  regions = {this.state.regions}
                 />
 
                 <Graph
@@ -144,6 +144,8 @@ class App extends React.Component {
                 <HealthWellbeing
                   nodes={this.state.healthWellbeingNodes}
                   networkRenderer = {this.networkRenderer}
+                  year = {this.state.year}
+                  climatePrediction = {this.state.climatePrediction}
                 />
                 
                 <Network

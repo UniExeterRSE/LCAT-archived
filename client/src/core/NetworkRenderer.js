@@ -1,3 +1,4 @@
+// -*- mode: rjsx;  -*-
 // Copyright (C) 2021 Then Try This
 //
 // This program is free software: you can redistribute it and/or modify
@@ -36,6 +37,7 @@ class NetworkRenderer {
 		this.nodes = [];
 		this.edges = [];
         this.healthNodes = [];
+        this.causeNodes = [];
 		this.iconCache = {};
 		this.iconCacheLoading = false;
 		this.notFoundIcon = `<circle
@@ -128,6 +130,7 @@ class NetworkRenderer {
             this.healthNodes.push(node);
         }
         if (node.type=="climate") {
+            this.causeNodes.push(node);
         	this.nodes.push({
 			    id: node.node_id,
 			    shape: "image",
@@ -175,16 +178,12 @@ class NetworkRenderer {
 			}
 		});
 	}
-
-    getHealthWellbeing() {
-        return this.healthNodes;
-    }
-
-	
-	buildGraph(nodes, edges) {
+    
+	buildGraph(nodes, edges) {               
 		this.nodes = [];
 		this.edges = [];
 		this.healthNodes = [];
+        this.causeNodes = [];
         this.fixedYPos=0;
         
 		let c = 0;

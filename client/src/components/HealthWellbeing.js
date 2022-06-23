@@ -12,13 +12,19 @@
 
 import React, { useEffect } from 'react';
 
+
+
 function HealthWellbeing(props) {
     return (
         <div>
           <h1>Health and Wellbeing Summary</h1>
-          { props.nodes.map((node) => {
-              return (<p>{node.title}</p>);
-          })}
+          
+          { props.networkRenderer.calculateHealthWellbeing(
+              props.climatePrediction,
+              props.year).map((node) => (
+                  <p>{node.title}:{node.state}</p>
+              )) }
+          
         </div>
     );
 }

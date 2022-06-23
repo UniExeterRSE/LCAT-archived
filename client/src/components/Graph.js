@@ -16,20 +16,11 @@ import {XYPlot, XAxis, YAxis, VerticalBarSeries, makeWidthFlexible, LabelSeries}
 import '../../node_modules/react-vis/dist/style.css';
 import ModelLoader from './ModelLoader';
 import './Graph.css';
+import { andify } from '../utils/utils';
 
 const FlexibleXYPlot = makeWidthFlexible(XYPlot); 
 const winterCol = "#a4f9c8";
 const summerCol = "#4c9f70";
-
-function andify(a) {
-    if (a.length<2) {
-        return a[0];
-    } else {
-        return a.slice(0, -1).join(', ')+' and '+a.slice(-1);
-    }
-}
-
-
 
 class Graph extends Component {
     constructor(props) {
