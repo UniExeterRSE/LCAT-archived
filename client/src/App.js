@@ -18,6 +18,8 @@ import './App.css';
 import ClimateMap from "./components/ClimateMap.js";
 import Graph from "./components/Graph.js";
 import Network from "./components/Network.js";
+import NetworkLoader from './components/NetworkLoader';
+import ClimatePredictionLoader from './components/ClimatePredictionLoader';
 
 const meta = {
     title: 'Local Climate Tool',
@@ -35,7 +37,10 @@ class App extends React.Component {
 
         this.state = {
             regions: [],
-            regionType: "counties"
+            regionType: "counties",
+            network: { nodes: [], edges: [] },
+            climatePrediction: [],           
+            average: "ann"
         };
     }
 
@@ -45,7 +50,19 @@ class App extends React.Component {
             regions: regions
         });
     }
-  
+
+    networkCallback = (nodes, edges) => {
+        this.setState((state) => ({
+            network: { nodes: nodes, edges: edges }            
+        }));        
+    }
+
+    climatePredictionCallback = (prediction) => {
+        this.setState((state) => ({
+            climatePrediction: prediction
+        }));
+    }
+    
     render() {
         return (
             <div className="App">
@@ -57,11 +74,26 @@ class App extends React.Component {
                 You are looking at the national level testing version. <a href="http://climate-tool.thentrythis.org">The working Cornwall prototype is here.</a>
                 </p>
 
+              <NetworkLoader
+                id={0}
+                callback={this.networkCallback}
+              />
+
+              <ClimatePredictionLoader
+                regions = {this.state.regions}
+                average = {this.state.average}
+                regionType = {this.state.regionType}
+                callback = {this.climatePredictionCallback}
+              />
+
               <ClimateMap
                 regionsCallback={this.regionsCallback}
               />
               
               <div>
+                
+
+
                 <Graph
                   regions={this.state.regions}
                   regionType={this.state.regionType}                
@@ -69,6 +101,7 @@ class App extends React.Component {
                 <Network
                   regions={this.state.regions}
                   regionType={this.state.regionType}                
+                  network={this.state.network}
                 />
               </div> 
             </div>

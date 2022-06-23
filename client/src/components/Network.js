@@ -10,12 +10,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
-import React, { Component } from 'react';
+import React, { Component, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import Graph from 'react-graph-vis';
-import NetworkLoader from './NetworkLoader';
-import PredictionLoader from './PredictionLoader';
 import HealthWellbeing from './HealthWellbeing';
 import { NetworkRenderer } from '../core/NetworkRenderer';
 
@@ -50,6 +48,14 @@ var events = {
     }
 };
 
+
+function NetworkListener(props) {
+    useEffect(() => {
+        props.callback(props.network);
+    }, [props.network]);
+    return null;
+}
+
 class Network extends React.Component {
 
     constructor(props) {
@@ -67,15 +73,6 @@ class Network extends React.Component {
             average: "ann",
             year: 2086
         };
-    }
-    
-    callback = (nodes, edges) => {
-        this.version+=1;
-        this.setState((state) => ({
-            version: state.version+1, 
-            graph: this.networkRenderer.buildGraph(nodes,edges),
-            healthWellbeingNodes: this.networkRenderer.getHealthWellbeing()
-        }));        
     }
 
     render () {
@@ -108,15 +105,17 @@ class Network extends React.Component {
                   <option value="2086">2086</option>
                 </select>
               </p>
-              <NetworkLoader
-                id={0}
-                callback={this.callback}
-              />
-              <PredictionLoader
-                regions = {this.props.regions}
-                average = {this.state.average}
-                year = {this.state.year}
-                regionType = {this.props.regionType}
+
+              <NetworkListener
+                network = {this.props.network}
+                callback = {(network) => {
+                    this.setState((state) => ({
+                        version: state.version+1, 
+                        graph: this.networkRenderer.buildGraph(network.nodes,
+                                                               network.edges),
+                        healthWellbeingNodes: this.networkRenderer.getHealthWellbeing()
+                    }));
+                }}
               />
               <HealthWellbeing
                 nodes={this.state.healthWellbeingNodes}

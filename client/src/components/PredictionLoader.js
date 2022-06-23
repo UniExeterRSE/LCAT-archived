@@ -25,7 +25,6 @@ function PredictionLoader(props) {
                 var url = prepend+"/api/hadgem_rpc85_prediction?"+
                     new URLSearchParams({          
                         average: props.average,
-                        year: props.year,
                         regionType: props.regionType
                     })+"&"+
                     // clumsy, fixme
@@ -35,6 +34,7 @@ function PredictionLoader(props) {
                 fetch(url).then(response => {
                     response.json()
                         .then( v => {
+                            console.log(v);
                             props.callback(v);
                         });
                 });
@@ -44,7 +44,6 @@ function PredictionLoader(props) {
         }
     },[props.regions,
        props.average,
-       props.year,
        props.regionType]);
 
     return null;

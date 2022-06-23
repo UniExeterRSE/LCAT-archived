@@ -192,11 +192,11 @@ router.get('/hadgem_rpc85', function (req, res) {
 router.get('/hadgem_rpc85_prediction', function (req, res) {
 	let locations = req.query.locations;
 	let average = req.query.average; 
-	let year = req.query.year; 
 	let region_grid = req.query.regionType+"_grid_mapping";
 
     if (locations!=undefined &&
-        is_valid_grid_table(region_grid)) {
+        is_valid_grid_table(region_grid) &&
+        ["ann","djf","jja"].includes(average)) {
 
         if (!Array.isArray(locations)) {
             locations=[locations];
@@ -209,15 +209,17 @@ router.get('/hadgem_rpc85_prediction', function (req, res) {
         // locations provided
         var sq=`(select distinct tile_id from `+region_grid+` where geo_id in (`+locations.join()+`))`;
         
-        var q=`select avg(tavg.median), avg(tmin.median), avg(tmax.median), avg(rain.median)
+        var q=`select tavg.year,
+                      avg(tavg.median) as tavg_median, 
+                      avg(tmin.median) as tmin_median, 
+                      avg(tmax.median) as tmax_median,
+                      avg(rain.median) as rain_median
                from hadgem_rcp85_tavg_`+average+` as tavg
                join hadgem_rcp85_tmin_`+average+` as tmin on tmin.location in `+sq+` and tmin.year=tavg.year
                join hadgem_rcp85_tmax_`+average+` as tmax on tmax.location in `+sq+` and tmax.year=tavg.year
                join hadgem_rcp85_rain_`+average+` as rain on rain.location in `+sq+` and rain.year=tavg.year
-               where tavg.location in `+sq+`;`;
+               where tavg.location in `+sq+` group by tavg.year order by tavg.year;`;
 
-        console.log(q);
-        
 	    var query = client.query(new Query(q));
 	    
 	    query.on("row", function (row, result) {
