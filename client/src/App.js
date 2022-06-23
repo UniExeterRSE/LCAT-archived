@@ -16,10 +16,14 @@ import DocumentMeta from 'react-document-meta';
 import './App.css';
 
 import ClimateMap from "./components/ClimateMap.js";
+import ClimateSummary from "./components/ClimateSummary.js";
 import Graph from "./components/Graph.js";
+import HealthWellbeing from './components/HealthWellbeing';
 import Network from "./components/Network.js";
 import NetworkLoader from './components/NetworkLoader';
 import ClimatePredictionLoader from './components/ClimatePredictionLoader';
+
+import { NetworkRenderer } from './core/NetworkRenderer';
 
 const meta = {
     title: 'Local Climate Tool',
@@ -35,12 +39,16 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
+        // should this be in the state?? seems wrong.
+        this.networkRenderer = new NetworkRenderer();
+
         this.state = {
             regions: [],
             regionType: "counties",
             network: { nodes: [], edges: [] },
             climatePrediction: [],           
-            average: "ann"
+            average: "ann",
+            year: 2086
         };
     }
 
@@ -53,7 +61,8 @@ class App extends React.Component {
 
     networkCallback = (nodes, edges) => {
         this.setState((state) => ({
-            network: { nodes: nodes, edges: edges }            
+            network: { nodes: nodes, edges: edges },            
+            healthWellbeingNodes: this.networkRenderer.getHealthWellbeing()
         }));        
     }
 
@@ -91,17 +100,60 @@ class App extends React.Component {
               />
               
               <div>
-                
 
+                <p>
+                  Calculate using 
+                  <select onChange={(e) => { this.setState(() => ({
+                      average: e.target.value                  
+                  }));}}>
+                    <option value="ann">Yearly</option>
+                    <option value="djf">Winter</option>
+                    <option value="jja">Summer</option>
+                  </select>
+                  
+                  average predictions for year 
+                  
+                  <select onChange={(e) => { this.setState(() => ({
+                      year: e.target.value                  
+                  }));}}>
+                    <option value="1996">1996</option>
+                    <option value="2006">2006</option>
+                    <option value="2016">2016</option>
+                    <option value="2026">2026</option>
+                    <option value="2036">2036</option>
+                    <option value="2046">2046</option>
+                    <option value="2056">2056</option>
+                    <option value="2066">2066</option>
+                    <option value="2076">2076</option>
+                    <option value="2086">2086</option>
+                  </select>
+                </p>
+                
+                <ClimateSummary
+                  climatePrediction = {this.state.climatePrediction}
+                  network = {this.state.network}
+                  year = {this.state.year}
+                  average = {this.state.average}
+                />
 
                 <Graph
                   regions={this.state.regions}
                   regionType={this.state.regionType}                
                 />
+
+                <HealthWellbeing
+                  nodes={this.state.healthWellbeingNodes}
+                  networkRenderer = {this.networkRenderer}
+                />
+                
                 <Network
                   regions={this.state.regions}
                   regionType={this.state.regionType}                
                   network={this.state.network}
+                  year = {this.state.year}
+                  average = {this.state.average}
+                  climatePrediction = {this.state.climatePrediction}
+                  networkRenderer = {this.networkRenderer}
                 />
               </div> 
             </div>

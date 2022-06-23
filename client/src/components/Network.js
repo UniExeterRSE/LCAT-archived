@@ -14,7 +14,6 @@ import React, { Component, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import Graph from 'react-graph-vis';
-import HealthWellbeing from './HealthWellbeing';
 import { NetworkRenderer } from '../core/NetworkRenderer';
 
 var options = {
@@ -49,6 +48,7 @@ var events = {
 };
 
 
+// triggers when the network changes
 function NetworkListener(props) {
     useEffect(() => {
         props.callback(props.network);
@@ -61,64 +61,24 @@ class Network extends React.Component {
     constructor(props) {
         super(props);
 
-        this.networkRenderer = new NetworkRenderer();
-
         this.state={
             version: 0,
-            graph: {
-                nodes: [ { id: 1, label: "wot" } ],
-                edges: []
-            },
-            healthWellbeingNodes: [],
-            average: "ann",
-            year: 2086
+            graph: { nodes: [], edges: [] }        
         };
     }
 
     render () {
         return (
             <div>
-              <p>
-                Calculate impacts below using 
-                <select onChange={(e) => { this.setState(() => ({
-                    average: e.target.value                  
-                }));}}>
-                  <option value="ann">Yearly</option>
-                  <option value="djf">Winter</option>
-                  <option value="jja">Summer</option>
-                </select>
-
-                averages for year 
-                
-                <select onChange={(e) => { this.setState(() => ({
-                    year: e.target.value                  
-                }));}}>
-                  <option value="1996">1996</option>
-                  <option value="2006">2006</option>
-                  <option value="2016">2016</option>
-                  <option value="2026">2026</option>
-                  <option value="2036">2036</option>
-                  <option value="2046">2046</option>
-                  <option value="2056">2056</option>
-                  <option value="2066">2066</option>
-                  <option value="2076">2076</option>
-                  <option value="2086">2086</option>
-                </select>
-              </p>
-
               <NetworkListener
                 network = {this.props.network}
                 callback = {(network) => {
                     this.setState((state) => ({
                         version: state.version+1, 
-                        graph: this.networkRenderer.buildGraph(network.nodes,
-                                                               network.edges),
-                        healthWellbeingNodes: this.networkRenderer.getHealthWellbeing()
+                        graph: this.props.networkRenderer.buildGraph(network.nodes,
+                                                                     network.edges)
                     }));
                 }}
-              />
-              <HealthWellbeing
-                nodes={this.state.healthWellbeingNodes}
               />
               <h1>Impact Network</h1>
               <Graph

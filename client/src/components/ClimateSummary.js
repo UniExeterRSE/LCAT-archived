@@ -13,8 +13,8 @@
 function ClimateSummary(props) {
     return (
         <div>
-          <h1>Health and Wellbeing Summary</h1>
-          { props.nodes.map((node) => {
+          <h1>Climate Summary</h1>
+          { props.network.nodes.map((node) => {
               return (<p>{node.title}</p>);
           })}
         </div>
