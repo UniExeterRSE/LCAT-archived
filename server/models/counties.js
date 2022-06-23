@@ -50,6 +50,11 @@ module.exports = function(sequelize, DataTypes) {
     geom: {
       type: DataTypes.GEOMETRY('MULTIPOLYGON', 4326),
       allowNull: true
+    },
+    imdscore: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
     }
   }, {
     sequelize,

@@ -38,6 +38,7 @@ function RegionsListener(props) {
 class ClimateMap extends React.Component {
     constructor(props) {
         super(props);
+
         this.state={
             geojson_key: 0,
             geojson: false,

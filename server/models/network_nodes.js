@@ -15,11 +15,23 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.TEXT,
       allowNull: true
     },
+    variable: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    threshold: {
+      type: DataTypes.REAL,
+      allowNull: true
+    },
     description: {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    unsdgs: {
+    mdpseea: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    unsdg: {
       type: DataTypes.TEXT,
       allowNull: true
     }

@@ -49,8 +49,9 @@ admin.setup = function(app) {
         locale: {
             translations: {
                 labels: {
-                    "network_nodes": 'Elements',
+                    "network_nodes": 'Nodes',
                     "network_edges": 'Connections',
+                    "edge_article_mapping": 'Connection Article Mapping',
                     "unsdgs": "UN SDGs",
                 }
             }

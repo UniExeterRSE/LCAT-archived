@@ -27,53 +27,29 @@ import { AdaptationFinder } from './AdaptationFinder'
 // mDPSEEA (Morris et al., 2006)
 // Driver, Pressure, State, Exposure, Effect, Action
 
-const node_size=25
-const preview_font_size=6
+const node_size=25;
+const preview_font_size=6;
 
 class NetworkRenderer {
 
 	constructor() {
-		this.tiles = []
-		this.style = "simple"
-		this.nodes = []
-		this.edges = []
-		this.url_cache = {} 
-		this.table = "future_winter_avg"
-		this.finder = new AdaptationFinder()
-		this.type_cols = {
-			"Equity": "#e6e6e6",
-			"Community": "#e6e6e6",
-			"Health": "#e6e6e6",
-			"Travel": "#e6e6e6",
-			"Sustainable-development": "#e6e6e6"
-		}
-		this.types = ["Health","Equity","Community","Travel","Sustainable-development"]
-		this.filter = []
-		this.iconCache = {}
-		this.iconCacheLoading = false
-		this.iconFnFix = {
-			"Attractiveness of streets/parks to locals": "Attractiveness of streets parks to locals FILE NAME",
-			"Community action to resolve minor anti-social behaviour": "Community action to resolve minor antisocial behaviour",
-			"Walk/bike friendly & safe environment": "Walk bike friendly & safe environment FILE NAME",
-			"Number of local walking & cycling injuries": "Number of walking & cycling injuries"
-		}
+		this.nodes = [];
+		this.edges = [];
+        this.healthNodes = [];
+		this.iconCache = {};
+		this.iconCacheLoading = false;
 		this.notFoundIcon = `<circle
              style="fill:#254747;fill-opacity:1;stroke-width:0.46499997"
              id="circle1093-0-8"
              cx="150"
-             cy="125"
-             r="100" />`
-		// this.paywalled = ["10.1016/j.jth.2016.01.008",
-		// 				  "10.1016/j.scitotenv.2020.136678",
-		// 				  "10.1016/j.trd.2019.09.022",
-		// 				  "10.1016/j.jtrangeo.2019.04.016"]
-		this.paywalled = []
+             cy="230"
+             r="100" />`;
 	}
     
 	async loadIcon(fn) {
-		let name = fn
+		let name = fn;
 		if (this.iconFnFix[fn]!=null) {
-			name=this.iconFnFix[fn]
+			name=this.iconFnFix[fn];
 		}
 		let xhr = new XMLHttpRequest();
 		await xhr.open("GET","images/icons/"+name+".svg",false);
@@ -84,498 +60,150 @@ class NetworkRenderer {
 			}
 		};
 		xhr.onerror = (e) => {
-			console.log("problem loading: "+name)
-		}
+			console.log("problem loading: "+name);
+		};
 		await xhr.send("");
 	}
 	
 	async loadIconCache() {
 		if (!this.iconCacheLoading) {
-			this.iconCacheLoading = true
+			this.iconCacheLoading = true;
 			for (let f in this.net.factors) {
-				this.loadIcon(this.net.factors[f].short)
+				this.loadIcon(this.net.factors[f].short);
 			}
 			for (let f in this.net.causes) {
-				this.loadIcon(this.net.causes[f].short)
+				this.loadIcon(this.net.causes[f].short);
 			}
-			this.loadIcon("glow")
+			this.loadIcon("glow");
 		}
 	}
-
-	
+    
 	printable(str) {
 		return str.replace("&","&amp;");
 	}
 	
 	nodeImageURL(id,title,text,bg,show_glow) {
-		let height = 500
-		if (bg==undefined) bg="#e6e6e6"
-		let icon=this.notFoundIcon
-		let glow=""
+		let height = 500;
+		if (bg==undefined) bg="#e6e6e6";
+		let icon=this.notFoundIcon;
+		let glow="";
 		if (show_glow) {
-			glow=`<g transform="translate(0,95) scale(7.8)">` + this.iconCache["glow"] + `</g>`
+			glow=`<g transform="translate(0,95) scale(7.8)">` + this.iconCache["glow"] + `</g>`;
 		}
 		if (this.iconCache[title]!=null) {
-			icon=`<g transform="translate(40,130) scale(7)">` + this.iconCache[title] + `</g>`
+			icon=`<g transform="translate(40,130) scale(7)">` + this.iconCache[title] + `</g>`;
 		} else {
-			console.log("icon for "+title+" not found")
+			//console.log("icon for "+title+" not found");
 		}
 
-		let extra = ""
+		let extra = "";
 		if (text!="") {
-			extra = `<center style="font-size: 1.5em;">`+text+`</center>`
+			extra = `<center style="font-size: 1.5em;">`+text+`</center>`;
 		}
 		
 		let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="`+height+`" style="overflow:visible;">`
-		+ glow + icon + 
-        `<foreignObject x="0" y="340" width="100%" height="100%">
+		    + glow + icon + 
+            `<foreignObject x="0" y="340" width="100%" height="100%">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
         <center style="font-size: 2em;">`+this.printable(title)+`</center>`
-		+ extra +
-        `</div>
+		    + extra +
+            `</div>
         </foreignObject>
-        </svg>`
+        </svg>`;
 
 		let url= "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-		return url
+		return url;
 	}
 
-	climateVariableText(variable) {
-		let units = "celsius"
-		if (variable.variable_name=="daily_precip") {
-			units = "mm/day"
-		}
-		if (variable.variable_name=="mean_windspeed") {
-			units = "m/s"
-		}
 
-		if (variable.direction=="rising") {
-			return "Increasing by "+(variable.value-variable.reference).toFixed(2)+" "+units+" in next 70 years"
-		} else {
-			return "Decreasing by "+(variable.reference-variable.value).toFixed(2)+" "+units+" in next 70 years"
-		}
-	}
-
-	causeImageURL(id,title,text,bg,variable) {
-		let height = 500
-		if (bg==undefined) bg="#e6e6e6"
-		let icon=this.notFoundIcon
-		if (this.iconCache[title]!=null) {
-			icon=`<g transform="translate(40,130) scale(7)">` + this.iconCache[title] + `</g>`
-		} else {
-			console.log("icon for "+title+" not found")
-		}
-		
-		let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="`+height+`" style="overflow:visible;">
-        ` + icon + `			
-        <foreignObject x="0" y="340" width="100%" height="100%">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
-        <center style="font-size: 2em;">`+this.printable(title)+`</center>
-        <center style="font-size: 1.5em;">`+this.climateVariableText(variable)+`</center>
-        </div>
-        </foreignObject>
-        </svg>`
-
-		let url= "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-		return url
-	}
-	
-	/*
-	adaptationImageURL(id,title,text,bg) {
-		let height = 450
-		if (text=="") height=350
-		if (bg==undefined) bg="#e6e6e6"
-		let icon=this.notFoundIcon
-
-		let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="`+height+`" style="overflow:visible;">
-                   <rect x="0" y="0" width="100%" height="100%" fill="`+bg+`" stroke-width="5" stroke="#a4b3cd"  rx="15" ></rect>
-        ` + icon + `			
-        <foreignObject x="0" y="220" width="100%" height="100%">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
-        <center style="font-size: 2em;">`+this.printable(title)+`</center>
-        <p>`+this.printable(text)+`</p>
-        </div>
-        </foreignObject>
-        </svg>`
-
-		let url= "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-		return url
-	}
-	*/
-	
-	referenceToHTML(ref) {
-		if (ref.type=="link") {
-			return "<a target=”_blank” href='"+ref.link+"'>"+ref.link+"</a>"
-		} else {
-			let ret = ""
-			if (this.paywalled.includes(ref.doi)) {
-				ret += "<a target=”_blank” style='color:red;' href='"+ref.link+"'>(PAYWALLED) "+ref.title+"</a> "
-			} else {
-				ret += "<a target=”_blank” href='"+ref.link+"'>"+ref.title+"</a> "				
-			}
-			ret+=ref.authors.join(", ")
-			ret+=": "+ref.journal
-			if (ref.date!="") {
-				ret+=" "+ref.date
-			}
-			if (ref.issue!="") {
-				ret+=" Issue: "+ref.issue
-			}
-			ret+=" DOI: "+ref.doi
-			return ret
-		}
-	}
-	
-	
-	causeToHTML(cause) {
-		let s=""
-		s+=`<h3>`+cause.short+`</h3>`
-		s+=`<p>`+cause.long+`</p>`
-		s+="<ul>"
-		if (cause.refs.length>0) {
-			s+="<li><b>References</b>: <ol>"
-			for (let ref of cause.refs) {
-				s+="<li>"+this.referenceToHTML(ref)+"</li>";
-			}
-			s+="</ol></li>"
-		}
-		s+="</ul>"
-		return s
-	}
-	
-	factorToHTML(factor) {
-		let s=""
-		s+=`<h3>`+factor.short+`</h3>`
-		s+=`<p>`+factor.long+`</p>`
-		s+="<ul>"
-		if (factor.unsdg!="") {
-			s+="<li><b>UN SDG</b>: "+factor.unsdg+"</li>"
-		}
-		if (factor.refs.length>0) {
-			s+="<li><b>References</b>: <ol>"
-			for (let ref of factor.refs) {
-				s+="<li>"+this.referenceToHTML(ref)+"</li>";
-			}
-			s+="</ol></li>"
-		}
-		if (factor.type!="") {
-			s+="<li><b>Type</b>: "+factor.type+"</li>"
-		}
-		s+="</ul>"
-		return s
-	}
-	
-	impactToHTML(impact) {
-		let s=""
-		let direction="increases"
-		if (impact.type=="-") {
-			direction="decreases"
-		}
-		
-		s+=`<b>`+this.net.factors[impact.from].short+`</b> `+direction+` <b>`+this.net.factors[impact.to].short+`</b><br>`
-		if (impact.long!="") {
-			s+=`<p>`+impact.long+`</p>`
-		}
-		s+="<ul>"
-		/*if (impact.type!="") {
-			s+="<li><b>Type</b>: "+impact.type+"</li>"
-		}*/
-		if (impact.unsdg!="") {
-			s+="<li><b>UN SDG</b>: "+impact.unsdg+"</li>"
-		}
-		if (impact.refs.length>0) {
-			s+="<li><b>References</b>: <ol>"
-			for (let ref of impact.refs) {
-				s+="<li>"+this.referenceToHTML(ref)+"</li>";
-			}
-			s+="</ol></li>"
-		}
-		s+="</ul>"
-		return s
-	}
-
-	factorToNodeFull(factor) {		
-		let text=""
-		if (factor.short=="Active transport use") {
-			let v=this.finder.calculateFactorChange(factor)
-			if (v>0) {
-				text = "Estimated increase of "+ v.toFixed(2) + "% in your area"
-			} else {
-				text = "Estimated decrease of "+ (-v).toFixed(2) + "% in your area"
-			}
-		}
-			
-		return {
-			id: factor.id,
-			shape: "image",
-			label: "",
-			size: node_size,
-			// "#e6e6e6"
-			image: this.nodeImageURL(
-				factor.id,
-				factor.short,
-				text,
-				this.type_cols[factor.type],
-				false
-			),
-			preview: false
-		}
-	}
-
-	factorToNodePreview(factor) {
-		return {
-			id: factor.id,
-			shape: "image",
-			label: "",
-			size: node_size,
-			// "#e6e6e6"
-			image: this.nodeImageURL(
-				factor.id,
-				factor.short,
-				"",
-				this.type_cols[factor.type],
-				true
-			),
-			preview: true
-		}
-		
-		/*return {
- 			id: factor.id,
-			shape: "text",
-			label: factor.short,
-			font: { size: preview_font_size },
-			preview: true
-		}*/
-	}
-
-	isPaywalled(obj) {
-		for (let ref of obj.refs) {
-			if (ref.doi!=undefined && this.paywalled.includes(ref.doi)) {
-				return true
-			}
-		}
-		return false
-	}
-	
-	factorEdge(factor,impact,new_factor) {
-		let label = impact.type
-		let colour = "#b0cacc"
-		if (this.isPaywalled(impact)) {
-			colour = "#ffcaca"
-		}
-	
-		if (label=="-") label = "‐"
-
-		return {
-			id: impact.id,
-			from: factor.id,
-			to: impact.to,
-			arrows: "to",
-			//label: " "+label+" ",
-			labelHighlightBold: false,
-			arrowStrikethrough: false,
-			font: {
-				//background: "#fff",
-				color: colour,
-				size: 30,
-				//vadjust: 10,
-				//align: "bottom"
-			},
-			color: {
-				color: colour,
-				highlight: colour,
-			}
-		}
-	}
-
-	causeEdge(cause,polarity_match) {			
-		let label = cause.type		
-		if (!polarity_match) {
-			if (label=="-") label="+"
-			else label="-"
-		}
-		
-		if (label == "-") {
-			label = "‐"
-		}
-
-		let colour = "#b0cacc"
-		if (this.isPaywalled(cause)) {
-			colour = "#ffcaca"
-		}
-
-		return {
-			id: cause.id,
-			from: cause.id,
-			to: cause.factor,
-			arrows: "to",
-			//label: " "+label+" ",
-			labelHighlightBold: false,
-			arrowStrikethrough: false,
-			font: {
-				//background: "#fff",
-				color: colour,
-				size: 30,
-				//vadjust: 10,
-				//align: "bottom"
-			},
-			color: {
-				color: colour,
-				highlight: colour,
-			}
-		}
-	}
-
-	
-	adaptationEdge(factor_id,adaptation) {
-		return {
-			from: factor_id,
-			to: adaptation.id,
-			arrows: "to",
-			//value: 0.05,
-			color: {
-				color: "#b0cacc",
-				highlight: "#b0cacc",
-			}
-		}
-	}
-
-	adaptationToNode(adaptation) {
-		return {
-			id: adaptation.id,
-			shape: "image",
-			label: "",
-			size: node_size,
-			image: this.adaptationImageURL(
-				adaptation.id,
-				adaptation.short,
-				adaptation.long,
-				"#ff0000"
-			)
-		}
-	}
-
-	addImpacts(factor,pos) {
-		let i=0;
-		for (let impact_id of factor.impacts) {
-			let impact = this.net.impacts[impact_id]
-			let new_factor = this.net.factors[impact.to]
-
-			// get a roughly ok position, downwind and spread out
-			let fpos = {
-				x: pos.x+100,
-				y: pos.y+(i-(factor.impacts.length/2))*node_size
-			}
-			
-			if (new_factor.overview=="main element" ||
-				this.filter.includes(new_factor.type)) {
-				this.addFactor(new_factor,false,fpos)
-				this.edges.add([this.factorEdge(factor,impact,new_factor)])
-			} else {
-				this.addFactor(new_factor,true,fpos)
-				this.edges.add([this.factorEdge(factor,impact,new_factor)])
-			}
-			i+=1;
-		}
-	}
 
 	getRnd(min, max) {
 		return (Math.random() * (max - min) ) + min;
 	}
 	
-	addFactor(factor,preview_node,pos) {
-		if (!this.nodes.get(factor.id)) {
-			if (preview_node==false || factor.impacts.length==0) {
-				let n = this.factorToNodeFull(factor)
-				n.x = pos.x;
-				n.y = pos.y;
-				this.nodes.add([n])
-				this.addImpacts(factor,{x: n.x, y: n.y})
-				//this.searchAdaptations(factor.id,pos)
-			} else {
-				let n = this.factorToNodePreview(factor)
-				n.x = pos.x;
-				n.y = pos.y;
-				this.nodes.add([n])
-			}
-		}
-	}
-	
-	addCause(cause,y) {
-		if (!this.nodes.get(cause.id)) {
-
-			let polarity_match = this.finder.causePolarityMatch(cause)
-			let variable = this.finder.variables[cause.variable]
-			
-			this.nodes.add([{
-				id: cause.id,
-				shape: "image",
-				size: node_size,
-				image: this.causeImageURL(cause.id,cause.short,"","#a4f9c8",variable),
-				x: 0,
-				y: y*75,
-				fixed: true,
-				size: 30
-			}])
-			
-			this.addFactor(this.net.factors[cause.factor],false,{x: 100, y: y*75})
-			this.edges.add([this.causeEdge(cause,polarity_match)])
-		}
-	}
-
-/*	addAdaptation(adaptation,pos) {
-		if (!this.nodes.get(adaptation.id)) {						
-			let n = this.adaptationToNode(adaptation)
-			n.x = pos.x;
-			n.y = pos.y;
-			this.nodes.add([n])
-		}
-	}
-	
-	searchAdaptations(factor_id,pos) {
-		for (let aid in this.net.adaptations) {
-			let a = this.net.adaptations[aid]
-			if (a.related.includes(factor_id)) {
-				this.addAdaptation(a,pos)				
-				this.edges.add([this.adaptationEdge(factor_id,a)])
-			}
-		}
-	}
-*/
-	async updateVariables(table) {
-		if (table!=undefined) {
-			this.table=table
-		}
-		await this.finder.loadVariables(
-			this.table,this.tiles,
-			["daily_precip","mean_temp","mean_windspeed"]
-			,2,9)		
-		this.buildGraph()
-
-		// update adaptations from climate variables
-		this.finder.updateHTML(this.net.adaptations)
-	}
-
+///////////////////////////////////////
     
-	
+	addNode(node,y) {
+        if (node.type=="health-wellbeing") {
+            this.healthNodes.push(node);
+        }
+        if (node.type=="climate") {
+        	this.nodes.push({
+			    id: node.node_id,
+			    shape: "image",
+			    image: this.nodeImageURL(node.id,node.title,"","#a4f9c8",false),
+			    size: 30,
+				x: 0,
+				y: this.fixedYPos*75,
+				fixed: true,
+		    });
+            this.fixedYPos+=1;
+        } else {
+        	this.nodes.push({
+			    id: node.node_id,
+			    shape: "image",
+			    image: this.nodeImageURL(node.id,node.title,"","#a4f9c8",false),
+			    size: 30
+		    });
+        }
+	}
+
+	addEdge(edge,y) {
+		let colour = "#b0cacc";
+        let label="-";
+        if (edge.direction=="0") {
+            label="+";
+        } 
+        this.edges.push({
+			id: edge.edge_id,
+			from: edge.node_from,
+			to: edge.node_to,
+			arrows: "to",
+			label: " "+label+" ",
+			labelHighlightBold: false,
+			arrowStrikethrough: false,
+			font: {
+				//background: "#fff",
+				color: colour,
+				size: 30,
+				//vadjust: 10,
+				//align: "bottom"
+			},
+			color: {
+				color: colour,
+				highlight: colour,
+			}
+		});
+	}
+
+    getHealthWellbeing() {
+        return this.healthNodes;
+    }
 
 	
 	buildGraph(nodes, edges) {
-
-		let c = 0
+		this.nodes = [];
+		this.edges = [];
+		this.healthNodes = [];
+        this.fixedYPos=0;
+        
+		let c = 0;
         // find causes and propagate upwards (right?) from there
 		for (let node of nodes) {
-            if (node.from_node==null) {                
-			    //this.addCause(node,c)
-                console.log(node);
-            }
-			c+=1
+   			this.addNode(node,c);
+			c+=1;
 		}
 
-	    return {
+		for (let edge of edges) {
+   			this.addEdge(edge,c);
+		}
+
+        let g = {
             nodes: this.nodes,
             edges: this.edges
-        }
+        };
+
+        return g;
 		
 /*		network.on('click', (properties) => {
 			let ids = properties.nodes;

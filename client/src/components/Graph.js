@@ -29,6 +29,8 @@ function andify(a) {
     }
 }
 
+
+
 class Graph extends Component {
     constructor(props) {
         super(props);
@@ -40,7 +42,6 @@ class Graph extends Component {
     }
 
     callback = (data) => {
-        console.log("setting data");
         this.setState(() => ({
             data: data.map(v => ({x: v.year, y: v.avg})),
             labelData: data.map(v => ({x: v.year, y: v.avg+0}))
@@ -81,7 +82,7 @@ class Graph extends Component {
               <ModelLoader
                 regions={this.props.regions}
                 table={this.state.table}
-                region={this.props.region}
+                regionType={this.props.regionType}
                 callback={this.callback}
               />
               <FlexibleXYPlot height={300} xType="ordinal" color={summerCol}>

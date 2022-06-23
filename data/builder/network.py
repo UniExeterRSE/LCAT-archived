@@ -18,17 +18,20 @@ class network_db:
         q = """create table network_nodes (node_id serial primary key,
         title text,
         type text,
+        variable text,
+        threshold real,
         description text,                           
-        unsdgs text);"""
+        mDPSEEA text,
+        UNSDG text);"""
         self.db.cur.execute(q)
         self.db.cur.execute("drop table if exists network_edges cascade")
         q = """create table network_edges (edge_id serial primary key, 
         type text,
         description text,
         unsdgs text,
-        operator text,
-        variable text,
         direction text,
+        operator text,
+        threshold real,
         node_from integer, 
         node_to integer,
         constraint fk_from foreign key(node_from) references network_nodes(node_id),  

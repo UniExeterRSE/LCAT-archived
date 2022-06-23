@@ -12,7 +12,7 @@
 
 import { useEffect } from 'react';
 
-function ModelLoader(props) {
+function PredictionLoader(props) {
     useEffect(() => {
         // don't bother loading if we have no regions yet
         if (props.regions.length>0) {
@@ -22,9 +22,10 @@ function ModelLoader(props) {
                     prepend="http://localhost:3000";
                 }
 
-                var url = prepend+"/api/hadgem_rpc85?"+
+                var url = prepend+"/api/hadgem_rpc85_prediction?"+
                     new URLSearchParams({          
-                        table: props.table,
+                        average: props.average,
+                        year: props.year,
                         regionType: props.regionType
                     })+"&"+
                     // clumsy, fixme
@@ -42,10 +43,11 @@ function ModelLoader(props) {
             }
         }
     },[props.regions,
-       props.table,
+       props.average,
+       props.year,
        props.regionType]);
 
     return null;
 }
 
-export default ModelLoader;
+export default PredictionLoader;

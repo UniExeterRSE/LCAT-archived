@@ -19,11 +19,9 @@ function NetworkLoader(props) {
             if (process.env.NODE_ENV==="development") {
                 prepend="http://localhost:3000";
             }            
-            console.log("calling nodes");
             fetch(prepend+"/api/network_nodes").then(nodes_response => {
                 nodes_response.json()
                     .then( nodes => {
-                        console.log("calling edges");
                         fetch(prepend+"/api/network_edges").then(edges_response => {
                             edges_response.json()
                                 .then( edges => {                         

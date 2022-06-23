@@ -19,16 +19,16 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.TEXT,
       allowNull: true
     },
+    direction: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     operator: {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    variable: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    direction: {
-      type: DataTypes.TEXT,
+    threshold: {
+      type: DataTypes.REAL,
       allowNull: true
     },
     node_from: {

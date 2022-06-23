@@ -11,8 +11,12 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import React, { Component } from 'react';
-import Graph from 'vis-react';
+import { v4 as uuidv4 } from 'uuid';
+
+import Graph from 'react-graph-vis';
 import NetworkLoader from './NetworkLoader';
+import PredictionLoader from './PredictionLoader';
+import HealthWellbeing from './HealthWellbeing';
 import { NetworkRenderer } from '../core/NetworkRenderer';
 
 var options = {
@@ -25,12 +29,12 @@ var options = {
 			//avoidOverlap: 0.5,
 			//gravitationalConstant: -10000
 		},
-		wind: { x: 0.5, y: 0}
+		wind: { x: 0.5, y: 0} 
     },
 	layout: {
 		randomSeed: 5,
 		improvedLayout: true,
-		clusterThreshold: 1,
+        clusterThreshold: 1,
 		/*hierarchical: {
 		  shakeTowards: "roots",
 		  enabled: false,
@@ -53,33 +57,73 @@ class Network extends React.Component {
 
         this.networkRenderer = new NetworkRenderer();
 
-        console.log(this.networkRenderer);
-        
         this.state={
+            version: 0,
             graph: {
-                nodes: [],
+                nodes: [ { id: 1, label: "wot" } ],
                 edges: []
-            }
+            },
+            healthWellbeingNodes: [],
+            average: "ann",
+            year: 2086
         };
     }
     
     callback = (nodes, edges) => {
-        console.log(nodes);
-        console.log(edges);
-
-        this.setState(() => ({
-            graph: this.networkRenderer.buildGraph(nodes,edges)
+        this.version+=1;
+        this.setState((state) => ({
+            version: state.version+1, 
+            graph: this.networkRenderer.buildGraph(nodes,edges),
+            healthWellbeingNodes: this.networkRenderer.getHealthWellbeing()
         }));        
     }
 
     render () {
         return (
             <div>
+              <p>
+                Calculate impacts below using 
+                <select onChange={(e) => { this.setState(() => ({
+                    average: e.target.value                  
+                }));}}>
+                  <option value="ann">Yearly</option>
+                  <option value="djf">Winter</option>
+                  <option value="jja">Summer</option>
+                </select>
+
+                averages for year 
+                
+                <select onChange={(e) => { this.setState(() => ({
+                    year: e.target.value                  
+                }));}}>
+                  <option value="1996">1996</option>
+                  <option value="2006">2006</option>
+                  <option value="2016">2016</option>
+                  <option value="2026">2026</option>
+                  <option value="2036">2036</option>
+                  <option value="2046">2046</option>
+                  <option value="2056">2056</option>
+                  <option value="2066">2066</option>
+                  <option value="2076">2076</option>
+                  <option value="2086">2086</option>
+                </select>
+              </p>
               <NetworkLoader
                 id={0}
                 callback={this.callback}
               />
+              <PredictionLoader
+                regions = {this.props.regions}
+                average = {this.state.average}
+                year = {this.state.year}
+                regionType = {this.props.regionType}
+              />
+              <HealthWellbeing
+                nodes={this.state.healthWellbeingNodes}
+              />
+              <h1>Impact Network</h1>
               <Graph
+                key={this.state.version}
                 graph={this.state.graph}
                 options={options}
                 events={events}

@@ -12,11 +12,12 @@
     "react": "^18.1.0",
     "react-document-meta": "^3.0.0-beta.2",
     "react-dom": "^18.1.0",
+    "react-graph-vis": "^1.0.7",
     "react-leaflet": "^4.0.0",
     "react-loading-overlay": "^1.0.1",
     "react-scripts": "5.0.1",
     "react-vis": "^1.11.7",
-    "vis-react": "^0.5.1",
+    "uuid": "^8.3.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

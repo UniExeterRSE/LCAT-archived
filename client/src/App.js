@@ -60,14 +60,17 @@ class App extends React.Component {
               <ClimateMap
                 regionsCallback={this.regionsCallback}
               />
-              { this.state.regions.length > 0 &&
-                <div>
-                  <Graph
-                    regions={this.state.regions}
-                    region={this.state.regionType}                
-                  />
-                  <Network/>
-                </div> }
+              
+              <div>
+                <Graph
+                  regions={this.state.regions}
+                  regionType={this.state.regionType}                
+                />
+                <Network
+                  regions={this.state.regions}
+                  regionType={this.state.regionType}                
+                />
+              </div> 
             </div>
             
         );
@@ -75,3 +78,5 @@ class App extends React.Component {
 }
 
 export default App;
+
+//               { this.state.regions.length > 0 &&

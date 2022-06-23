@@ -38,6 +38,11 @@ module.exports = function(sequelize, DataTypes) {
     uk_cri_location: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+    imdscore: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
     }
   }, {
     sequelize,
