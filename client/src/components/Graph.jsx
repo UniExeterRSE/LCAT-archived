@@ -1,4 +1,3 @@
-// -*- mode: rjsx;  -*-
 // Copyright (C) 2022 Then Try This
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -40,21 +39,21 @@ class Graph extends Component {
     }
     
     render() {
-        if (this.props.regions.length == 0) {
+        if (this.props.regions.length === 0) {
             return null;
         }
         return (            
             <div>
               <h1>Climate Graphs</h1>
               <p>
-		      The graph below shows the future climate change 
-		      expected in 
+              The graph below shows the future climate change 
+              expected in 
               
               <span className={"projected-regions"}>
                 { andify(this.props.regions.map(e => e.name)) }.
               </span>
               
-		      You are viewing 
+              You are viewing 
 
               <select onChange={(e) => { this.setState(() => ({
                   table: e.target.value                  

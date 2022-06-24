@@ -1,4 +1,3 @@
-// -*- mode: rjsx;  -*-
 // Copyright (C) 2022 Then Try This
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -30,7 +29,7 @@ function HealthWellbeing(props) {
             props.network.edges));
     }, [props.network]);
     
-    if (props.regions.length == 0) {
+    if (props.regions.length === 0) {
         return null;
     }
     
@@ -43,7 +42,7 @@ function HealthWellbeing(props) {
           <h1>Health Impact Summary</h1>
 
           <p>
-            The climate change forcast in
+            The climate change forecast in
             
             <span className={"projected-regions"}>
               { andify(props.regions.map(e => e.name)) }.
@@ -58,14 +57,16 @@ function HealthWellbeing(props) {
                 props.year).map((node) => (
                     <div className={"vert-container"}>
                       <HealthAndWellbeingSvg/>
-                      <p><center>
-                           {node.title}
-                           <br/>
-                           <b>
-                             {node.state == "increase" ?
-                              "Increases" : "Decreases"}
-                           </b>
-                         </center></p>
+                      <center>
+                        <p>
+                          {node.title}
+                          <br/>
+                          <b>
+                            {node.state === "increase" ?
+                             "Increases" : "Decreases"}
+                          </b>
+                        </p>
+                      </center>
                     </div>
                 )) }
           </div>  

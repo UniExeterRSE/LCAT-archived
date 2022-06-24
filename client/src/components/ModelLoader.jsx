@@ -1,4 +1,3 @@
-// -*- mode: rjsx;  -*-
 // Copyright (C) 2022 Then Try This
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -12,7 +11,7 @@
 
 import { useEffect } from 'react';
 
-function PredictionLoader(props) {
+function ModelLoader(props) {
     useEffect(() => {
         // don't bother loading if we have no regions yet
         if (props.regions.length>0) {
@@ -22,9 +21,9 @@ function PredictionLoader(props) {
                     prepend="http://localhost:3000";
                 }
 
-                var url = prepend+"/api/hadgem_rpc85_prediction?"+
+                var url = prepend+"/api/hadgem_rpc85?"+
                     new URLSearchParams({          
-                        average: props.average,
+                        table: props.table,
                         regionType: props.regionType
                     })+"&"+
                     // clumsy, fixme
@@ -34,7 +33,6 @@ function PredictionLoader(props) {
                 fetch(url).then(response => {
                     response.json()
                         .then( v => {
-                            console.log(v);
                             props.callback(v);
                         });
                 });
@@ -43,10 +41,10 @@ function PredictionLoader(props) {
             }
         }
     },[props.regions,
-       props.average,
+       props.table,
        props.regionType]);
 
     return null;
 }
 
-export default PredictionLoader;
+export default ModelLoader;

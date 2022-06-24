@@ -1,4 +1,3 @@
-// -*- mode: rjsx;  -*-
 // Copyright (C) 2022 Then Try This
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -32,11 +31,11 @@ function GeoJSONLoader(props) {
             
             let response = await fetch(prepend+props.apicall+"?"+new URLSearchParams({
                 table: props.table,
- 				left: b._southWest.lng,
-				bottom: b._southWest.lat,
-				right: b._northEast.lng,
-				top: b._northEast.lat,
-				tolerance: m2px[map.getZoom()-1]		
+                left: b._southWest.lng,
+                bottom: b._southWest.lat,
+                right: b._northEast.lng,
+                top: b._northEast.lat,
+                tolerance: m2px[map.getZoom()-1]        
             }));
             response.json()
                 .then( v => {

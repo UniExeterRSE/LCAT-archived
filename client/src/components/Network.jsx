@@ -1,4 +1,3 @@
-// -*- mode: rjsx;  -*-
 // Copyright (C) 2022 Then Try This
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -10,11 +9,9 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
-import React, { Component, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import React, { useEffect } from 'react';
 
 import Graph from 'react-graph-vis';
-import { NetworkRenderer } from '../core/NetworkRenderer';
 import { andify } from '../utils/utils';
 
 var options = {
@@ -44,7 +41,7 @@ var options = {
  
 var events = {
     select: function(event) {
-        var { nodes, edges } = event;
+        //var { nodes, edges } = event;
     }
 };
 
@@ -71,7 +68,7 @@ class Network extends React.Component {
     }
 
     render () {
-        if (this.props.regions.length == 0) {
+        if (this.props.regions.length === 0) {
             return null;
         }
         return (
@@ -84,7 +81,7 @@ class Network extends React.Component {
                   { andify(this.props.regions.map(e => e.name)) }.
                 </span>
                 
-                you are currently viewing impacts in
+                You are currently viewing impacts in
 
                 <select>
                   <option value="all">All sectors</option>
