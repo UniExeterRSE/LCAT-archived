@@ -18,8 +18,8 @@ import LoadingOverlay from "react-loading-overlay";
 const colormap = require('colormap');
 
 const tileLayer = {
-  attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-  url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 }
 
 const center = [52, -2.2];
@@ -32,7 +32,7 @@ function RegionsListener(props) {
         props.regionType]);
     return null;
 }
-    
+
 
 class ClimateMap extends React.Component {
     constructor(props) {
@@ -144,7 +144,7 @@ class ClimateMap extends React.Component {
                   <option value="msoa">MSOA</option>
                   <option value="lsoa">LSOA</option>
                 </select>
-                 you are interested in. The
+                you are interested in. The
                 <select>
                   <option value="IMD">Index of Multiple Deprivation</option>
                 </select>
@@ -157,31 +157,31 @@ class ClimateMap extends React.Component {
                 callback={this.props.regionsCallback}
               />
 
-            <LoadingOverlay
-              active={this.state.loading}
-              spinner
-              text={'Loading '+this.state.regionType}>
-              <MapContainer
-                center={center}
-                zoom={7}
-                scrollWheelZoom={true}>
-                <GeoJSONLoader
-                  apicall="/api/region"
-                  table={this.state.regionType}
-                  callback={this.geojsonCallback}
-                  loadingCallback={ loading => { this.setState(() => ({ loading: loading && this.state.triggerLoadingIndicator })); }}
-                />
-                { this.state.geojson &&               
-                  <GeoJSON
-                    key={this.state.geojson_key}
-                    data={this.state.geojson}
-                    onEachFeature={this.onEachFeature}/> }
-                <TileLayer {...tileLayer} />
-              </MapContainer>
-            </LoadingOverlay>
+              <LoadingOverlay
+                active={this.state.loading}
+                spinner
+                text={'Loading '+this.state.regionType}>
+                <MapContainer
+                  center={center}
+                  zoom={7}
+                  scrollWheelZoom={true}>
+                  <GeoJSONLoader
+                    apicall="/api/region"
+                    table={this.state.regionType}
+                    callback={this.geojsonCallback}
+                    loadingCallback={ loading => { this.setState(() => ({ loading: loading && this.state.triggerLoadingIndicator })); }}
+                  />
+                  { this.state.geojson &&               
+                    <GeoJSON
+                      key={this.state.geojson_key}
+                      data={this.state.geojson}
+                      onEachFeature={this.onEachFeature}/> }
+                  <TileLayer {...tileLayer} />
+                </MapContainer>
+              </LoadingOverlay>
               <p>
 		        English Indices of Deprivation 2019 Open Data from <a href="https://opendatacommunities.org/resource?uri=http%3A%2F%2Fopendatacommunities.org%2Fdata%2Fsocietal-wellbeing%2Fimd2019%2Findices">
-			      Ministry of Housing, Communities and Local Government</a>
+			              Ministry of Housing, Communities and Local Government</a>
 		      </p>
 
             </div>
