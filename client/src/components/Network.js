@@ -53,7 +53,9 @@ var events = {
 function NetworkListener(props) {
     useEffect(() => {
         props.callback(props.network);
-    }, [props.network]);
+    }, [props.network,
+        props.climatePrediction,
+        props.year]);
     return null;
 }
 
@@ -87,11 +89,15 @@ class Network extends React.Component {
               </p>
               <NetworkListener
                 network = {this.props.network}
+                climatePrediction = {this.props.climatePrediction}
+                year = {this.props.year}
                 callback = {(network) => {
                     this.setState((state) => ({
                         version: state.version+1, 
                         graph: this.props.networkRenderer.buildGraph(network.nodes,
-                                                                     network.edges)
+                                                                     network.edges,
+                                                                     this.props.climatePrediction,
+                                                                     this.props.year)
                     }));
                 }}
               />

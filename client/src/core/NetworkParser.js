@@ -21,6 +21,7 @@ class NetworkParser {
         this.edges = edges;        
 		this.healthNodes = [];
         this.causeNodes = [];
+        this.globalThreshold = 0.0001;
 
 		for (let node of nodes) {
             if (node.type=="health-wellbeing") {
@@ -32,10 +33,6 @@ class NetworkParser {
         }
     }
     
-    getHealthWellbeing() {
-        return this.healthNodes;
-    }
-
     searchNode(id) {
         for (let node of this.nodes) {
             if (node.node_id==id) {
@@ -43,7 +40,6 @@ class NetworkParser {
             }
         }
         console.log("could not find node: "+id);
-        console.log(this.nodes);
         return null;
     }
 
@@ -57,6 +53,8 @@ class NetworkParser {
     }
 
     flipState(state) {
+        if (state=="disabled") return state;
+
         if (state=="increase") {
             return "decrease";
         } else {
@@ -79,19 +77,29 @@ class NetworkParser {
     }
 
     calculate(climatePrediction,year) {
-        for (let cause of this.causeNodes) {
-            if (this.getPrediction(climatePrediction,year,cause.variable)>0) {
-                this.recurCalculate(cause,"increase");
+        for (let cause of this.causeNodes) {            
+            if (this.getPrediction(climatePrediction,year,cause.variable)>this.globalThreshold) {
+                this.recurCalculate(cause,"increase");                
             } else {
-                this.recurCalculate(cause,"decrease");
+                if (this.getPrediction(climatePrediction,year,cause.variable)<this.globalThreshold) {
+                    this.recurCalculate(cause,"decrease");
+                } else {
+                    this.recurCalculate(cause,"disabled");
+                }
             }
         }
     }
     
     calculateHealthWellbeing(climatePrediction,year) {
-        console.log(climatePrediction);
         this.calculate(climatePrediction,year);
-        return this.getHealthWellbeing();
+        let ret = [];
+        // only return nodes that are increasing or decreasing
+        for (let node of this.healthNodes) {
+            if (node.state!=undefined && node.state!="disabled") {
+                ret.push(node);
+            }
+        }
+        return ret;
     }
 
 }

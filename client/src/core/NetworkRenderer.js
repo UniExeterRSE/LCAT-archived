@@ -15,6 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import { AdaptationFinder } from './AdaptationFinder'
+import HealthSvg from '../images/icons/Public health & wellbeing.svg';
 
 // This class takes a network and follows from causes (root nodes with
 // no input edges) triggered by climate change through all connected
@@ -28,6 +29,8 @@ import { AdaptationFinder } from './AdaptationFinder'
 // mDPSEEA (Morris et al., 2006)
 // Driver, Pressure, State, Exposure, Effect, Action
 
+import { NetworkParser } from './NetworkParser';
+
 const node_size=25;
 const preview_font_size=6;
 
@@ -35,7 +38,7 @@ class NetworkRenderer {
 
 	constructor() {
 		this.nodes = [];
-		this.edges = [];
+		this.edges = [];        
         this.healthNodes = [];
         this.causeNodes = [];
 		this.iconCache = {};
@@ -48,16 +51,19 @@ class NetworkRenderer {
              r="100" />`;
 	}
     
+    loadIcons() {
+        this.loadIcon();
+    }
+    
 	async loadIcon(fn) {
 		let name = fn;
-		if (this.iconFnFix[fn]!=null) {
-			name=this.iconFnFix[fn];
-		}
 		let xhr = new XMLHttpRequest();
+        console.log("loading: "+name);
 		await xhr.open("GET","images/icons/"+name+".svg",false);
 		xhr.overrideMimeType("image/svg+xml");
 		xhr.onload = (e) => {
 			if (xhr.responseXML!=null) {
+                console.log("loaded: "+name);
 				this.iconCache[fn]=xhr.responseXML.documentElement.innerHTML;
 			}
 		};
@@ -107,9 +113,9 @@ class NetworkRenderer {
 		    + glow + icon + 
             `<foreignObject x="0" y="340" width="100%" height="100%">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
-        <center style="font-size: 2em;">`+this.printable(title)+`</center>`
-		    + extra +
-            `</div>
+        <center style="font-size: 2em;">`+this.printable(title)+`</center>
+		<center style="font-size: 2em;">`+ extra +`</center>
+        </div>
         </foreignObject>
         </svg>`;
 
@@ -126,6 +132,10 @@ class NetworkRenderer {
 ///////////////////////////////////////
     
 	addNode(node,y) {
+        let change = "Increases";
+        if (node.state=="decrease") {
+            change = "Decreases";
+        }
         if (node.type=="health-wellbeing") {
             this.healthNodes.push(node);
         }
@@ -134,7 +144,7 @@ class NetworkRenderer {
         	this.nodes.push({
 			    id: node.node_id,
 			    shape: "image",
-			    image: this.nodeImageURL(node.id,node.title,"","#a4f9c8",false),
+			    image: this.nodeImageURL(node.id,node.title,change,"#a4f9c8",false),
 			    size: 30,
 				x: 0,
 				y: this.fixedYPos*75,
@@ -145,7 +155,7 @@ class NetworkRenderer {
         	this.nodes.push({
 			    id: node.node_id,
 			    shape: "image",
-			    image: this.nodeImageURL(node.id,node.title,"","#a4f9c8",false),
+			    image: this.nodeImageURL(node.id,node.title,change,"#a4f9c8",false),
 			    size: 30
 		    });
         }
@@ -162,13 +172,14 @@ class NetworkRenderer {
 			from: edge.node_from,
 			to: edge.node_to,
 			arrows: "to",
-			label: " "+label+" ",
+			//label: " "+label+" ",
+            label: edge.description,
 			labelHighlightBold: false,
 			arrowStrikethrough: false,
 			font: {
 				//background: "#fff",
 				color: colour,
-				size: 30,
+				size: 5,
 				//vadjust: 10,
 				//align: "bottom"
 			},
@@ -179,8 +190,15 @@ class NetworkRenderer {
 		});
 	}
     
-	buildGraph(nodes, edges) {               
-		this.nodes = [];
+	buildGraph(nodes, edges, climatePrediction, year) {               
+
+        let networkParser = new NetworkParser(nodes,edges);
+        console.log([climatePrediction, year]);
+        networkParser.calculate(climatePrediction, year);
+        nodes = networkParser.nodes;
+		edges = networkParser.edges;
+
+        this.nodes = [];
 		this.edges = [];
 		this.healthNodes = [];
         this.causeNodes = [];

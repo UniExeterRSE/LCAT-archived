@@ -161,7 +161,7 @@ class ClimateMap extends React.Component {
             <LoadingOverlay
               active={this.state.loading}
               spinner
-              text='Loading regions'>
+              text={'Loading '+this.state.regionType}>
               <MapContainer
                 center={center}
                 zoom={7}

@@ -10,6 +10,9 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
+import LoadingOverlay from "react-loading-overlay";
+import { useState } from 'react';
+
 import { ReactComponent as TempSvg } from '../images/temp.svg';
 import { ReactComponent as RainSvg } from '../images/rain.svg';
 
@@ -36,35 +39,41 @@ function predict(prediction,year,variable,name,units) {
 }
 
 function ClimateSummary(props) {
-    return (
-        <div>
-          <h1>Climate Summary</h1>
-          <p>
-            The climate forcast in
 
-            <span className={"projected-regions"}>
-              { andify(props.regions.map(e => e.name)) }.
-            </span>
-            
-            by { props.year } is          
-          </p>
-          <div className={"horiz-container"}>
-            <div className={"vert-container"}>
-              <TempSvg/>
-              <p>
-                {predict(props.climatePrediction,
-                         props.year,"tavg_median","Temperature","°C")}
-              </p>
-            </div>
-            <div className={"vert-container"}>
-              <RainSvg/>              
-              <p>
-                {predict(props.climatePrediction,
-                         props.year,"rain_median","Rainfall","%")}
-              </p>
+    return (
+        <LoadingOverlay
+          active={props.loading}
+          spinner
+          text={'Loading climate data'}>
+          <div>
+            <h1>Climate Summary</h1>
+            <p>
+              The climate forcast in
+
+              <span className={"projected-regions"}>
+                { andify(props.regions.map(e => e.name)) }.
+              </span>
+              
+              by { props.year } is          
+            </p>
+            <div className={"horiz-container"}>
+              <div className={"vert-container"}>
+                <TempSvg/>
+                <p>
+                  {predict(props.climatePrediction,
+                           props.year,"tavg_median","Temperature","°C")}
+                </p>
+              </div>
+              <div className={"vert-container"}>
+                <RainSvg/>              
+                <p>
+                  {predict(props.climatePrediction,
+                           props.year,"rain_median","Rainfall","%")}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        </LoadingOverlay>
     );
 }
 

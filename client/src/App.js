@@ -47,8 +47,13 @@ class App extends React.Component {
             network: { nodes: [], edges: [] },
             climatePrediction: [],           
             average: "ann",
-            year: 2086
+            year: 2086,
+            loadingPrediction: false
         };
+    }
+
+    componentDidMount() {
+        this.networkRenderer.loadIcons();
     }
 
     regionsCallback = (regions,regionType) => {
@@ -66,7 +71,8 @@ class App extends React.Component {
 
     climatePredictionCallback = (prediction) => {
         this.setState((state) => ({
-            climatePrediction: prediction
+            climatePrediction: prediction,
+            loadingPrediction: false
         }));
     }
     
@@ -91,78 +97,86 @@ class App extends React.Component {
                 average = {this.state.average}
                 regionType = {this.state.regionType}
                 callback = {this.climatePredictionCallback}
+                loadingCallback={ loading => { this.setState(() => ({ loadingPrediction: true })); }}
               />
 
               <ClimateMap
                 regionsCallback={this.regionsCallback}
               />
+
+              <hr/>
+
+              <p>
+                Calculate using 
+                <select onChange={(e) => { this.setState(() => ({
+                    average: e.target.value                  
+                }));}}>
+                  <option value="ann">Yearly</option>
+                  <option value="djf">Winter</option>
+                  <option value="jja">Summer</option>
+                </select>
+                
+                average predictions for year 
+                
+                <select onChange={(e) => { this.setState(() => ({
+                    year: e.target.value                  
+                }));}}>
+                  <option value="1996">1996</option>
+                  <option value="2006">2006</option>
+                  <option value="2016">2016</option>
+                  <option value="2026">2026</option>
+                  <option value="2036">2036</option>
+                  <option value="2046">2046</option>
+                  <option value="2056">2056</option>
+                  <option value="2066">2066</option>
+                  <option value="2076">2076</option>
+                  <option selected value="2086">2086</option>
+                </select>
+              </p>
+
+              <hr/>
+
+              <ClimateSummary
+                climatePrediction = {this.state.climatePrediction}
+                network = {this.state.network}
+                year = {this.state.year}
+                average = {this.state.average}
+                regions = {this.state.regions}
+                loading = {this.state.loadingPrediction}
+              />
+
+              <hr/>
               
-              <div>
+              <Graph
+                regions={this.state.regions}
+                regionType={this.state.regionType}                
+              />
 
-                <p>
-                  Calculate using 
-                  <select onChange={(e) => { this.setState(() => ({
-                      average: e.target.value                  
-                  }));}}>
-                    <option value="ann">Yearly</option>
-                    <option value="djf">Winter</option>
-                    <option value="jja">Summer</option>
-                  </select>
-                  
-                  average predictions for year 
-                  
-                  <select onChange={(e) => { this.setState(() => ({
-                      year: e.target.value                  
-                  }));}}>
-                    <option value="1996">1996</option>
-                    <option value="2006">2006</option>
-                    <option value="2016">2016</option>
-                    <option value="2026">2026</option>
-                    <option value="2036">2036</option>
-                    <option value="2046">2046</option>
-                    <option value="2056">2056</option>
-                    <option value="2066">2066</option>
-                    <option value="2076">2076</option>
-                    <option selected value="2086">2086</option>
-                  </select>
-                </p>
-                
-                <ClimateSummary
-                  climatePrediction = {this.state.climatePrediction}
-                  network = {this.state.network}
-                  year = {this.state.year}
-                  average = {this.state.average}
-                  regions = {this.state.regions}
-                />
+              <hr/>
 
-                <Graph
-                  regions={this.state.regions}
-                  regionType={this.state.regionType}                
-                />
+              <HealthWellbeing
+                network = {this.state.network}
+                year = {this.state.year}
+                climatePrediction = {this.state.climatePrediction}
+                regions = {this.state.regions}
+                loading = {this.state.loadingPrediction}
+              />
 
-                <HealthWellbeing
-                  network = {this.state.network}
-                  year = {this.state.year}
-                  climatePrediction = {this.state.climatePrediction}
-                  regions={this.state.regions}
-                />
-                
-                <Network
-                  regions={this.state.regions}
-                  regionType={this.state.regionType}                
-                  network={this.state.network}
-                  year = {this.state.year}
-                  average = {this.state.average}
-                  climatePrediction = {this.state.climatePrediction}
-                  networkRenderer = {this.networkRenderer}
-                />
-              </div> 
-            </div>
-            
+              <hr/>
+
+              <Network
+                regions = {this.state.regions}
+                regionType = {this.state.regionType}                
+                network = {this.state.network}
+                year = {this.state.year}
+                average = {this.state.average}
+                climatePrediction = {this.state.climatePrediction}
+                networkRenderer = {this.networkRenderer}
+              />
+            </div> 
         );
     }
 }
 
 export default App;
 
-//               { this.state.regions.length > 0 &&

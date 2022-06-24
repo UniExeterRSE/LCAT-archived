@@ -11,6 +11,7 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import React, { useEffect, useState } from 'react';
+import LoadingOverlay from "react-loading-overlay";
 
 import { ReactComponent as HealthAndWellbeingSvg } from '../images/icons/Public health & wellbeing.svg';
 import { NetworkParser } from '../core/NetworkParser';
@@ -19,16 +20,22 @@ import { andify } from '../utils/utils';
 function HealthWellbeing(props) {
 
     const [ networkParser, setNetworkParser ] = useState(
-        new NetworkParser(props.network.nodes,
-                          props.network.edges));
+        new NetworkParser(
+            props.network.nodes,
+            props.network.edges));
 
     useEffect(() => {
-        setNetworkParser(new NetworkParser(props.network.nodes,
-                                           props.network.edges));
+        setNetworkParser(new NetworkParser(
+            props.network.nodes,
+            props.network.edges));
     }, [props.network]);
     
     return (
-        <div>
+        <LoadingOverlay
+          active={props.loading}
+          spinner
+          text={'Loading climate data'}>
+
           <h1>Health Impact Summary</h1>
 
           <p>
@@ -58,7 +65,7 @@ function HealthWellbeing(props) {
                     </div>
                 )) }
           </div>  
-        </div>
+        </LoadingOverlay>
     );
 }
 

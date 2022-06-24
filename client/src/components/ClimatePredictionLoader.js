@@ -9,7 +9,6 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
-
 import { useEffect } from 'react';
 
 function ClimatePredictionLoader(props) {
@@ -31,6 +30,8 @@ function ClimatePredictionLoader(props) {
                     new URLSearchParams(
                         props.regions.map(v => ["locations",v.id]));
 
+                props.loadingCallback();
+                
                 fetch(url).then(response => {
                     response.json()
                         .then( v => {

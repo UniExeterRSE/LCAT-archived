@@ -44,5 +44,7 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "svg-url-loader": "^7.1.1"
+  }
 }
