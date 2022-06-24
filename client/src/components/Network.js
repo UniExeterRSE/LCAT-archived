@@ -71,6 +71,9 @@ class Network extends React.Component {
     }
 
     render () {
+        if (this.props.regions.length == 0) {
+            return null;
+        }
         return (
             <div>
               <h1>Health Impacts</h1>

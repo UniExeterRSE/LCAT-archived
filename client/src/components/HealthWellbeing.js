@@ -30,6 +30,10 @@ function HealthWellbeing(props) {
             props.network.edges));
     }, [props.network]);
     
+    if (props.regions.length == 0) {
+        return null;
+    }
+    
     return (
         <LoadingOverlay
           active={props.loading}

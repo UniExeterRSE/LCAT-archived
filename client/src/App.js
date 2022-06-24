@@ -104,10 +104,9 @@ class App extends React.Component {
                 regionsCallback={this.regionsCallback}
               />
 
-              <hr/>
-
+              { this.state.regions.length > 0 &&
               <p>
-                Calculate using 
+                Calculate impacts below using 
                 <select onChange={(e) => { this.setState(() => ({
                     average: e.target.value                  
                 }));}}>
@@ -132,9 +131,7 @@ class App extends React.Component {
                   <option value="2076">2076</option>
                   <option selected value="2086">2086</option>
                 </select>
-              </p>
-
-              <hr/>
+              </p>}
 
               <ClimateSummary
                 climatePrediction = {this.state.climatePrediction}
@@ -144,15 +141,11 @@ class App extends React.Component {
                 regions = {this.state.regions}
                 loading = {this.state.loadingPrediction}
               />
-
-              <hr/>
               
               <Graph
                 regions={this.state.regions}
                 regionType={this.state.regionType}                
               />
-
-              <hr/>
 
               <HealthWellbeing
                 network = {this.state.network}
@@ -161,8 +154,6 @@ class App extends React.Component {
                 regions = {this.state.regions}
                 loading = {this.state.loadingPrediction}
               />
-
-              <hr/>
 
               <Network
                 regions = {this.state.regions}

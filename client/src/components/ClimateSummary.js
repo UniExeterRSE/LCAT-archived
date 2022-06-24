@@ -39,7 +39,9 @@ function predict(prediction,year,variable,name,units) {
 }
 
 function ClimateSummary(props) {
-
+    if (props.regions.length == 0) {
+        return null;
+    }
     return (
         <LoadingOverlay
           active={props.loading}
@@ -73,7 +75,7 @@ function ClimateSummary(props) {
               </div>
             </div>
           </div>
-        </LoadingOverlay>
+        </LoadingOverlay>        
     );
 }
 
