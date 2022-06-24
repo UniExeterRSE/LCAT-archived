@@ -499,3 +499,7 @@ g span {
     align-items: center;
     justify-content: center;
 }
+
+.nonsense {
+    color: red;
+}
