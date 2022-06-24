@@ -14,11 +14,11 @@ import DocumentMeta from 'react-document-meta';
 
 import './App.css';
 
-import ClimateMap from "./components/ClimateMap.js";
-import ClimateSummary from "./components/ClimateSummary.js";
-import Graph from "./components/Graph.js";
+import ClimateMap from "./components/ClimateMap";
+import ClimateSummary from "./components/ClimateSummary";
+import Graph from "./components/Graph";
 import HealthWellbeing from './components/HealthWellbeing';
-import Network from "./components/Network.js";
+import Network from "./components/Network";
 import NetworkLoader from './components/NetworkLoader';
 import ClimatePredictionLoader from './components/ClimatePredictionLoader';
 
