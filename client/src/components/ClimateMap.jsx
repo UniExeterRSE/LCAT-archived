@@ -47,14 +47,14 @@ class ClimateMap extends React.Component {
             triggerLoadingIndicator: true
         };
 
-		this.cols = colormap({
-			colormap: 'bathymetry',
-			nshades: 100,
-			format: 'hex',
-			alpha: 0.5
-		});
+        this.cols = colormap({
+            colormap: 'bathymetry',
+            nshades: 100,
+            format: 'hex',
+            alpha: 0.5
+        });
 
-		this.cols.reverse();
+        this.cols.reverse();
         this.score_adjust=0.7;
     }
 
@@ -67,37 +67,37 @@ class ClimateMap extends React.Component {
         // colour based on IMD score
         let col = this.cols[Math.round(feature.properties.imdscore/this.score_adjust)];
         let gid = feature.properties.gid;
-		layer.bindTooltip(feature.properties.name+
+        layer.bindTooltip(feature.properties.name+
                           "<br>IMD Score: "+
                           feature.properties.imdscore);
         
         layer.setStyle({
             'weight': 1,
-			'fillColor': col,
-			'fillOpacity': 1
-		});
+            'fillColor': col,
+            'fillOpacity': 1
+        });
 
         
         if (this.regionsIncludes(gid)) {
             layer.setStyle({'fillColor': highlightCol});
         }
 
-	    layer.on('mouseover', function(e) {
-		    layer.bringToFront();
-		    layer.setStyle({'weight': 3});
-	    });
+        layer.on('mouseover', function(e) {
+            layer.bringToFront();
+            layer.setStyle({'weight': 3});
+        });
         
-	    layer.on('mouseout', function(e) {
-		    layer.setStyle({'weight': 1});
-	    });
+        layer.on('mouseout', function(e) {
+            layer.setStyle({'weight': 1});
+        });
 
-		layer.on('click', () => {
- 			if (!this.regionsIncludes(gid)) {
+        layer.on('click', () => {
+            if (!this.regionsIncludes(gid)) {
                 console.log("adding");
-				layer.setStyle({
-					'fillColor': highlightCol,
-					'fillOpacity': 1
-				});
+                layer.setStyle({
+                    'fillColor': highlightCol,
+                    'fillOpacity': 1
+                });
                 
                 this.setState((prev) => ({
                     // do not use push because [].push(1) = 1!? 
@@ -106,18 +106,18 @@ class ClimateMap extends React.Component {
                         name: feature.properties.name
                     }]
                 }));
-			} else {
+            } else {
                 console.log("removing");
-				layer.setStyle({
-					'fillColor': col,
-					'fillOpacity': 1
-				});
+                layer.setStyle({
+                    'fillColor': col,
+                    'fillOpacity': 1
+                });
                 
                 this.setState((prev) => ({
                     regions: prev.regions.filter((v,i) => v.id!==gid)
                 }));
-			}
-		});
+            }
+        });
     }
 
     geojsonCallback = (data) => {
@@ -131,9 +131,9 @@ class ClimateMap extends React.Component {
     render() {
         return (
             <div>
-		      <h2>Select Zones</h2>		
-		      <p>
-		        To begin, click/tap on the map to select the 
+              <h2>Select Zones</h2>     
+              <p>
+                To begin, click/tap on the map to select the 
                 <select onChange={(e) => { this.setState(() => ({
                     regionType: e.target.value,
                     // clear regions when the type changes
@@ -149,7 +149,7 @@ class ClimateMap extends React.Component {
                   <option value="IMD">Index of Multiple Deprivation</option>
                 </select>
                 is shown to help guide you to priority areas.
-		      </p>
+              </p>
               
               <RegionsListener
                 regions={this.state.regions}
@@ -180,9 +180,9 @@ class ClimateMap extends React.Component {
                 </MapContainer>
               </LoadingOverlay>
               <p>
-		        English Indices of Deprivation 2019 Open Data from <a href="https://opendatacommunities.org/resource?uri=http%3A%2F%2Fopendatacommunities.org%2Fdata%2Fsocietal-wellbeing%2Fimd2019%2Findices">
-			              Ministry of Housing, Communities and Local Government</a>
-		      </p>
+                English Indices of Deprivation 2019 Open Data from <a href="https://opendatacommunities.org/resource?uri=http%3A%2F%2Fopendatacommunities.org%2Fdata%2Fsocietal-wellbeing%2Fimd2019%2Findices">
+                                                                     Ministry of Housing, Communities and Local Government</a>
+              </p>
 
             </div>
         );
