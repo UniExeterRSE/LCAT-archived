@@ -52,7 +52,6 @@ class NetworkRenderer {
 	}
     
     loadIcons() {
-        this.loadIcon();
     }
     
 	async loadIcon(fn) {

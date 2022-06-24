@@ -68,7 +68,8 @@ admin.setup = function(app) {
         },
     })
 
-
+    adminJs.watch()
+    
     const adminRouter = AdminJSExpress.buildRouter(adminJs)
 
     app.use(adminJs.options.rootPath, (req, res, next) => {
