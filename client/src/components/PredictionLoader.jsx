@@ -1,4 +1,3 @@
-// -*- mode: rjsx;  -*-
 // Copyright (C) 2022 Then Try This
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -9,9 +8,10 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
+
 import { useEffect } from 'react';
 
-function ClimatePredictionLoader(props) {
+function PredictionLoader(props) {
     useEffect(() => {
         // don't bother loading if we have no regions yet
         if (props.regions.length>0) {
@@ -30,8 +30,6 @@ function ClimatePredictionLoader(props) {
                     new URLSearchParams(
                         props.regions.map(v => ["locations",v.id]));
 
-                props.loadingCallback();
-                
                 fetch(url).then(response => {
                     response.json()
                         .then( v => {
@@ -50,4 +48,4 @@ function ClimatePredictionLoader(props) {
     return null;
 }
 
-export default ClimatePredictionLoader;
+export default PredictionLoader;
