@@ -57,14 +57,16 @@ function HealthWellbeing(props) {
                 props.year).map((node) => (
                     <div className={"vert-container"}>
                       <HealthAndWellbeingSvg/>
-                      <p><center>
-                           {node.title}
-                           <br/>
-                           <b>
-                             {node.state === "increase" ?
-                              "Increases" : "Decreases"}
-                           </b>
-                         </center></p>
+                      <center>
+                        <p>
+                          {node.title}
+                          <br/>
+                          <b>
+                            {node.state === "increase" ?
+                             "Increases" : "Decreases"}
+                          </b>
+                        </p>
+                      </center>
                     </div>
                 )) }
           </div>  

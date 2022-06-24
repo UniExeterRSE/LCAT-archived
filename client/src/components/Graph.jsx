@@ -46,14 +46,14 @@ class Graph extends Component {
             <div>
               <h1>Climate Graphs</h1>
               <p>
-		      The graph below shows the future climate change 
-		      expected in 
+              The graph below shows the future climate change 
+              expected in 
               
               <span className={"projected-regions"}>
                 { andify(this.props.regions.map(e => e.name)) }.
               </span>
               
-		      You are viewing 
+              You are viewing 
 
               <select onChange={(e) => { this.setState(() => ({
                   table: e.target.value                  
