@@ -42,7 +42,7 @@ function HealthWellbeing(props) {
           <h1>Health Impact Summary</h1>
 
           <p>
-            The climate change forcast in
+            The climate change forecast in
             
             <span className={"projected-regions"}>
               { andify(props.regions.map(e => e.name)) }.

@@ -46,7 +46,7 @@ function ClimateSummary(props) {
           <div>
             <h1>Climate Summary</h1>
             <p>
-              The climate forcast in
+              The climate forecast in
 
               <span className={"projected-regions"}>
                 { andify(props.regions.map(e => e.name)) }.

@@ -81,7 +81,7 @@ class Network extends React.Component {
                   { andify(this.props.regions.map(e => e.name)) }.
                 </span>
                 
-                you are currently viewing impacts in
+                You are currently viewing impacts in
 
                 <select>
                   <option value="all">All sectors</option>
