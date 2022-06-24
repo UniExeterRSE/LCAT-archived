@@ -11,7 +11,7 @@
 
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
-import GeoJSONLoader from './GeoJSONLoader.js';
+import GeoJSONLoader from './GeoJSONLoader';
 import './ClimateMap.css';
 import LoadingOverlay from "react-loading-overlay";
 

@@ -39,7 +39,7 @@ class Graph extends Component {
     }
     
     render() {
-        if (this.props.regions.length == 0) {
+        if (this.props.regions.length === 0) {
             return null;
         }
         return (            

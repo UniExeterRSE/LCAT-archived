@@ -29,7 +29,7 @@ function HealthWellbeing(props) {
             props.network.edges));
     }, [props.network]);
     
-    if (props.regions.length == 0) {
+    if (props.regions.length === 0) {
         return null;
     }
     
@@ -61,7 +61,7 @@ function HealthWellbeing(props) {
                            {node.title}
                            <br/>
                            <b>
-                             {node.state == "increase" ?
+                             {node.state === "increase" ?
                               "Increases" : "Decreases"}
                            </b>
                          </center></p>

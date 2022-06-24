@@ -10,7 +10,6 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import LoadingOverlay from "react-loading-overlay";
-import { useState } from 'react';
 
 import { ReactComponent as TempSvg } from '../images/temp.svg';
 import { ReactComponent as RainSvg } from '../images/rain.svg';
@@ -20,12 +19,12 @@ import { andify } from '../utils/utils';
 function predict(prediction,year,variable,name,units) {
     let v = 0;
     for (let p of prediction) {
-        if (p.year==year) {
+        if (p.year===year) {
             v = p[variable].toFixed(2);
         }
     }
 
-    if (v==0) {
+    if (v===0) {
         return "No change in "+name;
     }
     if (v>0) {
@@ -33,12 +32,10 @@ function predict(prediction,year,variable,name,units) {
     } else {               
         return "Decreased "+name+" ("+v+" "+units+")";
     }
-        
-    return "Error";
 }
 
 function ClimateSummary(props) {
-    if (props.regions.length == 0) {
+    if (props.regions.length === 0) {
         return null;
     }
     return (

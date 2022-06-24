@@ -24,10 +24,10 @@ class NetworkParser {
         this.globalThreshold = 0.0001;
 
 		for (let node of nodes) {
-            if (node.type=="health-wellbeing") {
+            if (node.type==="health-wellbeing") {
                 this.healthNodes.push(node);
             }
-            if (node.type=="climate") {
+            if (node.type==="climate") {
                 this.causeNodes.push(node);
 		    }
         }
@@ -35,7 +35,7 @@ class NetworkParser {
     
     searchNode(id) {
         for (let node of this.nodes) {
-            if (node.node_id==id) {
+            if (node.node_id===id) {
                 return node;
             }
         }
@@ -45,7 +45,7 @@ class NetworkParser {
 
     getPrediction(prediction,year,variable) {
         for (let p of prediction) {
-            if (p.year==year) {
+            if (p.year===year) {
                 return p[variable];
             }
         }
@@ -53,9 +53,9 @@ class NetworkParser {
     }
 
     flipState(state) {
-        if (state=="disabled") return state;
+        if (state==="disabled") return state;
 
-        if (state=="increase") {
+        if (state==="increase") {
             return "decrease";
         } else {
             return "increase";
@@ -65,9 +65,9 @@ class NetworkParser {
     recurCalculate(node,state,fn) {
         node.state=state;       
         for (let edge of this.edges) {
-            if (edge.node_from==node.node_id) {
+            if (edge.node_from===node.node_id) {
                 let child = this.searchNode(edge.node_to);
-                if (edge.direction==0) {                
+                if (edge.direction===0) {                
                     this.recurCalculate(child,state);
                 } else {
                     this.recurCalculate(child,this.flipState(state));
