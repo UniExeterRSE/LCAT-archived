@@ -131,6 +131,9 @@ class NetworkRenderer {
 ///////////////////////////////////////
     
 	addNode(node,y) {
+        if (node.state=="disabled") {
+            return;
+        }
         let change = "Increases";
         if (node.state=="decrease") {
             change = "Decreases";

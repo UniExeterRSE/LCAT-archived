@@ -78,7 +78,7 @@ class Network extends React.Component {
             <div>
               <h1>Health Impacts</h1>
               <p>
-                The network below show how climate change will impact health in
+                The network below <span className={"nonsense"}>(with nonsense test data)</span> shows how climate change will impact health in
 
                 <span className={"projected-regions"}>
                   { andify(this.props.regions.map(e => e.name)) }.
