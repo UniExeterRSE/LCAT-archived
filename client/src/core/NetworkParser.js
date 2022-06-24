@@ -81,7 +81,7 @@ class NetworkParser {
             if (this.getPrediction(climatePrediction,year,cause.variable)>this.globalThreshold) {
                 this.recurCalculate(cause,"increase");                
             } else {
-                if (this.getPrediction(climatePrediction,year,cause.variable)<this.globalThreshold) {
+                if (this.getPrediction(climatePrediction,year,cause.variable)<-this.globalThreshold) {
                     this.recurCalculate(cause,"decrease");
                 } else {
                     this.recurCalculate(cause,"disabled");
