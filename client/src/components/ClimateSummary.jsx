@@ -19,12 +19,11 @@ import { andify } from '../utils/utils';
 function predict(prediction,year,variable,name,units) {
     let v = 0;
     for (let p of prediction) {
-        if (p.year===year) {
+        if (p.year==year) {
             v = p[variable].toFixed(2);
         }
     }
-
-    if (v===0) {
+    if (v==0) {
         return "No change in "+name;
     }
     if (v>0) {

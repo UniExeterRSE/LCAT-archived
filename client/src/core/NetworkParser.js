@@ -45,7 +45,7 @@ class NetworkParser {
 
     getPrediction(prediction,year,variable) {
         for (let p of prediction) {
-            if (p.year===year) {
+            if (p.year==year) {
                 return p[variable];
             }
         }
@@ -65,9 +65,9 @@ class NetworkParser {
     recurCalculate(node,state,fn) {
         node.state=state;       
         for (let edge of this.edges) {
-            if (edge.node_from===node.node_id) {
+            if (edge.node_from==node.node_id) {
                 let child = this.searchNode(edge.node_to);
-                if (edge.direction===0) {                
+                if (edge.direction==0) {                
                     this.recurCalculate(child,state);
                 } else {
                     this.recurCalculate(child,this.flipState(state));
