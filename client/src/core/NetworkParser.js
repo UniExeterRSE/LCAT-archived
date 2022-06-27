@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+// move around the network tagging nodes to indicate their current state,
+// starting with a climate prediction (and other variables eventually)
 class NetworkParser {
 
     constructor(nodes,edges) {
@@ -23,6 +25,8 @@ class NetworkParser {
         this.causeNodes = [];
         this.globalThreshold = 0.0001;
 
+        this.visited=[];
+        
 		for (let node of nodes) {
             if (node.type==="health-wellbeing") {
                 this.healthNodes.push(node);
@@ -34,13 +38,12 @@ class NetworkParser {
     }
     
     searchNode(id) {
-        for (let node of this.nodes) {
-            if (node.node_id===id) {
-                return node;
-            }
-        }
-        console.log("could not find node: "+id);
-        return null;
+        let node = this.nodes.find(node => node.node_id===id);
+        if (node===undefined) {
+            console.log("could not find node: "+id);
+            return null;
+        } 
+        return node;
     }
 
     getPrediction(prediction,year,variable) {
@@ -66,17 +69,20 @@ class NetworkParser {
         node.state=state;       
         for (let edge of this.edges) {
             if (edge.node_from==node.node_id) {
-                let child = this.searchNode(edge.node_to);
-                if (edge.direction==0) {                
+                let child = this.searchNode(edge.node_to);               
+                if (edge.direction==1) {                
+                    state=this.flipState(state);
+                }
+                if (this.visited[child.node_id]==undefined) {
+                    this.visited[child.node_id]=state;
                     this.recurCalculate(child,state);
-                } else {
-                    this.recurCalculate(child,this.flipState(state));
-                }                
-            }        
+                }
+           }        
         }
     }
 
     calculate(climatePrediction,year) {
+        this.visited=[];
         for (let cause of this.causeNodes) {            
             if (this.getPrediction(climatePrediction,year,cause.variable)>this.globalThreshold) {
                 this.recurCalculate(cause,"increase");                
@@ -90,7 +96,7 @@ class NetworkParser {
         }
     }
     
-    calculateHealthWellbeing(climatePrediction,year) {
+    calculateHealthWellbeing(climatePrediction,year) {        
         this.calculate(climatePrediction,year);
         let ret = [];
         // only return nodes that are increasing or decreasing
