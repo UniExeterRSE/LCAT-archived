@@ -52,7 +52,8 @@ function NetworkListener(props) {
         props.callback(props.network);
     }, [props.network,
         props.climatePrediction,
-        props.year]);
+        props.year,
+        props.sector]);
     return null;
 }
 
@@ -63,7 +64,8 @@ class Network extends React.Component {
 
         this.state={
             version: 0,
-            graph: { nodes: [], edges: [] }        
+            graph: { nodes: [], edges: [] },
+            sector: "all"
         };
     }
 
@@ -83,21 +85,28 @@ class Network extends React.Component {
                 
                 You are currently viewing impacts in
 
-                <select>
+                <select onChange={(e) => { this.setState(() => ({
+                    sector: e.target.value,
+                    // clear regions when the type changes
+                }));}}>                  
                   <option value="all">All sectors</option>
+                  <option value="wildfowl">Wildfowl</option>
+                  <option value="confectionary">Confectionary</option>
                 </select>
               </p>
               <NetworkListener
                 network = {this.props.network}
                 climatePrediction = {this.props.climatePrediction}
                 year = {this.props.year}
+                sector = {this.state.sector}
                 callback = {(network) => {
                     this.setState((state) => ({
                         version: state.version+1, 
                         graph: this.props.networkRenderer.buildGraph(network.nodes,
                                                                      network.edges,
                                                                      this.props.climatePrediction,
-                                                                     this.props.year)
+                                                                     this.props.year,
+                                                                     this.state.sector)
                     }));
                 }}
               />
@@ -106,7 +115,7 @@ class Network extends React.Component {
                 graph={this.state.graph}
                 options={options}
                 events={events}
-                style={{height: 400}}
+                style={{height: 800}}
                 getNetwork={this.getNetwork}
                 getEdges={this.getEdges}
                 getNodes={this.getNodes}

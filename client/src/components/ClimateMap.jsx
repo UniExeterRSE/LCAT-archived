@@ -93,7 +93,6 @@ class ClimateMap extends React.Component {
 
         layer.on('click', () => {
             if (!this.regionsIncludes(gid)) {
-                console.log("adding");
                 layer.setStyle({
                     'fillColor': highlightCol,
                     'fillOpacity': 1
@@ -107,7 +106,6 @@ class ClimateMap extends React.Component {
                     }]
                 }));
             } else {
-                console.log("removing");
                 layer.setStyle({
                     'fillColor': col,
                     'fillOpacity': 1

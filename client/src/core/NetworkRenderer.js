@@ -134,10 +134,9 @@ class NetworkRenderer {
         if (node.state=="disabled") {
             return;
         }
-        let change = "Increases";
-        if (node.state=="decrease") {
-            change = "Decreases";
-        }
+
+        let change = node.state.asText();
+
         if (node.type=="health-wellbeing") {
             this.healthNodes.push(node);
         }
@@ -175,7 +174,7 @@ class NetworkRenderer {
 			to: edge.node_to,
 			arrows: "to",
 			//label: " "+label+" ",
-            label: edge.description,
+            label: edge.description+" ("+label+")",
 			labelHighlightBold: false,
 			arrowStrikethrough: false,
 			font: {
@@ -192,11 +191,10 @@ class NetworkRenderer {
 		});
 	}
     
-	buildGraph(nodes, edges, climatePrediction, year) {               
-
+	buildGraph(nodes, edges, climatePrediction, year, sector) {               
         let networkParser = new NetworkParser(nodes,edges);
-        console.log([climatePrediction, year]);
-        networkParser.calculate(climatePrediction, year);
+        //console.log([climatePrediction, year]);
+        networkParser.calculate(climatePrediction,year,sector);
         nodes = networkParser.nodes;
 		edges = networkParser.edges;
 
@@ -209,8 +207,10 @@ class NetworkRenderer {
 		let c = 0;
         // find causes and propagate upwards (right?) from there
 		for (let node of nodes) {
-   			this.addNode(node,c);
-			c+=1;
+            if (node.state.value!="deactivated") {
+   			    this.addNode(node,c);
+			    c+=1;
+            }
 		}
 
 		for (let edge of edges) {
