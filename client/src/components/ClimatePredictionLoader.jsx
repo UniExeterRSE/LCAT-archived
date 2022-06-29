@@ -32,11 +32,7 @@ function ClimatePredictionLoader(props) {
                 props.loadingCallback();
                 
                 fetch(url).then(response => {
-                    response.json()
-                        .then( v => {
-                            console.log(v);
-                            props.callback(v);
-                        });
+                    response.json().then(v => props.callback(v));
                 });
             } catch(error) {
                 console.error(error);

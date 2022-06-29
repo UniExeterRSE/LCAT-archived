@@ -16,6 +16,53 @@
 
 // move around the network tagging nodes to indicate their current state,
 // starting with a climate prediction (and other variables eventually)
+
+class NetworkState {
+    constructor(value) {
+        this.validStates = ["deactivated",
+                            "uncertain",
+                            "increase",
+                            "decrease"];
+        this.set(value);
+    }
+
+    set(value) {
+        if (this.validStates.includes(value)) {
+            this.value=value;
+        } else {
+            console.log("invalid state setting: "+value);
+        }
+    }
+    
+    flip() {
+        if (this.value==="increase") {
+            this.value="decrease";
+        } else {       
+            if (this.value==="decrease") {
+                this.value="increase";
+            }
+        }
+        // no change if disabled, uncertain etc
+    }
+
+    isOppositeTo = (other) => (
+        (this.value==="increase" && other.value==="decrease") ||
+        (this.value==="decrease" && other.value==="increase")
+    )
+
+    isDifferentTo = (other) => (
+        (this.value!=other.value)
+    )
+
+    asText() {
+        if (this.value==="deactivated") return "Deactivated";
+        if (this.value==="uncertain") return "Uncertain";
+        if (this.value==="increase") return "Increases";
+        if (this.value==="decrease") return "Decreases";
+        return "Error";
+    }
+}
+
 class NetworkParser {
 
     constructor(nodes,edges) {
@@ -28,6 +75,7 @@ class NetworkParser {
         this.visited=[];
         
 		for (let node of nodes) {
+            node.state=new NetworkState("deactivated");
             if (node.type==="health-wellbeing") {
                 this.healthNodes.push(node);
             }
@@ -55,53 +103,74 @@ class NetworkParser {
         return 0;
     }
 
-    flipState(state) {
-        if (state==="disabled") return state;
-
-        if (state==="increase") {
-            return "decrease";
-        } else {
-            return "increase";
-        }
-    }
-    
-    recurCalculate(node,state,fn) {
+    recurCalculate(node,state,sector) {
+        // set the supplied state to the node now
         node.state=state;       
         for (let edge of this.edges) {
             if (edge.node_from==node.node_id) {
-                let child = this.searchNode(edge.node_to);               
-                if (edge.direction==1) {                
-                    state=this.flipState(state);
+                let child = this.searchNode(edge.node_to);
+                // filter on sector 
+                if (sector=="all" || sector==child.type) {
+                    
+                    // make a copy of the parent state
+                    let childState = new NetworkState(state.value);
+                    
+                    // negative correlation
+                    if (edge.direction==1) {
+                        childState.flip();
+                    }
+                    
+                    // have we visted this one before?
+                    let previousState = this.visited[child.node_id];
+                    if (previousState!=undefined) {
+                        // if opposing...
+                        if (childState.isOppositeTo(previousState)) {
+                            childState.set("uncertain");
+                            // recur to flip dependant nodes states
+                            // to uncertain based on this new state
+                            this.visited[child.node_id]=childState;
+                            this.recurCalculate(child,childState,"all");
+                        } else {
+                            if (childState.isDifferentTo(previousState)) {
+                                this.visited[child.node_id]=childState;
+                                this.recurCalculate(child,childState,"all");
+                            }
+                        }
+                        
+                    } else {
+                        this.visited[child.node_id]=childState;
+                        // only run the filter on primary impacts (the ones
+                        // directly after climate change variables) so set to
+                        // "all" when we recurse downward from here
+                        this.recurCalculate(child,childState,"all");
+                    }
                 }
-                if (this.visited[child.node_id]==undefined) {
-                    this.visited[child.node_id]=state;
-                    this.recurCalculate(child,state);
-                }
-           }        
+            }        
         }
     }
 
-    calculate(climatePrediction,year) {
+    calculate(climatePrediction,year,sector) {
         this.visited=[];
         for (let cause of this.causeNodes) {            
             if (this.getPrediction(climatePrediction,year,cause.variable)>this.globalThreshold) {
-                this.recurCalculate(cause,"increase");                
+                this.recurCalculate(cause,new NetworkState("increase"),sector);
             } else {
                 if (this.getPrediction(climatePrediction,year,cause.variable)<-this.globalThreshold) {
-                    this.recurCalculate(cause,"decrease");
+                    this.recurCalculate(cause,new NetworkState("decrease"),sector);
                 } else {
-                    this.recurCalculate(cause,"disabled");
+                    this.recurCalculate(cause,new NetworkState("deactivated"),sector);
                 }
             }
         }
     }
-    
-    calculateHealthWellbeing(climatePrediction,year) {        
-        this.calculate(climatePrediction,year);
+
+    // run calculate then return active impacts
+    calculateHealthWellbeing(climatePrediction,year,sector) {        
+        this.calculate(climatePrediction,year,sector);
         let ret = [];
         // only return nodes that are increasing or decreasing
         for (let node of this.healthNodes) {
-            if (node.state!=undefined && node.state!="disabled") {
+            if (node.state.value!="deactivated") {
                 ret.push(node);
             }
         }

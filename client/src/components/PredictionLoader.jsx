@@ -33,7 +33,6 @@ function PredictionLoader(props) {
                 fetch(url).then(response => {
                     response.json()
                         .then( v => {
-                            console.log(v);
                             props.callback(v);
                         });
                 });

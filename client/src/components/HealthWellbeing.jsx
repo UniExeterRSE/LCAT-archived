@@ -54,7 +54,7 @@ function HealthWellbeing(props) {
           <div className={"horiz-container"}>        
             { networkParser.calculateHealthWellbeing(
                 props.climatePrediction,
-                props.year).map((node) => (
+                props.year,"all").map((node) => (
                     <div className={"vert-container"}>
                       <HealthAndWellbeingSvg/>
                       <center>
@@ -62,8 +62,7 @@ function HealthWellbeing(props) {
                           {node.title}
                           <br/>
                           <b>
-                            {node.state === "increase" ?
-                             "Increases" : "Decreases"}
+                            {node.state.asText()}
                           </b>
                         </p>
                       </center>
