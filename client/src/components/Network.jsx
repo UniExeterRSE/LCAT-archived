@@ -91,7 +91,7 @@ class Network extends React.Component {
                 }));}}>                  
                   <option value="all">All sectors</option>
                   <option value="wildfowl">Wildfowl</option>
-                  <option value="confectionary">Confectionary</option>
+                  <option value="confectionary">Confectionery</option>
                 </select>
               </p>
               <NetworkListener
