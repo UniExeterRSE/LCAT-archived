@@ -18,7 +18,6 @@ function Sector(props) {
 
     return (
         <div>
-          <h1>Choose sector</h1>
           <p>
             You are currently viewing impacts in
 

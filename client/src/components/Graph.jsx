@@ -39,64 +39,71 @@ function Graph(props) {
         return null;
     }
     
-    return (            
-        <div>
-          <h1>Climate Graphs</h1>
-          <p>
-            The graph below shows the future climate change 
-            expected in 
-            
-            <span className={"projected-regions"}>
-              { andify(props.regions.map(e => e.name)) }.
-            </span>
-            
-            You are viewing 
+    return (
+        <div className="collapsible">
+          <div className="header" {...getToggleProps()}>
+            {isExpanded ? 'Hide' : 'Show'} Climate prediction details
+          </div>
+          <div {...getCollapseProps()}>
+            <div className="content">
+              <p>
+                The graph below shows the future climate change 
+                expected in 
+                
+                <span className={"projected-regions"}>
+                  { andify(props.regions.map(e => e.name)) }.
+                </span>
+                
+                You are viewing 
 
-            <select onChange={(e) => { setTable(e.target.value); }}>
-              <option value="hadgem_rcp85_tavg_ann">Annual mean temp</option>
-              <option value="hadgem_rcp85_tavg_djf">Winter mean temp</option>
-              <option value="hadgem_rcp85_tavg_jja">Summer mean temp</option>
-              <option value="hadgem_rcp85_tmax_ann">Annual max temp</option>
-              <option value="hadgem_rcp85_tmax_djf">Winter max temp</option>
-              <option value="hadgem_rcp85_tmax_jja">Summer max temp</option>
-              <option value="hadgem_rcp85_tmin_ann">Annual min temp</option>
-              <option value="hadgem_rcp85_tmin_djf">Winter min temp</option>
-              <option value="hadgem_rcp85_tmin_jja">Summer min temp</option>
-              <option value="hadgem_rcp85_rain_ann">Annual mean rain</option>
-              <option value="hadgem_rcp85_rain_djf">Winter mean rain</option>
-              <option value="hadgem_rcp85_rain_jja">Summer mean rain</option>
-            </select>
-          </p>
-          <ModelLoader
-            regions={props.regions}
-            table={table}
-            regionType={props.regionType}
-            callback={callback}
-          />
-          <FlexibleXYPlot height={300} xType="ordinal" color={summerCol}>
-            <XAxis title="Year"/>
-            { table.includes("rain") ? 
-              <YAxis title="Percent change"/> :
-              <YAxis title="Degrees change"/> }
-            <VerticalBarSeries
-              animation
-              data={data} />
-            <LabelSeries
-              animation
-              data={labelData}
+                <select onChange={(e) => { setTable(e.target.value); }}>
+                  <option value="hadgem_rcp85_tavg_ann">Annual mean temp</option>
+                  <option value="hadgem_rcp85_tavg_djf">Winter mean temp</option>
+                  <option value="hadgem_rcp85_tavg_jja">Summer mean temp</option>
+                  <option value="hadgem_rcp85_tmax_ann">Annual max temp</option>
+                  <option value="hadgem_rcp85_tmax_djf">Winter max temp</option>
+                  <option value="hadgem_rcp85_tmax_jja">Summer max temp</option>
+                  <option value="hadgem_rcp85_tmin_ann">Annual min temp</option>
+                  <option value="hadgem_rcp85_tmin_djf">Winter min temp</option>
+                  <option value="hadgem_rcp85_tmin_jja">Summer min temp</option>
+                  <option value="hadgem_rcp85_rain_ann">Annual mean rain</option>
+                  <option value="hadgem_rcp85_rain_djf">Winter mean rain</option>
+                  <option value="hadgem_rcp85_rain_jja">Summer mean rain</option>
+                </select>
+              </p>
+              <ModelLoader
+                regions={props.regions}
+                table={table}
+                regionType={props.regionType}
+                callback={callback}
+              />
+              <FlexibleXYPlot height={300} xType="ordinal" color={summerCol}>
+                <XAxis title="Year"/>
+                { table.includes("rain") ? 
+                  <YAxis title="Percent change"/> :
+                  <YAxis title="Degrees change"/> }
+                <VerticalBarSeries
+                  animation
+                  data={data} />
+                <LabelSeries
+                  animation
+                  data={labelData}
         /*labelAnchorY = {"auto"}*/
-              labelAnchorX = {"middle"}
-              getLabel={(d) => {
-                  return table.includes("rain") ?
-                      d.y.toFixed(2)+'%' :
-                      d.y.toFixed(2)+'°C';
-              }}/>
-          </FlexibleXYPlot>
+                  labelAnchorX = {"middle"}
+                  getLabel={(d) => {
+                      return table.includes("rain") ?
+                          d.y.toFixed(2)+'%' :
+                          d.y.toFixed(2)+'°C';
+                  }}/>
+              </FlexibleXYPlot>
 
-          <p>
-            Climate model data from <a href="https://uk-cri.org/">Climate Risk Indicators</a>
-          </p>
+              <p>
+                Climate model data from <a href="https://uk-cri.org/">Climate Risk Indicators</a>
+              </p>
+            </div>
+          </div>
         </div>
+
     );
 }
 

@@ -167,20 +167,26 @@ class NetworkRenderer {
         let label="-";
         if (edge.direction=="0") {
             label="+";
-        } 
+        }
+
+        var labelsize = 15;
+        
+        if (edge.description!=null && edge.description!="") {
+            label=edge.description+" ("+label+")";
+            labelsize = 5;
+        }
+        
         this.edges.push({
 			id: edge.edge_id,
 			from: edge.node_from,
 			to: edge.node_to,
 			arrows: "to",
-			//label: " "+label+" ",
-            label: edge.description+" ("+label+")",
+            label: label,
 			labelHighlightBold: false,
 			arrowStrikethrough: false,
 			font: {
-				//background: "#fff",
 				color: colour,
-				size: 5,
+				size: labelsize,
 				//vadjust: 10,
 				//align: "bottom"
 			},
