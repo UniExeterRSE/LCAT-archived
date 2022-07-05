@@ -266,34 +266,25 @@ section {
 
 /* Style the button that is used to open and close the collapsible content */
 .collapsible {
+
 	box-sizing: content-box;
 	position: relative;
 	width: 100%;
 	display: block;
 	border: none;
 	border-radius: 5px;	
-	background: #ffbc42;
 	margin-top: 0.25em;
 	margin-bottom: 0.25em;
 	font-size: 1.25em;
+	background: #ffbc4277;
 }
 
-.collapsible:after {
-	position: absolute;
-	content: "";
-	top: 0.5em;
-	right: 0.25em;
-	width: 0;
-	height: 0;
-	border: 8px solid transparent;
-	border-color: transparent transparent transparent black;
+.collapsible .header {
+	background: #ffbc42;
+    padding-left: 50px;
+    padding-right: 50px;
 }
 
-.active:after {
-	top: 0.6em;
-	right: 0.4em;
-	border-color: black transparent transparent transparent;
-}
 
 /* style the items (options), including the selected item: */
 .select-items div,.select-selected {

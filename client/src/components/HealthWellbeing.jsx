@@ -54,20 +54,22 @@ function HealthWellbeing(props) {
           <div className={"horiz-container"}>        
             { networkParser.calculateHealthWellbeing(
                 props.climatePrediction,
-                props.year,"all").map((node) => (
-                    <div className={"vert-container"}>
-                      <HealthAndWellbeingSvg/>
-                      <center>
-                        <p>
-                          {node.title}
-                          <br/>
-                          <b>
-                            {node.state.asText()}
-                          </b>
-                        </p>
-                      </center>
-                    </div>
-                )) }
+                props.year,
+                props.sector
+            ).map((node) => (
+                <div className={"vert-container"}>
+                  <HealthAndWellbeingSvg/>
+                  <center>
+                    <p>
+                      {node.title}
+                      <br/>
+                      <b>
+                        {node.state.asText()}
+                      </b>
+                    </p>
+                  </center>
+                </div>
+            )) }
           </div>  
         </LoadingOverlay>
     );

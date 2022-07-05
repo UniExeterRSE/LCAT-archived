@@ -10,6 +10,7 @@
     "dotenv": "^16.0.1",
     "leaflet": "^1.8.0",
     "react": "^18.1.0",
+    "react-collapsed": "^3.3.2",
     "react-document-meta": "^3.0.0-beta.2",
     "react-dom": "^18.1.0",
     "react-graph-vis": "^1.0.7",
