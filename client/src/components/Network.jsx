@@ -65,7 +65,6 @@ class Network extends React.Component {
         this.state={
             version: 0,
             graph: { nodes: [], edges: [] },
-            sector: "all"
         };
     }
 
@@ -80,25 +79,14 @@ class Network extends React.Component {
                 The network below <span className={"nonsense"}>(with nonsense test data)</span> shows how climate change will impact health in
 
                 <span className={"projected-regions"}>
-                  { andify(this.props.regions.map(e => e.name)) }.
-                </span>
-                
-                You are currently viewing impacts in
-
-                <select onChange={(e) => { this.setState(() => ({
-                    sector: e.target.value,
-                    // clear regions when the type changes
-                }));}}>                  
-                  <option value="all">All sectors</option>
-                  <option value="wildfowl">Wildfowl</option>
-                  <option value="confectionary">Confectionery</option>
-                </select>
+                  { andify(this.props.regions.map(e => e.name)) }
+                </span>.
               </p>
               <NetworkListener
                 network = {this.props.network}
                 climatePrediction = {this.props.climatePrediction}
                 year = {this.props.year}
-                sector = {this.state.sector}
+                sector = {this.props.sector}
                 callback = {(network) => {
                     this.setState((state) => ({
                         version: state.version+1, 
@@ -106,7 +94,7 @@ class Network extends React.Component {
                                                                      network.edges,
                                                                      this.props.climatePrediction,
                                                                      this.props.year,
-                                                                     this.state.sector)
+                                                                     this.props.sector)
                     }));
                 }}
               />

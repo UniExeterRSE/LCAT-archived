@@ -15,12 +15,14 @@ import DocumentMeta from 'react-document-meta';
 import './App.css';
 
 import ClimateMap from "./components/ClimateMap";
+import ClimateSettings from './components/ClimateSettings';
 import ClimateSummary from "./components/ClimateSummary";
+import ClimatePredictionLoader from './components/ClimatePredictionLoader';
 import Graph from "./components/Graph";
 import HealthWellbeing from './components/HealthWellbeing';
 import Network from "./components/Network";
 import NetworkLoader from './components/NetworkLoader';
-import ClimatePredictionLoader from './components/ClimatePredictionLoader';
+import Sector from './components/Sector';
 
 import { NetworkRenderer } from './core/NetworkRenderer';
 
@@ -47,7 +49,8 @@ class App extends React.Component {
             climatePrediction: [],           
             average: "ann",
             year: 2086,
-            loadingPrediction: false
+            loadingPrediction: false,
+            sector: "all"
         };
     }
 
@@ -103,35 +106,16 @@ class App extends React.Component {
                 regionsCallback={this.regionsCallback}
               />
 
-              { this.state.regions.length > 0 &&
-              <p>
-                Calculate impacts below using 
-                <select onChange={(e) => { this.setState(() => ({
-                    average: e.target.value                  
-                }));}}>
-                  <option value="ann">Yearly</option>
-                  <option value="djf">Winter</option>
-                  <option value="jja">Summer</option>
-                </select>
-                
-                average predictions for year 
-                
-                <select onChange={(e) => { this.setState(() => ({
-                    year: e.target.value                  
-                }));}}>
-                  <option value="1996">1996</option>
-                  <option value="2006">2006</option>
-                  <option value="2016">2016</option>
-                  <option value="2026">2026</option>
-                  <option value="2036">2036</option>
-                  <option value="2046">2046</option>
-                  <option value="2056">2056</option>
-                  <option value="2066">2066</option>
-                  <option value="2076">2076</option>
-                  <option selected value="2086">2086</option>
-                </select>
-              </p>}
-
+              <ClimateSettings
+                regions={this.state.regions}
+                averageCallback={(average) => { this.setState(() => ({
+                    average: average                  
+                }));}}
+                yearCallback={(year) => { this.setState(() => ({
+                    year: year                  
+                }));}}
+              />
+              
               <ClimateSummary
                 climatePrediction = {this.state.climatePrediction}
                 network = {this.state.network}
@@ -145,11 +129,18 @@ class App extends React.Component {
                 regions={this.state.regions}
                 regionType={this.state.regionType}                
               />
-
+              
+              <Sector
+                regions = {this.state.regions}
+                callback={(sector) => { this.setState(() => ({
+                    sector: sector
+                }));}}/>
+                            
               <HealthWellbeing
                 network = {this.state.network}
                 year = {this.state.year}
                 climatePrediction = {this.state.climatePrediction}
+                sector = {this.state.sector}
                 regions = {this.state.regions}
                 loading = {this.state.loadingPrediction}
               />
@@ -161,6 +152,7 @@ class App extends React.Component {
                 year = {this.state.year}
                 average = {this.state.average}
                 climatePrediction = {this.state.climatePrediction}
+                sector = {this.state.sector}
                 networkRenderer = {this.networkRenderer}
               />
             </div> 
