@@ -102,7 +102,8 @@ class ClimateMap extends React.Component {
                     // do not use push because [].push(1) = 1!? 
                     regions: [...prev.regions,{
                         id: gid,
-                        name: feature.properties.name
+                        name: feature.properties.name,
+                        imdscore: feature.properties.imdscore
                     }]
                 }));
             } else {
