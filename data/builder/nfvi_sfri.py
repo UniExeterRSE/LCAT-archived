@@ -29,14 +29,17 @@ def import_to_lsoa(db):
 
     cols_q = ", ".join(cols)
     
-    for lsoa_code in lsoa_codes:
+    for n,lsoa_code in enumerate(lsoa_codes):
         q=f"select {cols_q} from nfvi_sfri where code = '{lsoa_code[0]}'"
         db.cur.execute(q)
         vals = db.cur.fetchall()[0]
+        sets = []
         for idx,col in enumerate(cols):
-            q=f"update lsoa set {col}='{float(vals[idx])}' where lsoa11cd='{lsoa_code[0]}'";
-            db.cur.execute(q)
-        print(lsoa_code)
+            sets.append(f"{col}='{float(vals[idx])}'")
+        q=f"update lsoa set {', '.join(sets)} where lsoa11cd='{lsoa_code[0]}'";
+        db.cur.execute(q)
+        print(lsoa_code[0])
+        print(n/float(len(lsoa_codes))*100)
         db.conn.commit()
 
 
