@@ -290,6 +290,32 @@ router.get('/network_nodes', function (req, res) {
     });    
 });
 
+router.get('/stats', function (req, res) {
+	var client = new Client(conString);
+    client.connect();
+
+    // find all the tiles covered by the selected geometry, use
+    // distinct to remove duplicates and average the selected
+    // climate variable for each year in the model data
+    var q=`select * from stats;`
+
+	var query = client.query(new Query(q));
+	
+	query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+        res.send(result.rows);
+        res.end();
+		client.end();
+    });
+    query.on("error", function (err, result) {
+        console.log("------------------error-------------------------");
+        console.log(req);
+        console.log(err);
+    });
+});
+
 /*
 // general purpose for debugging
 router.get('/geojson', function (req, res) {

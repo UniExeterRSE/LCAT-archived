@@ -23,11 +23,13 @@ import HealthWellbeing from './components/HealthWellbeing';
 import Network from "./components/Network";
 import NetworkLoader from './components/NetworkLoader';
 import Sector from './components/Sector';
+import StatsLoader from './components/StatsLoader';
+import Vulnerabilities from './components/Vulnerabilities';
 
 import { NetworkRenderer } from './core/NetworkRenderer';
 
 const meta = {
-    title: 'Local Climate Tool',
+    title: 'Local Climate Adaptation Tool',
     description: 'This is a tool for local climate adaptation',
     canonical: 'http://beta-climate-tool.thentrythis.org',
     meta: {
@@ -50,7 +52,8 @@ class App extends React.Component {
             average: "ann",
             year: 2086,
             loadingPrediction: false,
-            sector: "all"
+            sector: "all",
+            stats: []
         };
     }
 
@@ -58,52 +61,55 @@ class App extends React.Component {
         this.networkRenderer.loadIcons();
     }
 
-    regionsCallback = (regions,regionType) => {
-        this.setState({
-            regionType: regionType,
-            regions: regions
-        });
-    }
-
-    networkCallback = (nodes, edges) => {
-        this.setState((state) => ({
-            network: { nodes: nodes, edges: edges },            
-        }));        
-    }
-
-    climatePredictionCallback = (prediction) => {
-        this.setState((state) => ({
-            climatePrediction: prediction,
-            loadingPrediction: false
-        }));
-    }
-    
     render() {
         return (
             <div className="App">
               <DocumentMeta {...meta}/>
               <header className="App-header">
-                <h1>Local Climate Tool V2.0</h1>
+                <h1>Local Climate Adaptation Tool V2.0</h1>
               </header>
                 <p>
                 You are looking at the national level testing version. <a href="http://climate-tool.thentrythis.org">The working Cornwall prototype is here.</a>
                 </p>
 
+              {/* bundle up all the api calls into one when decided? */}
               <NetworkLoader
                 id={0}
-                callback={this.networkCallback}
+                callback={(nodes, edges) => {
+                    this.setState((state) => ({
+                        network: { nodes: nodes, edges: edges },            
+                    }));}}
               />
 
+              <StatsLoader
+                id={0}
+                callback={(stats) => {
+                    this.setState((state) => ({
+                        stats: stats
+                    }));}}
+              />
+              
               <ClimatePredictionLoader
                 regions = {this.state.regions}
                 average = {this.state.average}
                 regionType = {this.state.regionType}
-                callback = {this.climatePredictionCallback}
-                loadingCallback={ loading => { this.setState(() => ({ loadingPrediction: true })); }}
+                callback = {(prediction) => {
+                    this.setState((state) => ({
+                        climatePrediction: prediction,
+                        loadingPrediction: false
+                    }));}}
+                loadingCallback={ loading => { this.setState(() => ({
+                    loadingPrediction: true
+                }));}}
               />
 
               <ClimateMap
-                regionsCallback={this.regionsCallback}
+                regionsCallback={(regions,regionType) => {
+                    this.setState({
+                        regionType: regionType,
+                        regions: regions
+                    });
+                }}
               />
 
               <ClimateSettings
@@ -155,6 +161,13 @@ class App extends React.Component {
                 sector = {this.state.sector}
                 networkRenderer = {this.networkRenderer}
               />
+
+              <Vulnerabilities
+                regions = {this.state.regions}
+                regionType = {this.state.regionType}                
+                stats = {this.state.stats}
+              />
+              
             </div> 
         );
     }

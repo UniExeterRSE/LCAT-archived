@@ -21,6 +21,8 @@ from builder import ukcri
 from builder import index_multiple_deprivation as imd
 from builder import link_geom_climate
 from builder import network
+from builder import stats
+from builder import nfvi_sfri
 
 def load_config():
     with open('config.yml') as f:
@@ -81,6 +83,18 @@ else:
 
     if sys.argv[1]=="network":
         network.load(db,conf['network_path'])
+
+    if sys.argv[1]=="stats":
+        stats.compute(db)
+
+    if sys.argv[1]=="nfvi_sfri":         
+        db.load_shp_geom(conf['nfvi_sfri_shp'],"nfvi_sfri","27700")
+
+    if sys.argv[1]=="link_nfvi_sfri_lsoa":         
+        nfvi_sfri.import_to_lsoa(db)
+
+    if sys.argv[1]=="link_nfvi_sfri_msoa":         
+        nfvi_sfri.lsoa_to_msoa(db)
         
     if sys.argv[1]=="all":
         #ukcri.load(db,conf['uk_cri_data_path'])
