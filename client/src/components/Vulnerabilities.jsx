@@ -55,7 +55,7 @@ function Vulnerabilities(props) {
                 let comparison = props.stats[props.regionType+"_"+key+"_"+decile];                
                 if (comparison!=undefined && avg>comparison) {
                     vulns.push({
-                        type: "Social Flood Risk Index (SFRI)",
+                        type: "Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables",
                         name: sfriColumns[key].name,
                         region: avg,
                         uk: props.stats[props.regionType+"_"+key+"_avg"]
