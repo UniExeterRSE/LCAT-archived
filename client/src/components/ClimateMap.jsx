@@ -103,7 +103,7 @@ class ClimateMap extends React.Component {
                     regions: [...prev.regions,{
                         id: gid,
                         name: feature.properties.name,
-                        imdscore: feature.properties.imdscore
+                        properties: feature.properties
                     }]
                 }));
             } else {

@@ -167,6 +167,8 @@ class App extends React.Component {
                 regionType = {this.state.regionType}                
                 stats = {this.state.stats}
               />
+
+              <div className={"footer"}/>
               
             </div> 
         );

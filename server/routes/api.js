@@ -54,6 +54,12 @@ function is_valid_region_table(table) {
     return ["lsoa","msoa","counties"].includes(table);
 }
 
+const propertyCols = [
+    "imdscore","a1","a2","h1","h2","i1","i2","i3","i4","i5","f1","f2","k1",
+    "f1","f2","m1","m2","m3","c1","l1","e1","n1","n2","n3","s1","s2","s3","s4"
+]
+
+
 // get GeoJSONs of regions given a bounding box and detail
 // tolerance from zoom level 
 router.get('/region', function (req, res) {
@@ -78,7 +84,13 @@ router.get('/region', function (req, res) {
     if (is_valid_region_table(table)) {
         var client = new Client(conString);
         client.connect();
-                
+
+        let props = "'imdscore', imdscore";
+        if (table=="lsoa") {
+            props = propertyCols.map(key => "'"+key+"', "+key).join(", ");
+            console.log(props);
+        }
+        
 	    // build a new geojson in 4326 coords given the bounding box
         // and zoom detail, add the name of the region and it's IMD
         // score (simplify is specified in metres/pixel so need to
@@ -90,7 +102,7 @@ router.get('/region', function (req, res) {
                    'type', 'Feature',
                    'properties', json_build_object('gid', gid,
                                                    'name', `+name_col+`, 
-                                                   'imdscore', imdscore),
+                                                   `+props+`),
                    'geometry', ST_AsGeoJSON(
                                  ST_Transform(
                                    ST_Simplify(
@@ -113,7 +125,7 @@ router.get('/region', function (req, res) {
         });
         query.on("error", function (err, result) {
             console.log("------------------error-------------------------");
-            console.log(req);
+            //console.log(req);
             console.log(err);
         });
     }

@@ -280,6 +280,7 @@ section {
 }
 
 .collapsible .header {
+    text-decoration: underline;
 	background: #ffbc42;
     padding-left: 50px;
     padding-right: 50px;
@@ -493,4 +494,9 @@ g span {
 
 .nonsense {
     color: red;
+}
+
+.footer {
+
+    height: 5em;
 }

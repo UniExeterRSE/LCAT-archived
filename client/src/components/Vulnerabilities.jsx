@@ -12,29 +12,62 @@
 import React, { useEffect, useState } from 'react';
 
 import { ReactComponent as HealthAndWellbeingSvg } from '../images/icons/Public health & wellbeing.svg';
+import VulnerabilityIcon from '../icons/Vulnerabilities';
 import { andify } from '../utils/utils';
+import { sfriColumns } from '../core/climatejust';
+
+import './Vulnerabilities.css';
 
 function Vulnerabilities(props) {
 
-    const [ regionIMDStatus, setRegionIMDStatus ] = useState("None");
-
+    const [ vulnerabilities, setVulnerabilities ] = useState([]);
+    const [ decile, setDecile ] = useState("dec_1");
+    
     useEffect(() => {
-        console.log(props.regions);
-        if (props.regions.length>0) {
+        let vulns=[];
+        if (props.regions.length>0) {            
+            // do imd average
             let uk_avg = props.stats[props.regionType+"_imd_avg"];
             if (uk_avg!=undefined) {
-                let regions_avg = props.regions.reduce((acc,region) => acc+region.imdscore,0);
-                regions_avg/=props.regions.length;
-                if (regions_avg>uk_avg) {
-                    setRegionIMDStatus("Higher than UK average");
-                } else {
-                    setRegionIMDStatus("Lower than UK average");
+                let avg = props.regions.reduce(
+                    (acc,region) =>
+                        acc+region.properties.imdscore
+                    ,0);               
+                avg/=props.regions.length;
+                if (avg<uk_avg) {
+                    vulns.push({
+                        type: "Index of Multiple Deprivation",
+                        name: "Lower than average",                        
+                        region: avg,
+                        uk: props.stats[props.regionType+"_imd_avg"]
+                    });
                 }
             }
+
+            // do sfri averages
+            for (let key of Object.keys(sfriColumns)) {
+                let avg = props.regions.reduce(
+                    (acc,region) =>
+                        acc+region.properties[key]
+                    ,0);
+                avg/=props.regions.length;
+
+                let comparison = props.stats[props.regionType+"_"+key+"_"+decile];                
+                if (comparison!=undefined && avg>comparison) {
+                    vulns.push({
+                        type: "Social Flood Risk Index (SFRI)",
+                        name: sfriColumns[key].name,
+                        region: avg,
+                        uk: props.stats[props.regionType+"_"+key+"_avg"]
+                    });
+                }
+            }            
         }
+        setVulnerabilities(vulns);
     }, [props.regions,
         props.stats,
-        props.regionType]);
+        props.regionType,
+        decile]);
 
         
     if (props.regions.length === 0) {
@@ -44,30 +77,39 @@ function Vulnerabilities(props) {
     return (
         <div>
           <h1>Vulnerabilities</h1>
-
           <p>
-            The following vulnerabilities are particularly important in
+            The following vulnerabilities are the most important to consider in 
             
             <span className={"projected-regions"}>
               { andify(props.regions.map(e => e.name)) }.
             </span>
             
-            as they are above uk averages:
+            (these vulnerabilities are in the top
+
+            <select onChange={(e) => { setDecile(e.target.value); }}>
+              <option value="dec_1">10%</option>
+              <option value="dec_2">20%</option>
+              <option value="dec_3">30%</option>
+              <option value="dec_4">40%</option>
+              <option value="dec_5">50%</option>
+              <option value="dec_6">60%</option>
+              <option value="dec_7">70%</option>
+              <option value="dec_8">80%</option>
+              <option value="dec_9">90%</option>
+            </select>
+
+            compared with UK averages).
           </p>
           
-          <div className={"horiz-container"}>        
-            <div className={"vert-container"}>
-              <HealthAndWellbeingSvg/>
-              <center>
-                <p>
-                  Index of Multiple Deprivation
-                  <br/>
-                  <b>
-                    {regionIMDStatus}
-                  </b>
-                </p>
-              </center>
-            </div>
+          <div className={"vuln-container"}>        
+            {vulnerabilities.map(
+                v => 
+                    <div className={"vuln"}>
+                      <VulnerabilityIcon/>
+                      <div className={"vuln-name"}>{v.name}</div>                      
+                      <div className={"vuln-type"}>{v.type}</div>
+                      <div className={"vuln-type"}>{v.region.toFixed(2)}% vs {v.uk.toFixed(2)}% UK average</div>
+                    </div>)}
           </div>  
         </div>
     );

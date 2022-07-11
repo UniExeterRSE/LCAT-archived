@@ -1,0 +1,33 @@
+.vuln-container {
+    margin-left: 50px;
+    display: flex;
+    flex-direction: row;
+    overflow-y: scroll;
+    justify-content: center;
+}
+
+.vuln {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 0.5em;
+    border-radius: 0.5em;
+    padding: 0.5em;
+    width: 8em;
+}
+
+.vuln-type {
+    margin-top: 1em;
+    font-size: 50%;
+}
+
+.vuln-name {
+    margin-top: 1em;
+    font-weight: bold;
+    font-size: 75%;
+    text-align: center;
+}
+
+.topdec {
+    background: #ffbc42;
+}
