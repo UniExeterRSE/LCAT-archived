@@ -28,7 +28,7 @@ function Vulnerabilities(props) {
         if (props.regions.length>0) {            
             // do imd average
             let uk_avg = props.stats[props.regionType+"_imd_avg"];
-            if (uk_avg!=undefined) {
+            if (false && uk_avg!=undefined) {
                 let avg = props.regions.reduce(
                     (acc,region) =>
                         acc+region.properties.imdscore
