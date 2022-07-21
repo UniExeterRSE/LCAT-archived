@@ -1,5 +1,20 @@
 
-const sfriColumns = {
+const nfviColumns = {
+
+// AGE	"Age composite Indicator"
+// HEALTH	"Health composite Indicator"
+// INCOME	"Income composite Indicator"
+// INFO	Information use composite Indicator
+// LOC_KNOW	Local knowledge composite Indicator
+// TENURE	Property tenure composite Indicator
+// MOBILITY	Mobility composite Indicator
+// CRIME	Crime composite Indicator
+// HOUSE_TYP	Housing characteristics composite Indicator
+// FLOOD_EXP	Flood experience composite Indicator
+// SERVICE	Service availability composite Indicator
+// SOC_NET	Social networks composite Indicator
+
+    
     a1:	{ name: "Young children (% people under 5 years)", percent: 6.07 },    
     a2:	{ name: "Older people (% people over 75 years)", percent: 7.90 },
     h1: { name: "Disability / people in ill- health (% people whose day- to-day activities are limited)", percent:	18.38 },
@@ -12,8 +27,8 @@ const sfriColumns = {
     f1: { name: "Recent arrivals to UK (% people with <1 yr residency coming from outside UK)", percent: 1.00 },
     f2: { name: "Level of proficiency in English", percent: 1.50 },
     k1: { name: "New migrants from outside the local area", percent: 5.32 },
-    f1: { name: "Private renters (% Households)", percent: 	15.36 },
-    f2: { name: "Social renters (% Households renting from Social or Council landlords)", percent: 18.32 },
+    t1: { name: "Private renters (% Households)", percent: 	15.36 },
+    t2: { name: "Social renters (% Households renting from Social or Council landlords)", percent: 18.32 },
     m1: { name: "High levels of disability (% of population who are disabled)", percent: 8.77 },
     m2: { name: "% people living in medical and care establishments", percent: 0.75 },
     m3: { name: "Lack of private transport (% households with no car or van)", percent: 25.57 },
@@ -29,4 +44,4 @@ const sfriColumns = {
     s4: { name: "% no. of schools exposed to flooding", percent: 8.90 },
 }
 
-export { sfriColumns };
+export { nfviColumns };

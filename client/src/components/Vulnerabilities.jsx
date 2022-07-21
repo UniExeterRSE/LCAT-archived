@@ -9,12 +9,11 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 
 import { ReactComponent as HealthAndWellbeingSvg } from '../images/icons/Public health & wellbeing.svg';
-import VulnerabilityIcon from '../icons/Vulnerabilities';
 import { andify } from '../utils/utils';
-import { sfriColumns } from '../core/climatejust';
+import { nfviColumns } from '../core/climatejust';
 
 import './Vulnerabilities.css';
 
@@ -44,8 +43,8 @@ function Vulnerabilities(props) {
                 }
             }
 
-            // do sfri averages
-            for (let key of Object.keys(sfriColumns)) {
+            // do nfvi averages
+            for (let key of Object.keys(nfviColumns)) {
                 let avg = props.regions.reduce(
                     (acc,region) =>
                         acc+region.properties[key]
@@ -55,8 +54,9 @@ function Vulnerabilities(props) {
                 let comparison = props.stats[props.regionType+"_"+key+"_"+decile];                
                 if (comparison!=undefined && avg>comparison) {
                     vulns.push({
+                        key: key,
                         type: "Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables",
-                        name: sfriColumns[key].name,
+                        name: nfviColumns[key].name,                        
                         region: avg,
                         uk: props.stats[props.regionType+"_"+key+"_avg"]
                     });
@@ -73,6 +73,10 @@ function Vulnerabilities(props) {
     if (props.regions.length === 0) {
         return null;
     }
+
+    let name = "Low income occupations";
+    
+    const Icon = lazy(() => import('../icons/vulnerabilities/'+name));
     
     return (
         <div>
@@ -103,13 +107,19 @@ function Vulnerabilities(props) {
           
           <div className={"vuln-container"}>        
             {vulnerabilities.map(
-                v => 
-                    <div className={"vuln"}>
-                      <VulnerabilityIcon/>
-                      <div className={"vuln-name"}>{v.name}</div>                      
-                      <div className={"vuln-type"}>{v.type}</div>
-                      <div className={"vuln-type"}>{v.region.toFixed(2)}% vs {v.uk.toFixed(2)}% UK average</div>
-                    </div>)}
+                v => {
+                    let VulnIcon = lazy(() => import('../icons/vulnerabilities/'+v.key));
+                    return (
+                        <div className={"vuln"}>
+                          <Suspense fallback={<div>Loading icon...</div>}>
+                            <VulnIcon/>
+                          </Suspense>
+                          <div className={"vuln-name"}>{v.name}</div>                      
+                          <div className={"vuln-type"}>{v.type}</div>
+                          <div className={"vuln-type"}>{v.region.toFixed(2)}% vs {v.uk.toFixed(2)}% UK average</div>
+                        </div>
+                    );
+                })}
           </div>  
         </div>
     );
