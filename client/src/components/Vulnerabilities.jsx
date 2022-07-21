@@ -110,7 +110,10 @@ function Vulnerabilities(props) {
                       <div className={"vuln-type"}>{v.type}</div>
                       <div className={"vuln-type"}>{v.region.toFixed(2)}% vs {v.uk.toFixed(2)}% UK average</div>
                     </div>)}
-          </div>  
+          </div>
+	    <p>
+		Source data on vulnerabilities from <a href="https://www.climatejust.org.uk">ClimateJust</a> based on work carried out by <a href="http://www.sayersandpartners.co.uk/uploads/6/2/0/9/6209349/sayers_2017_-_present_and_future_flood_vulnerability_risk_and_disadvantage_-_final_report_-_uploaded_05june2017_printed_-_high_quality.pdf">Sayers and Partners LLP for the Joseph Rowntree Foundation</a>.
+	    </p>
         </div>
     );
 }
