@@ -56,7 +56,7 @@ function is_valid_region_table(table) {
 
 const propertyCols = [
     "imdscore","a1","a2","h1","h2","i1","i2","i3","i4","i5","f1","f2","k1",
-    "f1","f2","m1","m2","m3","c1","l1","e1","n1","n2","n3","s1","s2","s3","s4"
+    "t1","t2","m1","m2","m3","c1","l1","e1","n1","n2","n3","s1","s2","s3","s4"
 ]
 
 
