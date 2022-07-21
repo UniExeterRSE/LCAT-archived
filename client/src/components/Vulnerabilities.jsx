@@ -24,7 +24,8 @@ function Vulnerabilities(props) {
     
     useEffect(() => {
         let vulns=[];
-        if (props.regions.length>0) {            
+        if (props.regions.length>0) {
+            console.log("loading");
             // do imd average
             let uk_avg = props.stats[props.regionType+"_imd_avg"];
             if (uk_avg!=undefined) {
@@ -58,7 +59,8 @@ function Vulnerabilities(props) {
                         type: "Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables",
                         name: nfviColumns[key].name,                        
                         region: avg,
-                        uk: props.stats[props.regionType+"_"+key+"_avg"]
+                        uk: props.stats[props.regionType+"_"+key+"_avg"],
+                        icon: lazy(() => import('../icons/vulnerabilities/'+key)),
                     });
                 }
             }            
@@ -76,7 +78,6 @@ function Vulnerabilities(props) {
 
     let name = "Low income occupations";
     
-    const Icon = lazy(() => import('../icons/vulnerabilities/'+name));
     
     return (
         <div>
@@ -108,11 +109,10 @@ function Vulnerabilities(props) {
           <div className={"vuln-container"}>        
             {vulnerabilities.map(
                 v => {
-                    let VulnIcon = lazy(() => import('../icons/vulnerabilities/'+v.key));
                     return (
                         <div className={"vuln"}>
                           <Suspense fallback={<div>Loading icon...</div>}>
-                            <VulnIcon/>
+                            <v.icon/>
                           </Suspense>
                           <div className={"vuln-name"}>{v.name}</div>                      
                           <div className={"vuln-type"}>{v.type}</div>
