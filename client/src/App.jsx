@@ -104,12 +104,20 @@ class App extends React.Component {
               />
 
               <ClimateMap
+                stats = {this.state.stats}
+                regionType = {this.state.regionType}
                 regionsCallback={(regions,regionType) => {
                     this.setState({
                         regionType: regionType,
-                        regions: regions
+                        regions: regions,
                     });
                 }}
+              />
+
+              <Vulnerabilities
+                regions = {this.state.regions}
+                regionType = {this.state.regionType}                
+                stats = {this.state.stats}
               />
 
               <ClimateSettings
@@ -162,11 +170,6 @@ class App extends React.Component {
                 networkRenderer = {this.networkRenderer}
               />
 
-              <Vulnerabilities
-                regions = {this.state.regions}
-                regionType = {this.state.regionType}                
-                stats = {this.state.stats}
-              />
 
               <div className={"footer"}/>
               

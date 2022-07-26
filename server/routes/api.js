@@ -86,11 +86,8 @@ router.get('/region', function (req, res) {
         client.connect();
 
         let props = "'imdscore', imdscore";
-        if (table=="lsoa") {
-            props = propertyCols.map(key => "'"+key+"', "+key).join(", ");
-            console.log(props);
-        }
-        
+        props = propertyCols.map(key => "'"+key+"', "+key).join(", ");
+            
 	    // build a new geojson in 4326 coords given the bounding box
         // and zoom detail, add the name of the region and it's IMD
         // score (simplify is specified in metres/pixel so need to

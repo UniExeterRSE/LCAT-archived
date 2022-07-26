@@ -14,7 +14,7 @@ import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import GeoJSONLoader from './GeoJSONLoader';
 import './ClimateMap.css';
 import LoadingOverlay from "react-loading-overlay";
-
+import { nfviColumns } from "../core/climatejust.js";
 const colormap = require('colormap');
 
 const tileLayer = {
@@ -44,7 +44,8 @@ class ClimateMap extends React.Component {
             regionType: "counties",
             regions: [],
             loading: true,
-            triggerLoadingIndicator: true
+            triggerLoadingIndicator: true,
+            mapProperty: "imdscore"            
         };
 
         this.cols = colormap({
@@ -65,12 +66,15 @@ class ClimateMap extends React.Component {
     // responsible for styling and callbacks for each region
     onEachFeature = async (feature, layer) => {        
         // colour based on IMD score
-        let col = this.cols[Math.round(feature.properties.imdscore/this.score_adjust)];
+        let min = parseFloat(this.props.stats[this.props.regionType+"_"+this.state.mapProperty+"_min"]);
+        let max = parseFloat(this.props.stats[this.props.regionType+"_"+this.state.mapProperty+"_max"]);
+        let v = feature.properties[this.state.mapProperty];
+             
+        let col = this.cols[Math.round(((v-min)/(max-min))*99)];
         let gid = feature.properties.gid;
         layer.bindTooltip(feature.properties.name+
-                          "<br>IMD Score: "+
-                          feature.properties.imdscore);
-        
+                          "<br> "+feature.properties.gid+": "+this.state.mapProperty+" "+
+                          feature.properties[this.state.mapProperty]);
         layer.setStyle({
             'weight': 1,
             'fillColor': col,
@@ -144,9 +148,17 @@ class ClimateMap extends React.Component {
                   <option value="lsoa">LSOA</option>
                 </select>
                 you are interested in. The
-                <select>
-                  <option value="IMD">Index of Multiple Deprivation</option>
+
+                <select onChange={(e) => { this.setState(() => ({
+                    mapProperty: e.target.value,
+                    geojson_key: this.state.geojson_key+1,
+                }));}}>                  
+                  <option value="imdscore">Index of Multiple Deprivation</option>
+                  {Object.keys(nfviColumns).map((k) => (
+                      <option value={k}>{nfviColumns[k].name.slice(0,30)}</option>
+                  ))}
                 </select>
+                
                 is shown to help guide you to priority areas.
               </p>
               

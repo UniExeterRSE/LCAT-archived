@@ -21,11 +21,11 @@
 
 from shapely.geometry import shape, Point
 
-cols = ["nvfi",	"nvfi_sus", "nvfi_prp", "nvfi_res", "nvfi_rec", "nvfi_com",
-	"age", "health", "income", "info", "loc_know", "tenure", "mobility",
-	"crime", "house_typ", "flood_exp", "service", "soc_net",
-        "a1", "a2", "h1", "h2", "i1", "i2", "i3", "i4", "i5", "f1",
-	"f2", "k1", "t1", "t2", "m1", "m2", "m3", "c1", "l1", "e1", "s1",
+cols = [#"nfvi",	"nfvi_sus", "nfvi_prp", "nfvi_res", "nfvi_rec", "nfvi_com",
+	#"age", "health", "income", "info", "loc_know", "tenure", "mobility",
+	#"crime", "house_typ", "flood_exp", "service", "soc_net",
+        "a1", "a2", "h1", "h2", "i1", "i2", "i3", "i4", "i5",
+        "f1","f2", "k1", "t1", "t2", "m1", "m2", "m3", "c1", "l1", "e1", "s1",
 	"s2", "s3", "s4", "n1", "n2", "n3"]
 
 
@@ -56,50 +56,38 @@ def import_to_lsoa(db):
         print(n/float(len(lsoa_codes))*100)
         db.conn.commit()
 
-
-def lsoa_to_msoa(db):
-    prepare_cols(db,"msoa",cols)
-
-    print("loading lsoa geom")
-    # load lsoa geom
-    q=f"select gid,ST_AsGeoJSON(ST_Transform(geom,4326))::json from lsoa limit 100;"
-    db.cur.execute(q)
-    lsoas = db.cur.fetchall()
-    
+def import_to_table(db,table,sing):
+    prepare_cols(db,table,cols)
+    # use hierarchy to speed this up
     # for each msoa
-    q=f"select gid from msoa;"
+    q=f"select gid from {table};"
     db.cur.execute(q)
-    for geo_id in db.cur.fetchall():
-        q=f"select ST_AsGeoJSON(ST_Transform(geom,4326))::json from msoa where gid={geo_id[0]}"
+    for geo_id in db.cur.fetchall():        
+        q=f"select lsoa from hierarchy_lsoa_to_{table} where {sing}={geo_id[0]}"
         db.cur.execute(q)
-        geo = db.cur.fetchone()[0]
-        intersect = []
-        for lsoa in lsoas:
-            if shape(lsoa[1]).intersects(shape(geo)):
-                intersect.append(lsoa[0])
+        lsoas = [str(x[0]) for x in db.cur.fetchall()]
+        if len(lsoas)>0:
+            # find averages for the regions we contain
+            cols_avg=[]
+            for col in cols:
+                cols_avg.append("avg("+col+")")
+                cols_q=", ".join(cols_avg)
 
-            if len(intersect)>0:
-                # find averages for the regions we contain
-                cols_avg=[]
-                for col in cols:
-                    cols_avg.append("avg("+col+")")
-                    cols_q=", ".join(cols_avg)
-
-                    q=f"select {cols_q} where gid in ({', '.join(intersect)})";
-                    db.cur.execute(q)
-                    avgs = db.cur.fetchall()
-
-                    # update the msoa with these values
-                    sets = []
-                    for idx,col in enumerate(cols):
-                        sets.append(col+"="+avgs[idx])
+            # take from lsoa gids
+            q=f"select {cols_q} from lsoa where gid in ({', '.join(lsoas)})";
+            db.cur.execute(q)        
+            avgs = [str(x) for x in db.cur.fetchone()]
+            # update the msoa with these values
+            sets = []
+            for idx,col in enumerate(cols):
+                sets.append(col+"="+avgs[idx])
             
-                    q=f"update msoas set {', '.joim(sets)} where gid='{geo_id[0]}';"
-                    print(q)
-                    db.cur.execute(q)                
-                    db.conn.commit()        
-            else:
-                print(str(geo_id)+" is empty")
+                q=f"update {table} set {', '.join(sets)} where gid='{geo_id[0]}';"
+                db.cur.execute(q)                
+                db.conn.commit()
+        else:
+            print("empty")
+        print(geo_id[0])
 
 def import_to_regions(db):
     pass
