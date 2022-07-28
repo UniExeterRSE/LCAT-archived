@@ -69,8 +69,18 @@ class ClimateMap extends React.Component {
         let min = parseFloat(this.props.stats[this.props.regionType+"_"+this.state.mapProperty+"_min"]);
         let max = parseFloat(this.props.stats[this.props.regionType+"_"+this.state.mapProperty+"_max"]);
         let v = feature.properties[this.state.mapProperty];
-             
-        let col = this.cols[Math.round(((v-min)/(max-min))*99)];
+        let index = Math.round(((v-min)/(max-min))*99);
+        
+        let col = this.cols[index];
+
+        let nfvi = nfviColumns[this.state.mapProperty];
+        if (nfvi!=undefined) {
+            // flip direction
+            if (nfvi.direction=="less-than") {
+                col=this.cols[100-index];
+            }
+        }
+
         let gid = feature.properties.gid;
         layer.bindTooltip(feature.properties.name+
                           "<br> "+feature.properties.gid+": "+this.state.mapProperty+" "+

@@ -21,11 +21,22 @@ function Vulnerabilities(props) {
 
     const [ vulnerabilities, setVulnerabilities ] = useState([]);
     const [ decile, setDecile ] = useState("dec_1");
+
+    function flipDecile(decile) {
+        if (decile=="dec_1") return "dec_9";
+        if (decile=="dec_2") return "dec_8";
+        if (decile=="dec_3") return "dec_7";
+        if (decile=="dec_4") return "dec_6";
+        if (decile=="dec_5") return "dec_5";
+        if (decile=="dec_6") return "dec_4";
+        if (decile=="dec_7") return "dec_3";
+        if (decile=="dec_8") return "dec_2";
+        return "dec_1";
+    }
     
     useEffect(() => {
         let vulns=[];
         if (props.regions.length>0) {
-            console.log("loading");
             // do imd average
             let uk_avg = props.stats[props.regionType+"_imd_avg"];
             if (false && uk_avg!=undefined) {
@@ -52,16 +63,33 @@ function Vulnerabilities(props) {
                     ,0);
                 avg/=props.regions.length;
 
-                let comparison = props.stats[props.regionType+"_"+key+"_"+decile];                
-                if (comparison!=undefined && avg>comparison) {
-                    vulns.push({
-                        key: key,
-                        type: "Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables",
-                        name: nfviColumns[key].name,                        
-                        region: avg,
-                        uk: props.stats[props.regionType+"_"+key+"_avg"],
-                        icon: lazy(() => import('../icons/vulnerabilities/'+key)),
-                    });
+                let comparison = props.stats[props.regionType+"_"+key+"_"+decile];
+
+                if (comparison!=undefined) {
+                    
+                    let significant = false;
+
+                    if (nfviColumns[key].direction=="less-than") {
+                        comparison = props.stats[props.regionType+"_"+key+"_"+flipDecile(decile)];
+                        if (avg<comparison) {
+                            significant = true;
+                        }
+                    } else {
+                        if (avg>comparison) {
+                            significant = true;
+                        }
+                    }
+                    
+                    if (significant) {
+                        vulns.push({
+                            key: key,
+                            type: "Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables",
+                            name: nfviColumns[key].name,                        
+                            region: avg,
+                            uk: props.stats[props.regionType+"_"+key+"_avg"],
+                            icon: lazy(() => import('../icons/vulnerabilities/'+key)),
+                        });
+                    }
                 }
             }            
         }
@@ -70,15 +98,11 @@ function Vulnerabilities(props) {
         props.stats,
         props.regionType,
         decile]);
-
         
     if (props.regions.length === 0) {
         return null;
     }
 
-    let name = "Low income occupations";
-    
-    
     return (
         <div>
           <h1>Vulnerabilities</h1>
