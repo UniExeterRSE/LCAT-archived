@@ -114,12 +114,6 @@ class App extends React.Component {
                 }}
               />
 
-              <Vulnerabilities
-                regions = {this.state.regions}
-                regionType = {this.state.regionType}                
-                stats = {this.state.stats}
-              />
-
               <ClimateSettings
                 regions={this.state.regions}
                 averageCallback={(average) => { this.setState(() => ({
@@ -168,6 +162,12 @@ class App extends React.Component {
                 climatePrediction = {this.state.climatePrediction}
                 sector = {this.state.sector}
                 networkRenderer = {this.networkRenderer}
+              />
+
+              <Vulnerabilities
+                regions = {this.state.regions}
+                regionType = {this.state.regionType}                
+                stats = {this.state.stats}
               />
 
 

@@ -17,19 +17,26 @@
 
 from shapely.geometry import shape, Point
 
+def load_centroids(db):
+    q=f"select gid,ST_AsGeoJSON(ST_Transform(geom,4326))::json from lsoa;"
+    db.cur.execute(q)
+    print("executed...")
+    lsoas=[]
+    r = db.cur.fetchone()
+    while r:
+        print(r[0])
+        lsoas.append([r[0],shape(r[1]).centroid])
+        r = db.cur.fetchone()
+    return lsoas
+
 def lsoa_to_msoa(db):
     db.create_tables({"hierarchy_lsoa_to_msoa":
                       [["msoa","int"],
                        ["lsoa","int"]]});
     
     print("loading lsoa geom")
-    # load lsoa geom
-    q=f"select gid,ST_AsGeoJSON(ST_Transform(geom,4326))::json from lsoa;"
-    db.cur.execute(q)
-    lsoas=[]
-    for r in db.cur.fetchall():
-        lsoas.append([r[0],shape(r[1]).centroid])
-    
+    lsoas = load_centroids(db)
+        
     # for each msoa
     q=f"select gid from msoa;"
     db.cur.execute(q)
@@ -52,12 +59,7 @@ def lsoa_to_counties(db):
                        ["lsoa","int"]]});
     
     print("loading lsoa geom")
-    # load lsoa geom
-    q=f"select gid,ST_AsGeoJSON(ST_Transform(geom,4326))::json from lsoa;"
-    db.cur.execute(q)
-    lsoas=[]
-    for r in db.cur.fetchall():
-        lsoas.append([r[0],shape(r[1]).centroid])
+    lsoas = load_centroids(db)
     
     # for each msoa
     q=f"select gid from counties;"

@@ -157,9 +157,9 @@ class ClimateMap extends React.Component {
                   <option value="msoa">MSOA</option>
                   <option value="lsoa">LSOA</option>
                 </select>
-                you are interested in. The
+                you are interested in. The Index of Multiple Deprivation score 
 
-                <select onChange={(e) => { this.setState(() => ({
+		  {/*<select onChange={(e) => { this.setState(() => ({
                     mapProperty: e.target.value,
                     geojson_key: this.state.geojson_key+1,
                 }));}}>                  
@@ -167,7 +167,7 @@ class ClimateMap extends React.Component {
                   {Object.keys(nfviColumns).map((k) => (
                       <option value={k}>{nfviColumns[k].name.slice(0,30)}</option>
                   ))}
-                </select>
+                  </select> */}
                 
                 is shown to help guide you to priority areas.
               </p>
