@@ -20,7 +20,10 @@ admin.setup = function(app) {
         rootPath: '/admin',
         resources: [
             {
-                resource: require('./models/network_nodes')(db, Sequelize.DataTypes)
+                resource: require('./models/network_nodes')(db, Sequelize.DataTypes),
+                options: {
+                    listProperties: ['label', 'type', 'tags', 'climate_hazard', 'disease_injury_wellbeing']
+                }
             },
             {
                 resource: require('./models/network_edges')(db, Sequelize.DataTypes),

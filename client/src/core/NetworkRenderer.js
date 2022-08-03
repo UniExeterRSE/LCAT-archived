@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import { AdaptationFinder } from './AdaptationFinder'
 import HealthSvg from '../images/icons/Public health & wellbeing.svg';
 
 // This class takes a network and follows from causes (root nodes with
@@ -39,19 +38,27 @@ class NetworkRenderer {
 	constructor() {
 		this.nodes = [];
 		this.edges = [];        
-        this.healthNodes = [];
-        this.causeNodes = [];
 		this.iconCache = {};
 		this.iconCacheLoading = false;
-		this.notFoundIcon = `<circle
-             style="fill:#254747;fill-opacity:1;stroke-width:0.46499997"
-             id="circle1093-0-8"
-             cx="150"
-             cy="230"
-             r="100" />`;
 	}
     
     loadIcons() {
+    }
+
+    notFoundIcon(col,text) {
+        return `
+<svg width="300" height="460">
+<circle
+             style="fill:`+col+`;fill-opacity:1;stroke-width:0.46499997"
+             id="circle1093-0-8"
+             cx="150"
+             cy="230"
+             r="100" />
+ <text x="50%" y="50%" text-anchor="middle" fill="white" font-size="50px" 
+font-family="Arial" dy=".3em">`+text+`</text>
+
+</svg>
+`;
     }
     
 	async loadIcon(fn) {
@@ -89,10 +96,10 @@ class NetworkRenderer {
 		return str.replace("&","&amp;");
 	}
 	
-	nodeImageURL(id,title,text,bg,show_glow) {
+	nodeImageURL(id,title,text,code,bg,show_glow) {
 		let height = 500;
 		if (bg==undefined) bg="#e6e6e6";
-		let icon=this.notFoundIcon;
+		let icon=this.notFoundIcon(bg,code);
 		let glow="";
 		if (show_glow) {
 			glow=`<g transform="translate(0,95) scale(7.8)">` + this.iconCache["glow"] + `</g>`;
@@ -103,19 +110,14 @@ class NetworkRenderer {
 			//console.log("icon for "+title+" not found");
 		}
 
-		let extra = "";
-		if (text!="") {
-			extra = `<center style="font-size: 1.5em;">`+text+`</center>`;
-		}
-		
 		let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="`+height+`" style="overflow:visible;">`
-		    + glow + icon + 
+		    + glow +  
             `<foreignObject x="0" y="340" width="100%" height="100%">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 1em;">
-        <center style="font-size: 2em;">`+this.printable(title)+`</center>
-		<center style="font-size: 2em;">`+ extra +`</center>
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 0em;">
+        <center style="font-size: 1.2em;">`+this.printable(title)+`</center>
+		<center style="font-size: 2em;">`+ text +`</center>
         </div>
-        </foreignObject>
+        </foreignObject> `+icon+`
         </svg>`;
 
 		let url= "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
@@ -137,15 +139,23 @@ class NetworkRenderer {
 
         let change = node.state.asText();
 
-        if (node.type=="health-wellbeing") {
-            this.healthNodes.push(node);
-        }
-        if (node.type=="climate") {
-            this.causeNodes.push(node);
+        let nodeColour = {
+            "Driver": "#66c3a6",
+            "Pressure": "#fd8e62",
+            "State": "#8ea1cc",
+            "Exposure": "#e88bc4",
+            "Effect": "#a7d953",
+            "Action": "#ffda2c"
+        };
+
+        console.log([node.type,nodeColour[node.type]]);
+        
+        //"#a4f9c8"
+        if (node.type=="Pressure") {
         	this.nodes.push({
 			    id: node.node_id,
 			    shape: "image",
-			    image: this.nodeImageURL(node.id,node.title,change,"#a4f9c8",false),
+			    image: this.nodeImageURL(node.id,node.label,change,node.type,nodeColour[node.type],false),
 			    size: 30,
 				x: 0,
 				y: this.fixedYPos*75,
@@ -156,7 +166,7 @@ class NetworkRenderer {
         	this.nodes.push({
 			    id: node.node_id,
 			    shape: "image",
-			    image: this.nodeImageURL(node.id,node.title,change,"#a4f9c8",false),
+			    image: this.nodeImageURL(node.id,node.label,change,node.type,nodeColour[node.type],false),
 			    size: 30
 		    });
         }
@@ -164,18 +174,9 @@ class NetworkRenderer {
 
 	addEdge(edge,y) {
 		let colour = "#b0cacc";
-        let label="-";
-        if (edge.direction=="0") {
-            label="+";
-        }
-
+        let label=edge.type;
         var labelsize = 15;
-        
-        if (edge.description!=null && edge.description!="") {
-            label=edge.description+" ("+label+")";
-            labelsize = 5;
-        }
-        
+                
         this.edges.push({
 			id: edge.edge_id,
 			from: edge.node_from,
@@ -204,16 +205,16 @@ class NetworkRenderer {
         nodes = networkParser.nodes;
 		edges = networkParser.edges;
 
+        console.log([nodes,edges]);
+        
         this.nodes = [];
 		this.edges = [];
-		this.healthNodes = [];
-        this.causeNodes = [];
         this.fixedYPos=0;
-        
+
 		let c = 0;
         // find causes and propagate upwards (right?) from there
 		for (let node of nodes) {
-            if (node.state.value!="deactivated") {
+            if (node.type!="Driver" && node.state.value!="deactivated") {
    			    this.addNode(node,c);
 			    c+=1;
             }

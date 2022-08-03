@@ -7,7 +7,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    title: {
+    label: {
       type: DataTypes.TEXT,
       allowNull: true
     },
@@ -15,23 +15,35 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    variable: {
+    tags: {
       type: DataTypes.TEXT,
-      allowNull: true
-    },
-    threshold: {
-      type: DataTypes.REAL,
       allowNull: true
     },
     description: {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    mdpseea: {
+    climate_hazard: {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    unsdg: {
+    disease_injury_wellbeing: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    icd11: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    sector: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    sdg: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    vulnerability_inequality: {
       type: DataTypes.TEXT,
       allowNull: true
     }
