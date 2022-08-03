@@ -55,6 +55,141 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.REAL,
       allowNull: true,
       defaultValue: 0
+    },
+    a1: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    a2: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    h1: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    h2: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    i1: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    i2: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    i3: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    i4: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    i5: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    f1: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    f2: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    k1: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    t1: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    t2: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    m1: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    m2: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    m3: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    c1: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    l1: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    e1: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    s1: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    s2: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    s3: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    s4: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    n1: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    n2: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
+    },
+    n3: {
+      type: DataTypes.REAL,
+      allowNull: true,
+      defaultValue: 0
     }
   }, {
     sequelize,

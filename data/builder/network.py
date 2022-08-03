@@ -16,27 +16,27 @@ class network_db:
     def reset(self):
         self.db.cur.execute("drop table if exists network_nodes cascade")
         q = """create table network_nodes (node_id serial primary key,
-        title text,
+        label text,
         type text,
-        variable text,
-        threshold real,
-        description text,                           
-        mDPSEEA text,
-        UNSDG text);"""
+        tags text,
+        description text,
+        climate_hazard text,
+        disease_injury_wellbeing text,
+        icd11 text,
+        sector text,
+        sdg text,
+        vulnerability_inequality text);"""
         self.db.cur.execute(q)
+        
         self.db.cur.execute("drop table if exists network_edges cascade")
         q = """create table network_edges (edge_id serial primary key, 
         type text,
-        description text,
-        unsdgs text,
-        direction text,
-        operator text,
-        threshold real,
         node_from integer, 
         node_to integer,
         constraint fk_from foreign key(node_from) references network_nodes(node_id),  
         constraint fk_to foreign key(node_to) references network_nodes(node_id));"""
         self.db.cur.execute(q)
+        
         self.db.cur.execute("drop table if exists articles cascade")
         q = """create table articles (article_id serial primary key, 
         doi text,
@@ -48,6 +48,7 @@ class network_db:
         journal text,
         issue text)"""
         self.db.cur.execute(q)
+        
         self.db.cur.execute("drop table if exists node_article_mapping cascade")
         q = """create table node_article_mapping (id serial primary key, 
         node_id int,
@@ -55,6 +56,7 @@ class network_db:
         constraint fk_node foreign key(node_id) references network_nodes(node_id),  
         constraint fk_article foreign key(article_id) references articles(article_id));"""
         self.db.cur.execute(q)
+        
         self.db.cur.execute("drop table if exists edge_article_mapping cascade")
         q = """create table edge_article_mapping (id serial primary key, 
         edge_id int,
@@ -62,37 +64,39 @@ class network_db:
         constraint fk_edge foreign key(edge_id) references network_edges(edge_id),  
         constraint fk_article foreign key(article_id) references articles(article_id))"""
         self.db.cur.execute(q)
+
         self.db.conn.commit()
         
     def add_node(self,node):
-        self.db.cur.execute(f"""insert into network_nodes (title, type, description, unsdgs) values
-        ('{node["title"]}',
+        print(node)
+        self.db.cur.execute(f"""insert into network_nodes (label, type, tags, description, climate_hazard, disease_injury_wellbeing, icd11, sector, sdg) values
+        ('{node["label"]}',
         '{node["type"]}',
+        '{node["tags"]}',
         '{node["description"]}',
-        '{node["unsdg"]}') returning node_id""")
+        '{node["climate_hazard"]}',
+        '{node["disease_injury_wellbeing"]}',
+        '{node["icd11"]}',
+        '{node["sector"]}',
+        '{node["sdg"]}') returning node_id""")
         self.db.conn.commit()
         return self.db.cur.fetchone()[0]
 
     def add_edge(self,edge):
-        if "node_from" not in edge:
-            self.db.cur.execute(f"""insert into network_edges (type, description, unsdgs, operator, variable, direction, node_to) values
-            ('{edge["type"]}',
-            '{edge["description"]}',
-            '{edge["unsdg"]}',
-            '{edge["operator"]}',
-            '{edge["variable"]}',
-            '{edge["direction"]}',        
-            '{edge["node_to"]}') returning edge_id""")
-        else:
-            self.db.cur.execute(f"""insert into network_edges (type, description, unsdgs, operator, variable, direction, node_from, node_to) values
-            ('{edge["type"]}',
-            '{edge["description"]}',
-            '{edge["unsdg"]}',
-            '{edge["operator"]}',
-            '{edge["variable"]}',
-            '{edge["direction"]}',
-            '{edge["node_from"]}',
-            '{edge["node_to"]}') returning edge_id""")
+        # match nodes by label
+        self.db.cur.execute(f"select node_id from network_nodes where label='{edge['node_from_label']}'")
+        r = self.db.cur.fetchone()
+        if r==None: return False;        
+        node_from_id = r[0]
+        self.db.cur.execute(f"select node_id from network_nodes where label='{edge['node_to_label']}'")
+        r = self.db.cur.fetchone()
+        if r==None: return False;        
+        node_to_id = r[0]
+        
+        self.db.cur.execute(f"""insert into network_edges (type, node_from, node_to) values
+        ('{edge["type"]}',
+        '{node_from_id}',
+        '{node_to_id}') returning edge_id""")
         self.db.conn.commit()
         return self.db.cur.fetchone()[0]
                     
@@ -142,10 +146,12 @@ def reset(db):
 
 def load(db,path):
     nd = network_db(db)
-    np = network_parser.network_parser(nd)
-    np.load_elements(path+"elements3.csv")
-    np.load_connections(path+"connections3.csv")
-#    np.load_adaptations(path+"adaptations3.csv")
+    np = network_parser.network_parser()
+    np.load_elements(path+"elements.csv")
+    np.load_connections(path+"connections.csv")
+    for node in np.nodes: nd.add_node(node)
+    for edge in np.edges: nd.add_edge(edge)
+    
 
  
 

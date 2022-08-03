@@ -11,26 +11,6 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    unsdgs: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    direction: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    operator: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    threshold: {
-      type: DataTypes.REAL,
-      allowNull: true
-    },
     node_from: {
       type: DataTypes.INTEGER,
       allowNull: true,

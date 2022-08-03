@@ -48,7 +48,7 @@ function HealthWellbeing(props) {
               { andify(props.regions.map(e => e.name)) }.
             </span>
 
-            is expected to cause these <span className={"nonsense"}>(nonsense test data)</span> health and wellbeing impacts:
+            is expected to cause these health and wellbeing impacts:
           </p>
           
           <div className={"horiz-container"}>        
@@ -61,7 +61,7 @@ function HealthWellbeing(props) {
                   <HealthAndWellbeingSvg/>
                   <center>
                     <p>
-                      {node.title}
+                      {node.label}
                       <br/>
                       <b>
                         {node.state.asText()}

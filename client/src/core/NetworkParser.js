@@ -22,7 +22,9 @@ class NetworkState {
         this.validStates = ["deactivated",
                             "uncertain",
                             "increase",
-                            "decrease"];
+                            "decrease",
+                            "nochange",
+                            "unknown"];
         this.set(value);
     }
 
@@ -33,16 +35,33 @@ class NetworkState {
             console.log("invalid state setting: "+value);
         }
     }
-    
-    flip() {
-        if (this.value==="increase") {
-            this.value="decrease";
-        } else {       
-            if (this.value==="decrease") {
-                this.value="increase";
+
+    apply(edge) {
+        if (this.value=="unknown") {
+            if (edge.type=="-") {
+                this.set("decrease");
+                return;
+            }
+            if (edge.type=="+") {
+                this.set("increase");
+                return;
+            }
+            this.set("unknown");
+            return;
+        } else {
+                    
+            // negative correlation
+            if (edge.type=="-") {
+                if (this.value==="increase") {
+                    this.value="decrease";
+                } else {       
+                    if (this.value==="decrease") {
+                        this.value="increase";
+                    }
+                }
+                // no change if disabled, uncertain etc                
             }
         }
-        // no change if disabled, uncertain etc
     }
 
     isOppositeTo = (other) => (
@@ -59,6 +78,8 @@ class NetworkState {
         if (this.value==="uncertain") return "Uncertain";
         if (this.value==="increase") return "Increases";
         if (this.value==="decrease") return "Decreases";
+        if (this.value==="unknown") return "Unknown";
+        console.log(this.value);
         return "Error";
     }
 }
@@ -69,18 +90,18 @@ class NetworkParser {
         this.nodes = nodes;
         this.edges = edges;        
 		this.healthNodes = [];
-        this.causeNodes = [];
+        this.pressureNodes = [];
         this.globalThreshold = 0.0001;
 
         this.visited=[];
         
 		for (let node of nodes) {
             node.state=new NetworkState("deactivated");
-            if (node.type==="health-wellbeing") {
+            if (node.type==="Effect" && node.disease_injury_wellbeing!="") {
                 this.healthNodes.push(node);
             }
-            if (node.type==="climate") {
-                this.causeNodes.push(node);
+            if (node.type==="Pressure") {
+                this.pressureNodes.push(node);
 		    }
         }
     }
@@ -94,13 +115,23 @@ class NetworkParser {
         return node;
     }
 
-    getPrediction(prediction,year,variable) {
-        for (let p of prediction) {
-            if (p.year==year) {
-                return p[variable];
+    labelToVariable(label) {
+        if (label == "Temperature (air)") {
+            return "tavg_median";
+        }
+        return false;
+    }
+    
+    getPrediction(prediction,year,label) {
+        let variable = this.labelToVariable(label);
+        if (variable) {
+            for (let p of prediction) {
+                if (p.year==year) {
+                    return p[variable];
+                }
             }
         }
-        return 0;
+        return false;
     }
 
     recurCalculate(node,state,sector) {
@@ -114,11 +145,8 @@ class NetworkParser {
                     
                     // make a copy of the parent state
                     let childState = new NetworkState(state.value);
-                    
-                    // negative correlation
-                    if (edge.direction==1) {
-                        childState.flip();
-                    }
+
+                    childState.apply(edge);
                     
                     // have we visted this one before?
                     let previousState = this.visited[child.node_id];
@@ -131,6 +159,7 @@ class NetworkParser {
                             this.visited[child.node_id]=childState;
                             this.recurCalculate(child,childState,"all");
                         } else {
+                            // if different but not opposing - redo nodes
                             if (childState.isDifferentTo(previousState)) {
                                 this.visited[child.node_id]=childState;
                                 this.recurCalculate(child,childState,"all");
@@ -151,14 +180,21 @@ class NetworkParser {
 
     calculate(climatePrediction,year,sector) {
         this.visited=[];
-        for (let cause of this.causeNodes) {            
-            if (this.getPrediction(climatePrediction,year,cause.variable)>this.globalThreshold) {
-                this.recurCalculate(cause,new NetworkState("increase"),sector);
-            } else {
-                if (this.getPrediction(climatePrediction,year,cause.variable)<-this.globalThreshold) {
-                    this.recurCalculate(cause,new NetworkState("decrease"),sector);
+        for (let pressure of this.pressureNodes) {
+
+            let prediction = this.getPrediction(climatePrediction,year,pressure.label);
+
+            if (prediction===false) {
+                this.recurCalculate(pressure,new NetworkState("unknown"),sector);
+            } else {               
+                if (prediction>this.globalThreshold) {
+                    this.recurCalculate(pressure,new NetworkState("increase"),sector);
                 } else {
-                    this.recurCalculate(cause,new NetworkState("deactivated"),sector);
+                    if (prediction<-this.globalThreshold) {
+                        this.recurCalculate(pressure,new NetworkState("decrease"),sector);
+                    } else {                    
+                        this.recurCalculate(pressure,new NetworkState("deactivated"),sector);
+                    }
                 }
             }
         }
