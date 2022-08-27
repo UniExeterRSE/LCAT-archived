@@ -6,13 +6,20 @@
 
 Examples:
 
-On the left: A rise in rainfall (A) *increases* the happiness of ducks (B), therefore a fall in rainfall (A) *decreases* the happiness of ducks (B).
+On the left are positive correlation, where the increases/decreases
+match: An increase in rainfall (A) *increases* the happiness of ducks
+(B), therefore a decrease in rainfall (A) *decreases* the happiness of
+ducks (B).
 
-On the light: A rise in temperature (A) *reduces* size of icecaps (B), therefore a fall in temperature (A) *increases* the size of icecaps (B).
+On the light are negative correlation, where they are inverted: A rise
+in temperature (A) *reduces* size of icecaps (B), therefore a fall in
+temperature (A) *increases* the size of icecaps (B).
 
 ## 2. Chaining together impacts
 
 ![](images/double.png)
+
+Impacts can be chained together simply matching (+) or inverting (-) each other without ambiguity.
 
 Examples:
 
