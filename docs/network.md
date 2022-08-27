@@ -30,7 +30,9 @@ Examples:
 
 ![](images/adding.png)
 
-Here we start to see uncertainty happening, where an increase or decreases can contradict each other (so far in the data we have this is in fact seems rare).
+Here we start to see uncertainty happening, where an increase or
+decreases can contradict each other (so far in the data we have this
+is in fact seems rare).
 
 ## 4. Uncertainies lead to more uncertainty
 
@@ -40,11 +42,15 @@ Once we have an uncertain increase/decrease, all following impacts have to becom
 
 ## 5. Reducing uncertainty
 
-On thing we talked about to reduce this uncertainty was to add two more states: probable increase/decrese (this is not done yet, but it can be added!):
+On thing we talked about to reduce this uncertainty was to add two
+more states: probable increase/decrese (this is not done yet, but it
+can be added!). The inputs "vote" to indicate a majority
+decrease. This does not solve a 50/50 split of course, so
+uncertainties are still possible.
+
     
 ![](images/probable.png)
 
-The inputs "vote" to indicate a majority decrease. This does not solve a 50/50 split of course, so uncertainties are still possible.
 
 ## 6. Cases I'm not sure how do deal with
 
