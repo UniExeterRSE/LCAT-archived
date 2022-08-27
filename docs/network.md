@@ -36,25 +36,26 @@ is in fact seems rare).
 
 ## 4. Uncertainies lead to more uncertainty
 
-![](images/uncertain-more.png)
+Once we have an uncertain increase/decrease, all following impacts
+have to become uncertain too.
 
-Once we have an uncertain increase/decrease, all following impacts have to become uncertain.
+![](images/uncertain-more.png)
 
 ## 5. Reducing uncertainty
 
-On thing we talked about to reduce this uncertainty was to add two
-more states: probable increase/decrese (this is not done yet, but it
-can be added!). The inputs "vote" to indicate a majority
-decrease. This does not solve a 50/50 split of course, so
-uncertainties are still possible.
-
+We talked about reducing this uncertainty by adding two more states:
+probable increase/decrese (this is not done yet, but it can be
+added!). The inputs "vote" to indicate a majority decrease. This does
+not solve a 50/50 split of course, so uncertainties are still
+possible.
     
 ![](images/probable.png)
 
 
 ## 6. Cases I'm not sure how do deal with
 
-![](images/probable2.png)
-
 1. Should we use "probable" to add certainty to a previously uncertain state?
 2. What should we do if we need to add together a probable state with a certain one?
+
+![](images/probable2.png)
+
