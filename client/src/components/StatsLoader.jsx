@@ -25,7 +25,6 @@ function StatsLoader(props) {
                         for (let stat of stats) {
                             statdict[stat.key]=stat.value;
                         }
-                        console.log(statdict);
                         props.callback(statdict);                    
                     });
             });

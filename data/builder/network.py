@@ -25,7 +25,8 @@ class network_db:
         icd11 text,
         sector text,
         sdg text,
-        vulnerability_inequality text);"""
+        urban_rural text,
+        vulnerabilities text);"""
         self.db.cur.execute(q)
         
         self.db.cur.execute("drop table if exists network_edges cascade")
@@ -68,17 +69,18 @@ class network_db:
         self.db.conn.commit()
         
     def add_node(self,node):
-        print(node)
-        self.db.cur.execute(f"""insert into network_nodes (label, type, tags, description, climate_hazard, disease_injury_wellbeing, icd11, sector, sdg) values
-        ('{node["label"]}',
-        '{node["type"]}',
-        '{node["tags"]}',
-        '{node["description"]}',
-        '{node["climate_hazard"]}',
-        '{node["disease_injury_wellbeing"]}',
-        '{node["icd11"]}',
-        '{node["sector"]}',
-        '{node["sdg"]}') returning node_id""")
+        self.db.cur.execute("insert into network_nodes (label, type, tags, description, climate_hazard, disease_injury_wellbeing, icd11, sector, sdg, urban_rural, vulnerabilities) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) returning node_id",
+                            (node["label"],
+                             node["type"],
+                             node["tags"],
+                             node["description"],
+                             node["climate_hazard"],
+                             node["disease_injury_wellbeing"],
+                             node["icd11"],
+                             node["sector"],
+                             node["sdg"],
+                             node["urban_rural"],
+                             node["vulnerabilities"]))
         self.db.conn.commit()
         return self.db.cur.fetchone()[0]
 

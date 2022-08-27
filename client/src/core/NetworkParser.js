@@ -116,7 +116,7 @@ class NetworkParser {
     }
 
     labelToVariable(label) {
-        if (label == "Temperature (air)") {
+        if (label == "Temperature") {
             return "tavg_median";
         }
         return false;
@@ -136,7 +136,11 @@ class NetworkParser {
 
     recurCalculate(node,state,sector) {
         // set the supplied state to the node now
-        node.state=state;       
+        node.state=state;
+
+        // if this is a driver, we don't want to go further
+        if (node.type=="Driver") return;
+        
         for (let edge of this.edges) {
             if (edge.node_from==node.node_id) {
                 let child = this.searchNode(edge.node_to);
@@ -178,22 +182,22 @@ class NetworkParser {
         }
     }
 
-    calculate(climatePrediction,year,sector) {
+    calculate(climatePrediction,year,sector,climateVariableFilter) {
         this.visited=[];
-        for (let pressure of this.pressureNodes) {
-
-            let prediction = this.getPrediction(climatePrediction,year,pressure.label);
-
-            if (prediction===false) {
-                this.recurCalculate(pressure,new NetworkState("unknown"),sector);
-            } else {               
-                if (prediction>this.globalThreshold) {
-                    this.recurCalculate(pressure,new NetworkState("increase"),sector);
-                } else {
-                    if (prediction<-this.globalThreshold) {
-                        this.recurCalculate(pressure,new NetworkState("decrease"),sector);
-                    } else {                    
-                        this.recurCalculate(pressure,new NetworkState("deactivated"),sector);
+        for (let pressure of this.pressureNodes) {            
+            if (climateVariableFilter == "All" || climateVariableFilter == pressure.label) {                
+                let prediction = this.getPrediction(climatePrediction,year,pressure.label);
+                if (prediction===false) {
+                    this.recurCalculate(pressure,new NetworkState("unknown"),sector);
+                } else {               
+                    if (prediction>this.globalThreshold) {
+                        this.recurCalculate(pressure,new NetworkState("increase"),sector);
+                    } else {
+                        if (prediction<-this.globalThreshold) {
+                            this.recurCalculate(pressure,new NetworkState("decrease"),sector);
+                        } else {                    
+                            this.recurCalculate(pressure,new NetworkState("deactivated"),sector);
+                        }
                     }
                 }
             }
@@ -201,8 +205,8 @@ class NetworkParser {
     }
 
     // run calculate then return active impacts
-    calculateHealthWellbeing(climatePrediction,year,sector) {        
-        this.calculate(climatePrediction,year,sector);
+    calculateHealthWellbeing(climatePrediction,year,sector,climateVariableFilter) {        
+        this.calculate(climatePrediction,year,sector,climateVariableFilter);
         let ret = [];
         // only return nodes that are increasing or decreasing
         for (let node of this.healthNodes) {

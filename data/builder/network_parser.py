@@ -30,6 +30,7 @@ class network_parser:
         with open(fn) as csvfile:
             reader = csv.reader(csvfile)
             for i,row in enumerate(reader):
+                # strip out key nodes (maybe these have gone now?)
                 if i>0 and not row[0] in ["Driver","Pressure","State","Effect","Exposure","Action"]:
                     self.nodes.append({
                         "label":row[0],
@@ -39,8 +40,11 @@ class network_parser:
                         "climate_hazard":row[4],
                         "disease_injury_wellbeing":row[5],
                         "icd11":row[6],
-                        "sector":row[7],
-                        "sdg":row[8]
+                        "ref_ids":row[7],
+                        "sector":row[8],
+                        "sdg":row[9],
+                        "urban_rural":row[10],
+                        "vulnerabilities":row[11]
                     })
                     # todo: references
 

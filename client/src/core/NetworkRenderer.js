@@ -41,6 +41,34 @@ class NetworkRenderer {
 		this.iconCache = {};
 		this.iconCacheLoading = false;
 	}
+
+    getNode(id) {
+        for (let node of this.nodes) {
+            if (node.id === id) return node;
+        }
+        return false;
+    }
+
+    getEdge(id) {
+        for (let edge in this.edges) {
+            if (edge.id == id) return edge;
+        }
+        return false;
+    }
+
+    getParsedNode(id) {
+        for (let node of this.parsedNodes) {
+            if (node.node_id === id) return node;
+        }
+        return false;
+    }
+
+    getParsedEdge(id) {
+        for (let edge of this.parsedEdges) {
+            if (edge.edge_id === id) return edge;
+        }
+        return false;
+    }
     
     loadIcons() {
     }
@@ -132,7 +160,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
 	
 ///////////////////////////////////////
     
-	addNode(node,y) {
+	addNode(node) {
         if (node.state=="disabled") {
             return;
         }
@@ -148,8 +176,6 @@ font-family="Arial" dy=".3em">`+text+`</text>
             "Action": "#ffda2c"
         };
 
-        console.log([node.type,nodeColour[node.type]]);
-        
         //"#a4f9c8"
         if (node.type=="Pressure") {
         	this.nodes.push({
@@ -157,9 +183,11 @@ font-family="Arial" dy=".3em">`+text+`</text>
 			    shape: "image",
 			    image: this.nodeImageURL(node.id,node.label,change,node.type,nodeColour[node.type],false),
 			    size: 30,
-				x: 0,
-				y: this.fixedYPos*75,
+				x: -500,
+				y: this.fixedYPos*150,
 				fixed: true,
+                mDPSEEA: node.type,
+                sector: node.sector
 		    });
             this.fixedYPos+=1;
         } else {
@@ -167,13 +195,19 @@ font-family="Arial" dy=".3em">`+text+`</text>
 			    id: node.node_id,
 			    shape: "image",
 			    image: this.nodeImageURL(node.id,node.label,change,node.type,nodeColour[node.type],false),
-			    size: 30
+			    size: 30,
+                mDPSEEA: node.type,
+                sector: node.sector
 		    });
         }
 	}
 
-	addEdge(edge,y) {
+	addEdge(edge) {
 		let colour = "#b0cacc";
+
+        if (edge.type=="+") colour="#afd6e4";
+        else colour="#f1b9bd";
+        
         let label=edge.type;
         var labelsize = 15;
                 
@@ -184,7 +218,12 @@ font-family="Arial" dy=".3em">`+text+`</text>
 			arrows: "to",
             label: label,
 			labelHighlightBold: false,
-			arrowStrikethrough: false,
+			//arrowStrikethrough: false,
+            smooth: {
+                type: "dynamic",
+                enabled: true,
+                roundness: 0.5,
+            },
 			font: {
 				color: colour,
 				size: labelsize,
@@ -194,34 +233,31 @@ font-family="Arial" dy=".3em">`+text+`</text>
 			color: {
 				color: colour,
 				highlight: colour,
-			}
+			},
+            endPointOffset: { to: 1.2 }
 		});
 	}
     
-	buildGraph(nodes, edges, climatePrediction, year, sector) {               
+	buildGraph(nodes, edges, climatePrediction, year, sector, climateVariableFilter, sectorFilter) {               
         let networkParser = new NetworkParser(nodes,edges);
         //console.log([climatePrediction, year]);
-        networkParser.calculate(climatePrediction,year,sector);
-        nodes = networkParser.nodes;
-		edges = networkParser.edges;
+        networkParser.calculate(climatePrediction,year,sector, climateVariableFilter);
+        this.parsedNodes = networkParser.nodes;
+		this.parsedEdges = networkParser.edges;
 
-        console.log([nodes,edges]);
-        
         this.nodes = [];
 		this.edges = [];
         this.fixedYPos=0;
 
-		let c = 0;
         // find causes and propagate upwards (right?) from there
-		for (let node of nodes) {
+		for (let node of this.parsedNodes) {
             if (node.type!="Driver" && node.state.value!="deactivated") {
-   			    this.addNode(node,c);
-			    c+=1;
+   			    this.addNode(node);
             }
 		}
 
-		for (let edge of edges) {
-   			this.addEdge(edge,c);
+		for (let edge of this.parsedEdges) {
+   			this.addEdge(edge);
 		}
 
         let g = {

@@ -55,7 +55,8 @@ function HealthWellbeing(props) {
             { networkParser.calculateHealthWellbeing(
                 props.climatePrediction,
                 props.year,
-                props.sector
+                props.sector,
+                "All"
             ).map((node) => (
                 <div className={"vert-container"}>
                   <HealthAndWellbeingSvg/>
