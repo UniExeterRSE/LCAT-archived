@@ -1,4 +1,4 @@
-# How the climate data for region is passed through the network
+# How the climate data for region is currently passed through the network
 
 ## 1. Positive and negative correlation
 
