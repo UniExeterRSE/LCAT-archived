@@ -6,7 +6,18 @@ currently under development - so the initial goal is to make sure we
 are doing this correctly, after which it can be used as documentation.
 
 This document refers to the [code found here](../client/src/core/NetworkParser.js).
+
+# Our use of mDPSEEA definitions 
+
+Some examples of how we are defining terms for LCAT:
    
+* Drivers: causes of climate change (e.g. Burning fossil fuels).
+* Pressures: specific climate variables that are changing (e.g. Temperature, Rainfall).
+* States: something changed/caused by a pressure (e.g. Heatwaves, river water temperature, railway problems).
+* Exposures: a secondary impact of a state change: (e.g. Individuals exposed to high heat, Cooling water potential).
+* Effects: an 'end result' - often health related: (e.g. Respiratory deaths, Biodiversity & ecological balance disruption).
+* Actions: Adaptations that can be applied to any of the above (e.g. Heatwave warning systems, promote uptake of electric vehicles).
+        
 ## 1. Positive and negative correlation
 
 Some assumptions (are these actually correct!):
