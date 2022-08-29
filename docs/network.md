@@ -1,10 +1,14 @@
 # How the climate data for region is currently passed through the network
 
-
+This document explains how impacts are calculated around the network
+of mDPSEEA nodes, from climate variables to health impacts. This is
+currently under development, and fairly simple to modify so the
+initial goal is to make sure we are doing this correctly, after which
+it can be used as documentation.
     
 ## 1. Positive and negative correlation
 
-Some assumptions (which may be incorrect!):
+Some assumptions (are these actually correct!):
 
 * Climate variables (Pressures) can increase or decrease for a region
   selected by the user (we are not using thresholds or magnitudes).
@@ -12,7 +16,9 @@ Some assumptions (which may be incorrect!):
   increase or decrease.
 * We can calculate these changes by using the connections between them
   (from the scientific evidence) as positive or negative correlations.
-
+* The networks below could include Drivers, Pressures, States, Effects
+  or Actions - they are all treated the same way.
+    
 Examples:
         
 ![](images/single.png)
@@ -23,8 +29,9 @@ happiness of ducks (B), therefore a decrease in rainfall elsewhere (A)
 *decreases* the happiness of ducks (B).
 
 On the light are negative correlation, where they are inverted: A rise
-in temperature (A) *reduces* size of icecaps (B), therefore a fall in
-temperature (A) *increases* the size of icecaps (B).
+in temperature (A) *reduces* the time it takes for ice cream to melt
+in this area (B), therefore a fall in temperature (A) *increases* the
+melting time (B).
 
 ## 2. Chaining together impacts
 
