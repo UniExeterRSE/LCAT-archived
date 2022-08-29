@@ -1,4 +1,5 @@
-# How the climate data for region is currently passed through the network
+# How the climate data for a selected region is currently passed
+  through the network
 
 This document explains how impacts are calculated around the network
 of mDPSEEA nodes, from climate variables to health impacts. This is
@@ -58,7 +59,7 @@ If the result disagrees we can't be certain whether the impact is
 increasing or decreasing (worth noting that so far in the data we have
 this only occurs once).
 
-## 4. Uncertainies lead to more uncertainty
+## 4. Uncertainties lead to more uncertainty
 
 Once we have an uncertain increase/decrease, all following impacts
 have to become uncertain too.
@@ -68,7 +69,7 @@ have to become uncertain too.
 ## 5. Ways to reduce uncertainty
 
 Originally we talked about reducing this uncertainty by adding two
-more states: probable increase/decrese (this is not done yet, but it
+more states: probable increase/decrease (this is not done yet, but it
 can be added). The inputs "vote" to indicate a majority decrease. This
 does not solve a 50/50 split of course, so uncertainties are still
 possible, *and it assumes the confidence and impact size is equal for
