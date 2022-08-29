@@ -15,7 +15,7 @@ Some assumptions (are these actually correct!):
   selected by the user (we are not using thresholds or magnitudes).
 * The States, Exposures and Effects they are connected to also
   increase or decrease.
-* We can calculate these changes by using the connections between them
+* We can predict these changes by using the connections between them
   (from the scientific evidence) as positive or negative correlations.    
 * The networks below could include Pressures, States, Exposures or
   Effects - they are all treated the same way.
@@ -46,7 +46,7 @@ inverting (-) each other.
 Examples:
 
 * Increase in rainfall (A) leads to more ducks (B), decreasing the amount of bread (C).
-* Decrease in rainfall (A) leads to less ducks (B), increasing the amount of bread (C).
+* Decrease in rainfall (A) leads to fewer ducks (B), increasing the amount of bread (C).
 
 ## 3. Multiple connections coming into an impact
 
