@@ -23,14 +23,14 @@ Examples:
         
 ![](images/single.png)
 
-On the left are positive correlation, where the increases/decreases
+On the left are positive correlations, where the increases/decreases
 match: An increase in rainfall in this area (A) *increases* the
-happiness of ducks (B), therefore a decrease in rainfall elsewhere (A)
-*decreases* the happiness of ducks (B).
+happiness of ducks (B), therefore underneath, a decrease in rainfall
+elsewhere (A) *decreases* the happiness of ducks (B).
 
-On the light are negative correlation, where they are inverted: A rise
-in temperature (A) *reduces* the time it takes for ice cream to melt
-in this area (B), therefore a fall in temperature (A) *increases* the
+On the right are negative correlations, where they are inverted: A
+rise in temperature (A) *decreases* the time it takes for ice cream to
+melt in this area (B), therefore a fall in temperature (A) *increases*
 melting time (B).
 
 ## 2. Chaining together impacts
@@ -47,7 +47,10 @@ Examples:
 
 ## 3. Multiple connections coming into an impact
 
-When multiple connections come into an impact we need to check that they agree.
+When multiple connections come into an impact we need to check that
+they agree. Agreement is dependant on whether the upstream impact is
+increasing or decreasing in combination with the correlation being
+positive or negative.
     
 ![](images/adding.png)
 
