@@ -1,9 +1,8 @@
-# How the climate data for a selected region is currently passed
-  through the network
+# How the climate data for a selected region is currently passed through the impact network
 
 This document explains how impacts are calculated around the network
 of mDPSEEA nodes, from climate variables to health impacts. This is
-currently under development, and fairly simple to modify so the
+currently under development, and fairly simple to modify - so the
 initial goal is to make sure we are doing this correctly, after which
 it can be used as documentation.
     
