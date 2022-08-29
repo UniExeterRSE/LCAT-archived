@@ -52,12 +52,12 @@ When multiple connections come into an impact we need to check that
 they agree. Agreement is dependant on whether the upstream impact is
 increasing or decreasing in combination with the correlation being
 positive or negative.
-    
-![](images/adding.png)
 
-If the result disagrees we can't be certain whether the impact is
-increasing or decreasing (worth noting that so far in the data we have
-this only occurs once).
+The bottom two examples show disagreements, where we can't be certain
+whether the impact is increasing or decreasing (worth noting that so
+far in the data this only occurs once).
+        
+![](images/adding.png)
 
 ## 4. Uncertainties lead to more uncertainty
 
