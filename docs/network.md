@@ -79,7 +79,7 @@ have to become uncertain too. Dealing with uncertainty this way
 is the most conservative (and simplest) approach. It's worth noting
 that so far in the data this only seems to occur in one impact, it may
 be that this simply indicates something that needs tweaking in the
-network rather than in the literature.
+network rather than a problem in the literature.
 
 ![](images/uncertain-more.png)
 
