@@ -78,8 +78,8 @@ have to become uncertain too. Dealing with uncertainty this way
 (simply giving up as soon as we encounter some conflicting evidence)
 is the most conservative (and simplest) approach. It's worth noting
 that so far in the data this only seems to occur in one impact, it may
-be that this simply indicates a problem in the network rather in the
-literature.
+be that this simply indicates a problem in the network rather than in
+the literature.
 
 ![](images/uncertain-more.png)
 
@@ -90,7 +90,7 @@ more states: probable increase/decrease (this is not done yet, but it
 can be added). The inputs here "vote" to indicate a majority
 decrease. This does not solve a 50/50 split of course, so
 uncertainties are still possible, *and it assumes the confidence and
-impact size is equal for each connection*.
+impact size is equal for each connection*. 
 
 ![](images/probable.png)
 
