@@ -18,7 +18,8 @@ Some assumptions (are these actually correct!):
   (from the scientific evidence) as positive or negative correlations.    
 * The networks below could include Pressures, States, Exposures or
   Effects - they are all treated the same way.
-* Currently Drivers and Actions are not part of this calculation.
+* Currently Drivers (things causing climate change) and Actions
+  (adaptation strategies) are not part of this calculation.
     
 Examples:
         
