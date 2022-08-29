@@ -15,9 +15,10 @@ Some assumptions (are these actually correct!):
 * The States, Exposures and Effects they are connected to also
   increase or decrease.
 * We can calculate these changes by using the connections between them
-  (from the scientific evidence) as positive or negative correlations.
-* The networks below could include Drivers, Pressures, States, Effects
-  or Actions - they are all treated the same way.
+  (from the scientific evidence) as positive or negative correlations.    
+* The networks below could include Pressures, States, or
+  Effects - they are all treated the same way.
+* Currently Drivers and Actions are not part of this calculation.
     
 Examples:
         
