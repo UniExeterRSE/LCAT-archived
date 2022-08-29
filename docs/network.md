@@ -67,15 +67,19 @@ increasing or decreasing in combination with the correlation being
 positive or negative.
 
 The bottom two examples show disagreements, where we can't be certain
-whether the impact is increasing or decreasing (worth noting that so
-far in the data this only occurs once).
+whether the impact is increasing or decreasing. 
         
 ![](images/adding.png)
 
 ## 4. Uncertainties lead to more uncertainty
 
 Once we have an uncertain increase/decrease, all following impacts
-have to become uncertain too.
+have to become uncertain too. Dealing with uncertainty this way
+(simply giving up as soon as we encounter some conflicting evidence)
+is the most conservative (and simplest) approach. It's worth noting
+that so far in the data this only seems to occur in one impact, it may
+be that this simply indicates a problem in the network rather in the
+literature.
 
 ![](images/uncertain-more.png)
 
@@ -83,14 +87,14 @@ have to become uncertain too.
 
 Originally we talked about reducing this uncertainty by adding two
 more states: probable increase/decrease (this is not done yet, but it
-can be added). The inputs "vote" to indicate a majority decrease. This
-does not solve a 50/50 split of course, so uncertainties are still
-possible, *and it assumes the confidence and impact size is equal for
-each connection*.
-    
+can be added). The inputs here "vote" to indicate a majority
+decrease. This does not solve a 50/50 split of course, so
+uncertainties are still possible, *and it assumes the confidence and
+impact size is equal for each connection*.
+
 ![](images/probable.png)
 
-## 6. Future cases I'm not sure how do deal with
+## 6. Future cases we're not sure how do deal with
 
 1. Should we use "probable" to add certainty to a previously uncertain state?
 2. What should we do if we need to add together a probable state with a certain one?
