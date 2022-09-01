@@ -251,7 +251,8 @@ font-family="Arial" dy=".3em">`+text+`</text>
 
         // find causes and propagate upwards (right?) from there
 		for (let node of this.parsedNodes) {
-            if (node.type!="Driver" && node.state.value!="deactivated") {
+            if (node.type!="Driver" && node.state.value!="deactivated" &&
+                node.label!="Hospital admissions") {
    			    this.addNode(node);
             }
 		}

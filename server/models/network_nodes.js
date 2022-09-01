@@ -43,7 +43,11 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    vulnerability_inequality: {
+    urban_rural: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    vulnerabilities: {
       type: DataTypes.TEXT,
       allowNull: true
     }
