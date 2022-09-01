@@ -24,6 +24,7 @@ from builder import network
 from builder import stats
 from builder import nfvi_sfri
 from builder import hierarchy
+from builder import chessscape
 
 def load_config():
     with open('config.yml') as f:
@@ -105,6 +106,9 @@ else:
 
     if sys.argv[1]=="link_nfvi_sfri_counties":         
         nfvi_sfri.import_to_table(db,"counties","county")
+
+    if sys.argv[1]=="chessscape":         
+        chessscape.import_data(db)
 
     if sys.argv[1]=="all":
         #ukcri.load(db,conf['uk_cri_data_path'])

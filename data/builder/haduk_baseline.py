@@ -17,6 +17,8 @@
 # and populate the properties of each tile with the records by year
 # for easy previewing (rather than using separate tables).
 
+import * from netCDF4 as nc
+
 def mkfn(path,y):
     return path+'tas_hadukgrid_uk_12km_ann_'+str(y)+'01-'+str(y)+'12.nc'
 
