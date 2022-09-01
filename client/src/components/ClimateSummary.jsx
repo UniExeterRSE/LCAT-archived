@@ -43,15 +43,14 @@ function ClimateSummary(props) {
           spinner
           text={'Loading climate data'}>
           <div>
-            <h1>Climate Summary</h1>
             <p>
-              The climate forecast in
+              The climate forecast in&nbsp;
 
               <span className={"projected-regions"}>
-                { andify(props.regions.map(e => e.name)) }.
+                { andify(props.regions.map(e => e.name)) }
               </span>
               
-              by { props.year } is          
+              &nbsp;by { props.year } is          
             </p>
             <div className={"horiz-container"}>
               <div className={"vert-container"}>

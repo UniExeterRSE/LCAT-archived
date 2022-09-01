@@ -205,8 +205,8 @@ font-family="Arial" dy=".3em">`+text+`</text>
 	addEdge(edge) {
 		let colour = "#b0cacc";
 
-        if (edge.type=="+") colour="#afd6e4";
-        else colour="#f1b9bd";
+        //if (edge.type=="+") colour="#afd6e4";
+        //else colour="#f1b9bd";
         
         let label=edge.type;
         var labelsize = 15;
@@ -216,7 +216,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
 			from: edge.node_from,
 			to: edge.node_to,
 			arrows: "to",
-            label: label,
+            //label: label,
 			labelHighlightBold: false,
 			//arrowStrikethrough: false,
             smooth: {

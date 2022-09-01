@@ -81,6 +81,8 @@ class ClimateMap extends React.Component {
             }
         }
 
+        col = "#00000000";
+        
         let gid = feature.properties.gid;
         layer.bindTooltip(feature.properties.name+
                           "<br> "+feature.properties.gid+": "+this.state.mapProperty+" "+
@@ -141,6 +143,12 @@ class ClimateMap extends React.Component {
         }));
     }
 
+    regionTypeToName = (type) => {
+        if (type=="counties") return "Counties";
+        if (type=="msoa") return "MSOA";
+        return "LSOA";
+    }
+    
     render() {
         return (
             <div>
@@ -157,9 +165,9 @@ class ClimateMap extends React.Component {
                   <option value="msoa">MSOA</option>
                   <option value="lsoa">LSOA</option>
                 </select>
-                you are interested in. The Index of Multiple Deprivation score 
+                you are interested in. {/*The Index of Multiple Deprivation score 
 
-		  {/*<select onChange={(e) => { this.setState(() => ({
+		  <select onChange={(e) => { this.setState(() => ({
                     mapProperty: e.target.value,
                     geojson_key: this.state.geojson_key+1,
                 }));}}>                  
@@ -167,9 +175,9 @@ class ClimateMap extends React.Component {
                   {Object.keys(nfviColumns).map((k) => (
                       <option value={k}>{nfviColumns[k].name.slice(0,30)}</option>
                   ))}
-                  </select> */}
+                  </select> 
                 
-                is shown to help guide you to priority areas.
+                  is shown to help guide you to priority areas. */}
               </p>
               
               <RegionsListener
@@ -181,7 +189,7 @@ class ClimateMap extends React.Component {
               <LoadingOverlay
                 active={this.state.loading}
                 spinner
-                text={'Loading '+this.state.regionType}>
+                text={'Loading '+this.regionTypeToName(this.state.regionType)}>
                 <MapContainer
                   center={center}
                   zoom={7}

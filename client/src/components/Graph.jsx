@@ -42,19 +42,19 @@ function Graph(props) {
     return (
         <div className="collapsible">
           <div className="header" {...getToggleProps()}>
-            {isExpanded ? 'Hide' : 'Show'} Climate prediction details
+            {isExpanded ? 'Hide' : 'Show'} more 
           </div>
           <div {...getCollapseProps()}>
             <div className="content">
               <p>
                 The graph below shows the future climate change 
-                expected in 
+                expected in&nbsp; 
                 
                 <span className={"projected-regions"}>
-                  { andify(props.regions.map(e => e.name)) }.
+                  { andify(props.regions.map(e => e.name)) }
                 </span>
                 
-                You are viewing 
+                .&nbsp;You are viewing 
 
                 <select onChange={(e) => { setTable(e.target.value); }}>
                   <option value="hadgem_rcp85_tavg_ann">Annual mean temp</option>

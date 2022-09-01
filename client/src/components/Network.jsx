@@ -142,10 +142,13 @@ function Network(props) {
                     let node_from = props.networkRenderer.getParsedNode(edge.node_from);
                     let node_to = props.networkRenderer.getParsedNode(edge.node_to);
                     let change = " increases ";
-                    if (edge.type == "-") change = " decreases ";
-                    
-                    setInfoTitle(node_from.label+change+node_to.label);
-                    setInfoText("");
+                    let title = "Positive correlation";
+                    if (edge.type == "-") {
+                        change = " decreases ";
+                        title = "Negative correlation";
+                    }
+                    setInfoText(node_from.label+change+node_to.label);
+                    setInfoTitle(title);
                     setInfoMetadata([]);                
                 }
             }
@@ -163,7 +166,7 @@ function Network(props) {
     return (
         <div className="collapsible">
           <div className="header" {...getToggleProps()}>
-            {isExpanded ? 'Hide' : 'Show'} Health impact details
+            {isExpanded ? 'Hide' : 'Show'} more
           </div>
           <div {...getCollapseProps()}>
             <div className="content">
@@ -180,7 +183,7 @@ function Network(props) {
 
                 will impact
 
-                <select onChange={(e) => { setSectorFilter(e.target.value); }}>
+                {/*<select onChange={(e) => { setSectorFilter(e.target.value); }}>
                   <option value="All">All sectors</option>
                   <option value="Health & Social Care">Health & Social Care</option>
                   <option value="Biodiversity & Natural Habitats">Biodiversity & Natural Habitats</option>
@@ -191,9 +194,9 @@ function Network(props) {
                   <option value="Business & Industry">Business & Industry</option>
                   <option value="Information & Communication Technology">Information & Communication Technology</option>
                   <option value="International Factors">International Factors</option>                  
-                </select>
+                  </select>*/}
 
-                in
+                &nbsp;
                 
                 <span className={"projected-regions"}>
                   { andify(props.regions.map(e => e.name)) }
@@ -224,7 +227,7 @@ function Network(props) {
                     graph={graph}
                     options={options}
                     events={events}
-                    style={{height: 800}}
+                    style={{height: 600}}
                     //getNetwork={() => graph}
                     //getEdges={() => graph.edges}
                     //getNodes={() => graph.nodes}

@@ -69,7 +69,7 @@ class App extends React.Component {
                 <h1>Local Climate Adaptation Tool V2.0</h1>
               </header>
                 <p>
-                You are looking at the national level testing version. <a href="http://climate-tool.thentrythis.org">The working Cornwall prototype is here.</a>
+                  You are looking at the national level testing version - this is in development and the data is not reliable, so it should not be shared yet. We anticipate a new version ready for release in November 2022. <a href="http://climate-tool.thentrythis.org">The working Cornwall prototype is here.</a>
                 </p>
 
               {/* bundle up all the api calls into one when decided? */}
@@ -138,12 +138,14 @@ class App extends React.Component {
                 regionType={this.state.regionType}                
               />
               
-              <Sector
+              {/*<Sector
                 regions = {this.state.regions}
                 callback={(sector) => { this.setState(() => ({
                     sector: sector
-                }));}}/>
+                    }));}}/>*/}
                             
+
+              
               <HealthWellbeing
                 network = {this.state.network}
                 year = {this.state.year}

@@ -105,15 +105,15 @@ function Vulnerabilities(props) {
 
     return (
         <div>
-          <h1>Vulnerabilities</h1>
+          <h2>Vulnerabilities</h2>
           <p>
-            The following vulnerabilities are the most important to consider in 
+            The following vulnerabilities are the most important to consider in&nbsp; 
             
             <span className={"projected-regions"}>
-              { andify(props.regions.map(e => e.name)) }.
+              { andify(props.regions.map(e => e.name)) }
             </span>
             
-            (these vulnerabilities are in the top
+            &nbsp;(these vulnerabilities are in the top
 
             <select onChange={(e) => { setDecile(e.target.value); }}>
               <option value="dec_1">10%</option>

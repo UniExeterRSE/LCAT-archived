@@ -39,36 +39,33 @@ function HealthWellbeing(props) {
           spinner
           text={'Loading climate data'}>
 
-          <h1>Health Impact Summary</h1>
+          <h2>Health Impact Summary</h2>
 
           <p>
-            The climate change forecast in
+            The climate change forecast in&nbsp;
             
             <span className={"projected-regions"}>
-              { andify(props.regions.map(e => e.name)) }.
+              { andify(props.regions.map(e => e.name)) }
             </span>
 
-            is expected to cause these health and wellbeing impacts:
+            &nbsp;is expected to cause these health and wellbeing impacts:
           </p>
           
-          <div className={"horiz-container"}>        
+          <div className={"horiz-container-health"}>        
             { networkParser.calculateHealthWellbeing(
                 props.climatePrediction,
                 props.year,
                 props.sector,
                 "All"
             ).map((node) => (
-                <div className={"vert-container"}>
-                  <HealthAndWellbeingSvg/>
-                  <center>
-                    <p>
-                      {node.label}
-                      <br/>
-                      <b>
-                        {node.state.asText()}
-                      </b>
-                    </p>
-                  </center>
+                <div className={"vert-container-health"}>
+                  <div className={"health-img"}>
+                    <HealthAndWellbeingSvg/>
+                  </div>                
+                  {node.label}                  
+                  <b>
+                    {node.state.asText()}
+                  </b>                
                 </div>
             )) }
           </div>  

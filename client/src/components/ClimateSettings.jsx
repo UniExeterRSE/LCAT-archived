@@ -19,6 +19,7 @@ function ClimateSettings(props) {
             
     return (
         <div>
+          <h2>Climate Summary</h2>
           <p>
             Calculate impacts below using 
             <select onChange={(e) => { props.averageCallback(e.target.value); }}>           

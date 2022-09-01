@@ -2,7 +2,7 @@
     margin-left: 50px;
     display: flex;
     flex-direction: row;
-    overflow-y: scroll;
+    overflow-x: scroll;
     justify-content: center;
 }
 

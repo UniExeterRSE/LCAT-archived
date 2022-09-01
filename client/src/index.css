@@ -13,30 +13,24 @@ body {
     font-size: 1em;
     padding: 0;
     margin: 0;
-}
-
-p {
-    margin-left: 0;
-    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0; 
 }
 
 @media (min-width: 1000px) {
-    p {
-        margin-left: 50px;
-        margin-right: 50px;
+    body {
+        padding-left: 50px;
+        padding-right: 50px; 
     }
 }
 
 h1 {
 	font-size: 200%;
 	margin-bottom: 0em;
-    margin-left: 0;
-    margin-right: 0;
 }
 
 h2 {
-    margin-left: 0;
-    margin-right: 0;
+    border-top: 3px solid #42273b;
 }
 
 @media (min-width: 1000px) {
@@ -45,19 +39,6 @@ h2 {
     }
 }    
 
-@media (min-width: 1000px) {
-    h1 {
-        margin-left: 50px;
-        margin-right: 50px;
-    }    
-}
-
-@media (min-width: 1000px) {
-    h2 {
-        margin-left: 50px;
-        margin-right: 50px;
-    }
-}
 
 @media (min-width: 1500px) {
     body {
@@ -202,24 +183,25 @@ section {
 
 /* Style the button that is used to open and close the collapsible content */
 .collapsible {
-
 	box-sizing: content-box;
 	position: relative;
 	width: 100%;
 	display: block;
 	border: none;
 	border-radius: 5px;	
-	margin-top: 0.25em;
-	margin-bottom: 0.25em;
-	font-size: 1.25em;
 }
 
 .collapsible .header {
-    text-decoration: underline;
-	background: #ffbc42;
-    padding-left: 50px;
-    padding-right: 50px;
+	background: #b0cacc;
+	border-radius: 2px;
+	padding-left: 0.25em;
+	padding-right: 0.25em;
 }
+
+.collapsible .header:hover {
+	background: #ffbc42;
+}
+
 
 
 /* style the items (options), including the selected item: */
@@ -258,19 +240,19 @@ section {
 }
 
 .projected-regions {
-	padding-left: 0.25em;
+/*	padding-left: 0.25em;
 	padding-right: 0.25em;
 	margin-left: 0.25em;
 	margin-right: 0.25em;
 	background-color: #a4b3cd;
-	border-radius: 5px;
+	border-radius: 5px; */
 }
 
 #results span {
-	padding-left: 0.25em;
+/*	padding-left: 0.25em;
 	padding-right: 0.25em;
 	background-color: #a4b3cd;
-	border-radius: 5px;
+	border-radius: 5px;*/
 }
 
 #health-impacts {
@@ -417,7 +399,8 @@ g span {
 	display: flex;
 	flex-direction: row;
     align-items: center;
-    overflow: scroll;
+    overflow-x: auto;
+    justify-content: space-around;
 }
 
 .vert-container {
@@ -425,6 +408,27 @@ g span {
 	flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.horiz-container-health {
+	display: flex;
+	flex-direction: row;
+    overflow-x: auto;
+}
+
+.health-img {
+	display: flex;
+	flex-direction: row;    
+    align-items: center;
+    justify-content: center;
+}
+
+
+.vert-container-health {
+	display: flex;
+	flex-direction: column;
+    text-align: center;
+    margin: 1em;
 }
 
 .nonsense {
