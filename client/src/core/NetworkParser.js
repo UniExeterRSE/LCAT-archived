@@ -186,23 +186,23 @@ class NetworkParser {
         this.visited=[];
         for (let pressure of this.pressureNodes) {
             if (pressure.label!="Climate change") {
-                if (climateVariableFilter == "All" ||
-                    climateVariableFilter == pressure.label) {                
-                    let prediction = this.getPrediction(climatePrediction,year,pressure.label);
-                    if (prediction===false) {
-                        this.recurCalculate(pressure,new NetworkState("unknown"),sector);
-                    } else {               
-                        if (prediction>this.globalThreshold) {
-                            this.recurCalculate(pressure,new NetworkState("increase"),sector);
-                        } else {
-                            if (prediction<-this.globalThreshold) {
-                                this.recurCalculate(pressure,new NetworkState("decrease"),sector);
-                            } else {                    
-                                this.recurCalculate(pressure,new NetworkState("deactivated"),sector);
-                            }
+            if (climateVariableFilter == "All" ||
+                climateVariableFilter == pressure.label) {                
+                let prediction = this.getPrediction(climatePrediction,year,pressure.label);
+                if (prediction===false) {
+                    this.recurCalculate(pressure,new NetworkState("unknown"),sector);
+                } else {               
+                    if (prediction>this.globalThreshold) {
+                        this.recurCalculate(pressure,new NetworkState("increase"),sector);
+                    } else {
+                        if (prediction<-this.globalThreshold) {
+                            this.recurCalculate(pressure,new NetworkState("decrease"),sector);
+                        } else {                    
+                            this.recurCalculate(pressure,new NetworkState("deactivated"),sector);
                         }
                     }
                 }
+            }
             }
         }
     }

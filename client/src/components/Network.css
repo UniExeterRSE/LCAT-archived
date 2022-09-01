@@ -49,7 +49,7 @@
 @media (min-width: 1200px) {
 	.network-info {
 		width: 16em;
-		overflow-y: scroll;
+		overflow-y: auto;
 		height: 600px;
 		font-size: 0.75em;
 	}

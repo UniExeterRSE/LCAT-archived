@@ -86,11 +86,11 @@ class network_db:
 
     def add_edge(self,edge):
         # match nodes by label
-        self.db.cur.execute(f"select node_id from network_nodes where label='{edge['node_from_label']}'")
+        self.db.cur.execute("select node_id from network_nodes where label=%s;",(edge['node_from_label'],))
         r = self.db.cur.fetchone()
         if r==None: return False;        
         node_from_id = r[0]
-        self.db.cur.execute(f"select node_id from network_nodes where label='{edge['node_to_label']}'")
+        self.db.cur.execute("select node_id from network_nodes where label=%s",(edge['node_to_label'],))
         r = self.db.cur.fetchone()
         if r==None: return False;        
         node_to_id = r[0]
