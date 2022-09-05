@@ -88,7 +88,7 @@ class ClimateMap extends React.Component {
                           "<br> "+feature.properties.gid+": "+this.state.mapProperty+" "+
                           feature.properties[this.state.mapProperty]);
         layer.setStyle({
-            'weight': 1,
+            'weight': 3,
             'fillColor': col,
             'fillOpacity': 1
         });
@@ -100,11 +100,11 @@ class ClimateMap extends React.Component {
 
         layer.on('mouseover', function(e) {
             layer.bringToFront();
-            layer.setStyle({'weight': 3});
+            layer.setStyle({'weight': 6});
         });
         
         layer.on('mouseout', function(e) {
-            layer.setStyle({'weight': 1});
+            layer.setStyle({'weight': 3});
         });
 
         layer.on('click', () => {
