@@ -110,6 +110,9 @@ else:
     if sys.argv[1]=="chessscape":         
         chessscape.import_data(db)
 
+    if sys.argv[1]=="chessscape_grid":         
+        chessscape.import_grid(db)
+
     if sys.argv[1]=="all":
         #ukcri.load(db,conf['uk_cri_data_path'])
         #db.load_shp_geom(conf['lsoa_data_shp'],"lsoa","27700")
