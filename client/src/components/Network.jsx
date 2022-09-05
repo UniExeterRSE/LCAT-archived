@@ -127,7 +127,7 @@ function Network(props) {
                 setInfoText(node.description);
                 let metadata = [];
                 for (let key of Object.keys(node)) {
-                    if (!["description", "label", "state", "node_id"].includes(key)) {
+                    if (!["description", "label", "state"].includes(key)) {
                         if (node[key]!="" && node[key]!=null) {
                             metadata.push([key,node[key]]);
                         }

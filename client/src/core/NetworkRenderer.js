@@ -210,7 +210,9 @@ font-family="Arial" dy=".3em">`+text+`</text>
         
         let label=edge.type;
         var labelsize = 15;
-                
+
+        if (!["-","+"].includes(edge.type)) return;
+        
         this.edges.push({
 			id: edge.edge_id,
 			from: edge.node_from,

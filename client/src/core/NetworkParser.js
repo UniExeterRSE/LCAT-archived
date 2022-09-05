@@ -54,13 +54,15 @@ class NetworkState {
             if (edge.type=="-") {
                 if (this.value==="increase") {
                     this.value="decrease";
-                } else {       
-                    if (this.value==="decrease") {
-                        this.value="increase";
-                    }
                 }
-                // no change if disabled, uncertain etc                
             }
+
+            if (edge.type=="+") {       
+                if (this.value==="decrease") {
+                    this.value="increase";
+                }
+            }
+            // no change if disabled, uncertain etc                
         }
     }
 
