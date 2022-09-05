@@ -125,13 +125,14 @@ function Network(props) {
                 setInfoTitle(node.label);
                 setInfoText(node.description);
                 let metadata = [];
+                /*
                 for (let key of Object.keys(node)) {
                     if (!["description", "label", "state"].includes(key)) {
                         if (node[key]!="" && node[key]!=null) {
                             metadata.push([key,node[key]]);
                         }
                     }
-                }
+                }*/
                 setInfoMetadata(metadata);
             } else {
                 if (event.edges.length>0) {
