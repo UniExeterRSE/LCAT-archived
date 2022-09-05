@@ -20,7 +20,6 @@ import './Network.css';
 // triggers when the network changes
 function NetworkListener(props) {
     useEffect(() => {
-        console.log("NL callback");
         props.callback(props.network);
     }, [props.network,
         props.climatePrediction,
@@ -126,13 +125,13 @@ function Network(props) {
                 setInfoTitle(node.label);
                 setInfoText(node.description);
                 let metadata = [];
-                /*for (let key of Object.keys(node)) {
+                for (let key of Object.keys(node)) {
                     if (!["description", "label", "state"].includes(key)) {
                         if (node[key]!="" && node[key]!=null) {
                             metadata.push([key,node[key]]);
                         }
                     }
-                }*/
+                }
                 setInfoMetadata(metadata);
             } else {
                 if (event.edges.length>0) {

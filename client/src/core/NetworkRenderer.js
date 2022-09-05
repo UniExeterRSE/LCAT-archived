@@ -249,12 +249,12 @@ font-family="Arial" dy=".3em">`+text+`</text>
 	}
     
 	buildGraph(nodes, edges, climatePrediction, year, sector, climateVariableFilter, sectorFilter) {               
-        let networkParser = new NetworkParser(nodes,edges);
+        let networkParser = new NetworkParser([...nodes],[...edges]);
         //consolex.log([climatePrediction, year]);
         networkParser.calculate(climatePrediction,year,sector, climateVariableFilter);
         this.parsedNodes = networkParser.nodes;
 		this.parsedEdges = networkParser.edges;
-
+        
         this.nodes = [];
 		this.edges = [];
         this.fixedYPos=0;

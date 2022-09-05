@@ -31,8 +31,19 @@ function Graph(props) {
     const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
     
     const callback = (data) => {
-        setData(data.map(v => ({x: v.year, y: v.avg})));
-        setLabelData(data.map(v => ({x: v.year, y: v.avg+0})));
+        //setData(data.map(v => ({x: v.year, y: v.avg})));
+        //setLabelData(data.map(v => ({x: v.year, y: v.avg+0})));
+
+        let out = [];
+        let label = [];
+        
+        for (let v of data) {
+            if (v.year>2016) out.push({x: v.year, y: v.avg});
+            if (v.year>2016) label.push({x: v.year, y: v.avg+0});
+        }
+
+        setData(out);
+        setLabelData(label);
     };         
     
     if (props.regions.length === 0) {

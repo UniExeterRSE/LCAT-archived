@@ -31,9 +31,6 @@ function ClimateSettings(props) {
             average predictions for year 
             
             <select onChange={(e) => { props.yearCallback(e.target.value); }}>                  
-              <option value="1996">1996</option>
-              <option value="2006">2006</option>
-              <option value="2016">2016</option>
               <option value="2026">2026</option>
               <option value="2036">2036</option>
               <option value="2046">2046</option>
@@ -42,6 +39,9 @@ function ClimateSettings(props) {
               <option value="2076">2076</option>
               <option selected value="2086">2086</option>
             </select>
+
+            compared with the climate records for 1996.
+            
           </p>
         </div>
     );
