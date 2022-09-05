@@ -168,20 +168,28 @@ font-family="Arial" dy=".3em">`+text+`</text>
         let change = node.state.asText();
 
         let nodeColour = {
-            "Driver": "#66c3a6",
-            "Pressure": "#fd8e62",
-            "State": "#8ea1cc",
-            "Exposure": "#e88bc4",
-            "Effect": "#a7d953",
-            "Action": "#ffda2c"
+            "Driver": "#204545",
+            "Pressure": "#204545",
+            "State": "#3da274",
+            "Exposure": "#3da274",
+            "Effect": "#422137",
+            "Action": "#422137"
         };
 
+        let nodeTitle = "Climate";
+        if (node.type == "State" || node.type == "Exposure") {
+            nodeTitle = "Impact";
+        }
+        if (node.type == "Effect") {
+            nodeTitle = "Effect";
+        }
+        
         //"#a4f9c8"
         if (node.type=="Pressure") {
         	this.nodes.push({
 			    id: node.node_id,
 			    shape: "image",
-			    image: this.nodeImageURL(node.id,node.label,change,node.type,nodeColour[node.type],false),
+			    image: this.nodeImageURL(node.id,node.label,change,nodeTitle,nodeColour[node.type],false),
 			    size: 30,
 				x: -500,
 				y: this.fixedYPos*150,
@@ -194,7 +202,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         	this.nodes.push({
 			    id: node.node_id,
 			    shape: "image",
-			    image: this.nodeImageURL(node.id,node.label,change,node.type,nodeColour[node.type],false),
+			    image: this.nodeImageURL(node.id,node.label,change,nodeTitle,nodeColour[node.type],false),
 			    size: 30,
                 mDPSEEA: node.type,
                 sector: node.sector

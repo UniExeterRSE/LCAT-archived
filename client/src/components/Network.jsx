@@ -158,13 +158,17 @@ function Network(props) {
         }
     };
 
+    function handleOnClick() {
+        setVersion(version+1);
+    }
+    
     if (props.regions.length === 0) {
         return null;
     }
 
     return (
         <div className="collapsible">
-          <div className="header" {...getToggleProps()}>
+          <div className="header" {...getToggleProps({onClick: handleOnClick})}>
             {isExpanded ? 'Hide' : 'Show'} more
           </div>
           <div {...getCollapseProps()}>
