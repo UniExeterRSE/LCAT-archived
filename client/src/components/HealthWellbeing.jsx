@@ -9,7 +9,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import LoadingOverlay from "react-loading-overlay";
 
 import { ReactComponent as HealthAndWellbeingSvg } from '../images/icons/Public health & wellbeing.svg';
@@ -23,11 +23,29 @@ function HealthWellbeing(props) {
             props.network.nodes,
             props.network.edges));
 
+    const [ healthNodes, setHealthNodes ] = useState([]);
+
     useEffect(() => {
         setNetworkParser(new NetworkParser(
             props.network.nodes,
-            props.network.edges));
-    }, [props.network]);
+            props.network.edges));        
+
+        let hw = networkParser.calculateHealthWellbeing(
+            props.climatePrediction,
+            props.year,
+            props.sector,
+            "All");
+
+        // lazy load the icons here
+        setHealthNodes(hw.map(node => {
+            node.icon = lazy(() => import('../icons/health/'+node.label));
+            return node;
+        }));
+
+    }, [props.network,
+        props.climatePrediction,
+        props.year,
+        props.sector]);
     
     if (props.regions.length === 0) {
         return null;
@@ -52,22 +70,19 @@ function HealthWellbeing(props) {
           </p>
           
           <div className={"horiz-container-health"}>        
-            { networkParser.calculateHealthWellbeing(
-                props.climatePrediction,
-                props.year,
-                props.sector,
-                "All"
-            ).map((node) => (
+            { healthNodes.map((node) => (
                 <div className={"vert-container-health"}>
                   <div className={"health-img"}>
-                    <HealthAndWellbeingSvg/>
+                    <Suspense fallback={<div>Loading icon...</div>}>
+                      <node.icon/>
+                    </Suspense>
                   </div>                
                   {node.label}                  
                   <b>
-                    {node.state.asText()}
+                    {node.state}
                   </b>                
                 </div>
-            )) }
+            ))}
           </div>  
         </LoadingOverlay>
     );

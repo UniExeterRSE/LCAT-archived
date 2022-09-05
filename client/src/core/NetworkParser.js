@@ -214,7 +214,11 @@ class NetworkParser {
         // only return nodes that are increasing or decreasing
         for (let node of this.healthNodes) {
             if (node.state.value!="deactivated") {
-                ret.push(node);
+                // reconstruct the node with the minimun of info
+                ret.push({
+                    label: node.label,
+                    state: node.state.asText()
+                });
             }
         }
         return ret;

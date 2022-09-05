@@ -136,15 +136,17 @@ class ClimateMap extends React.Component {
     }
 
     geojsonCallback = (data) => {
-        this.setState(() => ({
-            geojson: data,
-            geojson_key: this.state.geojson_key+1,
-            triggerLoadingIndicator: false
-        }));
+        if (data.features!=null) {
+            this.setState(() => ({
+                geojson: data,
+                geojson_key: this.state.geojson_key+1,
+                triggerLoadingIndicator: false
+            }));
+        }
     }
 
     regionTypeToName = (type) => {
-        if (type=="counties") return "Counties";
+        if (type=="counties") return "Counties and Unitary Authorities";
         if (type=="msoa") return "MSOA";
         return "LSOA";
     }
@@ -161,7 +163,7 @@ class ClimateMap extends React.Component {
                     regions: [],
                     triggerLoadingIndicator: true
                 }));}}>
-                  <option value="counties">Counties</option>
+                  <option value="counties">Counties and Unitary Authorities</option>
                   <option value="msoa">MSOA</option>
                   <option value="lsoa">LSOA</option>
                 </select>

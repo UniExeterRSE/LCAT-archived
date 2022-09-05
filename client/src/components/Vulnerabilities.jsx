@@ -33,6 +33,19 @@ function Vulnerabilities(props) {
         if (decile=="dec_8") return "dec_2";
         return "dec_1";
     }
+
+    function decileToText(decile) {
+        if (decile=="dec_1") return "10%";
+        if (decile=="dec_2") return "20%";
+        if (decile=="dec_3") return "30%";
+        if (decile=="dec_4") return "40%";
+        if (decile=="dec_5") return "50%";
+        if (decile=="dec_6") return "60%";
+        if (decile=="dec_7") return "70%";
+        if (decile=="dec_8") return "80%";
+        return "90%";
+    }
+
     
     useEffect(() => {
         let vulns=[];
@@ -131,7 +144,7 @@ function Vulnerabilities(props) {
           </p>
           
           <div className={"vuln-container"}>        
-            {vulnerabilities.map(
+            {vulnerabilities.length ? vulnerabilities.map(
                 v => {
                     return (
                         <div className={"vuln"}>
@@ -143,7 +156,7 @@ function Vulnerabilities(props) {
                           <div className={"vuln-type"}>{v.region.toFixed(2)}% vs {v.uk.toFixed(2)}% UK average</div>
                         </div>
                     );
-                })}
+                }) : <h3>{ andify(props.regions.map(e => e.name)) } is not in the top {decileToText(decile)} for any vulnerabilities.</h3>}
           </div>  
 	    <p>
 		Source data on vulnerabilities from <a href="https://www.climatejust.org.uk">ClimateJust</a> based on work carried out by <a href="http://www.sayersandpartners.co.uk/uploads/6/2/0/9/6209349/sayers_2017_-_present_and_future_flood_vulnerability_risk_and_disadvantage_-_final_report_-_uploaded_05june2017_printed_-_high_quality.pdf">Sayers and Partners LLP for the Joseph Rowntree Foundation</a>.

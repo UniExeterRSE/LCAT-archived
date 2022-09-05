@@ -158,7 +158,6 @@ function Network(props) {
         }
     };
 
-    
     if (props.regions.length === 0) {
         return null;
     }
@@ -227,7 +226,7 @@ function Network(props) {
                     graph={graph}
                     options={options}
                     events={events}
-                    style={{height: 600}}
+                    //style={{height: 600, width: 800}}
                     //getNetwork={() => graph}
                     //getEdges={() => graph.edges}
                     //getNodes={() => graph.nodes}

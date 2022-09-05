@@ -68,10 +68,10 @@ class App extends React.Component {
               <header className="App-header">
                 <h1>Local Climate Adaptation Tool V2.0</h1>
               </header>
-                <p>
-                  You are looking at the national level testing version - this is in development and the data is not reliable, so it should not be shared yet. We anticipate a new version ready for release in November 2022. <a href="http://climate-tool.thentrythis.org">The working Cornwall prototype is here.</a>
-                </p>
-
+              <p>
+                You are looking at the national level testing version - this is in development and the data is not reliable, so it should not be shared yet. We anticipate a new version ready for release in November 2022. <a href="http://climate-tool.thentrythis.org">The working Cornwall prototype is here.</a>
+              </p>
+              
               {/* bundle up all the api calls into one when decided? */}
               <NetworkLoader
                 id={0}

@@ -240,7 +240,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
     
 	buildGraph(nodes, edges, climatePrediction, year, sector, climateVariableFilter, sectorFilter) {               
         let networkParser = new NetworkParser(nodes,edges);
-        //console.log([climatePrediction, year]);
+        //consolex.log([climatePrediction, year]);
         networkParser.calculate(climatePrediction,year,sector, climateVariableFilter);
         this.parsedNodes = networkParser.nodes;
 		this.parsedEdges = networkParser.edges;
@@ -267,50 +267,6 @@ font-family="Arial" dy=".3em">`+text+`</text>
         };
 
         return g;
-		
-/*		network.on('click', (properties) => {
-			let ids = properties.nodes;
-			let node_selected=false;
-			for (let node of this.nodes.get(ids)) {
-				let factor = this.net.factors[node.id]
-				let pos=network.getPositions(node.id)[node.id]
-
-				if (factor!=undefined) {
-					if (node.preview==true) {					
-						this.nodes.update(this.factorToNodeFull(factor))
-						this.addImpacts(factor,pos)
-						$("#network-info").html(this.factorToHTML(factor))
-					} else {
-						$("#network-info").html(this.factorToHTML(factor))
-					}
-					node_selected=true;
-				} else {
-					for (let c of this.net.causes) {
-						if (c.id==node.id) {
-							$("#network-info").html(this.causeToHTML(c))
-						}
-					}
-				}
-			}
-
-			if (!node_selected) {
-				let ids = properties.edges;
-				for (let edge of this.edges.get(ids)) {				
-					let impact = this.net.impacts[edge.id]
-					if (impact!=undefined) {
-						$("#network-info").html(this.impactToHTML(impact))
-					} else {
-						for (let c of this.net.causes) {
-							if (c.id==edge.id) {
-								$("#network-info").html(this.causeToHTML(c))
-							}
-						}
-					}
-				}
-			}
-		});
-        */
-		
 		
 	}
 }
