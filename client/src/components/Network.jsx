@@ -186,6 +186,20 @@ function Network(props) {
 
                 will impact
 
+                <select>
+                  <option value="All">All sectors</option>
+                  <option disabled value="Health & Social Care">Health & Social Care</option>
+                  <option disabled value="Biodiversity & Natural Habitats">Biodiversity & Natural Habitats</option>
+                  <option disabled value="Water Supply & Quality">Water Supply & Quality</option>
+                  <option disabled value="Education Services">Education Services</option>
+                  <option disabled value="Transport">Transport</option>
+                  <option disabled value="Energy Supply & Demand">Energy Supply & Demand</option>
+                  <option disabled value="Business & Industry">Business & Industry</option>
+                  <option disabled value="Information & Communication Technology">Information & Communication Technology</option>
+                  <option disabled value="International Factors">International Factors</option>                  
+                </select>
+
+                
                 {/*<select onChange={(e) => { setSectorFilter(e.target.value); }}>
                   <option value="All">All sectors</option>
                   <option value="Health & Social Care">Health & Social Care</option>
@@ -199,7 +213,7 @@ function Network(props) {
                   <option value="International Factors">International Factors</option>                  
                   </select>*/}
 
-                &nbsp;
+                in&nbsp;
                 
                 <span className={"projected-regions"}>
                   { andify(props.regions.map(e => e.name)) }
