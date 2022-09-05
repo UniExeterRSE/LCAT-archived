@@ -94,7 +94,7 @@ function Network(props) {
 		    barnesHut: {
 			    avoidOverlap: 0.5,
                 theta: 0.5,
-                springLength: 20,
+                springLength: 5,
                 centralGravity: 0
 		    },
             forceAtlas2Based : {
