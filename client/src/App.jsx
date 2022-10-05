@@ -25,6 +25,7 @@ import NetworkLoader from './components/NetworkLoader';
 import Sector from './components/Sector';
 import StatsLoader from './components/StatsLoader';
 import Vulnerabilities from './components/Vulnerabilities';
+import Adaptations from './components/Adaptations';
 
 import { NetworkRenderer } from './core/NetworkRenderer';
 
@@ -172,6 +173,14 @@ class App extends React.Component {
                 stats = {this.state.stats}
               />
 
+              <Adaptations
+                network = {this.state.network}
+                year = {this.state.year}
+                climatePrediction = {this.state.climatePrediction}
+                sector = {this.state.sector}
+                regions = {this.state.regions}
+                loading = {this.state.loadingPrediction}
+              />
 
               <div className={"footer"}/>
               

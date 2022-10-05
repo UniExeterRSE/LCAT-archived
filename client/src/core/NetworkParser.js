@@ -17,91 +17,11 @@
 // move around the network tagging nodes to indicate their current state,
 // starting with a climate prediction (and other variables eventually)
 
-class NetworkState {
-    constructor(value) {
-        this.validStates = ["deactivated",
-                            "uncertain",
-                            "increase",
-                            "decrease",
-                            "nochange",
-                            "unknown"];
-        this.set(value);
-    }
-
-    set(value) {
-        if (this.validStates.includes(value)) {
-            this.value=value;
-        } else {
-            console.log("invalid state setting: "+value);
-        }
-    }
-
-    apply(edge) {
-        if (this.value=="unknown") {
-            /*if (edge.type=="-") {
-                this.set("decrease");
-                return;
-            }
-            if (edge.type=="+") {
-                this.set("increase");
-                return;
-            }*/
-            this.set("unknown");
-            return;
-        } else {
-
-            if (edge.type=="-") {
-                if (this.value==="increase") {
-                    this.value="decrease";
-                } else {       
-                    if (this.value==="decrease") {
-                        this.value="increase";
-                    }
-                }
-                // no change if disabled, uncertain etc                
-            }
-
-            if (edge.type!="+" && edge.type!="-") {
-                console.log(edge.type);
-            }
-            
-        }
-    }
-
-    isOppositeTo = (other) => (
-        (this.value==="increase" && other.value==="decrease") ||
-        (this.value==="decrease" && other.value==="increase")
-    )
-
-    isDifferentTo = (other) => (
-        (this.value!=other.value)
-    )
-    
-    composite = (other) => {
-        if (this.isOppositeTo(other)) return "uncertain";
-        if (this.value===other.value) return this.value;
-        if (this.value==="uncertain" || other.value==="uncertain") return "uncertain";
-        if (this.value==="unknown") return other.value;
-        if (other.value==="unknown") return this.value;
-        if (this.value==="deactivated") return other.value;
-        if (other.value==="deactivated") return this.value;
-        return this.value;
-    }
-    
-    asText() {
-        if (this.value==="deactivated") return "Deactivated";
-        if (this.value==="uncertain") return "Uncertain";
-        if (this.value==="increase") return "Increases";
-        if (this.value==="decrease") return "Decreases";
-        if (this.value==="unknown") return "Unknown";
-        console.log(this.value);
-        return "Error";
-    }
-}
+import { NetworkState } from "./NetworkState.js";
 
 class NetworkParser {
 
-    constructor(nodes,edges) {
+    constructor(nodes,edges) {        
         this.nodes = nodes;
         this.edges = edges.filter(edge => (edge.type=="+" || edge.type=="-"));        
 		this.healthNodes = [];
@@ -109,6 +29,7 @@ class NetworkParser {
         this.globalThreshold = 0.0;
 
         this.visited=[];
+        this.adaptationVisited=[];
         
 		for (let node of nodes) {
             node.state=new NetworkState("deactivated");
@@ -120,7 +41,8 @@ class NetworkParser {
 		    }
         }
     }
-    
+
+    // generic functionality
     searchNode(id) {
         let node = this.nodes.find(node => node.node_id===id);
         if (node===undefined) {
@@ -130,6 +52,27 @@ class NetworkParser {
         return node;
     }
 
+    getIncomingNodes(node) {
+        let ret = [];
+        for (let edge of this.edges) {
+            if (edge.node_to == node.node_id) {
+                ret.push(this.searchNode(edge.node_from));                
+            }
+        }
+        return ret;
+    }
+
+    getOutgoingNodes(node) {
+        let ret = [];
+        for (let edge of this.edges) {            
+            if (edge.node_from == node.node_id) {
+                ret.push(this.searchNode(edge.node_to));                
+            }
+        }
+        return ret;
+    }
+
+    // does this node connect to a climate variable?
     labelToVariable(label) {
         if (label == "Temperature") {
             return "tavg_median";
@@ -139,7 +82,8 @@ class NetworkParser {
         }
         return false;
     }
-    
+
+    // pull out the predicted variable at this year
     getPrediction(prediction,year,label) {
         let variable = this.labelToVariable(label);
         if (variable) {
@@ -152,12 +96,18 @@ class NetworkParser {
         return false;
     }
 
+    // go around and around the graph until we have labelled all nodes
+    // and there are no conflicts any more
     recurCalculate(node,state,sector) {        
         // set the supplied state to the node now
         node.state=state;
 
         // if this is a driver, we don't want to go further
-        if (node.type=="Driver" || node.type=="Effect") return;
+        if (!["Pressure", "Effect", "State", "Exposure"].includes(node.type)) return;
+
+        if (node.node_id=="elem-UvgXeVJE") {
+            console.log(node);
+        }
         
         for (let edge of this.edges) {
             if (edge.node_from==node.node_id) {
@@ -182,7 +132,7 @@ class NetworkParser {
                             console.log(child.label);
                             console.log(childState.value+" vs "+previousState.value);
                             */
-                            
+                            childState.uncertaintyCause=true;
                             childState.set("uncertain");
                             // recur to flip dependant nodes states
                             // to uncertain based on this new state
@@ -214,6 +164,7 @@ class NetworkParser {
         }
     }
 
+    // recur upwards from the climate change pressures
     calculate(climatePrediction,year,sector,climateVariableFilter) {
         this.visited=[];
         for (let pressure of this.pressureNodes) {
@@ -239,7 +190,7 @@ class NetworkParser {
         }
     }
 
-    // run calculate then return active impacts
+    // run calculate then return active health impacts for the summary
     calculateHealthWellbeing(climatePrediction,year,sector,climateVariableFilter) {        
         this.calculate(climatePrediction,year,sector,climateVariableFilter);
         let ret = [];
@@ -256,6 +207,51 @@ class NetworkParser {
         return ret;
     }
 
+    // find all adaptations by traversing backwards and adding any effects
+    // that connect to any causing impacts towards the climate impact
+        
+    reverseRecurAdaptations(node,adaptations,breadcrumbs) {
+        for (let incoming of this.getIncomingNodes(node)) {
+            if (incoming.type=="Action") {
+                if (adaptations[incoming.node_id]!=undefined) {
+                    console.log("adding");
+                    adaptations[incoming.node_id].breadcrumbs.push(breadcrumbs);
+                } else {
+                    console.log("new");
+                    adaptations[incoming.node_id]=
+                        {action: incoming,
+                         breadcrumbs: [breadcrumbs]};
+                }
+            }
+            if (["Pressure", "Effect", "State", "Exposure"].includes(incoming.type) &&
+                this.adaptationVisited[incoming.node_id]==undefined) {
+                this.adaptationVisited[incoming.node_id]=true;     
+                this.reverseRecurAdaptations(
+                    incoming,
+                    adaptations,
+                    [incoming].concat(breadcrumbs));
+            }
+        }
+    }
+        
+    extractAdaptations() {
+        let adaptations = {};
+        for (let node of this.healthNodes) {
+            if (node.state.value=="increase") {
+                this.adaptationVisited=[];
+
+                console.log("searching");
+                console.log(node);
+                this.reverseRecurAdaptations(node,adaptations,[node]);
+            }
+        }
+        let ret = [];
+        for (let k in adaptations) {
+            ret.push(adaptations[k]);
+        }        
+        console.log(ret);
+        return ret;
+    }
 }
 
 

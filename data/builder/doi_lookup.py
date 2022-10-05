@@ -45,9 +45,10 @@ class doi_lookup:
             r = opener.open('http://dx.doi.org/'+doi)
             d = xmltodict.parse(r.read())
             print("done")
+            print (json.dumps(d["crossref_result"]["query_result"]["body"]["query"]["doi_record"], indent=4))
+
             journal = d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]["journal"]
             article = journal["journal_article"]
-            #print (json.dumps(journal, indent=4))
 
             #print(d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]["journal"]["journal_article"])
             title = article["titles"]["title"]

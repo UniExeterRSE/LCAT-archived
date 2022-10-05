@@ -124,15 +124,14 @@ function Network(props) {
 
                 setInfoTitle(node.label);
                 setInfoText(node.description);
-                let metadata = [];
-                /*
+                let metadata = [];              
                 for (let key of Object.keys(node)) {
                     if (!["description", "label", "state"].includes(key)) {
                         if (node[key]!="" && node[key]!=null) {
                             metadata.push([key,node[key]]);
                         }
                     }
-                }*/
+                }
                 setInfoMetadata(metadata);
             } else {
                 if (event.edges.length>0) {
@@ -149,9 +148,20 @@ function Network(props) {
                     }
                     setInfoText(node_from.label+change+node_to.label);
                     setInfoTitle(title);
-                    setInfoMetadata([["Evidence paper 1", "Info & link"],
+
+                    let metadata = [];              
+                    for (let key of Object.keys(edge)) {
+                        if (!["description", "label", "state"].includes(key)) {
+                            if (edge[key]!="" && edge[key]!=null) {
+                                metadata.push([key,edge[key]]);
+                            }
+                        }
+                    }
+                    setInfoMetadata(metadata);
+                    
+                    /*setInfoMetadata([["Evidence paper 1", "Info & link"],
                                      ["Evidence paper 2", "Info & link"],
-                                     ["Evidence paper 3", "Info & link"]]);                
+                                     ["Evidence paper 3", "Info & link"]]);*/
                 }
             }
             

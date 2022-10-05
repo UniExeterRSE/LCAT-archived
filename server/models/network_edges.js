@@ -2,8 +2,7 @@ const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('network_edges', {
     edge_id: {
-      autoIncrement: true,
-      type: DataTypes.INTEGER,
+      type: DataTypes.TEXT,
       allowNull: false,
       primaryKey: true
     },
@@ -12,7 +11,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     node_from: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.TEXT,
       allowNull: true,
       references: {
         model: 'network_nodes',
@@ -20,7 +19,7 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     node_to: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.TEXT,
       allowNull: true,
       references: {
         model: 'network_nodes',

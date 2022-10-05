@@ -66,9 +66,10 @@ class ClimateMap extends React.Component {
     // responsible for styling and callbacks for each region
     onEachFeature = async (feature, layer) => {        
         // colour based on IMD score
-        let min = parseFloat(this.props.stats[this.props.regionType+"_"+this.state.mapProperty+"_min"]);
-        let max = parseFloat(this.props.stats[this.props.regionType+"_"+this.state.mapProperty+"_max"]);
+        let min = 0; // parseFloat(this.props.stats[this.props.regionType+"_"+this.state.mapProperty+"_min"]);
+        let max = 13; // parseFloat(this.props.stats[this.props.regionType+"_"+this.state.mapProperty+"_max"]);
         let v = feature.properties[this.state.mapProperty];
+        //let v = feature.properties["tas_end"]-feature.properties["tas_start"];
         let index = Math.round(((v-min)/(max-min))*99);
         
         let col = this.cols[index];
@@ -86,7 +87,7 @@ class ClimateMap extends React.Component {
         let gid = feature.properties.gid;
         layer.bindTooltip(feature.properties.name+
                           "<br> "+feature.properties.gid+": "+this.state.mapProperty+" "+
-                          feature.properties[this.state.mapProperty]);
+                          feature.properties[this.state.mapProperty]+" "+v);
         layer.setStyle({
             'weight': 3,
             'fillColor': col,
@@ -197,7 +198,7 @@ class ClimateMap extends React.Component {
                   zoom={7}
                   scrollWheelZoom={true}>
                   <GeoJSONLoader
-                    apicall="/api/region"
+                    apicall={"/api/region"}
                     table={this.state.regionType}
                     callback={this.geojsonCallback}
                     loadingCallback={ loading => { this.setState(() => ({ loading: loading && this.state.triggerLoadingIndicator })); }}

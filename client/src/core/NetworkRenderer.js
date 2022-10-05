@@ -40,6 +40,15 @@ class NetworkRenderer {
 		this.edges = [];        
 		this.iconCache = {};
 		this.iconCacheLoading = false;
+        this.nodeColour = {
+            "Driver": "#204545",
+            "Pressure": "#204545",
+            "State": "#3da274",
+            "Exposure": "#3da274",
+            "Effect": "#422137",
+            "Action": "#422137"
+        };
+
 	}
 
     getNode(id) {
@@ -124,8 +133,14 @@ font-family="Arial" dy=".3em">`+text+`</text>
 		return str.replace("&","&amp;");
 	}
 	
-	nodeImageURL(id,title,text,code,bg,show_glow) {
-		let height = 500;
+	nodeImageURL(node) {
+        var id = node.id;
+        var title = node.label;
+        var code = node.state.asText();
+        var bg = this.nodeColour[node.type];
+        var show_glow = false;
+       
+		let height = 800;
 		if (bg==undefined) bg="#e6e6e6";
 		let icon=this.notFoundIcon(bg,code);
 		let glow="";
@@ -142,8 +157,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
 		    + glow +  
             `<foreignObject x="0" y="340" width="100%" height="100%">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 0em;">
-        <center style="font-size: 1.2em;">`+this.printable(title)+`</center>
-		<center style="font-size: 2em;">`+ text +`</center>
+        <center style="font-size: 3em;">`+this.printable(title)+`</center>
         </div>
         </foreignObject> `+icon+`
         </svg>`;
@@ -151,8 +165,6 @@ font-family="Arial" dy=".3em">`+text+`</text>
 		let url= "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 		return url;
 	}
-
-
 
 	getRnd(min, max) {
 		return (Math.random() * (max - min) ) + min;
@@ -164,32 +176,12 @@ font-family="Arial" dy=".3em">`+text+`</text>
         if (node.state=="disabled") {
             return;
         }
-
-        let change = node.state.asText();
-
-        let nodeColour = {
-            "Driver": "#204545",
-            "Pressure": "#204545",
-            "State": "#3da274",
-            "Exposure": "#3da274",
-            "Effect": "#422137",
-            "Action": "#422137"
-        };
-
-        let nodeTitle = "Climate";
-        if (node.type == "State" || node.type == "Exposure") {
-            nodeTitle = "Impact";
-        }
-        if (node.type == "Effect") {
-            nodeTitle = "Effect";
-        }
         
-        //"#a4f9c8"
         if (node.type=="Pressure") {
         	this.nodes.push({
 			    id: node.node_id,
 			    shape: "image",
-			    image: this.nodeImageURL(node.id,node.label,change,nodeTitle,nodeColour[node.type],false),
+			    image: this.nodeImageURL(node),
 			    size: 30,
 				x: -500,
 				y: this.fixedYPos*150,
@@ -202,7 +194,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         	this.nodes.push({
 			    id: node.node_id,
 			    shape: "image",
-			    image: this.nodeImageURL(node.id,node.label,change,nodeTitle,nodeColour[node.type],false),
+			    image: this.nodeImageURL(node),
 			    size: 30,
                 mDPSEEA: node.type,
                 sector: node.sector
@@ -261,7 +253,8 @@ font-family="Arial" dy=".3em">`+text+`</text>
 
         // find causes and propagate upwards (right?) from there
 		for (let node of this.parsedNodes) {
-            if (node.type!="Driver" && node.state.value!="deactivated" &&
+            if (["Pressure", "Effect", "State", "Exposure"].includes(node.type) &&
+                node.state.value!="deactivated" &&
                 node.label!="Hospital admissions") {
    			    this.addNode(node);
             }

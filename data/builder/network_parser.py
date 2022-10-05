@@ -12,6 +12,7 @@ class network_parser:
     def __init__(self):
         self.nodes = []
         self.edges = []
+        self.refs = []
         self.doi_lookup = doi_lookup.doi_lookup()
 
     def str2arr(self,s):
@@ -61,6 +62,37 @@ class network_parser:
                         "node_to_label": row[1],
                         })
 
+    def load_references(self,fn):
+        with open(fn) as csvfile:
+            reader = csv.reader(csvfile)
+            for i,row in enumerate(reader):
+                if i>0:
+                    doi = row[2]
+                    if doi!="":
+                        print(doi)
+                        info = self.doi_lookup.doi2info(doi)
+                        print(info)
+
+                        self.refs.append({
+                            "ref_id": row[0],
+                            "ref_type": row[1],
+                            "doi": row[2],
+                            "url": row[3],
+                            "title": info["title"],
+                            "authors": info["authors"],
+                            "date": info["date"],                        
+                            "journal": info["journal"],
+                            "issue": info["issue"]
+                        })
+                    else:
+                        self.refs.append({
+                            "ref_id": row[0],
+                            "ref_type": row[1],
+                            "doi": row[2],
+                            "url": row[3],
+                        })
+                        
+    
     def pp(self,arr):
         for n,i in arr.items():
             print(n)

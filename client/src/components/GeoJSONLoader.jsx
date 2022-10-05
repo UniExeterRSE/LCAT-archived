@@ -28,7 +28,7 @@ function GeoJSONLoader(props) {
             if (process.env.NODE_ENV==="development") {
                 prepend="http://localhost:3000";
             }
-            
+
             let response = await fetch(prepend+props.apicall+"?"+new URLSearchParams({
                 table: props.table,
                 left: b._southWest.lng,

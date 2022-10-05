@@ -325,7 +325,6 @@ router.get('/stats', function (req, res) {
     });
 });
 
-/*
 // general purpose for debugging
 router.get('/geojson', function (req, res) {
     let table = req.query.table;
@@ -346,7 +345,49 @@ router.get('/geojson', function (req, res) {
                    ))
               )
          	  from `+table+` where geom && ST_MakeEnvelope(`+left+`, `+bottom+`, `+right+`, `+top+`, 4326);`
+
+    console.log(str_query);
+	var query = client.query(new Query(str_query));
+
+	query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+        res.send(result.rows[0].json_build_object);
+        res.end();
+		client.end();
+    });
+});
+ 
+// general purpose for debugging
+router.get('/chessscape_debug', function (req, res) {
+    let table = req.query.table;
+	let tolerance = req.query.tolerance;
+	let left = req.query.left;
+	let bottom = req.query.bottom;
+	let right = req.query.right;
+	let top = req.query.top;
+
+    var client = new Client(conString);
+    client.connect();
     
+    var str_query = `select json_build_object(
+                'type', 'FeatureCollection',
+                'features', json_agg(json_build_object(
+                   'type', 'Feature',
+                   'geometry', ST_AsGeoJSON(ST_Transform(grid.geom,4326))::json,
+                    'properties', json_build_object('gid', grid.id,
+                                                    'tas_start', chess_start.pr,
+                                                    'tas_end', chess_end.pr)
+
+                   ))
+              )
+         	  from `+table+` as grid
+              join chessscape_seasonal as chess_start on chess_start.location=grid.id and chess_start.season=0
+              join chessscape_seasonal as chess_end on chess_end.location=grid.id and chess_end.season=396
+              where grid.geom && ST_MakeEnvelope(`+left+`, `+bottom+`, `+right+`, `+top+`, 4326);`
+
+    console.log(str_query);
 	var query = client.query(new Query(str_query));
 
 	query.on("row", function (row, result) {
@@ -359,7 +400,7 @@ router.get('/geojson', function (req, res) {
     });
 });
 
-*/
+
 
 router.get('/ping', function (req, res) {
     res.send();

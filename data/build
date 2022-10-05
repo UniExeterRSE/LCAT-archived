@@ -21,6 +21,7 @@ from builder import ukcri
 from builder import index_multiple_deprivation as imd
 from builder import link_geom_climate
 from builder import network
+from builder import network_from_json
 from builder import stats
 from builder import nfvi_sfri
 from builder import hierarchy
@@ -107,12 +108,41 @@ else:
     if sys.argv[1]=="link_nfvi_sfri_counties":         
         nfvi_sfri.import_to_table(db,"counties","county")
 
-    if sys.argv[1]=="chessscape":         
-        chessscape.import_data(db)
+    if sys.argv[1]=="chessscape_nuke":
+        chessscape.nuke(db,"chessscape_seasonal")
+        
+    if sys.argv[1]=="chessscape_seasonal":    
+        chessscape.import_seasonal_data(db,conf['chess_seasonal_path'],sys.argv[2])
+
+    if sys.argv[1]=="chessscape_all":
+        for variable in ["tas",
+                         #"tasmin",
+                         #"tasmax",
+                         "sfcWind",
+                         "pr",
+                         "rlds",
+                         "rsds"]:
+            chessscape.import_seasonal_data(db,conf['chess_seasonal_path'],variable)
+
+    if sys.argv[1]=="chessscape_nuke_averages":
+        chessscape.nuke_averages(db,"chessscape_seasonal_averages")
+        
+    if sys.argv[1]=="chessscape_seasonal_averages":
+        for variable in ["tas",
+                         #"tasmin",
+                         #"tasmax",
+                         "sfcWind",
+                         "pr",
+                         "rlds",
+                         "rsds"]:
+            chessscape.import_seasonal_averages(db,conf['chess_seasonal_path'],variable)
 
     if sys.argv[1]=="chessscape_grid":         
         chessscape.import_grid(db)
 
+    if sys.argv[1]=="network_json":
+        network_from_json.load(db,conf['network_json'],"Heat")
+        
     if sys.argv[1]=="all":
         #ukcri.load(db,conf['uk_cri_data_path'])
         #db.load_shp_geom(conf['lsoa_data_shp'],"lsoa","27700")

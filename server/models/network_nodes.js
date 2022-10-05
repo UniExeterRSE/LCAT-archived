@@ -2,8 +2,7 @@ const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('network_nodes', {
     node_id: {
-      autoIncrement: true,
-      type: DataTypes.INTEGER,
+      type: DataTypes.TEXT,
       allowNull: false,
       primaryKey: true
     },
