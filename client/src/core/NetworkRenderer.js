@@ -28,16 +28,16 @@ import HealthSvg from '../images/icons/Public health & wellbeing.svg';
 // mDPSEEA (Morris et al., 2006)
 // Driver, Pressure, State, Exposure, Effect, Action
 
+import { Network } from './Network';
 import { NetworkParser } from './NetworkParser';
 
 const node_size=25;
 const preview_font_size=6;
 
-class NetworkRenderer {
+class NetworkRenderer extends Network {
 
 	constructor() {
-		this.nodes = [];
-		this.edges = [];        
+        super([],[]);
 		this.iconCache = {};
 		this.iconCacheLoading = false;
         this.nodeColour = {
@@ -48,22 +48,7 @@ class NetworkRenderer {
             "Effect": "#422137",
             "Action": "#422137"
         };
-
 	}
-
-    getNode(id) {
-        for (let node of this.nodes) {
-            if (node.id === id) return node;
-        }
-        return false;
-    }
-
-    getEdge(id) {
-        for (let edge in this.edges) {
-            if (edge.id == id) return edge;
-        }
-        return false;
-    }
 
     getParsedNode(id) {
         for (let node of this.parsedNodes) {
@@ -78,6 +63,7 @@ class NetworkRenderer {
         }
         return false;
     }
+
     
     loadIcons() {
     }

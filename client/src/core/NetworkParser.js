@@ -17,12 +17,13 @@
 // move around the network tagging nodes to indicate their current state,
 // starting with a climate prediction (and other variables eventually)
 
+import { Network } from "./Network.js";
 import { NetworkState } from "./NetworkState.js";
 
-class NetworkParser {
+class NetworkParser extends Network {
 
-    constructor(nodes,edges) {        
-        this.nodes = nodes;
+    constructor(nodes,edges) {
+        super(nodes,edges);
         this.edges = edges.filter(edge => (edge.type=="+" || edge.type=="-"));        
 		this.healthNodes = [];
         this.pressureNodes = [];
@@ -40,36 +41,6 @@ class NetworkParser {
                 this.pressureNodes.push(node);
 		    }
         }
-    }
-
-    // generic functionality
-    searchNode(id) {
-        let node = this.nodes.find(node => node.node_id===id);
-        if (node===undefined) {
-            console.log("could not find node: "+id);
-            return null;
-        } 
-        return node;
-    }
-
-    getIncomingNodes(node) {
-        let ret = [];
-        for (let edge of this.edges) {
-            if (edge.node_to == node.node_id) {
-                ret.push(this.searchNode(edge.node_from));                
-            }
-        }
-        return ret;
-    }
-
-    getOutgoingNodes(node) {
-        let ret = [];
-        for (let edge of this.edges) {            
-            if (edge.node_from == node.node_id) {
-                ret.push(this.searchNode(edge.node_to));                
-            }
-        }
-        return ret;
     }
 
     // does this node connect to a climate variable?

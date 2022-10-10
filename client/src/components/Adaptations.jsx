@@ -12,6 +12,7 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { andify } from '../utils/utils';
 import { NetworkParser } from '../core/NetworkParser.js';
+import useCollapse from 'react-collapsed';
 
 function Adaptations(props) {
 
@@ -21,6 +22,7 @@ function Adaptations(props) {
             props.network.edges));
 
     const [ adaptations, setAdaptations ] = useState([]);
+    const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
 
     useEffect(() => {
         setNetworkParser(new NetworkParser(
@@ -59,25 +61,31 @@ function Adaptations(props) {
             {adaptations.length ? adaptations.map(
                 a => {
                     return (
-                        <div>
-                          <h3>{a.action.label}</h3>
-                          <p>
-                          {a.breadcrumbs.map(
-                              b => {
-                                  return (<div>
+                        <div className="collapsible">
+                          <div className="header"  {...getToggleProps()}>
+                            <h3>{a.action.label}</h3>
+                          </div>
+                          <div {...getCollapseProps()}>
+                          <div className="content">
+                            <p>
+                              {a.breadcrumbs.map(
+                                  b => {
+                                      return (<div>
                                             {b.map(el => (<small> - {el.label}</small>))}
-                                          <br/>
-                                          </div>);
-                              })
-                          }
-                          </p>
-                          {a.action.description}
-                          <ul>
-                            <li>Climate hazard: {a.action.climate_hazard}</li> 
-                            <li>Sector: {a.action.sector}</li> 
-                            <li>UN SDG: {a.action.sdg}</li> 
-                          </ul>
-                        </div>                                             
+                                                <br/>
+                                              </div>);
+                                  })
+                              }
+                            </p>
+                            {a.action.description}
+                            <ul>
+                              <li>Climate hazard: {a.action.climate_hazard}</li> 
+                              <li>Sector: {a.action.sector}</li> 
+                              <li>UN SDG: {a.action.sdg}</li> 
+                            </ul>
+                        </div>
+                        </div>
+                        </div>
                     );
                 }) : <h3>No adaptations found</h3>}
           </div>  
