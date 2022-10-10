@@ -151,7 +151,6 @@ class App extends React.Component {
                 network = {this.state.network}
                 year = {this.state.year}
                 climatePrediction = {this.state.climatePrediction}
-                sector = {this.state.sector}
                 regions = {this.state.regions}
                 loading = {this.state.loadingPrediction}
               />
@@ -177,7 +176,6 @@ class App extends React.Component {
                 network = {this.state.network}
                 year = {this.state.year}
                 climatePrediction = {this.state.climatePrediction}
-                sector = {this.state.sector}
                 regions = {this.state.regions}
                 loading = {this.state.loadingPrediction}
               />

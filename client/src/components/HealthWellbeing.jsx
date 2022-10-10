@@ -33,7 +33,6 @@ function HealthWellbeing(props) {
         let hw = networkParser.calculateHealthWellbeing(
             props.climatePrediction,
             props.year,
-            props.sector,
             "All");
 
         // lazy load the icons here
@@ -44,8 +43,7 @@ function HealthWellbeing(props) {
 
     }, [props.network,
         props.climatePrediction,
-        props.year,
-        props.sector]);
+        props.year]);
     
     if (props.regions.length === 0) {
         return null;

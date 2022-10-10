@@ -31,9 +31,12 @@ class NetworkParser extends Network {
 
         this.visited=[];
         this.adaptationVisited=[];
-        
-		for (let node of nodes) {
+
+        // go through the nodes
+  		for (let node of nodes) {
+            // add a network state to all of them, start off deactivated
             node.state=new NetworkState("deactivated");
+            // filter health and pressure nodes into their own lists
             if (node.type==="Effect" && node.disease_injury_wellbeing!="") {
                 this.healthNodes.push(node);
             }
@@ -67,76 +70,61 @@ class NetworkParser extends Network {
         return false;
     }
 
-    // go around and around the graph until we have labelled all nodes
+    // go around the graph until we have labelled all nodes
     // and there are no conflicts any more
-    recurCalculate(node,state,sector) {        
+    recurCalculate(node,state) {        
         // set the supplied state to the node now
         node.state=state;
 
         // if this is a driver, we don't want to go further
         if (!["Pressure", "Effect", "State", "Exposure"].includes(node.type)) return;
 
-        if (node.node_id=="elem-UvgXeVJE") {
-            console.log(node);
-        }
-        
+        // look through the edges
         for (let edge of this.edges) {
             if (edge.node_from==node.node_id) {
+                // find the downwards connected node
                 let child = this.searchNode(edge.node_to);
-                // filter on sector 
-                if (sector=="all" || sector==child.type) {
-                    
-                    // make a copy of the parent state
-                    let childState = new NetworkState(state.value);
+                
+                // make a copy of the parent state
+                let childState = new NetworkState(state.value);
+                // calculate our new state based on the edge +/-
+                childState.apply(edge);
+                
+                let previousState = this.visited[child.node_id];
 
-                    childState.apply(edge);
-                    
-                    // have we visted this one before?
-                    let previousState = this.visited[child.node_id];
-
-                    // have we been here before?
-                    if (previousState!=undefined) {
-                        // if opposing...
-                        if (childState.isOppositeTo(previousState)) {
-                            /*console.log("XXX "+node.label);
-                            console.log("opposed");
-                            console.log(child.label);
-                            console.log(childState.value+" vs "+previousState.value);
-                            */
-                            childState.uncertaintyCause=true;
-                            childState.set("uncertain");
-                            // recur to flip dependant nodes states
-                            // to uncertain based on this new state
-                            this.visited[child.node_id]=childState;
-
-                            this.recurCalculate(child,childState,"all");
-                        } else {
-                            // if different but not opposing - redo nodes
-                            if (childState.isDifferentTo(previousState)) {
-                                this.visited[child.node_id]=new NetworkState(childState.composite(previousState));                                
-                                this.recurCalculate(child,new NetworkState(childState.composite(previousState)),"all");
-
-                                // previous incorrect?? version
-                                //this.visited[child.node_id]=childState;                                
-                                //this.recurCalculate(child,childState,"all");
-                            }
-                            // agree - no need to redo
-                        }
-                        
-                    } else {
+                // we have visited this node before
+                if (previousState!=undefined) {
+                    // if opposed to last time round...
+                    if (childState.isOppositeTo(previousState)) {
+                        // we become uncertain
+                        childState.uncertaintyCause=true;
+                        childState.set("uncertain");
+                        // reset visited to new state
                         this.visited[child.node_id]=childState;
-                        // only run the filter on primary impacts (the ones
-                        // directly after climate change variables) so set to
-                        // "all" when we recurse downward from here
-                        this.recurCalculate(child,childState,"all");
+                        // recur onwards to update dependant nodes states
+                        // to uncertain based on this new state
+                        this.recurCalculate(child,childState);
+                    } else {
+                        // we are different but not opposing - redo nodes
+                        if (childState.isDifferentTo(previousState)) {
+                            // composite states together and recur further
+                            this.visited[child.node_id]=new NetworkState(childState.composite(previousState));                                
+                            this.recurCalculate(child,new NetworkState(childState.composite(previousState)));
+                        }
+                        // we agree with last time, so no need to redo!
                     }
+                    
+                } else {
+                    // first time we've seen this node
+                    this.visited[child.node_id]=childState;
+                    this.recurCalculate(child,childState);
                 }
-            }        
+            }            
         }
     }
 
     // recur upwards from the climate change pressures
-    calculate(climatePrediction,year,sector,climateVariableFilter) {
+    calculate(climatePrediction,year,climateVariableFilter) {
         this.visited=[];
         for (let pressure of this.pressureNodes) {
             if (pressure.label!="Climate change") {
@@ -144,15 +132,15 @@ class NetworkParser extends Network {
                     climateVariableFilter == pressure.label) {                
                     let prediction = this.getPrediction(climatePrediction,year,pressure.label);
                     if (prediction===false) {
-                        this.recurCalculate(pressure,new NetworkState("unknown"),sector);
+                        this.recurCalculate(pressure,new NetworkState("unknown"));
                     } else {               
                         if (prediction>this.globalThreshold) {
-                            this.recurCalculate(pressure,new NetworkState("increase"),sector);
+                            this.recurCalculate(pressure,new NetworkState("increase"));
                         } else {
                             if (prediction<-this.globalThreshold) {
-                                this.recurCalculate(pressure,new NetworkState("decrease"),sector);
+                                this.recurCalculate(pressure,new NetworkState("decrease"));
                             } else {                    
-                                this.recurCalculate(pressure,new NetworkState("deactivated"),sector);
+                                this.recurCalculate(pressure,new NetworkState("deactivated"));
                             }
                         }
                     }
@@ -162,8 +150,8 @@ class NetworkParser extends Network {
     }
 
     // run calculate then return active health impacts for the summary
-    calculateHealthWellbeing(climatePrediction,year,sector,climateVariableFilter) {        
-        this.calculate(climatePrediction,year,sector,climateVariableFilter);
+    calculateHealthWellbeing(climatePrediction,year,climateVariableFilter) {        
+        this.calculate(climatePrediction,year,climateVariableFilter);
         let ret = [];
         // only return nodes that are increasing or decreasing
         for (let node of this.healthNodes) {

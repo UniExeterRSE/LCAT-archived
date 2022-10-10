@@ -32,15 +32,13 @@ function Adaptations(props) {
         let hw = networkParser.calculateHealthWellbeing(
             props.climatePrediction,
             props.year,
-            props.sector,
             "All");
         console.log("--------------------------------------");
         setAdaptations(networkParser.extractAdaptations());
         console.log(adaptations);
     }, [props.network,
         props.climatePrediction,
-        props.year,
-        props.sector]);
+        props.year]);
            
     if (props.regions.length === 0) {
         return null;
@@ -71,7 +69,7 @@ function Adaptations(props) {
                               {a.breadcrumbs.map(
                                   b => {
                                       return (<div>
-                                            {b.map(el => (<small> - {el.label}</small>))}
+                                                {b.map(el => (<small> - {el.label}</small>))}
                                                 <br/>
                                               </div>);
                                   })

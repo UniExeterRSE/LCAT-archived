@@ -226,10 +226,9 @@ font-family="Arial" dy=".3em">`+text+`</text>
 		});
 	}
     
-	buildGraph(nodes, edges, climatePrediction, year, sector, climateVariableFilter, sectorFilter) {               
+	buildGraph(nodes, edges, climatePrediction, year, sector, climateVariableFilter) {               
         let networkParser = new NetworkParser([...nodes],[...edges]);
-        //consolex.log([climatePrediction, year]);
-        networkParser.calculate(climatePrediction,year,sector, climateVariableFilter);
+        networkParser.calculate(climatePrediction,year,climateVariableFilter);
         this.parsedNodes = networkParser.nodes;
 		this.parsedEdges = networkParser.edges;
         

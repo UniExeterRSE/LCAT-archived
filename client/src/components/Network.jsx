@@ -29,7 +29,6 @@ function NetworkListener(props) {
     return null;
 }
 
-
 function Network(props) {
 
     const [ version, setVersion ] = useState(0);
@@ -39,29 +38,7 @@ function Network(props) {
     const [ infoText, setInfoText ] = useState("");
     const [ infoMetadata, setInfoMetadata ] = useState([]);
     const [ climateVariableFilter, setClimateVariableFilter ] = useState("All");
-    const [ sectorFilter, setSectorFilter ] = useState("All");
 
-    const networkReference = useRef(null);
-
-    useEffect(() => {
-        if (networkReference.current!=null) {
-            networkReference.current.cluster({
-                joinCondition: function (childOptions) {
-                    if (childOptions.sector!=undefined) {
-                        return childOptions.sector.includes(sectorFilter);
-                    }
-                    return false;
-                },
-                clusterNodeProperties: {
-                    id: "cidCluster",
-                    borderWidth: 3,
-                    shape: "database",
-                },
-            });
-        }
-        //setVersion(version+1);
-    }, [sectorFilter]);
-    
     var options = {
 	    physics: {
 
@@ -237,7 +214,6 @@ function Network(props) {
                 year = {props.year}
                 sector = {props.sector}
                 climateVariableFilter = {climateVariableFilter}
-                sectorFilter = {sectorFilter}
                 callback = {(network) => {
                     setVersion(version+1);
                     setGraph(props.networkRenderer.buildGraph(network.nodes,
@@ -245,8 +221,7 @@ function Network(props) {
                                                               props.climatePrediction,
                                                               props.year,
                                                               props.sector,
-                                                              climateVariableFilter,
-                                                              sectorFilter));
+                                                              climateVariableFilter));
                 }}
               />
               <div className="network">
@@ -256,12 +231,6 @@ function Network(props) {
                     graph={graph}
                     options={options}
                     events={events}
-                    //style={{height: 600, width: 800}}
-                    //getNetwork={() => graph}
-                    //getEdges={() => graph.edges}
-                    //getNodes={() => graph.nodes}
-                    //vis={vis => (this.vis = vis)}
-                    getNetwork={network => (networkReference.current = network)}
                   />
                 </div>
                 <div className="network-info">
