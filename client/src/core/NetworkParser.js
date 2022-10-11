@@ -167,43 +167,39 @@ class NetworkParser extends Network {
     }
 
     // find all adaptations by traversing backwards and adding any effects
-    // that connect to any causing impacts towards the climate impact
-        
-    reverseRecurAdaptations(node,adaptations,breadcrumbs) {
-        for (let incoming of this.getIncomingNodes(node)) {
+    // that connect to any causing impacts towards the climate impact        
+    reverseRecurAdaptations(node,adaptations) {
+        for (let edge of this.getIncomingEdges(node)) {
+            let incoming = this.searchNode(edge.node_from);
             if (incoming.type=="Action") {
-                if (adaptations[incoming.node_id]!=undefined) {
-                    console.log("adding");
-                    adaptations[incoming.node_id].breadcrumbs.push(breadcrumbs);
+                let a = adaptations[incoming.node_id];
+                if (a==undefined) {
+                    adaptations[incoming.node_id]={
+                        action: incoming,
+                        parents: [{node: node, edge:edge}]
+                    };
                 } else {
-                    console.log("new");
-                    adaptations[incoming.node_id]=
-                        {action: incoming,
-                         breadcrumbs: [breadcrumbs]};
+                    a.parents.push({node: node,edge: edge});
                 }
             }
             if (["Pressure", "Effect", "State", "Exposure"].includes(incoming.type) &&
                 this.adaptationVisited[incoming.node_id]==undefined) {
                 this.adaptationVisited[incoming.node_id]=true;     
-                this.reverseRecurAdaptations(
-                    incoming,
-                    adaptations,
-                    [incoming].concat(breadcrumbs));
+                this.reverseRecurAdaptations(incoming,adaptations);
             }
         }
     }
-        
+
     extractAdaptations() {
         let adaptations = {};
+        let pressures = {};
+        this.adaptationVisited=[];
         for (let node of this.healthNodes) {
             if (node.state.value=="increase") {
-                this.adaptationVisited=[];
-
-                console.log("searching");
-                console.log(node);
                 this.reverseRecurAdaptations(node,adaptations,[node]);
             }
         }
+
         let ret = [];
         for (let k in adaptations) {
             ret.push(adaptations[k]);
