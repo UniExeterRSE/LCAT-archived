@@ -75,9 +75,9 @@ class NetworkRenderer extends Network {
              style="fill:`+col+`;fill-opacity:1;stroke-width:0.46499997"
              id="circle1093-0-8"
              cx="150"
-             cy="230"
+             cy="330"
              r="100" />
- <text x="50%" y="50%" text-anchor="middle" fill="white" font-size="50px" 
+ <text x="50%" y="70%" text-anchor="middle" fill="white" font-size="40px" 
 font-family="Arial" dy=".3em">`+text+`</text>
 
 </svg>
@@ -128,20 +128,22 @@ font-family="Arial" dy=".3em">`+text+`</text>
        
 		let height = 800;
 		if (bg==undefined) bg="#e6e6e6";
+        if (code=="Uncertain") bg="#ff00ff";
+        if (node.uncertaintyCause==true) bg="#ff0000";
 		let icon=this.notFoundIcon(bg,code);
 		let glow="";
 		if (show_glow) {
 			glow=`<g transform="translate(0,95) scale(7.8)">` + this.iconCache["glow"] + `</g>`;
 		}
 		if (this.iconCache[title]!=null) {
-			icon=`<g transform="translate(40,130) scale(7)">` + this.iconCache[title] + `</g>`;
+			icon=`<g transform="translate(40,330) scale(7)">` + this.iconCache[title] + `</g>`;
 		} else {
 			//console.log("icon for "+title+" not found");
 		}
 
 		let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="`+height+`" style="overflow:visible;">`
 		    + glow +  
-            `<foreignObject x="0" y="340" width="100%" height="100%">
+            `<foreignObject x="0" y="440" width="100%" height="100%">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 0em;">
         <center style="font-size: 3em;">`+this.printable(title)+`</center>
         </div>
@@ -204,7 +206,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
 			from: edge.node_from,
 			to: edge.node_to,
 			arrows: "to",
-            //label: label,
+            label: edge.state+" ("+label+")",
 			labelHighlightBold: false,
 			//arrowStrikethrough: false,
             smooth: {

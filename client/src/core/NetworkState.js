@@ -26,7 +26,6 @@ class NetworkState {
                             "decrease",
                             "nochange",
                             "unknown"];
-        this.uncertaintyCause=false;
         this.set(value);
     }
 
@@ -39,15 +38,8 @@ class NetworkState {
     }
 
     apply(edge) {
+        // temp while we wait for climate variables
         if (this.value=="unknown") {
-            /*if (edge.type=="-") {
-                this.set("decrease");
-                return;
-            }
-            if (edge.type=="+") {
-                this.set("increase");
-                return;
-            }*/
             this.set("unknown");
             return;
         } else {

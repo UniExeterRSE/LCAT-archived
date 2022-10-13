@@ -28,6 +28,9 @@ function Adaptation(props) {
           </div>
           <div {...getCollapseProps()}>
             <div className="content">
+              <b>Description:</b>
+              <p>{props.a.action.description}</p>
+              <b>Directly effects:</b>
               <ul>
                 {props.a.parents.map(
                     p => {
@@ -35,11 +38,27 @@ function Adaptation(props) {
                     })
                 }
               </ul>
-              {props.a.action.description}
+              <b>Alleviates these health impacts:</b>
               <ul>
-                <li>Climate hazard: {props.a.action.climate_hazard}</li> 
-                <li>Sector: {props.a.action.sector}</li> 
-                <li>UN SDG: {props.a.action.sdg}</li> 
+                {props.a.healthnodes.map(
+                    p => {
+                        return (<li>{p.label}</li>);
+                    })
+                }
+              </ul>
+              <b>Required due to these pressures:</b>
+              <ul>
+                {props.a.pressures.map(
+                    p => {
+                        return (<li>{p.label}</li>);
+                    })
+                }
+              </ul>
+              <b>Metadata</b>:
+              <ul>
+                <li><b>Climate hazard:</b> {props.a.action.climate_hazard}</li> 
+                <li><b>Sector:</b> {props.a.action.sector}</li> 
+                <li><b>UN SDG:</b> {props.a.action.sdg}</li> 
               </ul>
             </div>
           </div>

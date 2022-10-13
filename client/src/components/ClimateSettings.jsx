@@ -23,8 +23,8 @@ function ClimateSettings(props) {
           <p>
             Calculate impacts below using 
             <select onChange={(e) => { props.averageCallback(e.target.value); }}>           
-              <option value="ann">Yearly</option>
               <option value="djf">Winter</option>
+              <option value="ann">Yearly</option>
               <option value="jja">Summer</option>
             </select>
             

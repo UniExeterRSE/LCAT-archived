@@ -76,30 +76,33 @@ class NetworkParser extends Network {
         // set the supplied state to the node now
         node.state=state;
 
-        // if this is a driver, we don't want to go further
+        // we only process these node types
         if (!["Pressure", "Effect", "State", "Exposure"].includes(node.type)) return;
-
-        // look through the edges
+        
+        // look through the edges and calculate the states for all our child nodes
         for (let edge of this.edges) {
-            if (edge.node_from==node.node_id) {
+            if (edge.node_from==node.node_id) {                
+              
                 // find the downwards connected node
                 let child = this.searchNode(edge.node_to);
                 
                 // make a copy of the parent state
                 let childState = new NetworkState(state.value);
-                // calculate our new state based on the edge +/-
+                // calculate the child's new state based on the edge +/-
                 childState.apply(edge);
+                edge.state = childState.value;
                 
                 let previousState = this.visited[child.node_id];
-
+                
                 // we have visited this node before
                 if (previousState!=undefined) {
                     // if opposed to last time round...
                     if (childState.isOppositeTo(previousState)) {
                         // we become uncertain
-                        childState.uncertaintyCause=true;
                         childState.set("uncertain");
-                        // reset visited to new state
+                        // for debugging
+                        child.uncertaintyCause=true;
+                        // reset visited to this new state
                         this.visited[child.node_id]=childState;
                         // recur onwards to update dependant nodes states
                         // to uncertain based on this new state
@@ -108,7 +111,7 @@ class NetworkParser extends Network {
                         // we are different but not opposing - redo nodes
                         if (childState.isDifferentTo(previousState)) {
                             // composite states together and recur further
-                            this.visited[child.node_id]=new NetworkState(childState.composite(previousState));                                
+                            this.visited[child.node_id]=new NetworkState(childState.composite(previousState));
                             this.recurCalculate(child,new NetworkState(childState.composite(previousState)));
                         }
                         // we agree with last time, so no need to redo!
@@ -155,7 +158,8 @@ class NetworkParser extends Network {
         let ret = [];
         // only return nodes that are increasing or decreasing
         for (let node of this.healthNodes) {
-            if (node.state.value!="deactivated") {
+            if (node.state.value=="increase" ||
+                node.state.valye=="decrease") {
                 // reconstruct the node with the minimun of info
                 ret.push({
                     label: node.label,
@@ -166,9 +170,24 @@ class NetworkParser extends Network {
         return ret;
     }
 
-    // find all adaptations by traversing backwards and adding any effects
-    // that connect to any causing impacts towards the climate impact        
-    reverseRecurAdaptations(node,adaptations) {
+    pushUniqueLabel(node,arr) {
+        for (let n of arr) {
+            if (n.label==node.label) return;
+        }
+        arr.push(node);
+    }
+    
+    pushUniqueNodeLabel(node,arr) {
+        for (let n of arr) {
+            if (n.node.label==node.node.label) return;
+        }
+        arr.push(node);
+    }
+    
+    // find all adaptations by traversing backwards from a health impact
+    // and adding any effects that connect to any causing impacts towards
+    // the climate impact        
+    reverseRecurAdaptations(healthnode,node,adaptations) {
         for (let edge of this.getIncomingEdges(node)) {
             let incoming = this.searchNode(edge.node_from);
             if (incoming.type=="Action") {
@@ -176,16 +195,35 @@ class NetworkParser extends Network {
                 if (a==undefined) {
                     adaptations[incoming.node_id]={
                         action: incoming,
+                        healthnodes: [healthnode],
                         parents: [{node: node, edge:edge}]
                     };
                 } else {
-                    a.parents.push({node: node,edge: edge});
+                    this.pushUniqueLabel(healthnode,a.healthnodes);
+                    this.pushUniqueNodeLabel({node: node,edge: edge},a.parents);
                 }
             }
             if (["Pressure", "Effect", "State", "Exposure"].includes(incoming.type) &&
                 this.adaptationVisited[incoming.node_id]==undefined) {
                 this.adaptationVisited[incoming.node_id]=true;     
-                this.reverseRecurAdaptations(incoming,adaptations);
+                this.reverseRecurAdaptations(healthnode,incoming,adaptations);
+            }
+        }
+    }
+
+    // find all adaptations by traversing backwards from a health impact
+    // and adding any effects that connect to any causing impacts towards
+    // the climate impact        
+    reverseRecurPressures(node,pressures) {
+        for (let edge of this.getIncomingEdges(node)) {
+            let incoming = this.searchNode(edge.node_from);
+            if (incoming.type=="Pressure") {
+                this.pushUniqueLabel(node,pressures);                
+            }
+            if (["Pressure", "Effect", "State", "Exposure"].includes(incoming.type) &&
+                this.adaptationVisited[incoming.node_id]==undefined) {
+                this.adaptationVisited[incoming.node_id]=true;     
+                this.reverseRecurPressures(incoming,pressures);
             }
         }
     }
@@ -193,18 +231,29 @@ class NetworkParser extends Network {
     extractAdaptations() {
         let adaptations = {};
         let pressures = {};
-        this.adaptationVisited=[];
+        // start with each healtnode
         for (let node of this.healthNodes) {
+            // if it's "bad" (todo: need to sort this one out)
             if (node.state.value=="increase") {
-                this.reverseRecurAdaptations(node,adaptations,[node]);
+                // search backwards looking for actions that can help with
+                // impacts that contribute to this health impact
+                this.reverseRecurAdaptations(node,node,adaptations);
+                this.adaptationVisited=[];
             }
         }
 
         let ret = [];
-        for (let k in adaptations) {
+
+        // while we are here, search for the originating pressures that
+        // cause these problems
+        for (let k in adaptations) {            
+            adaptations[k].pressures=[];
+            for (let p of adaptations[k].parents) {
+                this.reverseRecurPressures(p.node,adaptations[k].pressures);
+                this.adaptationVisited=[];
+            }
             ret.push(adaptations[k]);
         }        
-        console.log(ret);
         return ret;
     }
 }
