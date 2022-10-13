@@ -102,19 +102,6 @@ font-family="Arial" dy=".3em">`+text+`</text>
 		await xhr.send("");
 	}
 	
-	async loadIconCache() {
-		if (!this.iconCacheLoading) {
-			this.iconCacheLoading = true;
-			for (let f in this.net.factors) {
-				this.loadIcon(this.net.factors[f].short);
-			}
-			for (let f in this.net.causes) {
-				this.loadIcon(this.net.causes[f].short);
-			}
-			this.loadIcon("glow");
-		}
-	}
-    
 	printable(str) {
 		return str.replace("&","&amp;");
 	}
@@ -233,6 +220,8 @@ font-family="Arial" dy=".3em">`+text+`</text>
         networkParser.calculate(climatePrediction,year,climateVariableFilter);
         this.parsedNodes = networkParser.nodes;
 		this.parsedEdges = networkParser.edges;
+
+        this.loadIcon("Temperature.svg");
         
         this.nodes = [];
 		this.edges = [];

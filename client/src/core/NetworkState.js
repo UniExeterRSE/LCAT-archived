@@ -72,14 +72,17 @@ class NetworkState {
     )
     
     composite = (other) => {
-        if (this.isOppositeTo(other)) return "uncertain";
-        if (this.value===other.value) return this.value;
-        if (this.value==="uncertain" || other.value==="uncertain") return "uncertain";
-        if (this.value==="unknown") return other.value;
-        if (other.value==="unknown") return this.value;
-        if (this.value==="deactivated") return other.value;
-        if (other.value==="deactivated") return this.value;
-        return this.value;
+        if (this.value===other.value) return false;
+
+        if (this.isOppositeTo(other)) this.value="uncertain";
+        if (this.value==="uncertain" || other.value==="uncertain") this.value="uncertain";
+        if (this.value==="unknown") this.value=other.value;
+        if (this.value==="deactivated") this.value=other.value;
+
+        //if (other.value==="unknown") return;
+        //if (other.value==="deactivated") return;
+
+        return true;        
     }
     
     asText() {

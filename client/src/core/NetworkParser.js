@@ -81,40 +81,31 @@ class NetworkParser extends Network {
         
         // look through the edges and calculate the states for all our child nodes
         for (let edge of this.edges) {
-            if (edge.node_from==node.node_id) {                
-              
+            if (edge.node_from==node.node_id) {                              
                 // find the downwards connected node
-                let child = this.searchNode(edge.node_to);
-                
+                let child = this.searchNode(edge.node_to);                
                 // make a copy of the parent state
                 let childState = new NetworkState(state.value);
                 // calculate the child's new state based on the edge +/-
                 childState.apply(edge);
+
+                // debugging... show the influence of the parent
+                // (after +/- applied) from this edge
                 edge.state = childState.value;
                 
                 let previousState = this.visited[child.node_id];
                 
-                // we have visited this node before
-                if (previousState!=undefined) {
-                    // if opposed to last time round...
+                // we have visited this node before?
+                if (previousState!=undefined) {                    
+                    // just for debugging purposes
                     if (childState.isOppositeTo(previousState)) {
-                        // we become uncertain
-                        childState.set("uncertain");
-                        // for debugging
-                        child.uncertaintyCause=true;
-                        // reset visited to this new state
+                        child.uncertaintyCause=true;                    
+                    }
+                    
+                    // returns true if we need to recur because we've changed
+                    if (childState.composite(previousState)) {
                         this.visited[child.node_id]=childState;
-                        // recur onwards to update dependant nodes states
-                        // to uncertain based on this new state
                         this.recurCalculate(child,childState);
-                    } else {
-                        // we are different but not opposing - redo nodes
-                        if (childState.isDifferentTo(previousState)) {
-                            // composite states together and recur further
-                            this.visited[child.node_id]=new NetworkState(childState.composite(previousState));
-                            this.recurCalculate(child,new NetworkState(childState.composite(previousState)));
-                        }
-                        // we agree with last time, so no need to redo!
                     }
                     
                 } else {
@@ -159,7 +150,7 @@ class NetworkParser extends Network {
         // only return nodes that are increasing or decreasing
         for (let node of this.healthNodes) {
             if (node.state.value=="increase" ||
-                node.state.valye=="decrease") {
+                node.state.value=="decrease") {
                 // reconstruct the node with the minimun of info
                 ret.push({
                     label: node.label,
