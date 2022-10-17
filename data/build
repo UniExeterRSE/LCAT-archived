@@ -142,6 +142,9 @@ else:
 
     if sys.argv[1]=="network_json":
         network_from_json.load(db,conf['network_json'],"Heat")
+
+    if sys.argv[1]=="network_refs":
+        network_from_json.load_refs(db,conf['refs'])
         
     if sys.argv[1]=="all":
         #ukcri.load(db,conf['uk_cri_data_path'])
