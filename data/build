@@ -20,7 +20,6 @@ from builder import climate_db
 from builder import ukcri
 from builder import index_multiple_deprivation as imd
 from builder import link_geom_climate
-from builder import network
 from builder import network_from_json
 from builder import stats
 from builder import nfvi_sfri
@@ -81,12 +80,6 @@ else:
     if sys.argv[1]=="link_counties":
         link_geom_climate.multi(db,"counties")
 
-    if sys.argv[1]=="nuke_network":
-        network.reset(db)
-
-    if sys.argv[1]=="network":
-        network.load(db,conf['network_path'])
-
     if sys.argv[1]=="stats":
         stats.compute(db)
 
@@ -145,6 +138,9 @@ else:
 
     if sys.argv[1]=="network_refs":
         network_from_json.load_refs(db,conf['refs'])
+
+    if sys.argv[1]=="network_nuke":
+        network_from_json.reset(db)
         
     if sys.argv[1]=="all":
         #ukcri.load(db,conf['uk_cri_data_path'])

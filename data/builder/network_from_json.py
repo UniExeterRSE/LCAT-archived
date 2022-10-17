@@ -103,6 +103,12 @@ class network_db:
                              sg(node["attributes"],"urban_rural"),
                              sg(node["attributes"],"vulnerability")))
         self.db.conn.commit()
+
+        if "reference_id" in node:
+            print(node["reference_id"])
+            for ref in node["reference_id"]:
+                self.add_node_article_mapping(node["_id"], ref)
+            
         return self.db.cur.fetchone()[0]
 
     def add_edge(self,edge):
@@ -115,16 +121,27 @@ class network_db:
              edge['to']))
         
         self.db.conn.commit()
+
+        if "reference_id" in edge["attributes"]:
+            for ref in edge["attributes"]["reference_id"]:
+                self.add_edge_article_mapping(edge["_id"], ref)
+        else:
+            print("no ref for edge? "+edge["_id"])
+        
         return edge['_id']
                     
     def add_ref(self,row):
-        print("add_article")
-
+        self.db.cur.execute("select article_id from articles where article_id=%s",(row[0],))
+        self.db.conn.commit()
+        if (len(self.db.cur.fetchall())>0):
+            print("skipping "+row[0])
+            return
+        
         ref = False
         if row[2]!="":
             ref = self.doi_lookup.doi2info(row[2],row[1])
 
-        print(row)
+        print(ref)
             
         if ref!=False:
             self.db.cur.execute("insert into articles (article_id, doi, type, link, title, authors, date, journal, issue, notes) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
@@ -149,18 +166,34 @@ class network_db:
         return row[0]
 
     def add_node_article_mapping(self, node_id, article_id):
+        self.db.cur.execute("select article_id from articles where article_id=%s",(article_id,))
+        self.db.conn.commit()
+        if (len(self.db.cur.fetchall())==0):
+            print("skipping "+article_id)
+            return
+
         self.db.cur.execute(f"""insert into node_article_mapping (node_id, article_id) values
         ('{node_id}','{article_id}') returning id""")
         self.db.conn.commit()
         return self.db.cur.fetchone()[0]
 
     def add_edge_article_mapping(self, edge_id, article_id):
+        self.db.cur.execute("select article_id from articles where article_id=%s",(article_id,))
+        self.db.conn.commit()
+        if (len(self.db.cur.fetchall())==0):
+            print("skipping "+article_id)
+            return
+
         self.db.cur.execute(f"""insert into edge_article_mapping (edge_id, article_id) values
         ('{edge_id}','{article_id}') returning id""")
         self.db.conn.commit()
         return self.db.cur.fetchone()[0]
             
 
+def reset(db):
+    nd = network_db(db)
+    nd.reset_refs()
+    
 def find_item(l,id):
     for el in l:
         if el["_id"]==id: return el
@@ -182,12 +215,12 @@ def load(db,path,mapname):
 
 def load_refs(db,refssheet):                
     nd = network_db(db)
-    nd.reset_refs()
+    ##nd.reset_refs()
  
     with open(refssheet) as csvfile:
         reader = csv.reader(csvfile)
         for i,row in enumerate(reader):
-            if i>0:
+            if i>0 and not row[0] in ["7","125","165","178","184","212",""]:
                 nd.add_ref(row)
                 
  

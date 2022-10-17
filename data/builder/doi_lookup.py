@@ -45,16 +45,19 @@ class doi_lookup:
     def read_book(self,doi,d):
         #print (json.dumps(d["crossref_result"]["query_result"]["body"]["query"]["doi_record"], indent=4))
 
-        #print (json.dumps(d["crossref_result"]["query_result"]["body"]["query"]["doi_record"], indent=4))
         book = d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]["book"]
+        print (json.dumps(d["crossref_result"]["query_result"]["body"]["query"]["doi_record"], indent=4))
 
-        #print(d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]["journal"]["journal_article"])
         title = book["book_metadata"]["titles"]["title"]
-        
+
         authors = ""
-        for contributor in book["content_item"]["contributors"]["person_name"]:
+        if "content_item" in book:
+            for contributor in book["content_item"]["contributors"]["person_name"]:
+                authors+=(contributor["given_name"]+" "+contributor["surname"]+", ")
+        else:
+            contributor= book["book_metadata"]["contributors"]["person_name"]
             authors+=(contributor["given_name"]+" "+contributor["surname"]+", ")
-                
+
         
         date=book["book_metadata"]["publication_date"]["year"]
                 
@@ -80,11 +83,14 @@ class doi_lookup:
         title = article["titles"]["title"]
         
         authors = ""
-        print(article["contributors"])
-        for contributor in article["contributors"]:
-            print(contributor)
-            if contributor["@contributor_role"]=="author":
-                authors+=(contributor["given_name"]+" "+contributor["surname"]+", ")
+        #print(article["contributors"]["person_name"])
+        alist = article["contributors"]["person_name"]
+        if isinstance(alist, list):
+            for contributor in alist:
+                if contributor["@contributor_role"]=="author":
+                    authors+=(contributor["given_name"]+" "+contributor["surname"]+", ")
+        else:
+            authors+=(alist["given_name"]+" "+alist["surname"]+", ")
                 
         date = ""
         if isinstance(article["publication_date"], list):
