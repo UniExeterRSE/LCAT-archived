@@ -20,6 +20,8 @@ import './Network.css';
 // triggers when the network changes
 function NetworkListener(props) {
     useEffect(() => {
+        props.networkRenderer.loadIcons();
+
         props.callback(props.network);
     }, [props.network,
         props.climatePrediction,
@@ -210,6 +212,7 @@ function Network(props) {
               </p>
               <NetworkListener
                 network = {props.network}
+                networkRenderer = {props.networkRenderer}
                 climatePrediction = {props.climatePrediction}
                 year = {props.year}
                 sector = {props.sector}

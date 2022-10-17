@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { SVG } from '@svgdotjs/svg.js';
 import HealthSvg from '../images/icons/Public health & wellbeing.svg';
 
 // This class takes a network and follows from causes (root nodes with
@@ -66,41 +67,43 @@ class NetworkRenderer extends Network {
 
     
     loadIcons() {
+        this.loadIcon("Diabetes");        
     }
 
     notFoundIcon(col,text) {
         return `
-<svg width="300" height="460">
+<svg width="300" height="600">
 <circle
              style="fill:`+col+`;fill-opacity:1;stroke-width:0.46499997"
              id="circle1093-0-8"
              cx="150"
-             cy="330"
+             cy="400"
              r="100" />
- <text x="50%" y="70%" text-anchor="middle" fill="white" font-size="40px" 
+ <text x="50%" y="66%" text-anchor="middle" fill="white" font-size="40px" 
 font-family="Arial" dy=".3em">`+text+`</text>
 
 </svg>
 `;
     }
-    
-	async loadIcon(fn) {
-		let name = fn;
-		let xhr = new XMLHttpRequest();
-        console.log("loading: "+name);
-		await xhr.open("GET","images/icons/"+name+".svg",false);
-		xhr.overrideMimeType("image/svg+xml");
-		xhr.onload = (e) => {
-			if (xhr.responseXML!=null) {
-                console.log("loaded: "+name);
-				this.iconCache[fn]=xhr.responseXML.documentElement.innerHTML;
-			}
-		};
-		xhr.onerror = (e) => {
-			console.log("problem loading: "+name);
-		};
-		await xhr.send("");
-	}
+
+    loadIcon(fn,thunk) {
+        if (this.iconCache[fn]!=undefined) {
+            return this.iconCache[fn];
+        }
+        
+        let prepend="";
+        if (process.env.NODE_ENV==="development") {
+            prepend="http://localhost:3000";
+        }
+        fetch(prepend+"/images/icons/"+fn+".svg")
+            .then((response) => response.text())
+            .then((data) => {
+                console.log("loaded "+fn);
+                //console.log(data);
+                this.iconCache[fn]=data;
+            });
+        return undefined;
+    }
 	
 	printable(str) {
 		return str.replace("&","&amp;");
@@ -117,20 +120,28 @@ font-family="Arial" dy=".3em">`+text+`</text>
 		if (bg==undefined) bg="#e6e6e6";
         if (code=="Uncertain") bg="#ff00ff";
         if (node.uncertaintyCause==true) bg="#ff0000";
-		let icon=this.notFoundIcon(bg,code);
+
+        let icon=this.notFoundIcon(bg,code);
+        //var draw = SVG();
+        //console.log(draw);
+        
+        //let icon=draw.svg(this.iconCache["Diabetes"]);
+        //console.log(icon);
 		let glow="";
 		if (show_glow) {
 			glow=`<g transform="translate(0,95) scale(7.8)">` + this.iconCache["glow"] + `</g>`;
 		}
-		if (this.iconCache[title]!=null) {
-			icon=`<g transform="translate(40,330) scale(7)">` + this.iconCache[title] + `</g>`;
-		} else {
+        
+//		if (this.iconCache[title]!=null) {
+//			icon=`<g transform="translate(40,330) scale(7)">` + this.iconCache[title] + `</g>`;
+ //           console.log(icon);
+//		} else {
 			//console.log("icon for "+title+" not found");
-		}
+//		}
 
 		let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="`+height+`" style="overflow:visible;">`
 		    + glow +  
-            `<foreignObject x="0" y="440" width="100%" height="100%">
+            `<foreignObject x="0" y="500" width="100%" height="100%">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 0em;">
         <center style="font-size: 3em;">`+this.printable(title)+`</center>
         </div>
@@ -178,13 +189,14 @@ font-family="Arial" dy=".3em">`+text+`</text>
 	}
 
 	addEdge(edge) {
-		let colour = "#b0cacc";
 
-        //if (edge.type=="+") colour="#afd6e4";
-        //else colour="#f1b9bd";
+        let colour = "#eeeeee";
+        if (edge.state=="increase") colour="#afd6e4";
+        if (edge.state=="decrease") colour="#f1b9bd";
+        if (edge.state=="uncertain") colour="#ff00ff";
         
         let label=edge.type;
-        var labelsize = 15;
+        var labelsize = 10;
 
         if (!["-","+"].includes(edge.type)) return;
         
@@ -221,8 +233,6 @@ font-family="Arial" dy=".3em">`+text+`</text>
         this.parsedNodes = networkParser.nodes;
 		this.parsedEdges = networkParser.edges;
 
-        this.loadIcon("Temperature.svg");
-        
         this.nodes = [];
 		this.edges = [];
         this.fixedYPos=0;
@@ -230,8 +240,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         // find causes and propagate upwards (right?) from there
 		for (let node of this.parsedNodes) {
             if (["Pressure", "Effect", "State", "Exposure"].includes(node.type) &&
-                node.state.value!="deactivated" &&
-                node.label!="Hospital admissions") {
+                node.state.value!="deactivated") {
    			    this.addNode(node);
             }
 		}

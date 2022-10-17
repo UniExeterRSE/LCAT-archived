@@ -26,6 +26,10 @@ class NetworkState {
                             "decrease",
                             "nochange",
                             "unknown"];
+        
+        // map of edge_id -> state
+        this.votes = {};
+        
         this.set(value);
     }
 
@@ -37,13 +41,18 @@ class NetworkState {
         }
     }
 
+    vote(edge) {
+        this.votes[edge.edge_id]=this.value;        
+    }
+    
     apply(edge) {
         // temp while we wait for climate variables
         if (this.value=="unknown") {
             this.set("unknown");
             return;
         } else {
-
+            // we start as copy of parent state so + stays the same...
+           
             if (edge.type=="-") {
                 if (this.value==="increase") {
                     this.value="decrease";
@@ -54,12 +63,8 @@ class NetworkState {
                 }
                 // no change if disabled, uncertain etc                
             }
-
-            if (edge.type!="+" && edge.type!="-") {
-                console.log(edge.type);
-            }
-            
         }
+        this.vote(edge);
     }
 
     isOppositeTo = (other) => (
