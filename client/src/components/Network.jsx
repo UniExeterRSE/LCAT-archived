@@ -143,9 +143,6 @@ function Network(props) {
                                      ["Evidence paper 3", "Info & link"]]);*/
                 }
             }
-            
-            
-            
         }
     };
 

@@ -104,12 +104,11 @@ class network_db:
                              sg(node["attributes"],"vulnerability")))
         self.db.conn.commit()
 
-        if "reference_id" in node:
-            print(node["reference_id"])
-            for ref in node["reference_id"]:
+        if "reference_id" in node["attributes"]:
+            for ref in node["attributes"]["reference_id"]:
+                print(ref)
                 self.add_node_article_mapping(node["_id"], ref)
             
-        return self.db.cur.fetchone()[0]
 
     def add_edge(self,edge):
         # match nodes by label
@@ -128,7 +127,6 @@ class network_db:
         else:
             print("no ref for edge? "+edge["_id"])
         
-        return edge['_id']
                     
     def add_ref(self,row):
         self.db.cur.execute("select article_id from articles where article_id=%s",(row[0],))
@@ -173,9 +171,9 @@ class network_db:
             return
 
         self.db.cur.execute(f"""insert into node_article_mapping (node_id, article_id) values
-        ('{node_id}','{article_id}') returning id""")
+        ('{node_id}','{article_id}')""")
         self.db.conn.commit()
-        return self.db.cur.fetchone()[0]
+
 
     def add_edge_article_mapping(self, edge_id, article_id):
         self.db.cur.execute("select article_id from articles where article_id=%s",(article_id,))
@@ -185,9 +183,8 @@ class network_db:
             return
 
         self.db.cur.execute(f"""insert into edge_article_mapping (edge_id, article_id) values
-        ('{edge_id}','{article_id}') returning id""")
+        ('{edge_id}','{article_id}')""")
         self.db.conn.commit()
-        return self.db.cur.fetchone()[0]
             
 
 def reset(db):

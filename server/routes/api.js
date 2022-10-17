@@ -251,11 +251,7 @@ router.get('/network_edges', function (req, res) {
 	var client = new Client(conString);
     client.connect();
 
-    // find all the tiles covered by the selected geometry, use
-    // distinct to remove duplicates and average the selected
-    // climate variable for each year in the model data
     var q=`select * from network_edges;`
-
 	var query = client.query(new Query(q));
 	
 	query.on("row", function (row, result) {
@@ -277,11 +273,30 @@ router.get('/network_nodes', function (req, res) {
 	var client = new Client(conString);
     client.connect();
 
-    // find all the tiles covered by the selected geometry, use
-    // distinct to remove duplicates and average the selected
-    // climate variable for each year in the model data
     var q=`select * from network_nodes;`
+	var query = client.query(new Query(q));
+	
+	query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+        res.send(result.rows);
+        res.end();
+		client.end();
+    });
+    query.on("error", function (err, result) {
+        console.log("------------------error-------------------------");
+        console.log(req);
+        console.log(err);
+    });    
+});
 
+router.get('/edge_references', function (req, res) {
+	var client = new Client(conString);
+    client.connect();
+    var q=`select * from edge_article_mapping as na
+           join articles as a on a.article_id = na.article_id 
+           where na.node_id = `+req.query.node_id;
 	var query = client.query(new Query(q));
 	
 	query.on("row", function (row, result) {
