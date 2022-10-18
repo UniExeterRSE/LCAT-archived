@@ -296,7 +296,7 @@ router.get('/edge_references', function (req, res) {
     client.connect();
     var q=`select * from edge_article_mapping as na
            join articles as a on a.article_id = na.article_id 
-           where na.node_id = `+req.query.node_id;
+           where na.edge_id = '`+req.query.id+`'`;
 	var query = client.query(new Query(q));
 	
 	query.on("row", function (row, result) {
@@ -309,7 +309,30 @@ router.get('/edge_references', function (req, res) {
     });
     query.on("error", function (err, result) {
         console.log("------------------error-------------------------");
-        console.log(req);
+        //console.log(req);
+        console.log(err);
+    });    
+});
+
+router.get('/node_references', function (req, res) {
+	var client = new Client(conString);
+    client.connect();
+    var q=`select * from node_article_mapping as na
+           join articles as a on a.article_id = na.article_id 
+           where na.node_id = '`+req.query.id+`'`;
+	var query = client.query(new Query(q));
+	
+	query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+        res.send(result.rows);
+        res.end();
+		client.end();
+    });
+    query.on("error", function (err, result) {
+        console.log("------------------error-------------------------");
+        //console.log(req);
         console.log(err);
     });    
 });

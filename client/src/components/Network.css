@@ -22,7 +22,7 @@
 
 @media (min-width: 2000px) {
 	.network-holder {
-		height: 2000px;
+		height: 1600px;
 	}
 }
 
@@ -31,7 +31,7 @@
 	border-radius: 5px;
 	background: #e6e6e6;	
 	padding: 1em;
-	overflow-y: visible;
+	overflow-y: scroll;
 	height: 600px;
 }
 

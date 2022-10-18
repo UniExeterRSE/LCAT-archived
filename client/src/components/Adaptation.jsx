@@ -10,6 +10,7 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import useCollapse from 'react-collapsed';
+import References from './References';
 
 function Adaptation(props) {
     
@@ -54,12 +55,20 @@ function Adaptation(props) {
                     })
                 }
               </ul>
-              <b>Metadata</b>:
-              <ul>
-                <li><b>Climate hazard:</b> {props.a.action.climate_hazard}</li> 
-                <li><b>Sector:</b> {props.a.action.sector}</li> 
-                <li><b>UN SDG:</b> {props.a.action.sdg}</li> 
-              </ul>
+
+              <References
+                id={props.a.action.node_id}
+                api_call={"node_references"}
+              />
+              
+              <h3>Metadata</h3>
+              <small>
+                <ul>
+                  <li><b>Climate hazard:</b> {props.a.action.climate_hazard}</li> 
+                  <li><b>Sector:</b> {props.a.action.sector}</li> 
+                  <li><b>UN SDG:</b> {props.a.action.sdg}</li> 
+                </ul>
+              </small>
             </div>
           </div>
         </div>

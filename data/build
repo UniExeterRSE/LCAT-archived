@@ -130,9 +130,19 @@ else:
                          "rsds"]:
             chessscape.import_seasonal_averages(db,conf['chess_seasonal_path'],variable)
 
+            
     if sys.argv[1]=="chessscape_grid":         
         chessscape.import_grid(db)
+        
+    if sys.argv[1]=="chesstiff_nuke":
+        tiff_loader.nuke(db,"chess_scape")
+        
+    if sys.argv[1]=="chesstiff_seasonal":    
+        tiff_loader.import_data(db,conf['chess_tiff_path'],sys.argv[2])
 
+    if sys.argv[1]=="chesstiff_decades":    
+        tiff_loader.import_decades(db,conf['chess_tiff_path'],sys.argv[2])
+        
     if sys.argv[1]=="network_json":
         network_from_json.load(db,conf['network_json'],"Heat")
 

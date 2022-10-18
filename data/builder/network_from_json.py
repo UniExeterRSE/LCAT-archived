@@ -55,20 +55,6 @@ class network_db:
         constraint fk_from foreign key(node_from) references network_nodes(node_id),  
         constraint fk_to foreign key(node_to) references network_nodes(node_id));"""
         self.db.cur.execute(q)
-
-    def reset_refs(self):        
-        self.db.cur.execute("drop table if exists articles cascade")
-        q = """create table articles (article_id int primary key, 
-        doi text,
-        type text,
-        link text,                            
-        title text,
-        authors text,
-        date text,
-        journal text,
-        issue text,
-        notes text)"""
-        self.db.cur.execute(q)
         
         self.db.cur.execute("drop table if exists node_article_mapping cascade")
         q = """create table node_article_mapping (id serial primary key, 
@@ -85,7 +71,21 @@ class network_db:
         constraint fk_edge foreign key(edge_id) references network_edges(edge_id),  
         constraint fk_article foreign key(article_id) references articles(article_id))"""
         self.db.cur.execute(q)
+        self.db.conn.commit()
 
+    def reset_refs(self):        
+        self.db.cur.execute("drop table if exists articles cascade")
+        q = """create table articles (article_id int primary key, 
+        doi text,
+        type text,
+        link text,                            
+        title text,
+        authors text,
+        date text,
+        journal text,
+        issue text,
+        notes text)"""
+        self.db.cur.execute(q)        
         self.db.conn.commit()
 
     def add_node(self,node):
@@ -106,7 +106,6 @@ class network_db:
 
         if "reference_id" in node["attributes"]:
             for ref in node["attributes"]["reference_id"]:
-                print(ref)
                 self.add_node_article_mapping(node["_id"], ref)
             
 
@@ -139,14 +138,15 @@ class network_db:
         if row[2]!="":
             ref = self.doi_lookup.doi2info(row[2],row[1])
 
-        print(ref)
+        link=row[3]
+        if row[4]!="": link=row[4]
             
         if ref!=False:
             self.db.cur.execute("insert into articles (article_id, doi, type, link, title, authors, date, journal, issue, notes) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
             (row[0],
              ref["doi"],
-             ref["type"],
-             row[3],
+             row[1],
+             link,
              ref["title"],
              ref["authors"],
              ref["date"],
@@ -154,11 +154,12 @@ class network_db:
              ref["issue"],
              row[5]))        
         else:
-            self.db.cur.execute("insert into articles (article_id, doi, type, link, notes) values (%s, %s, %s, %s, %s)",
+            self.db.cur.execute("insert into articles (article_id, title, doi, type, link, notes) values (%s, %s, %s, %s, %s, %s)",
             (row[0],
+             row[6],
              row[2],
              row[1],
-             row[3],
+             link,
              row[5]))
         self.db.conn.commit()
         return row[0]

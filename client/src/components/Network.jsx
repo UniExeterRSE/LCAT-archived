@@ -14,6 +14,7 @@ import useCollapse from 'react-collapsed';
 
 import Graph from 'react-graph-vis';
 import { andify } from '../utils/utils';
+import References from './References';
 
 import './Network.css';
 
@@ -40,6 +41,8 @@ function Network(props) {
     const [ infoText, setInfoText ] = useState("");
     const [ infoMetadata, setInfoMetadata ] = useState([]);
     const [ climateVariableFilter, setClimateVariableFilter ] = useState("All");
+    const [ nodeedgeId, setNodeedgeId ] = useState(0);
+    const [ apiCall, setApiCall ] = useState("node_references");
 
     var options = {
 	    physics: {
@@ -100,7 +103,8 @@ function Network(props) {
             if (event.nodes.length>0) {
                 // we clicked on a node
                 let node = props.networkRenderer.getParsedNode(event.nodes[0]);
-
+                setNodeedgeId(node.node_id);
+                setApiCall("node_references");
                 setInfoTitle(node.label);
                 setInfoText(node.description);
                 let metadata = [];              
@@ -127,6 +131,8 @@ function Network(props) {
                     }
                     setInfoText(node_from.label+change+node_to.label);
                     setInfoTitle(title);
+                    setApiCall("edge_references");
+                    setNodeedgeId(edge.edge_id);
 
                     let metadata = [];              
                     for (let key of Object.keys(edge)) {
@@ -236,9 +242,18 @@ function Network(props) {
                 <div className="network-info">
                   <h2>{infoTitle}</h2>
                   <p>{infoText}</p>
-                  <ul>
-                    {infoMetadata.map(el => (<li><b>{el[0]}</b> : {el[1]}</li>))}
-                  </ul>                   
+                  <References
+                    id={nodeedgeId}
+                    api_call={apiCall}
+                  />
+                  <p>
+                    <h3>Metadata</h3>
+                    <small>
+                      <ul>
+                        {infoMetadata.map(el => (<li><b>{el[0]}</b> : {el[1]}</li>))}
+                      </ul>
+                    </small>
+                  </p>
                 </div>
               </div>
             </div>
