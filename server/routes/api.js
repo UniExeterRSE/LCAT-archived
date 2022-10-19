@@ -247,6 +247,64 @@ router.get('/hadgem_rpc85_prediction', function (req, res) {
     }
 });
 
+router.get('/chess_scape', function (req, res) {
+	let locations = req.query.locations;
+	let rcp = req.query.rcp; 
+	let season = req.query.season; 
+	let region_grid = req.query.regionType+"_grid_mapping";
+
+    if (locations!=undefined &&
+        is_valid_grid_table(region_grid) &&
+        ["summer","winter","annual"].includes(average)) {
+
+        if (!Array.isArray(locations)) {
+            locations=[locations];
+        }
+
+	    var client = new Client(conString);
+        client.connect();
+
+        var vardec = []
+        for (let variable of ["tas","sfcWind","pr","rsds"]) {
+            for (let decade of ["1980","1990","2000","2010","2020","2030","2040","2050","2060","2070"]) {
+                vardec.push("avg ("+variable+"_"+decade+") as "+variable+"_"+decade);
+            }
+        }
+
+        
+        // combine the tavg,tmin,tmax and rain predictions averaged over the
+        // locations provided
+        var sq=`(select distinct tile_id from `+region_grid+` where geo_id in (`+locations.join()+`))`;
+        
+        var q=`select tavg.year,
+                      avg(tavg.median) as tavg_median, 
+                      avg(tmin.median) as tmin_median, 
+                      avg(tmax.median) as tmax_median,
+                      avg(rain.median) as rain_median
+               from chess_scape_`+rcp+`_tavg_`+average+` as tavg
+               join hadgem_rcp85_tmin_`+average+` as tmin on tmin.location in `+sq+` and tmin.year=tavg.year
+               join hadgem_rcp85_tmax_`+average+` as tmax on tmax.location in `+sq+` and tmax.year=tavg.year
+               join hadgem_rcp85_rain_`+average+` as rain on rain.location in `+sq+` and rain.year=tavg.year
+               where tavg.location in `+sq+` group by tavg.year order by tavg.year;`;
+
+	    var query = client.query(new Query(q));
+	    
+	    query.on("row", function (row, result) {
+            result.addRow(row);
+        });
+        query.on("end", function (result) {
+            res.send(result.rows);
+            res.end();
+		    client.end();
+        });
+        query.on("error", function (err, result) {
+            console.log("------------------error-------------------------");
+            console.log(req);
+            console.log(err);
+        });
+    }
+});
+
 router.get('/network_edges', function (req, res) {
 	var client = new Client(conString);
     client.connect();

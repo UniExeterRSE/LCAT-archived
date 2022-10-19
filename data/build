@@ -25,6 +25,7 @@ from builder import stats
 from builder import nfvi_sfri
 from builder import hierarchy
 from builder import chessscape
+from builder import tiff_loader
 
 def load_config():
     with open('config.yml') as f:
@@ -38,8 +39,8 @@ db = climate_db.db(conf)
 if len(sys.argv)<2 or sys.argv[1]=="-?" or sys.argv[1]=="--help":
     print("Welcome to the climate tool database builder")
 else:
-    if sys.argv[1]=="uk_cri":
-        ukcri.load(db,conf['uk_cri_data_path'])
+#    if sys.argv[1]=="uk_cri":
+#        ukcri.load(db,conf['uk_cri_data_path'])
 
     if sys.argv[1]=="lsoa":
         # import lsoa from GCS_OSGB_1936 (27700)
@@ -101,48 +102,56 @@ else:
     if sys.argv[1]=="link_nfvi_sfri_counties":         
         nfvi_sfri.import_to_table(db,"counties","county")
 
-    if sys.argv[1]=="chessscape_nuke":
-        chessscape.nuke(db,"chessscape_seasonal")
+    # if sys.argv[1]=="chessscape_nuke":
+    #     chessscape.nuke(db,"chessscape_seasonal")
         
-    if sys.argv[1]=="chessscape_seasonal":    
-        chessscape.import_seasonal_data(db,conf['chess_seasonal_path'],sys.argv[2])
+    # if sys.argv[1]=="chessscape_seasonal":    
+    #     chessscape.import_seasonal_data(db,conf['chess_seasonal_path'],sys.argv[2])
 
-    if sys.argv[1]=="chessscape_all":
-        for variable in ["tas",
-                         #"tasmin",
-                         #"tasmax",
-                         "sfcWind",
-                         "pr",
-                         "rlds",
-                         "rsds"]:
-            chessscape.import_seasonal_data(db,conf['chess_seasonal_path'],variable)
+    # if sys.argv[1]=="chessscape_all":
+    #     for variable in ["tas",
+    #                      #"tasmin",
+    #                      #"tasmax",
+    #                      "sfcWind",
+    #                      "pr",
+    #                      "rlds",
+    #                      "rsds"]:
+    #         chessscape.import_seasonal_data(db,conf['chess_seasonal_path'],variable)
 
-    if sys.argv[1]=="chessscape_nuke_averages":
-        chessscape.nuke_averages(db,"chessscape_seasonal_averages")
+    # if sys.argv[1]=="chessscape_nuke_averages":
+    #     chessscape.nuke_averages(db,"chessscape_seasonal_averages")
         
-    if sys.argv[1]=="chessscape_seasonal_averages":
-        for variable in ["tas",
-                         #"tasmin",
-                         #"tasmax",
-                         "sfcWind",
-                         "pr",
-                         "rlds",
-                         "rsds"]:
-            chessscape.import_seasonal_averages(db,conf['chess_seasonal_path'],variable)
-
+    # if sys.argv[1]=="chessscape_seasonal_averages":
+    #     for variable in ["tas",
+    #                      #"tasmin",
+    #                      #"tasmax",
+    #                      "sfcWind",
+    #                      "pr",
+    #                      "rlds",
+    #                      "rsds"]:
+    #         chessscape.import_seasonal_averages(db,conf['chess_seasonal_path'],variable)
             
     if sys.argv[1]=="chessscape_grid":         
         chessscape.import_grid(db)
         
-    if sys.argv[1]=="chesstiff_nuke":
-        tiff_loader.nuke(db,"chess_scape")
-        
-    if sys.argv[1]=="chesstiff_seasonal":    
-        tiff_loader.import_data(db,conf['chess_tiff_path'],sys.argv[2])
+    if sys.argv[1]=="chess_tiff_nuke":
+        for rcp in ['rcp60','rcp85']:
+            for season in ["annual","summer","winter"]:
+                tiff_loader.nuke(db,'chess_scape_'+rcp+'_'+season)
 
-    if sys.argv[1]=="chesstiff_decades":    
-        tiff_loader.import_decades(db,conf['chess_tiff_path'],sys.argv[2])
-        
+    if sys.argv[1]=="chess_tiff_create":    
+        tiff_loader.create_averages(db,sys.argv[2],conf['chess_tiff_path'],sys.argv[3])
+ 
+    if sys.argv[1]=="chess_tiff_create_batch":    
+        for rcp in ['rcp60','rcp85']:
+            for variable in ['tas','pr','rsds','sfcWind']:
+                tiff_loader.create_averages(db,rcp,conf['chess_tiff_path'],variable)
+       
+    if sys.argv[1]=="chess_tiff_import":    
+        for rcp in ['rcp60','rcp85']:
+            for variable in ['tas','pr','rsds','sfcWind']:                
+                tiff_loader.import_tiffs(db,conf['chess_tiff_decades_path'],rcp,variable)
+
     if sys.argv[1]=="network_json":
         network_from_json.load(db,conf['network_json'],"Heat")
 
