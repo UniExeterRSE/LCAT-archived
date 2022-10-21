@@ -61,6 +61,15 @@ function ReportReference(props) {
     );
 }
 
+function BookSectionReference(props) {
+    return (
+        <p>
+          <ul>
+            <li><a href={props.a.link}>{props.a.title}</a> ({props.a.type})</li>
+          </ul>
+        </p>
+    );
+}
 
 function References(props) {
     const [ references, setReferences ] = useState([]);
@@ -98,7 +107,8 @@ function References(props) {
               if (r.type=="Book") return (<ArticleReference a={r}/>);
               if (r.type=="Web Page") return (<WebPageReference a={r}/>);
               if (r.type=="Report") return (<ReportReference a={r}/>);
-              return (<h2>{ r.type }: not understood</h2>);
+              if (r.type=="Book Section") return (<BookSectionReference a={r}/>);
+              return (<p>{ r.type }: not understood</p>);
           })}          
         </div>
     );

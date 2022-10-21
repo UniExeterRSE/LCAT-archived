@@ -89,6 +89,42 @@ def save_averages(db,rcp,fn,table,variable):
         save_tiff(img,arr,table,rcp,variable,4,decade);
 
 
+def load_grid(db,fn):
+    img = rasterio.open(fn)
+
+    print(img.crs)
+    
+    time_size = img.count
+    x_size = img.width
+    y_size = img.height
+
+    data_cols = {
+        "chess_scape_grid":
+        [["id","serial"],
+         ["geom","geometry(geometry, 9001)"],
+         ["properties","jsonb"]],
+    }
+
+    db.create_tables(data_cols)
+
+
+    features = []
+    # lose 1km from each edge...? not many (any) of them will have climate data
+    # assumptions to check - coord is corner, and geometry is specified correctly
+    for x in range(0,x_size-1):
+        for y in range(0,y_size-1):            
+               features.append(geojson.Feature(id=x*y_size+y, geometry=geojson.Polygon([[
+                   (float(img.xy(y,x)[0]),float(img.xy(y,x)[1])),
+                   (float(img.xy(y+1,x)[0]),float(img.xy(y+1,x)[1])),
+                   (float(img.xy(y+1,x+1)[0]),float(img.xy(y+1,x+1)[1])),
+                   (float(img.xy(y,x+1)[0]),float(img.xy(y,x+1)[1]))]]),
+                                               properties={}))
+        print(int((x/x_size)*100))
+        
+    db.import_geojson_feature("chess_scape_grid","9001",geojson.FeatureCollection(features))
+    db.conn.commit()
+
+    
 def load_data(db,fn,table,decade,variable):
     img = rasterio.open(fn)
 
@@ -142,6 +178,9 @@ def import_tiffs(db,path,rcp,variable):
             fn = 'chess_scape_'+rcp+'_'+variable+'_'+season+'_'+decade+'.tif'
             load_data(db,path+fn,'chess_scape_'+rcp+'_'+season,decade,variable)
 
+def import_grid(db,path,fn):
+    load_grid(db,path+fn)
+            
 def create_averages(db,rcp,path,variable):
     fn = "chess-scape_"+rcp+"_bias-correctedMEAN_"+variable+".tif"
     save_averages(db,rcp,path+fn,"chess_scape",variable)

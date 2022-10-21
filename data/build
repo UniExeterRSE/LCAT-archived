@@ -57,6 +57,25 @@ else:
         db.load_shp_geom(conf['counties_data_shp'],"counties","4326") 
         imd.prepare_col(db,"counties")
 
+    if sys.argv[1]=="la_districts":
+        # import lsoa from GCS_OSGB_1936 (27700)
+        db.load_shp_geom(conf['la_districts_data_shp'],"la_districts","27700")
+        imd.prepare_col(db,"la_districts")
+
+
+    if sys.argv[1]=="link_lsoa":
+        link_geom_climate.multi(db,"lsoa","uk_cri_grid")
+
+    if sys.argv[1]=="link_msoa":
+        link_geom_climate.multi(db,"msoa","uk_cri_grid")
+
+    if sys.argv[1]=="link_counties":
+        link_geom_climate.multi(db,"counties","uk_cri_grid")
+
+    if sys.argv[1]=="link_la_districts":
+        link_geom_climate.multi_inverse(db,"la_districts","chess_scape_grid")
+
+        
     if sys.argv[1]=="add_imd":
         imd.prepare_col(db,"lsoa")
         imd.prepare_col(db,"msoa")
@@ -72,15 +91,10 @@ else:
     if sys.argv[1]=="counties_imd":
         imd.load_counties(db);
 
-    if sys.argv[1]=="link_lsoa":
-        link_geom_climate.multi(db,"lsoa")
 
-    if sys.argv[1]=="link_msoa":
-        link_geom_climate.multi(db,"msoa")
+        
 
-    if sys.argv[1]=="link_counties":
-        link_geom_climate.multi(db,"counties")
-
+        
     if sys.argv[1]=="stats":
         stats.compute(db)
 
@@ -131,8 +145,11 @@ else:
     #                      "rsds"]:
     #         chessscape.import_seasonal_averages(db,conf['chess_seasonal_path'],variable)
             
-    if sys.argv[1]=="chessscape_grid":         
-        chessscape.import_grid(db)
+    #if sys.argv[1]=="chessscape_grid":         
+    #    chessscape.import_grid(db)
+        
+    if sys.argv[1]=="chess_tif_grid":         
+        tiff_loader.import_grid(db,conf['chess_tiff_decades_path'],sys.argv[2])
         
     if sys.argv[1]=="chess_tiff_nuke":
         for rcp in ['rcp60','rcp85']:

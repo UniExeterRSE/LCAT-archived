@@ -54,38 +54,85 @@ def simple(db,geo_table):
 
 # allows for:
 # * a zone containing multiple climate grid tiles - use a separate mapping table
-def multi(db,geo_table):
+def multi(db,geo_table,grid):
     # get the tile geometry in lat/lng
     db.create_tables({
         f"{geo_table}_grid_mapping":
         [["id","serial primary key"],
          ["geo_id","int"], # foreign key???
          ["tile_id","int"]]})
-    
-    q=f"select id,ST_AsGeoJSON(ST_Transform(geom,4326))::json from uk_cri_grid"
+
+    print("loading grid "+grid) 
+    q=f"select id,ST_AsGeoJSON(ST_Transform(geom,4326))::json from {grid}"
     db.cur.execute(q)
     location_squares = db.cur.fetchall()
+    print("loaded grid") 
 
+    print("loading geometry "+geo_table)
     q=f"select gid from {geo_table}"
     db.cur.execute(q)
     geometry = db.cur.fetchall()
+    print("loaded geometry")
     
-    for geo_id in geometry:
+    for c,geo_id in enumerate(geometry):
+        print(c,len(geometry))
         q=f"select ST_AsGeoJSON(ST_Transform(geom,4326))::json from {geo_table} where gid={geo_id[0]}"
         db.cur.execute(q)
         geo = db.cur.fetchone()[0]
         count=0
+        print("searching squares")
         for square in location_squares:
             # find the climate tiles that intersect with this zone
-            if shape(square[1]).intersects(shape(geo)):
+            if shape(square[1]).intersects(shape(geo)):            
                 # find the tiles they are in
                 # todo - get closest if none
                 tile_id = square[0]
+                print("adding -> "+str(tile_id))
                 q=f"insert into {geo_table}_grid_mapping (geo_id,tile_id) values ({geo_id[0]},{tile_id})"
                 db.cur.execute(q)
                 count+=1
         print(str(geo_id[0])+": "+str(count))
     db.conn.commit()
 
+# allows for:
+# * a zone containing multiple climate grid tiles - use a separate mapping table
+def multi_inverse(db,geo_table,grid):
+    # get the tile geometry in lat/lng
+    db.create_tables({
+        f"{geo_table}_grid_mapping":
+        [["id","serial primary key"],
+         ["geo_id","int"], # foreign key???
+         ["tile_id","int"]]})
+
+    print("loading grid "+grid) 
+    q=f"""select geo.id,ST_AsGeoJSON(ST_Transform(geom,4326))::json,cd.tas_1980 from {grid} as geo  
+          inner join chess_scape_rcp60_annual as cd on cd.id = geo.id order by random()"""
+    db.cur.execute(q)
+    location_squares = db.cur.fetchall()
+    print("loaded "+str(len(location_squares))+" grid cells") 
+
+    print("loading geometry "+geo_table)
+    q=f"select gid,ST_AsGeoJSON(ST_Transform(geom,4326))::json from {geo_table}"
+    db.cur.execute(q)
+    geometry = db.cur.fetchall()
+    print("loaded geometry")
+    
+    for square in location_squares:
+        print("searching square "+str(square[0])+" "+str(square[2]))
+        for c,geo_id in enumerate(geometry):
+            geo = geo_id[1]
+            count=0
+            # find the climate tiles that intersect with this zone
+            if shape(square[1]).intersects(shape(geo)):            
+                # find the tiles they are in
+                # todo - get closest if none
+                tile_id = square[0]
+                print("adding -> "+str(tile_id))
+                q=f"insert into {geo_table}_grid_mapping (geo_id,tile_id) values ({geo_id[0]},{tile_id})"
+                db.cur.execute(q)
+                count+=1
+                db.conn.commit()
+
+                
 
 
