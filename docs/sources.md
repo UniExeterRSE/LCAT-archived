@@ -45,9 +45,14 @@ server.
     
 3. Finally we put all decades and variables togther in the same tables
 separated for RCP and season. These tables are indexed by grid cell
-location ID based on grid x/y position for quick access and averaging
-by postgres.
-        
+location ID based on grid x/y position for quick access.
+
+4. When requesting climate data we specify a list of regions. We
+lookup all the 1km grid cells overlapped by all the regions, removing
+duplicates and average across the cells rather than storing averages
+for each boundary region. This avoids counting grid cells twice if
+they overlap with multiple boundaries.
+    
 ### Processing
 
 LCAT comes with a build script to generate and reformat the data such
