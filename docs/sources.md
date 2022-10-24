@@ -1,6 +1,8 @@
 # Data sources
 
-Keep updated with latest
+All the sources of data used for LCAT, with their authorities, links
+to original downloads and instructions for processing with the LCAT
+build scripts.
 
 ## Climate model
 
