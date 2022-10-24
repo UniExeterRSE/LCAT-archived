@@ -50,8 +50,9 @@ class App extends React.Component {
             regionType: "counties",
             network: { nodes: [], edges: [] },
             climatePrediction: [],           
-            average: "djf",
-            year: 2086,
+            average: "winter",
+            rcp: "rcp60",
+            year: 2070,
             loadingPrediction: false,
             sector: "all",
             stats: []
@@ -93,8 +94,10 @@ class App extends React.Component {
               <ClimatePredictionLoader
                 regions = {this.state.regions}
                 average = {this.state.average}
+                rcp = {this.state.rcp}
                 regionType = {this.state.regionType}
                 callback = {(prediction) => {
+                    console.log("new climate prediction");
                     this.setState((state) => ({
                         climatePrediction: prediction,
                         loadingPrediction: false
@@ -117,6 +120,9 @@ class App extends React.Component {
 
               <ClimateSettings
                 regions={this.state.regions}
+                rcpCallback={(rcp) => { this.setState(() => ({
+                    rcp: rcp                  
+                }));}}
                 averageCallback={(average) => { this.setState(() => ({
                     average: average                  
                 }));}}
@@ -129,15 +135,14 @@ class App extends React.Component {
                 climatePrediction = {this.state.climatePrediction}
                 network = {this.state.network}
                 year = {this.state.year}
-                average = {this.state.average}
                 regions = {this.state.regions}
                 loading = {this.state.loadingPrediction}
               />
               
-              <Graph
+              {/*<Graph
                 regions={this.state.regions}
                 regionType={this.state.regionType}                
-              />
+                />*/}
               
               {/*<Sector
                 regions = {this.state.regions}

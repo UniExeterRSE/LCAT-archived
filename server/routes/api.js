@@ -45,13 +45,19 @@ function is_valid_hadgem_table(table) {
 }
 
 function is_valid_grid_table(table) {
-    return ["lsoa_grid_mapping",
-            "msoa_grid_mapping",
-            "counties_grid_mapping"].includes(table);
+    return ["boundary_lsoa_grid_mapping",
+            "boundary_msoa_grid_mapping",
+            "boundary_la_districts_grid_mapping",
+            "boundary_sc_dz_grid_mapping",
+            "boundary_counties_grid_mapping"].includes(table);
 }
 
 function is_valid_region_table(table) {
-    return ["lsoa","msoa","counties"].includes(table);
+    return ["boundary_lsoa",
+            "boundary_msoa",
+            "boundary_counties",
+            "boundary_la_districts",
+            "boundary_sc_dz"].includes(table);
 }
 
 const propertyCols = [
@@ -73,8 +79,8 @@ router.get('/region', function (req, res) {
     // convert to match imported data (todo: should probably
     // fix this at import time)
     var name_col="lsoa11nm";
-    if (table=="msoa") name_col="msoa11nm";
-    if (table=="counties") name_col="ctyua16nm";
+    if (table=="boundary_msoa") name_col="msoa11nm";
+    if (table=="boundary_counties") name_col="ctyua16nm";
 
     // lsoa and msoa are in british national grid 27700
     var srid = 27700
@@ -85,8 +91,8 @@ router.get('/region', function (req, res) {
         var client = new Client(conString);
         client.connect();
 
-        let props = "'imdscore', imdscore";
-        props = propertyCols.map(key => "'"+key+"', "+key).join(", ");
+        let props = ""; //"'imdscore', imdscore";
+        //props = propertyCols.map(key => "'"+key+"', "+key).join(", ");
             
 	    // build a new geojson in 4326 coords given the bounding box
         // and zoom detail, add the name of the region and it's IMD
@@ -98,7 +104,7 @@ router.get('/region', function (req, res) {
                 'features', json_agg(json_build_object(
                    'type', 'Feature',
                    'properties', json_build_object('gid', gid,
-                                                   'name', `+name_col+`, 
+                                                   'name', `+name_col+` 
                                                    `+props+`),
                    'geometry', ST_AsGeoJSON(
                                  ST_Transform(
@@ -127,33 +133,6 @@ router.get('/region', function (req, res) {
         });
     }
 });
-
-/*// return list of yearly averages for a data type
-router.get('/future', function (req, res) {
-	let zones = req.query.zones;
-    if (zones!=undefined) {
-	    let data_type = req.query.data_type;
-	    let table = req.query.table; 
-
-        var client = new Client(conString);
-        client.connect();
-        
-	    var q=`select year,avg(value) from `+table+` 
-           where zone in (`+zones.join()+`) and 
-           type='`+data_type+`' group by year order by year`;
-	    var query = client.query(new Query(q));
-	    
-	    query.on("row", function (row, result) {
-            result.addRow(row);
-        });
-        query.on("end", function (result) {
-            res.send(result.rows);
-            res.end();
-		    client.end();
-        });
-    }
-});
-*/
 
 // return list of decade averages for a hadgem table given a list of regions
 router.get('/hadgem_rpc85', function (req, res) {
@@ -255,38 +234,29 @@ router.get('/chess_scape', function (req, res) {
 
     if (locations!=undefined &&
         is_valid_grid_table(region_grid) &&
-        ["summer","winter","annual"].includes(average)) {
+        ["summer","winter","annual"].includes(season) &&
+        ["rcp60","rcp85"].includes(rcp)) {
 
         if (!Array.isArray(locations)) {
             locations=[locations];
         }
+        // combine the tavg,tmin,tmax and rain predictions averaged over the
+        // locations provided
+        var sq=`(select distinct tile_id from `+region_grid+` where geo_id in (`+locations.join()+`))`;
 
-	    var client = new Client(conString);
-        client.connect();
-
-        var vardec = []
+        var vardec = [];
         for (let variable of ["tas","sfcWind","pr","rsds"]) {
             for (let decade of ["1980","1990","2000","2010","2020","2030","2040","2050","2060","2070"]) {
                 vardec.push("avg ("+variable+"_"+decade+") as "+variable+"_"+decade);
             }
         }
+                
+        var q=`select `+vardec.join()+` from chess_scape_`+rcp+`_`+season+` where id in `+sq+`;`;
 
+        console.log(q);
         
-        // combine the tavg,tmin,tmax and rain predictions averaged over the
-        // locations provided
-        var sq=`(select distinct tile_id from `+region_grid+` where geo_id in (`+locations.join()+`))`;
-        
-        var q=`select tavg.year,
-                      avg(tavg.median) as tavg_median, 
-                      avg(tmin.median) as tmin_median, 
-                      avg(tmax.median) as tmax_median,
-                      avg(rain.median) as rain_median
-               from chess_scape_`+rcp+`_tavg_`+average+` as tavg
-               join hadgem_rcp85_tmin_`+average+` as tmin on tmin.location in `+sq+` and tmin.year=tavg.year
-               join hadgem_rcp85_tmax_`+average+` as tmax on tmax.location in `+sq+` and tmax.year=tavg.year
-               join hadgem_rcp85_rain_`+average+` as rain on rain.location in `+sq+` and rain.year=tavg.year
-               where tavg.location in `+sq+` group by tavg.year order by tavg.year;`;
-
+	    var client = new Client(conString);
+        client.connect();
 	    var query = client.query(new Query(q));
 	    
 	    query.on("row", function (row, result) {

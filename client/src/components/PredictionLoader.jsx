@@ -21,9 +21,10 @@ function PredictionLoader(props) {
                     prepend="http://localhost:3000";
                 }
 
-                var url = prepend+"/api/hadgem_rpc85_prediction?"+
-                    new URLSearchParams({          
-                        average: props.average,
+                var url = prepend+"/api/chess_scape?"+
+                    new URLSearchParams({
+                        rcp: "rcp60",
+                        season: props.average,
                         regionType: props.regionType
                     })+"&"+
                     // clumsy, fixme
@@ -33,6 +34,7 @@ function PredictionLoader(props) {
                 fetch(url).then(response => {
                     response.json()
                         .then( v => {
+                            console.log(v);
                             props.callback(v);
                         });
                 });
@@ -41,6 +43,7 @@ function PredictionLoader(props) {
             }
         }
     },[props.regions,
+       props.rcp,
        props.average,
        props.regionType]);
 

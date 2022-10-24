@@ -49,21 +49,32 @@ class NetworkParser extends Network {
     // does this node connect to a climate variable?
     labelToVariable(label) {
         if (label == "Temperature") {
-            return "tavg_median";
+            return "tas";
         }
         if (label == "Rainfall") {
-            return "rain_median";
+            return "pr";
+        }
+        if (label == "Cloud cover") {
+            return "rsds";
+        }
+        if (label == "Wind speed") {
+            return "sfcwind";
         }
         return false;
     }
 
     // pull out the predicted variable at this year
     getPrediction(prediction,year,label) {
-        let variable = this.labelToVariable(label);
-        if (variable) {
-            for (let p of prediction) {
-                if (p.year==year) {
-                    return p[variable];
+        if (prediction.length>0) {
+            let variable = this.labelToVariable(label);
+            if (variable) {
+                let baseline = parseFloat(prediction[0][variable+"_1980"]);
+                let predict = parseFloat(prediction[0][variable+"_"+year]);
+                if (variable == "rsds") {
+                    // invert radiation to cloud cover
+                    return baseline-predict;
+                } else {
+                    return predict-baseline;
                 }
             }
         }

@@ -20,9 +20,10 @@ function ClimatePredictionLoader(props) {
                     prepend="http://localhost:3000";
                 }
 
-                var url = prepend+"/api/hadgem_rpc85_prediction?"+
-                    new URLSearchParams({          
-                        average: props.average,
+                var url = prepend+"/api/chess_scape?"+
+                    new URLSearchParams({
+                        rcp: props.rcp,
+                        season: props.average,
                         regionType: props.regionType
                     })+"&"+
                     // clumsy, fixme
@@ -38,7 +39,8 @@ function ClimatePredictionLoader(props) {
                 console.error(error);
             }
         }
-    },[props.regions,
+    },[props.rcp,
+       props.regions,
        props.average,
        props.regionType]);
 

@@ -41,7 +41,7 @@ class ClimateMap extends React.Component {
         this.state={
             geojson_key: 0,
             geojson: false,
-            regionType: "counties",
+            regionType: "boundary_msoa",
             regions: [],
             loading: true,
             triggerLoadingIndicator: true,
@@ -147,8 +147,10 @@ class ClimateMap extends React.Component {
     }
 
     regionTypeToName = (type) => {
-        if (type=="counties") return "Counties and Unitary Authorities";
-        if (type=="msoa") return "MSOA";
+        if (type=="boundary_counties") return "Counties and Unitary Authorities";
+        if (type=="boundary_msoa") return "MSOA";
+        if (type=="boundary_la_districts") return "Local Authority Districts";
+        if (type=="boundary_sc_dz") return "Scottish Data Zones";
         return "LSOA";
     }
     
@@ -164,9 +166,11 @@ class ClimateMap extends React.Component {
                     regions: [],
                     triggerLoadingIndicator: true
                 }));}}>
-                  <option value="counties">Counties and Unitary Authorities</option>
-                  <option value="msoa">MSOA</option>
-                  <option value="lsoa">LSOA</option>
+                  <option value="boundary_msoa">MSOA</option>
+                  <option value="boundary_lsoa">LSOA</option>
+                  <option value="boundary_la_districts">LA Districts</option>
+                  <option value="boundary_sc_dz">Scotland data zones</option>
+                  <option value="boundary_counties">Counties and Unitary Authorities</option>
                 </select>
                 you are interested in. {/*The Index of Multiple Deprivation score 
 
@@ -195,7 +199,7 @@ class ClimateMap extends React.Component {
                 text={'Loading '+this.regionTypeToName(this.state.regionType)}>
                 <MapContainer
                   center={center}
-                  zoom={7}
+                  zoom={12}
                   scrollWheelZoom={true}>
                   <GeoJSONLoader
                     apicall={"/api/region"}

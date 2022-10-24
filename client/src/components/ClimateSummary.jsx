@@ -13,24 +13,38 @@ import LoadingOverlay from "react-loading-overlay";
 
 import { ReactComponent as TempSvg } from '../images/temp.svg';
 import { ReactComponent as RainSvg } from '../images/rain.svg';
+import { ReactComponent as WindSvg } from '../images/wind.svg';
+import { ReactComponent as CloudSvg } from '../images/cloud.svg';
 
 import { andify } from '../utils/utils';
 
+import './ClimateSummary.css';
+
 function predict(prediction,year,variable,name,units) {
-    let v = 0;
-    for (let p of prediction) {
-        if (p.year==year) {
-            v = p[variable].toFixed(2);
+    if (prediction.length>0) {
+        let baseline = parseFloat(prediction[0][variable+"_1980"]);
+        let predict = parseFloat(prediction[0][variable+"_"+year]);
+        let v=predict-baseline;
+        let pv = Math.abs(v).toFixed(2);
+
+        let dir = "+";
+        if (v<0) dir = "-";
+
+        if (variable=="rsds") {
+            // invert radiation to figure out cloudiness
+            v=-v;
+        }
+        
+        if (v==0) {
+            return (<span>No change in {name}</span>);
+        }
+        if (v>0) {
+            return (<span>Increased {name}<br/><small>{dir} {pv} {units}</small></span>);
+        } else {               
+            return (<span>Decreased {name}<br/><small>{dir} {pv} {units}</small></span>);
         }
     }
-    if (v==0) {
-        return "No change in "+name;
-    }
-    if (v>0) {
-        return "Increased "+name+" ("+v+" "+units+")";
-    } else {               
-        return "Decreased "+name+" ("+v+" "+units+")";
-    }
+    return "Not loaded yet";
 }
 
 function ClimateSummary(props) {
@@ -57,16 +71,31 @@ function ClimateSummary(props) {
                 <TempSvg/>
                 <p>
                   {predict(props.climatePrediction,
-                           props.year,"tavg_median","Temperature","°C")}
+                           props.year,"tas","Temperature","°C")}
                 </p>
               </div>
               <div className={"vert-container"}>
                 <RainSvg/>              
                 <p>
                   {predict(props.climatePrediction,
-                           props.year,"rain_median","Rainfall","%")}
+                           props.year,"pr","Rainfall","mm/year")}
                 </p>
               </div>
+              <div className={"vert-container"}>
+                <CloudSvg/>
+                <p>
+                  {predict(props.climatePrediction,
+                           props.year,"rsds","Cloudiness","Watts/m2")}
+                </p>
+              </div>
+              <div className={"vert-container"}>
+                <WindSvg/>
+                <p>
+                  {predict(props.climatePrediction,
+                           props.year,"sfcwind","Windiness","m/sec")}
+                </p>
+              </div>
+
             </div>
           </div>
         </LoadingOverlay>        

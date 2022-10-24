@@ -101,7 +101,6 @@ function References(props) {
         <div>          
           <h3>References:</h3>
           { references.map(r => {
-              console.log(r);
               if (r.type=="Journal Article") return (<ArticleReference a={r}/>);
               if (r.type=="Conference Proceedings") return (<ArticleReference a={r}/>);
               if (r.type=="Book") return (<ArticleReference a={r}/>);
