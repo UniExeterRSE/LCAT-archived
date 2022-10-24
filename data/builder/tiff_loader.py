@@ -4,6 +4,7 @@ from psycopg2.extras import execute_values
 import numpy
 import geojson
 from rasterio.plot import show
+from pyproj import Transformer
 
 seasons = ["winter","spring","summer","autumn","annual"]
 decades = ["1980","1990","2000","2010","2020",
@@ -89,6 +90,12 @@ def save_averages(db,rcp,fn,table,variable):
         save_tiff(img,arr,table,rcp,variable,4,decade);
 
 
+def print_crs(fn):
+    print("hello")
+    img = rasterio.open(fn)
+    print(img.crs)
+
+        
 def load_grid(db,fn):
     img = rasterio.open(fn)
 
@@ -101,27 +108,32 @@ def load_grid(db,fn):
     data_cols = {
         "chess_scape_grid":
         [["id","serial"],
-         ["geom","geometry(geometry, 9001)"],
+         ["geom","geometry(geometry, 4326)"],
          ["properties","jsonb"]],
     }
 
     db.create_tables(data_cols)
 
+    transformer = Transformer.from_crs(img.crs, 4326)    
 
     features = []
-    # lose 1km from each edge...? not many (any) of them will have climate data
-    # assumptions to check - coord is corner, and geometry is specified correctly
-    for x in range(0,x_size-1):
-        for y in range(0,y_size-1):            
-               features.append(geojson.Feature(id=x*y_size+y, geometry=geojson.Polygon([[
-                   (float(img.xy(y,x)[0]),float(img.xy(y,x)[1])),
-                   (float(img.xy(y+1,x)[0]),float(img.xy(y+1,x)[1])),
-                   (float(img.xy(y+1,x+1)[0]),float(img.xy(y+1,x+1)[1])),
-                   (float(img.xy(y,x+1)[0]),float(img.xy(y,x+1)[1]))]]),
-                                               properties={}))
-        print(int((x/x_size)*100))
+    # assumptions to check - coord is centre of pixel?
+    for x in range(0,x_size):
+        for y in range(0,y_size):
+
+            pos = img.xy(y,x)
+            
+            a = transformer.transform(pos[0]-500,pos[1]-500)
+            b = transformer.transform(pos[0]+500,pos[1]-500)
+            c = transformer.transform(pos[0]+500,pos[1]+500)
+            d = transformer.transform(pos[0]-500,pos[1]+500)
+
+            # lat/lng = y/x
+            features.append(geojson.Feature(id=x*y_size+y, geometry=geojson.Polygon([[
+                (a[1],a[0]),(b[1],b[0]),(c[1],c[0]),(d[1],d[0])]],properties={})))
+        print("loading grid "+str(int((x/x_size)*100))+"%")
         
-    db.import_geojson_feature("chess_scape_grid","9001",geojson.FeatureCollection(features))
+    db.import_geojson_feature("chess_scape_grid","4326",geojson.FeatureCollection(features))
     db.conn.commit()
 
     
