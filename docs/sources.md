@@ -35,6 +35,7 @@ build scripts.
 | MSOA              |                                                                         | -          | England and Wales   | `boundary_msoa`         | `boundary_msoa`          | ESRI shapefile  | EPSG 27700        | https://data.gov.uk/dataset/2cf1f346-2f74-4c06-bd4b-30d7e4df5ae7/middle-layer-super-output-area-msoa-boundaries | data.gov.uk |
 | Data Zones        | Scottish equivalent of LSOA                                             | -          | Scotland            | `boundary_sc_dz`        | `boundary_sc_dz`         | ESRI shapefile  | EPSG 4326         | https://simd.scot/#/simd2020/BTTTFTT/12/-4.6223/55.5558/ | scot.gov |   
 | Local Authority Districts |                                                                 | -          | UK                  | `boundary_la_districts` | `boundary_la_districts`  | ESRI shapefile  | EPSG 27700        | https://geoportal.statistics.gov.uk/datasets/ons::local-authority-districts-may-2022-uk-bfc-v3/ | ONS |             
+| UK Counties       | Could not find a non-paywalled download on .gov.uk                      | -          | UK                  | `boundary_uk_counties`  | `boundary_uk_counties`   | ESRI shapefile  | EPSG 32630        | https://www.ukpostcode.net/shapefile-of-uk-administrative-counties-wiki-16.html | ukpostcode.net?? |             
     
 ### Processing
 
@@ -66,7 +67,8 @@ wish to use, and link them to the climate data grid:
     $ ./build link_<boundary_type>
     
 Linking creates a new table <boundary_type>_grid_mapping, which is a
-many to many mapping from boundary IDs to climate grid IDs.
+many to many mapping from boundary IDs to all the climate grid IDs
+they overlap or intesect with.
 
 ### GeoTiff CRS
 

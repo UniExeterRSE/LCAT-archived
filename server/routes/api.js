@@ -28,34 +28,18 @@ var host = process.env.DB_HOST
 var database = process.env.DB_DATABASE
 var conString = "postgres://"+username+":"+password+"@"+host+"/"+database; // Your Database Connection
 
-// for basic security
-function is_valid_hadgem_table(table) {
-    return ["hadgem_rcp85_rain_ann",
-            "hadgem_rcp85_rain_djf",
-            "hadgem_rcp85_rain_jja",
-            "hadgem_rcp85_tavg_ann",
-            "hadgem_rcp85_tavg_djf",
-            "hadgem_rcp85_tavg_jja",
-            "hadgem_rcp85_tmax_ann",
-            "hadgem_rcp85_tmax_djf",
-            "hadgem_rcp85_tmax_jja",
-            "hadgem_rcp85_tmin_ann",  
-            "hadgem_rcp85_tmin_djf",
-            "hadgem_rcp85_tmin_jja"].includes(table);
-}
-
 function is_valid_grid_table(table) {
     return ["boundary_lsoa_grid_mapping",
             "boundary_msoa_grid_mapping",
             "boundary_la_districts_grid_mapping",
             "boundary_sc_dz_grid_mapping",
-            "boundary_counties_grid_mapping"].includes(table);
+            "boundary_uk_counties_grid_mapping"].includes(table);
 }
 
 function is_valid_region_table(table) {
     return ["boundary_lsoa",
             "boundary_msoa",
-            "boundary_counties",
+            "boundary_uk_counties",
             "boundary_la_districts",
             "boundary_sc_dz"].includes(table);
 }
@@ -65,6 +49,13 @@ const propertyCols = [
     "t1","t2","m1","m2","m3","c1","l1","e1","n1","n2","n3","s1","s2","s3","s4"
 ]
 
+const boundary_names = {
+    "boundary_lsoa": {name: "lsoa11nm", srid: 27700},
+    "boundary_msoa": {name: "msoa11nm", srid: 27700},
+    "boundary_uk_counties": {name: "name_2", srid: 32630},
+    "boundary_sc_dz": {name: "name", srid:4326},
+    "boundary_la_districts": {name: "lad22nm", srid: 27700}
+}
 
 // get GeoJSONs of regions given a bounding box and detail
 // tolerance from zoom level 
@@ -76,16 +67,8 @@ router.get('/region', function (req, res) {
 	let right = req.query.right;
 	let top = req.query.top;
 
-    // convert to match imported data (todo: should probably
-    // fix this at import time)
-    var name_col="lsoa11nm";
-    if (table=="boundary_msoa") name_col="msoa11nm";
-    if (table=="boundary_counties") name_col="ctyua16nm";
-
-    // lsoa and msoa are in british national grid 27700
-    var srid = 27700
-    // counties in lat/lng
-    if (table=="counties") srid=4326
+    var name_col=boundary_names[table].name;
+    var srid = boundary_names[table].srid;
     
     if (is_valid_region_table(table)) {
         var client = new Client(conString);
@@ -129,98 +112,6 @@ router.get('/region', function (req, res) {
         query.on("error", function (err, result) {
             console.log("------------------error-------------------------");
             //console.log(req);
-            console.log(err);
-        });
-    }
-});
-
-// return list of decade averages for a hadgem table given a list of regions
-router.get('/hadgem_rpc85', function (req, res) {
-	let locations = req.query.locations;
-	let table = req.query.table; 
-	let region_grid = req.query.regionType+"_grid_mapping";
-
-    if (locations!=undefined &&
-        is_valid_hadgem_table(table) &&
-        is_valid_grid_table(region_grid)) {
-
-        if (!Array.isArray(locations)) {
-            locations=[locations];
-        }
-
-	    var client = new Client(conString);
-        client.connect();
-
-        // find all the tiles covered by the selected geometry, use
-        // distinct to remove duplicates and average the selected
-        // climate variable for each year in the model data
-        var q=`select year,avg(median) from `+table+` 
-               where location in (select distinct tile_id from `+region_grid+`
-               where geo_id in (`+locations.join()+`)) group by year order by year;`
-
-	    var query = client.query(new Query(q));
-	    
-	    query.on("row", function (row, result) {
-            result.addRow(row);
-        });
-        query.on("end", function (result) {
-            res.send(result.rows);
-            res.end();
-		    client.end();
-        });
-        query.on("error", function (err, result) {
-            console.log("------------------error-------------------------");
-            console.log(req);
-            console.log(err);
-        });
-    }
-});
-
-
-router.get('/hadgem_rpc85_prediction', function (req, res) {
-	let locations = req.query.locations;
-	let average = req.query.average; 
-	let region_grid = req.query.regionType+"_grid_mapping";
-
-    if (locations!=undefined &&
-        is_valid_grid_table(region_grid) &&
-        ["ann","djf","jja"].includes(average)) {
-
-        if (!Array.isArray(locations)) {
-            locations=[locations];
-        }
-
-	    var client = new Client(conString);
-        client.connect();
-
-        // combine the tavg,tmin,tmax and rain predictions averaged over the
-        // locations provided
-        var sq=`(select distinct tile_id from `+region_grid+` where geo_id in (`+locations.join()+`))`;
-        
-        var q=`select tavg.year,
-                      avg(tavg.median) as tavg_median, 
-                      avg(tmin.median) as tmin_median, 
-                      avg(tmax.median) as tmax_median,
-                      avg(rain.median) as rain_median
-               from hadgem_rcp85_tavg_`+average+` as tavg
-               join hadgem_rcp85_tmin_`+average+` as tmin on tmin.location in `+sq+` and tmin.year=tavg.year
-               join hadgem_rcp85_tmax_`+average+` as tmax on tmax.location in `+sq+` and tmax.year=tavg.year
-               join hadgem_rcp85_rain_`+average+` as rain on rain.location in `+sq+` and rain.year=tavg.year
-               where tavg.location in `+sq+` group by tavg.year order by tavg.year;`;
-
-	    var query = client.query(new Query(q));
-	    
-	    query.on("row", function (row, result) {
-            result.addRow(row);
-        });
-        query.on("end", function (result) {
-            res.send(result.rows);
-            res.end();
-		    client.end();
-        });
-        query.on("error", function (err, result) {
-            console.log("------------------error-------------------------");
-            console.log(req);
             console.log(err);
         });
     }

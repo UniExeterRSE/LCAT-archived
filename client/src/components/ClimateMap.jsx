@@ -166,11 +166,11 @@ class ClimateMap extends React.Component {
                     regions: [],
                     triggerLoadingIndicator: true
                 }));}}>
-                  <option value="boundary_msoa">MSOA</option>
-                  <option value="boundary_lsoa">LSOA</option>
                   <option value="boundary_la_districts">LA Districts</option>
-                  <option value="boundary_sc_dz">Scotland data zones</option>
-                  <option value="boundary_counties">Counties and Unitary Authorities</option>
+                  <option value="boundary_uk_counties">UK Counties</option>
+                  <option value="boundary_msoa">MSOA</option>
+                  <option value="boundary_sc_dz">Scotland Data Zones</option>
+                  <option value="boundary_lsoa">LSOA</option>
                 </select>
                 you are interested in. {/*The Index of Multiple Deprivation score 
 

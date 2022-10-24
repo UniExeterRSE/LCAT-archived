@@ -52,10 +52,10 @@ else:
         db.load_shp_geom(conf['msoa_data_shp'],"boundary_msoa","27700")
         imd.prepare_col(db,"boundary_msoa")
 
-#    if sys.argv[1]=="boundary_counties": 
-#        # import lsoa from lat/lng
-#        db.load_shp_geom(conf['counties_data_shp'],"boundary_counties","4326") 
-#        imd.prepare_col(db,"boundary_counties")
+    if sys.argv[1]=="boundary_uk_counties": 
+        # import lsoa from lat/lng
+        db.load_shp_geom(conf['uk_counties_data_shp'],"boundary_uk_counties","32630") 
+        imd.prepare_col(db,"boundary_uk_counties")
 
     if sys.argv[1]=="boundary_la_districts":
         # import lsoa from GCS_OSGB_1936 (27700)
@@ -74,8 +74,8 @@ else:
     if sys.argv[1]=="link_msoa":
         link_geom_climate.multi_clever(db,"boundary_msoa","chess_scape_grid")
 
-    if sys.argv[1]=="link_counties":
-        link_geom_climate.multi_clever(db,"boundary_counties","chess_scape_grid")
+    if sys.argv[1]=="link_uk_counties":
+        link_geom_climate.multi_clever(db,"boundary_uk_counties","chess_scape_grid")
 
     if sys.argv[1]=="link_la_districts":
         link_geom_climate.multi_clever(db,"boundary_la_districts","chess_scape_grid")
