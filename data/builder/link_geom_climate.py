@@ -178,6 +178,3 @@ def multi_clever(db,geo_table,grid):
         db.conn.commit()
         print(geo_table+" "+str(count)+"/"+str(len(location_squares))+": "+str(int((c/len(geometry))*100))+"%")
                 
-                
-
-

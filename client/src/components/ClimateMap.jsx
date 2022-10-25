@@ -147,10 +147,11 @@ class ClimateMap extends React.Component {
     }
 
     regionTypeToName = (type) => {
-        if (type=="boundary_counties") return "Counties and Unitary Authorities";
-        if (type=="boundary_msoa") return "MSOA";
         if (type=="boundary_la_districts") return "Local Authority Districts";
-        if (type=="boundary_sc_dz") return "Scottish Data Zones";
+        if (type=="boundary_uk_counties") return "UK Counties";
+        if (type=="boundary_parishes") return "Parishes (Eng/Wales)";
+        if (type=="boundary_msoa") return "MSOA (Eng/Wales)";
+        if (type=="boundary_sc_dz") return "Data Zones (Scotland)";
         return "LSOA";
     }
     
@@ -166,11 +167,12 @@ class ClimateMap extends React.Component {
                     regions: [],
                     triggerLoadingIndicator: true
                 }));}}>
-                  <option value="boundary_la_districts">LA Districts</option>
+                  <option value="boundary_la_districts">Local Authority Districts</option>
                   <option value="boundary_uk_counties">UK Counties</option>
-                  <option value="boundary_msoa">MSOA</option>
-                  <option value="boundary_sc_dz">Scotland Data Zones</option>
-                  <option value="boundary_lsoa">LSOA</option>
+                  <option value="boundary_parishes">Parishes (Eng/Wales)</option>
+                  <option value="boundary_msoa">MSOA (Eng/Wales)</option>
+                  <option value="boundary_sc_dz">Data Zones (Scotland)</option>
+                  <option value="boundary_lsoa">LSOA (Eng/Wales)</option>
                 </select>
                 you are interested in. {/*The Index of Multiple Deprivation score 
 

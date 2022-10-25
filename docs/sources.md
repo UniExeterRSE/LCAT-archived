@@ -33,12 +33,13 @@ build scripts.
 | Data Zones        | Scottish equivalent of LSOA                                             | 2020       | Scotland            | `boundary_sc_dz`         | ESRI shapefile  | EPSG 4326         | https://simd.scot/#/simd2020/BTTTFTT/12/-4.6223/55.5558/ | scot.gov |   
 | Local Authority Districts |                                                                 | 2022       | UK                  | `boundary_la_districts`  | ESRI shapefile  | EPSG 27700        | https://geoportal.statistics.gov.uk/datasets/ons::local-authority-districts-may-2022-uk-bfc-v3/ | ONS |             
 | UK Counties       | Could not find a non-paywalled download on .gov.uk                      | ?          | UK                  | `boundary_uk_counties`   | ESRI shapefile  | EPSG 32630        | https://www.ukpostcode.net/shapefile-of-uk-administrative-counties-wiki-16.html | ukpostcode.net?? |             
-
+| Parishes          | England/Wales only                                                      | 2019       | England and Wales   | `boundary_uk_counties`   | ESRI shapefile  | EPSG 27700        | https://geoportal.statistics.gov.uk/datasets/parishes-and-non-civil-parished-areas-april-2019-ew-bgc/ | ONS |
+    
 ## Vulnerability data
 
 | Type              | Notes                                                                   |  Time span | Regions             | LCAT postgres table/col  | Original Format | Coordinate system | Source URL | Authority                  |
 |-------------------|-------------------------------------------------------------------------|------------|---------------------|--------------------------|-----------------|-------------------|------------|----------------------------|
-
+| NFVI variables    | Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables	  |	           | UK                  | `nfvi`                   | ESRI Shapefile  |                   |            | Climate Just	            |    
 
     
 ## Impact network data

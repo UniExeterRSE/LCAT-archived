@@ -33,6 +33,7 @@ function is_valid_grid_table(table) {
             "boundary_msoa_grid_mapping",
             "boundary_la_districts_grid_mapping",
             "boundary_sc_dz_grid_mapping",
+            "boundary_parishes_grid_mapping",
             "boundary_uk_counties_grid_mapping"].includes(table);
 }
 
@@ -41,6 +42,7 @@ function is_valid_region_table(table) {
             "boundary_msoa",
             "boundary_uk_counties",
             "boundary_la_districts",
+            "boundary_parishes",
             "boundary_sc_dz"].includes(table);
 }
 
@@ -54,7 +56,8 @@ const boundary_names = {
     "boundary_msoa": {name: "msoa11nm", srid: 27700},
     "boundary_uk_counties": {name: "name_2", srid: 32630},
     "boundary_sc_dz": {name: "name", srid:4326},
-    "boundary_la_districts": {name: "lad22nm", srid: 27700}
+    "boundary_la_districts": {name: "lad22nm", srid: 27700},
+    "boundary_parishes": {name: "parncp19nm", srid: 27700},
 }
 
 // get GeoJSONs of regions given a bounding box and detail
@@ -167,15 +170,12 @@ router.get('/chess_scape', function (req, res) {
 });
 
 router.get('/chess_scape_cache', function (req, res) {
-    console.log("hello");
 	let locations = req.query.locations;
 	let rcp = req.query.rcp; 
-	let season = req.query.season;
+	let season = req.query.season;x
     let boundary = req.query.regionType;
 	let cache_table = "cache_"+boundary+"_to_chess_scape_"+rcp+"_"+season;
 
-    console.log(cache_table);
-    
     if (locations!=undefined &&
         ["summer","winter","annual"].includes(season) &&
         ["rcp60","rcp85"].includes(rcp)) {
@@ -191,13 +191,8 @@ router.get('/chess_scape_cache', function (req, res) {
             }
         }
 
-        console.log(vardec);
-        console.log(locations);
-                
         var q=`select `+vardec.join()+` from `+cache_table+` where boundary_id in (`+locations.join()+`);`;
 
-        console.log(q);
-        
 	    var client = new Client(conString);
         client.connect();
 	    var query = client.query(new Query(q));
