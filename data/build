@@ -26,6 +26,7 @@ from builder import nfvi_sfri
 from builder import hierarchy
 from builder import chessscape
 from builder import tiff_loader
+from builder import cache_climate
 
 def load_config():
     with open('config.yml') as f:
@@ -83,6 +84,14 @@ else:
     if sys.argv[1]=="link_sc_dz":
         link_geom_climate.multi_clever(db,"boundary_sc_dz","chess_scape_grid")
 
+
+    if sys.argv[1]=="cache_climate":
+        for boundary in ["boundary_la_districts","boundary_uk_counties","boundary_msoa",
+                         "boundary_lsoa"]:
+            for climate in ["chess_scape_rcp85_annual","chess_scape_rcp85_summer","chess_scape_rcp85_winter",
+                            "chess_scape_rcp60_annual","chess_scape_rcp60_summer","chess_scape_rcp60_winter"]:
+                cache_climate.cache_climate(db,boundary,climate)
+                
         
     if sys.argv[1]=="add_imd":
         imd.prepare_col(db,"lsoa")

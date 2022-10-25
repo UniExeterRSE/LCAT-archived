@@ -166,6 +166,58 @@ router.get('/chess_scape', function (req, res) {
     }
 });
 
+router.get('/chess_scape_cache', function (req, res) {
+    console.log("hello");
+	let locations = req.query.locations;
+	let rcp = req.query.rcp; 
+	let season = req.query.season;
+    let boundary = req.query.regionType;
+	let cache_table = "cache_"+boundary+"_to_chess_scape_"+rcp+"_"+season;
+
+    console.log(cache_table);
+    
+    if (locations!=undefined &&
+        ["summer","winter","annual"].includes(season) &&
+        ["rcp60","rcp85"].includes(rcp)) {
+
+        if (!Array.isArray(locations)) {
+            locations=[locations];
+        }
+
+        var vardec = [];
+        for (let variable of ["tas","sfcWind","pr","rsds"]) {
+            for (let decade of ["1980","1990","2000","2010","2020","2030","2040","2050","2060","2070"]) {
+                vardec.push("avg("+variable+"_"+decade+") as "+variable+"_"+decade);
+            }
+        }
+
+        console.log(vardec);
+        console.log(locations);
+                
+        var q=`select `+vardec.join()+` from `+cache_table+` where boundary_id in (`+locations.join()+`);`;
+
+        console.log(q);
+        
+	    var client = new Client(conString);
+        client.connect();
+	    var query = client.query(new Query(q));
+	    
+	    query.on("row", function (row, result) {
+            result.addRow(row);
+        });
+        query.on("end", function (result) {
+            res.send(result.rows);
+            res.end();
+		    client.end();
+        });
+        query.on("error", function (err, result) {
+            console.log("------------------error-------------------------");
+            //console.log(req);
+            console.log(err);
+        });
+    }
+});
+
 router.get('/network_edges', function (req, res) {
 	var client = new Client(conString);
     client.connect();

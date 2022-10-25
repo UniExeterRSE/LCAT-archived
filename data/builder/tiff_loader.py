@@ -1,3 +1,22 @@
+# Copyright (C) 2022 Then Try This
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the Common Good Public License Beta 1.0 as
+# published at http://www.cgpl.org
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# Common Good Public License Beta 1.0 for more details.
+
+# This script imports climate predictions downloaded from the
+# http://uk-cri.org climate risk indicators, these are based on the
+# MET Office HADGEM RCP85 model. They are 12km gridded model
+# predictions, and include other higher level risk indicators we might
+# be able to make use of in future.
+
+# Functions to read (and write) GeoTiff climate model files
+
 import rasterio
 from builder import climate_db
 from psycopg2.extras import execute_values

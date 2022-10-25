@@ -21,7 +21,9 @@ function PredictionLoader(props) {
                     prepend="http://localhost:3000";
                 }
 
-                var url = prepend+"/api/chess_scape?"+
+                console.log("XZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
+                
+                var url = prepend+"/api/chess_scape_cache?"+
                     new URLSearchParams({
                         rcp: "rcp60",
                         season: props.average,

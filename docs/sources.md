@@ -34,6 +34,19 @@ build scripts.
 | Local Authority Districts |                                                                 | 2022       | UK                  | `boundary_la_districts`  | ESRI shapefile  | EPSG 27700        | https://geoportal.statistics.gov.uk/datasets/ons::local-authority-districts-may-2022-uk-bfc-v3/ | ONS |             
 | UK Counties       | Could not find a non-paywalled download on .gov.uk                      | ?          | UK                  | `boundary_uk_counties`   | ESRI shapefile  | EPSG 32630        | https://www.ukpostcode.net/shapefile-of-uk-administrative-counties-wiki-16.html | ukpostcode.net?? |             
 
+## Vulnerability data
+
+| Type              | Notes                                                                   |  Time span | Regions             | LCAT postgres table/col  | Original Format | Coordinate system | Source URL | Authority                  |
+|-------------------|-------------------------------------------------------------------------|------------|---------------------|--------------------------|-----------------|-------------------|------------|----------------------------|
+
+
+    
+## Impact network data
+
+| Type              | Notes                                                                   |  Time span | Regions             | LCAT postgres table/col  | Original Format | Coordinate system | Source URL | Authority                  |
+|-------------------|-------------------------------------------------------------------------|------------|---------------------|--------------------------|-----------------|-------------------|------------|----------------------------|
+
+    
 ## Linking the climate model with the boundary regions
     
 1. Original data is CHESS-SCAPE RCP6.0 & 8.5, 1km grid cells, seasonal
@@ -48,11 +61,27 @@ server.
 separated for RCP and season. These tables are indexed by grid cell
 location ID based on grid x/y position for quick access.
 
-4. When requesting climate data we specify a list of regions. We
-lookup all the 1km grid cells overlapped by all the regions, removing
+#### Method 1 (Old method)
+    
+When requesting climate data we specify a list of regions. We lookup
+all the 1km grid cells overlapped by all the regions, removing
 duplicates and average across the cells rather than storing averages
 for each boundary region. This avoids counting grid cells twice if
 they overlap with multiple boundaries.
+
+This method is best for larger grid cells as overlaps will have more
+affect and the averaging will be relatively minor computation.
+
+#### Method 2 (Currently used)
+
+We cache all the grid cell averages for each boundary. Then the
+computation on the server is simply a matter of averaging the
+boundaries the user has selected (no secondary conversion to grid cell
+required).
+
+This method works better for smaller grid cells (1km) as larger
+boundaries can cover thousands of cells. The effect of duplicating
+edge cells that overlap neighbouring boundaries will be minimal.
     
 ### Processing steps
 
@@ -87,6 +116,11 @@ Linking creates a new table <boundary_type>_grid_mapping, which is a
 many to many mapping from boundary IDs to all the climate grid IDs
 they overlap or intesect with.
 
+Create the caches - this works across all boundaries and all climate
+rcp/season tables.
+
+    $ ./build cache_climate
+        
 ### GeoTiff CRS
 
 For reference, this is the coordinate reference system for the GeoTiffs

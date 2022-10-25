@@ -20,7 +20,7 @@ function ClimatePredictionLoader(props) {
                     prepend="http://localhost:3000";
                 }
 
-                var url = prepend+"/api/chess_scape?"+
+                var url = prepend+"/api/chess_scape_cache?"+
                     new URLSearchParams({
                         rcp: props.rcp,
                         season: props.average,
