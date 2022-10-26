@@ -123,7 +123,57 @@ Create the caches - this works across all boundaries and all climate
 rcp/season tables.
 
     $ ./build cache_climate
-        
+
+## Calculating the vulnerabilities for boundaries 
+
+Vulnerabilities are supplied per LSOA/Datazone - so we need to average
+them across the other boundaries. To do this we take centroids of each
+LSOA and, calculate averages based on all the centroids that are
+inside the boundary. This works well for larger bounderies more or
+less aligned (msoa, counties) but less well for small ones which are
+not (parishes).
+
+In the case that there are no LSOA centroids inside our boundary, we
+average together the vulnerability data from the LSOAs with centroids
+inside the bounding box for our boundary instead.
+
+In the case of LSOAs or Data Zones being used, we just map them one to
+one.
+
+Similarly to the climate data, in order to speed up the processing and
+allow for new data to be added more simply, we link zones to their
+underlying LSOA or Data Zones. This needs to be done before we can
+calculate the vulnerabilities:
+   
+    $ ./build link_all_to_lsoa
+    $ ./build link_all_to_sc_dz
+
+Now we can load the Climate Just nfvi variables in (this contains everything)
+
+    $ ./build climatejust_load_nfvi
+
+Then we can create the Climate Just vulnerability tables for each
+boundry type:
+
+    $ ./build climatejust_average_nfvi
+
+There is a question as to whether is it right to average vulnerability
+information - should we show the max or min of a variable rather than
+losing outliers by averaging?
+    
+### Index of multiple deprivation
+    
+The IMD ranks and deciles need to be loaded from the cvs files - they
+are bolted on to the vulnerability tables as additional columns, first
+the loading into LSOA and Data Zone vulnerabilities - which is pretty
+slow:
+
+    $ ./build load_imd_from_csv
+
+Then the averaging them across the rest:
+    
+    $ ./build add_average_imd
+               
 ### GeoTiff CRS
 
 For reference, this is the coordinate reference system for the GeoTiffs

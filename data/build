@@ -17,16 +17,15 @@
 import yaml
 import os,sys
 from builder import climate_db
-from builder import ukcri
 from builder import index_multiple_deprivation as imd
 from builder import link_geom_climate
 from builder import network_from_json
 from builder import stats
 from builder import nfvi_sfri
-from builder import hierarchy
-from builder import chessscape
 from builder import tiff_loader
 from builder import cache_climate
+from builder import link_geom_lsoa
+from builder import vulnerabilities
 
 def load_config():
     with open('config.yml') as f:
@@ -40,8 +39,8 @@ db = climate_db.db(conf)
 if len(sys.argv)<2 or sys.argv[1]=="-?" or sys.argv[1]=="--help":
     print("Welcome to the climate tool database builder")
 else:
-#    if sys.argv[1]=="uk_cri":
-#        ukcri.load(db,conf['uk_cri_data_path'])
+
+    # load boundaries --------------------------------------------------------
 
     if sys.argv[1]=="boundary_lsoa":
         db.load_shp_geom(conf['lsoa_data_shp'],"boundary_lsoa","27700")
@@ -60,6 +59,8 @@ else:
 
     if sys.argv[1]=="boundary_parishes":
         db.load_shp_geom(conf['parishes_data_shp'],"boundary_parishes","27700")
+
+    # climate/boundary --------------------------------------------------------        
     
     if sys.argv[1]=="link_lsoa":
         link_geom_climate.multi_clever(db,"boundary_lsoa","chess_scape_grid")
@@ -78,86 +79,57 @@ else:
 
     if sys.argv[1]=="link_parishes":
         link_geom_climate.multi_clever(db,"boundary_parishes","chess_scape_grid")
-
-
+        
     if sys.argv[1]=="cache_climate":
         for boundary in ["boundary_parishes"]: #,"boundary_la_districts","boundary_uk_counties","boundary_msoa","boundary_sc_dz","boundary_lsoa"]:
             for climate in ["chess_scape_rcp85_annual","chess_scape_rcp85_summer","chess_scape_rcp85_winter",
                             "chess_scape_rcp60_annual","chess_scape_rcp60_summer","chess_scape_rcp60_winter"]:
                 cache_climate.cache_climate(db,boundary,climate)
+
+    # vulnerabilities --------------------------------------------------------
+
+    # cache containing lsoas for all other boundaries
+    if sys.argv[1]=="link_all_to_lsoa":
+        link_geom_lsoa.centroids(db,"boundary_uk_counties","lsoa","27700")
+        #link_geom_lsoa.centroids(db,"boundary_la_districts","lsoa","27700")        
+        #link_geom_lsoa.centroids(db,"boundary_msoa","lsoa","27700")
+        #link_geom_lsoa.centroids(db,"boundary_parishes","lsoa","27700")
+        
+    # cache containing datzones for all other boundaries
+    if sys.argv[1]=="link_all_to_sc_dz":
+        link_geom_lsoa.centroids(db,"boundary_uk_counties","sc_dz","4326")
+        link_geom_lsoa.centroids(db,"boundary_la_districts","sc_dz","4326")        
+        link_geom_lsoa.centroids(db,"boundary_msoa","sc_dz","4326")
+        link_geom_lsoa.centroids(db,"boundary_parishes","sc_dz","4326")
+    
+
+    if sys.argv[1]=="climatejust_load_nfvi":         
+        db.load_shp_geom(conf['nfvi_sfri_shp'],"nfvi_sfri","27700")
+
+    if sys.argv[1]=="climatejust_average_nfvi":
+        vulnerabilities.import_to_self(db,"boundary_lsoa")
+        vulnerabilities.import_to_self(db,"boundary_sc_dz")
+        vulnerabilities.import_to_table(db,"boundary_uk_counties")
+        vulnerabilities.import_to_table(db,"boundary_la_districts")
+        vulnerabilities.import_to_table(db,"boundary_msoa")
+        vulnerabilities.import_to_table(db,"boundary_parishes")
+
+    if sys.argv[1]=="load_imd_from_csv":
+        # first we need to load in the base imd data (slowly)
+        imd.load_self_sc_dz(db,"boundary_sc_dz",conf['simd_data_dz_csv'])
+        imd.load_self_lsoa(db,"boundary_lsoa",conf['imd_data_lsoa_csv'])
                 
-        
-    if sys.argv[1]=="add_imd":
-        imd.prepare_col(db,"lsoa")
-        imd.prepare_col(db,"msoa")
-        imd.prepare_col(db,"counties")
-        
-    if sys.argv[1]=="lsoa_imd":
-        # v slow
-        imd.load_lsoa(db,conf['imd_data_lsoa_csv'])
-
-    if sys.argv[1]=="msoa_imd":
-        imd.load_msoa(db,conf['imd_data_msoa_csv'])
-
-    if sys.argv[1]=="counties_imd":
-        imd.load_counties(db);
-
-
-        
-
+    if sys.argv[1]=="add_average_imd":
+        # now we can use the links to average them across the larger boundaries
+        imd.import_to_table(db,"boundary_uk_counties")
+        imd.import_to_table(db,"boundary_la_districts")
+        imd.import_to_table(db,"boundary_msoa")
+        imd.import_to_table(db,"boundary_parishes")        
         
     if sys.argv[1]=="stats":
         stats.compute(db)
 
-    if sys.argv[1]=="nfvi_sfri":         
-        db.load_shp_geom(conf['nfvi_sfri_shp'],"nfvi_sfri","27700")
-
-    if sys.argv[1]=="link_nfvi_sfri_lsoa":         
-        nfvi_sfri.import_to_lsoa(db)
-        
-    if sys.argv[1]=="hierarchy_msoa_to_lsoa":         
-        hierarchy.lsoa_to_msoa(db)
-        
-    if sys.argv[1]=="hierarchy_county_to_lsoa":         
-        hierarchy.lsoa_to_counties(db)
-        
-    if sys.argv[1]=="link_nfvi_sfri_msoa":         
-        nfvi_sfri.import_to_table(db,"msoa","msoa")
-
-    if sys.argv[1]=="link_nfvi_sfri_counties":         
-        nfvi_sfri.import_to_table(db,"counties","county")
-
-    # if sys.argv[1]=="chessscape_nuke":
-    #     chessscape.nuke(db,"chessscape_seasonal")
-        
-    # if sys.argv[1]=="chessscape_seasonal":    
-    #     chessscape.import_seasonal_data(db,conf['chess_seasonal_path'],sys.argv[2])
-
-    # if sys.argv[1]=="chessscape_all":
-    #     for variable in ["tas",
-    #                      #"tasmin",
-    #                      #"tasmax",
-    #                      "sfcWind",
-    #                      "pr",
-    #                      "rlds",
-    #                      "rsds"]:
-    #         chessscape.import_seasonal_data(db,conf['chess_seasonal_path'],variable)
-
-    # if sys.argv[1]=="chessscape_nuke_averages":
-    #     chessscape.nuke_averages(db,"chessscape_seasonal_averages")
-        
-    # if sys.argv[1]=="chessscape_seasonal_averages":
-    #     for variable in ["tas",
-    #                      #"tasmin",
-    #                      #"tasmax",
-    #                      "sfcWind",
-    #                      "pr",
-    #                      "rlds",
-    #                      "rsds"]:
-    #         chessscape.import_seasonal_averages(db,conf['chess_seasonal_path'],variable)
-            
-    #if sys.argv[1]=="chessscape_grid":         
-    #    chessscape.import_grid(db)
+    # climate ----------------------------------------------------------------
         
     if sys.argv[1]=="chess_tif_grid":         
         tiff_loader.import_grid(db,conf['chess_tiff_decades_path'],sys.argv[2])
@@ -183,6 +155,8 @@ else:
             for variable in ['tas','pr','rsds','sfcWind']:                
                 tiff_loader.import_tiffs(db,conf['chess_tiff_decades_path'],rcp,variable)
 
+    # network ----------------------------------------------------------
+                
     if sys.argv[1]=="network_json":
         network_from_json.load(db,conf['network_json'],"Heat")
 

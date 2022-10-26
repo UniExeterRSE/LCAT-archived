@@ -51,7 +51,6 @@ const boundary_details = {
     "boundary_lsoa": {name: "lsoa11nm", srid: 27700, method: "cell"},
 }
 
-
 const vardec = [];
 for (let variable of ["tas","sfcWind","pr","rsds"]) {
     for (let decade of ["1980","1990","2000","2010","2020","2030","2040","2050","2060","2070"]) {
