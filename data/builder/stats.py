@@ -17,7 +17,7 @@ import builder.nfvi_sfri
 
 def do_stats(db,table,col):
     print(table,col)
-
+    
     q=f"select count(*) from {table};"
     db.cur.execute(q)
     count = db.cur.fetchone()[0]
@@ -48,14 +48,11 @@ def compute(db):
          ["value","real"]]
     })
     
-    tables = ["lsoa","msoa","counties"]
+    tables = ["lsoa","msoa","uk_counties","la_districts","sc_dz","parishes"]
     
-    for table in tables:
-        do_stats(db,table,"imdscore")
-        
     # climatejust nfvi/sfri
     for table in tables:        
-        for col in builder.nfvi_sfri.cols:
-            do_stats(db,table,col)
+        for col in builder.nfvi_sfri.cols+["imd_rank","imd_decile"]:
+            do_stats(db,"boundary_"+table+"_vulnerabilities",col)
 
     

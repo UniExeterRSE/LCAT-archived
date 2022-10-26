@@ -37,8 +37,8 @@ function is_valid_boundary(table) {
             "boundary_sc_dz"].includes(table);
 }
 
-const propertyCols = [
-    "imdscore","a1","a2","h1","h2","i1","i2","i3","i4","i5","f1","f2","k1",
+const vulnerabilities = [
+    "imd_rank","imd_decile","a1","a2","h1","h2","i1","i2","i3","i4","i5","f1","f2","k1",
     "t1","t2","m1","m2","m3","c1","l1","e1","n1","n2","n3","s1","s2","s3","s4"
 ]
 
@@ -165,6 +165,43 @@ router.get('/chess_scape', function (req, res) {
         });
     }
 });
+
+router.get('/vulnerabilities', function (req, res) {
+	let locations = req.query.locations;
+	let boundary = req.query.boundary;
+    
+    if (locations!=undefined && is_valid_boundary(boundary)) {
+        if (!Array.isArray(locations)) {
+            locations=[locations];
+        }
+
+        vulns = []
+        for (v of vulnerabilities) {
+            vulns.push("avg("+v+") as "+v)
+        }
+       
+        q=`select `+vulns.join()+` from `+boundary+`_vulnerabilities where boundary_id in (`+locations.join()+`);`;
+        
+	    var client = new Client(conString);
+        client.connect();
+	    var query = client.query(new Query(q));
+	    
+	    query.on("row", function (row, result) {
+            result.addRow(row);
+        });
+        query.on("end", function (result) {
+            res.send(result.rows);
+            res.end();
+		    client.end();
+        });
+        query.on("error", function (err, result) {
+            console.log("------------------error-------------------------");
+            console.log(req);
+            console.log(err);
+        });
+    }
+});
+
 
 router.get('/network_edges', function (req, res) {
 	var client = new Client(conString);

@@ -14,6 +14,8 @@ import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { ReactComponent as HealthAndWellbeingSvg } from '../images/icons/Public health & wellbeing.svg';
 import { andify } from '../utils/utils';
 import { nfviColumns } from '../core/climatejust';
+import LoadingOverlay from "react-loading-overlay";
+import VulnerabilitiesLoader from './VulnerabilitiesLoader';
 
 import './Vulnerabilities.css';
 
@@ -21,6 +23,7 @@ function Vulnerabilities(props) {
 
     const [ vulnerabilities, setVulnerabilities ] = useState([]);
     const [ decile, setDecile ] = useState("dec_1");
+    const [ loading, setLoading ] = useState(false);
 
     function flipDecile(decile) {
         if (decile=="dec_1") return "dec_9";
@@ -45,72 +48,6 @@ function Vulnerabilities(props) {
         if (decile=="dec_8") return "80%";
         return "90%";
     }
-
-    
-    useEffect(() => {
-        let vulns=[];
-        if (props.regions.length>0) {
-            // do imd average
-            let uk_avg = props.stats[props.regionType+"_imd_avg"];
-            if (false && uk_avg!=undefined) {
-                let avg = props.regions.reduce(
-                    (acc,region) =>
-                        acc+region.properties.imdscore
-                    ,0);               
-                avg/=props.regions.length;
-                if (avg<uk_avg) {
-                    vulns.push({
-                        type: "Index of Multiple Deprivation",
-                        name: "Lower than average",                        
-                        region: avg,
-                        uk: props.stats[props.regionType+"_imd_avg"]
-                    });
-                }
-            }
-
-            // do nfvi averages
-            for (let key of Object.keys(nfviColumns)) {
-                let avg = props.regions.reduce(
-                    (acc,region) =>
-                        acc+region.properties[key]
-                    ,0);
-                avg/=props.regions.length;
-
-                let comparison = props.stats[props.regionType+"_"+key+"_"+decile];
-
-                if (comparison!=undefined) {
-                    
-                    let significant = false;
-
-                    if (nfviColumns[key].direction=="less-than") {
-                        comparison = props.stats[props.regionType+"_"+key+"_"+flipDecile(decile)];
-                        if (avg<comparison) {
-                            significant = true;
-                        }
-                    } else {
-                        if (avg>comparison) {
-                            significant = true;
-                        }
-                    }
-                    
-                    if (significant) {
-                        vulns.push({
-                            key: key,
-                            type: "Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables",
-                            name: nfviColumns[key].name,                        
-                            region: avg,
-                            uk: props.stats[props.regionType+"_"+key+"_avg"],
-                            icon: lazy(() => import('../icons/vulnerabilities/'+key)),
-                        });
-                    }
-                }
-            }            
-        }
-        setVulnerabilities(vulns);
-    }, [props.regions,
-        props.stats,
-        props.regionType,
-        decile]);
         
     if (props.regions.length === 0) {
         return null;
@@ -118,49 +55,109 @@ function Vulnerabilities(props) {
 
     return (
         <div>
-          <h2>Vulnerabilities</h2>
-          <p>
-            The following vulnerabilities are the most important to consider in&nbsp; 
-            
-            <span className={"projected-regions"}>
-              { andify(props.regions.map(e => e.name)) }
-            </span>
-            
-            &nbsp;(these vulnerabilities are in the top
+          <VulnerabilitiesLoader 
+            regions = {props.regions}
+            regionType = {props.regionType}
+            callback = {data => {
+                let vulns = [];
+                for (let key of Object.keys(data[0])) {
+                    let avg = data[0][key];
+                    let statkey = props.regionType+"_vulnerabilities_"+key;
+                    let comparison = props.stats[statkey+"_"+decile];
+                     
+                    let significant = true;
+                    if (comparison!=undefined) {                        
+                        significant = false;
+                        if (nfviColumns[key].direction=="less-than") {
+                            comparison = props.stats[statkey+"_"+flipDecile(decile)];
+                            if (avg<comparison) {
+                                significant = true;
+                            }
+                        } else {
+                            if (avg>comparison) {
+                                significant = true;
+                            }
+                        }
+                    }
 
-            <select onChange={(e) => { setDecile(e.target.value); }}>
-              <option value="dec_1">10%</option>
-              <option value="dec_2">20%</option>
-              <option value="dec_3">30%</option>
-              <option value="dec_4">40%</option>
-              <option value="dec_5">50%</option>
-              <option value="dec_6">60%</option>
-              <option value="dec_7">70%</option>
-              <option value="dec_8">80%</option>
-              <option value="dec_9">90%</option>
-            </select>
-
-            compared with UK averages).
-          </p>
+                    if (key=="imd_rank" || key=="imd_decile") {
+                        vulns.push({
+                            key: key,
+                            type: "Index of Multiple Deprivation",
+                            name: nfviColumns[key].name+" "+data[0][key].toFixed(),                        
+                            region: 0,
+                            uk: 0,
+                            icon: lazy(() => import('../icons/vulnerabilities/'+key)),
+                        });
+                    } else {                    
+                        if (significant) {
+                            vulns.push({
+                                key: key,
+                                type: "Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables",
+                                name: nfviColumns[key].name,                        
+                                region: data[0][key],
+                                uk: props.stats[statkey+"_avg"],
+                                icon: lazy(() => import('../icons/vulnerabilities/'+key)),
+                            });
+                        }
+                    }
+                }
+                setVulnerabilities(vulns);
+            }}
+            loadingCallback={ loading => { setLoading(loading); }}            
+          />
+            
           
-          <div className={"vuln-container"}>        
-            {vulnerabilities.length ? vulnerabilities.map(
-                v => {
-                    return (
-                        <div className={"vuln"}>
-                          <Suspense fallback={<div>Loading icon...</div>}>
-                            <v.icon/>
-                          </Suspense>
-                          <div className={"vuln-name"}>{v.name}</div>                      
-                          <div className={"vuln-type"}>{v.type}</div>
-                          <div className={"vuln-type"}>{v.region.toFixed(2)}% vs {v.uk.toFixed(2)}% UK average</div>
-                        </div>
-                    );
-                }) : <h3>{ andify(props.regions.map(e => e.name)) } is not in the top {decileToText(decile)} for any vulnerabilities.</h3>}
-          </div>  
-	    <p>
-		Source data on vulnerabilities from <a href="https://www.climatejust.org.uk">ClimateJust</a> based on work carried out by <a href="http://www.sayersandpartners.co.uk/uploads/6/2/0/9/6209349/sayers_2017_-_present_and_future_flood_vulnerability_risk_and_disadvantage_-_final_report_-_uploaded_05june2017_printed_-_high_quality.pdf">Sayers and Partners LLP for the Joseph Rowntree Foundation</a>.
-	    </p>
+          <LoadingOverlay
+            active={loading}
+            spinner
+            text={'Loading...'}>
+            <h2>Vulnerabilities</h2>
+            <p>
+              The following vulnerabilities are the most important to consider in&nbsp; 
+              
+              <span className={"projected-regions"}>
+                { andify(props.regions.map(e => e.name)) }
+              </span>
+              
+              &nbsp;(these vulnerabilities are in the top
+
+              <select onChange={(e) => { setDecile(e.target.value); }}>
+                <option value="dec_1">10%</option>
+                <option value="dec_2">20%</option>
+                <option value="dec_3">30%</option>
+                <option value="dec_4">40%</option>
+                <option value="dec_5">50%</option>
+                <option value="dec_6">60%</option>
+                <option value="dec_7">70%</option>
+                <option value="dec_8">80%</option>
+                <option value="dec_9">90%</option>
+              </select>
+
+              compared with UK averages).
+            </p>
+            
+            <div className={"vuln-container"}>        
+              {vulnerabilities.length ? vulnerabilities.map(
+                  v => {
+                      return (
+                          <div className={"vuln"}>
+                            <Suspense fallback={<div>Loading icon...</div>}>
+                              <v.icon/>
+                            </Suspense>
+                            <div className={"vuln-name"}>{v.name}</div>                      
+                            <div className={"vuln-type"}>{v.type}</div>
+                            {!v.name.startsWith("IMD") &&
+                             <div className={"vuln-type"}>{v.region.toFixed(2)}% vs {v.uk.toFixed(2)}% UK average</div>
+                            }
+                          </div>
+                      );
+                  }) : <h3>{ andify(props.regions.map(e => e.name)) } is not in the top {decileToText(decile)} for any vulnerabilities.</h3>}
+            </div>  
+	        <p>
+		      Source data on vulnerabilities from <a href="https://www.climatejust.org.uk">ClimateJust</a> based on work carried out by <a href="http://www.sayersandpartners.co.uk/uploads/6/2/0/9/6209349/sayers_2017_-_present_and_future_flood_vulnerability_risk_and_disadvantage_-_final_report_-_uploaded_05june2017_printed_-_high_quality.pdf">Sayers and Partners LLP for the Joseph Rowntree Foundation</a>.
+	        </p>
+          </LoadingOverlay>
         </div>
     );
 }

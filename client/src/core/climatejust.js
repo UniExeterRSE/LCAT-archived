@@ -118,7 +118,7 @@ const nfviColumns = {
         direction: "greater-than"
     },
     e1: {
-        name: "number of properties within historical flood boundary",
+        name: "% number of properties within historical flood boundary",
         units: "percent",
         direction: "greater-than"
     },
@@ -154,6 +154,16 @@ const nfviColumns = {
     },
     s4: {
         name: "% no. of schools exposed to flooding",
+        units: "percent",
+        direction: "greater-than"
+    },
+    imd_rank: {
+        name: "IMD Rank",
+        units: "rank",
+        direction: "greater-than"
+    },
+    imd_decile: {
+        name: "IMD Decile",
         units: "percent",
         direction: "greater-than"
     },
