@@ -149,11 +149,13 @@ calculate the vulnerabilities:
     $ ./build link_all_to_lsoa
     $ ./build link_all_to_sc_dz
 
-Now we can load the Climate Just nfvi variables in (this contains everything)
+### Climate Just
+    
+Now we can load the Climate Just NFVI variables in their raw form.
 
     $ ./build climatejust_load_nfvi
 
-Then we can create the Climate Just vulnerability tables for each
+Then we can create and fill the vulnerability average tables for each
 boundry type:
 
     $ ./build climatejust_average_nfvi
@@ -165,8 +167,9 @@ losing outliers by averaging?
 ### Index of multiple deprivation
     
 The IMD ranks and deciles need to be loaded from the cvs files - they
-are bolted on to the vulnerability tables as additional columns, first
-the loading into LSOA and Data Zone vulnerabilities - which is pretty
+are bolted on to the vulnerability tables as additional columns, so
+need this needs to be done after the Climate Just data. First we load
+the LSOA and Data Zone vulnerabilities from CSV - which is pretty
 slow:
 
     $ ./build load_imd_from_csv
@@ -176,7 +179,8 @@ Then the averaging them across the rest:
     $ ./build add_average_imd
 
 Once we have all the vulnerabilities loaded we need to calculate the
-averages and deciles across all the boundary types via:
+averages and deciles across all the boundary types so we can present
+the significant vulnerabilities based on deciles via:
 
     $ ./build stats
                    
