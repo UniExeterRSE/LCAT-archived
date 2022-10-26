@@ -39,7 +39,7 @@ build scripts.
 
 | Type              | Notes                                                                   |  Time span | Regions             | LCAT postgres table/col  | Original Format | Coordinate system | Source URL | Authority                  |
 |-------------------|-------------------------------------------------------------------------|------------|---------------------|--------------------------|-----------------|-------------------|------------|----------------------------|
-| NFVI variables    | Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables	  |	           | UK                  | `nfvi`                   | ESRI Shapefile  |                   |            | Climate Just	            |    
+| NFVI variables    | Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables	  |	2017       | UK                  | `nfvi`                   | ESRI Shapefile  | -                 | https://www.climatejust.org.uk/map | Climate Just |    
 
     
 ## Impact network data
@@ -62,7 +62,7 @@ server.
 separated for RCP and season. These tables are indexed by grid cell
 location ID based on grid x/y position for quick access.
 
-#### Method 1 - Cell lookup
+#### Method 1 - Cell lookup (used for msoa, parishes, datazones, lsoa)
     
 When requesting climate data we specify a list of regions. We lookup
 all the 1km grid cells overlapped by all the regions, removing
@@ -73,7 +73,7 @@ This method is best for larger grid cells or smaller boundaries, as
 overlaps will have more affect and averaging cells will be a
 relatively minor computation.
 
-#### Method 2 - Cached averages
+#### Method 2 - Cached averages (used for counties and la districts)
 
 We cache all the grid cell averages for each boundary. Then the
 computation on the server is simply a matter of averaging the

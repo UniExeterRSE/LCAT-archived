@@ -28,16 +28,7 @@ var host = process.env.DB_HOST
 var database = process.env.DB_DATABASE
 var conString = "postgres://"+username+":"+password+"@"+host+"/"+database; // Your Database Connection
 
-function is_valid_grid_table(table) {
-    return ["boundary_lsoa_grid_mapping",
-            "boundary_msoa_grid_mapping",
-            "boundary_la_districts_grid_mapping",
-            "boundary_sc_dz_grid_mapping",
-            "boundary_parishes_grid_mapping",
-            "boundary_uk_counties_grid_mapping"].includes(table);
-}
-
-function is_valid_region_table(table) {
+function is_valid_boundary(table) {
     return ["boundary_lsoa",
             "boundary_msoa",
             "boundary_uk_counties",
@@ -52,12 +43,20 @@ const propertyCols = [
 ]
 
 const boundary_details = {
-    "boundary_lsoa": {name: "lsoa11nm", srid: 27700, method: "cell"},
-    "boundary_msoa": {name: "msoa11nm", srid: 27700, method: "cell"},
     "boundary_uk_counties": {name: "name_2", srid: 32630, method: "cache"},
+    "boundary_la_districts": {name: "lad22nm", srid: 27700, method: "cache"}, 
+    "boundary_msoa": {name: "msoa11nm", srid: 27700, method: "cell"},
+    "boundary_parishes": {name: "parncp19nm", srid: 27700, method: "cell"},
     "boundary_sc_dz": {name: "name", srid:4326, method: "cell"},
-    "boundary_la_districts": {name: "lad22nm", srid: 27700, method: "cache"},
-    "boundary_parishes": {name: "parncp19nm", srid: 27700, method: "cache"},
+    "boundary_lsoa": {name: "lsoa11nm", srid: 27700, method: "cell"},
+}
+
+
+const vardec = [];
+for (let variable of ["tas","sfcWind","pr","rsds"]) {
+    for (let decade of ["1980","1990","2000","2010","2020","2030","2040","2050","2060","2070"]) {
+        vardec.push("avg("+variable+"_"+decade+") as "+variable+"_"+decade);
+    }
 }
 
 // get GeoJSONs of regions given a bounding box and detail
@@ -70,10 +69,10 @@ router.get('/region', function (req, res) {
 	let right = req.query.right;
 	let top = req.query.top;
 
-    var name_col=boundary_names[table].name;
-    var srid = boundary_names[table].srid;
+    var name_col=boundary_details[table].name;
+    var srid = boundary_details[table].srid;
     
-    if (is_valid_region_table(table)) {
+    if (is_valid_boundary(table)) {
         var client = new Client(conString);
         client.connect();
 
@@ -124,30 +123,29 @@ router.get('/chess_scape', function (req, res) {
 	let locations = req.query.locations;
 	let rcp = req.query.rcp; 
 	let season = req.query.season; 
-	let region_grid = req.query.regionType+"_grid_mapping";
+	let boundary = req.query.boundary;
 
     if (locations!=undefined &&
-        is_valid_grid_table(region_grid) &&
+        is_valid_boundary(boundary) &&
         ["summer","winter","annual"].includes(season) &&
         ["rcp60","rcp85"].includes(rcp)) {
 
         if (!Array.isArray(locations)) {
             locations=[locations];
         }
-        // combine the tavg,tmin,tmax and rain predictions averaged over the
-        // locations provided
-        var sq=`(select distinct tile_id from `+region_grid+` where geo_id in (`+locations.join()+`))`;
 
-        var vardec = [];
-        for (let variable of ["tas","sfcWind","pr","rsds"]) {
-            for (let decade of ["1980","1990","2000","2010","2020","2030","2040","2050","2060","2070"]) {
-                vardec.push("avg ("+variable+"_"+decade+") as "+variable+"_"+decade);
-            }
+        q="";
+        // the two different methods of climate data averaging...
+        if (boundary_details[boundary].method=="cell") {
+            // for small boundaries or large cells
+	        let region_grid = boundary+"_grid_mapping";
+            var sq=`(select distinct tile_id from `+region_grid+` where geo_id in (`+locations.join()+`))`;               
+            q=`select `+vardec.join()+` from chess_scape_`+rcp+`_`+season+` where id in `+sq+`;`;
+        } else {
+            // for large boundaries or small cells
+            let cache_table = "cache_"+boundary+"_to_chess_scape_"+rcp+"_"+season;
+            q=`select `+vardec.join()+` from `+cache_table+` where boundary_id in (`+locations.join()+`);`;
         }
-                
-        var q=`select `+vardec.join()+` from chess_scape_`+rcp+`_`+season+` where id in `+sq+`;`;
-
-        console.log(q);
         
 	    var client = new Client(conString);
         client.connect();
@@ -164,50 +162,6 @@ router.get('/chess_scape', function (req, res) {
         query.on("error", function (err, result) {
             console.log("------------------error-------------------------");
             console.log(req);
-            console.log(err);
-        });
-    }
-});
-
-router.get('/chess_scape_cache', function (req, res) {
-	let locations = req.query.locations;
-	let rcp = req.query.rcp; 
-	let season = req.query.season;x
-    let boundary = req.query.regionType;
-	let cache_table = "cache_"+boundary+"_to_chess_scape_"+rcp+"_"+season;
-
-    if (locations!=undefined &&
-        ["summer","winter","annual"].includes(season) &&
-        ["rcp60","rcp85"].includes(rcp)) {
-
-        if (!Array.isArray(locations)) {
-            locations=[locations];
-        }
-
-        var vardec = [];
-        for (let variable of ["tas","sfcWind","pr","rsds"]) {
-            for (let decade of ["1980","1990","2000","2010","2020","2030","2040","2050","2060","2070"]) {
-                vardec.push("avg("+variable+"_"+decade+") as "+variable+"_"+decade);
-            }
-        }
-
-        var q=`select `+vardec.join()+` from `+cache_table+` where boundary_id in (`+locations.join()+`);`;
-
-	    var client = new Client(conString);
-        client.connect();
-	    var query = client.query(new Query(q));
-	    
-	    query.on("row", function (row, result) {
-            result.addRow(row);
-        });
-        query.on("end", function (result) {
-            res.send(result.rows);
-            res.end();
-		    client.end();
-        });
-        query.on("error", function (err, result) {
-            console.log("------------------error-------------------------");
-            //console.log(req);
             console.log(err);
         });
     }
