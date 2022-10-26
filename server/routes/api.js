@@ -51,13 +51,13 @@ const propertyCols = [
     "t1","t2","m1","m2","m3","c1","l1","e1","n1","n2","n3","s1","s2","s3","s4"
 ]
 
-const boundary_names = {
-    "boundary_lsoa": {name: "lsoa11nm", srid: 27700},
-    "boundary_msoa": {name: "msoa11nm", srid: 27700},
-    "boundary_uk_counties": {name: "name_2", srid: 32630},
-    "boundary_sc_dz": {name: "name", srid:4326},
-    "boundary_la_districts": {name: "lad22nm", srid: 27700},
-    "boundary_parishes": {name: "parncp19nm", srid: 27700},
+const boundary_details = {
+    "boundary_lsoa": {name: "lsoa11nm", srid: 27700, method: "cell"},
+    "boundary_msoa": {name: "msoa11nm", srid: 27700, method: "cell"},
+    "boundary_uk_counties": {name: "name_2", srid: 32630, method: "cache"},
+    "boundary_sc_dz": {name: "name", srid:4326, method: "cell"},
+    "boundary_la_districts": {name: "lad22nm", srid: 27700, method: "cache"},
+    "boundary_parishes": {name: "parncp19nm", srid: 27700, method: "cache"},
 }
 
 // get GeoJSONs of regions given a bounding box and detail

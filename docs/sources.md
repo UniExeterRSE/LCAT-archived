@@ -8,7 +8,7 @@ build scripts.
         
 | Type              | Notes                                                                   |  Time span                   | Regions             | LCAT postgres table/col                   | Original Format | Coordinate system | Source URL | Authority                  |
 |-------------------|-------------------------------------------------------------------------|------------------------------|---------------------|------------------------------------------|-----------------|-------------------|------------|----------------------------|
-| Seasonal mean GeoTifs | Means of CHESS-SCAPE RCP6.0/8.5 model runs, one per variable, provided Turing Institute. | 1980-2079 averaged by season | Great Britain & IoM | -                                         | GeoTiff         | EPSG 9001         | -          | https://uk-scape.ceh.ac.uk |  
+| Seasonal mean GeoTifs | Means of CHESS-SCAPE RCP6.0/8.5 model runs, one per variable, provided by the Alan Turing Institute. | 1980-2079 averaged by season | Great Britain & IoM | -                                         | GeoTiff         | EPSG 9001         | -          | https://uk-scape.ceh.ac.uk |  
 | Decade mean GeoTifs | Intermediate format generated from seasonal means, one per decade/variable | 1980-2079  averaged by decade | Great Britain & IoM | -                                         | GeoTiff         | EPSG 9001         | -          | https://uk-scape.ceh.ac.uk |  
 | Air temp annual   | These are all stored in a single table per season/rcp to optimise for reading| 1980-2079 averaged by decade | Great Britain & IoM | `chess_scape_<rcp>_annual/tas_<decade>`    | GeoTiff         | -                 | -          | https://uk-scape.ceh.ac.uk |  
 | Rain annual       |                                                                         | 1980-2079 averaged by decade | Great Britain & IoM | `chess_scape_<rcp>_annual/pr_<decade>`     | GeoTiff         | -                 | -          | https://uk-scape.ceh.ac.uk |  
@@ -62,27 +62,29 @@ server.
 separated for RCP and season. These tables are indexed by grid cell
 location ID based on grid x/y position for quick access.
 
-#### Method 1 (Old method)
+#### Method 1 - Cell lookup
     
 When requesting climate data we specify a list of regions. We lookup
 all the 1km grid cells overlapped by all the regions, removing
-duplicates and average across the cells rather than storing averages
-for each boundary region. This avoids counting grid cells twice if
-they overlap with multiple boundaries.
+duplicates and average across the climate model cells. This avoids
+counting grid cells twice if they overlap with multiple boundaries.
 
-This method is best for larger grid cells as overlaps will have more
-affect and the averaging will be relatively minor computation.
+This method is best for larger grid cells or smaller boundaries, as
+overlaps will have more affect and averaging cells will be a
+relatively minor computation.
 
-#### Method 2 (Currently used)
+#### Method 2 - Cached averages
 
 We cache all the grid cell averages for each boundary. Then the
 computation on the server is simply a matter of averaging the
 boundaries the user has selected (no secondary conversion to grid cell
 required).
 
-This method works better for smaller grid cells (1km) as larger
-boundaries can cover thousands of cells. The effect of duplicating
-edge cells that overlap neighbouring boundaries will be minimal.
+This method works better for smaller grid cells and larger boundaries,
+as e.g. The Scottish highlands boundary covers thousands of 1km grid
+cells. In these cases the effect of duplicating edge cells that
+overlap neighbouring boundaries will be minimal, and the compuatation
+cost becomes problematic.
     
 ### Processing steps
 
