@@ -12,6 +12,8 @@
 import useCollapse from 'react-collapsed';
 import References from './References';
 
+import "./Adaptation.css";
+
 function Adaptation(props) {
     
     const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
@@ -23,9 +25,9 @@ function Adaptation(props) {
     }
     
     return (
-        <div className="collapsible">
+        <div className="adaptation collapsible">
           <div className="header"  {...getToggleProps()}>
-            <h3>{props.a.action.label}</h3>
+            {props.a.action.label}
           </div>
           <div {...getCollapseProps()}>
             <div className="content">
@@ -60,15 +62,17 @@ function Adaptation(props) {
                 id={props.a.action.node_id}
                 api_call={"node_references"}
               />
-              
-              <h3>Metadata</h3>
-              <small>
-                <ul>
-                  <li><b>Climate hazard:</b> {props.a.action.climate_hazard}</li> 
-                  <li><b>Sector:</b> {props.a.action.sector}</li> 
-                  <li><b>UN SDG:</b> {props.a.action.sdg}</li> 
-                </ul>
-              </small>
+
+              {/* <div className="metadata">
+                <h3>Metadata</h3>
+                <small>
+                  <ul>
+                    <li><b>Climate hazard:</b> {props.a.action.climate_hazard}</li> 
+                    <li><b>Sector:</b> {props.a.action.sector}</li> 
+                    <li><b>UN SDG:</b> {props.a.action.sdg}</li> 
+                  </ul>
+                </small>
+                </div> */}
             </div>
           </div>
         </div>

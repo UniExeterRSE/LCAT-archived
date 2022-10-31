@@ -23,7 +23,7 @@ const tileLayer = {
 }
 
 const center = [52, -2.2];
-const highlightCol = "#ffbc42";
+const highlightCol = "#f5821fff";
 
 function RegionsListener(props) {
     useEffect(() => {
@@ -89,6 +89,7 @@ class ClimateMap extends React.Component {
                           "<br> "+feature.properties.gid+": "+this.state.mapProperty+" "+
                           feature.properties[this.state.mapProperty]+" "+v);
         layer.setStyle({
+            'color': "#115158ff",
             'weight': 3,
             'fillColor': col,
             'fillOpacity': 1
@@ -158,7 +159,7 @@ class ClimateMap extends React.Component {
     render() {
         return (
             <div>
-              <h2>Select Zones</h2>     
+              <h1>Select Zones</h1>     
               <p>
                 To begin, click/tap on the map to select the 
                 <select onChange={(e) => { this.setState(() => ({

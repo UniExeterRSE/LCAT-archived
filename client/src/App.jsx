@@ -26,6 +26,7 @@ import Sector from './components/Sector';
 import StatsLoader from './components/StatsLoader';
 import Vulnerabilities from './components/Vulnerabilities';
 import Adaptations from './components/Adaptations';
+import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_MONO_DARK_GREEN_RGB.svg';
 
 import { NetworkRenderer } from './core/NetworkRenderer';
 
@@ -68,7 +69,8 @@ class App extends React.Component {
             <div className="App">
               <DocumentMeta {...meta}/>
               <header className="App-header">
-                <h1>Local Climate Adaptation Tool V2.0</h1>
+                <LCATLogoSvg
+                  width={300}/>
               </header>
               <p>
                 You are looking at the national level testing version - this is in development and the data is not reliable, so it should not be shared yet. We anticipate a new version ready for release in November 2022. <a href="http://climate-tool.thentrythis.org">The working Cornwall prototype is here.</a>
@@ -139,10 +141,10 @@ class App extends React.Component {
                 loading = {this.state.loadingPrediction}
               />
               
-              {/*<Graph
+              <Graph
                 regions={this.state.regions}
                 regionType={this.state.regionType}                
-                />*/}
+              />
               
               {/*<Sector
                 regions = {this.state.regions}

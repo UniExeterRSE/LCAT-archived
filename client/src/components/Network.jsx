@@ -22,7 +22,6 @@ import './Network.css';
 function NetworkListener(props) {
     useEffect(() => {
         props.networkRenderer.loadIcons();
-
         props.callback(props.network);
     }, [props.network,
         props.climatePrediction,
@@ -246,7 +245,7 @@ function Network(props) {
                     id={nodeedgeId}
                     api_call={apiCall}
                   />
-                  <p>
+                  <p className="metadata">
                     <h3>Metadata</h3>
                     <small>
                       <ul>

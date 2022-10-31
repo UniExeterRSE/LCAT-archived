@@ -55,7 +55,7 @@ function HealthWellbeing(props) {
           spinner
           text={'Loading climate data'}>
 
-          <h2>Health Impact Summary</h2>
+          <h1>Health Impact Summary</h1>
 
           <p>
             The climate change forecast in&nbsp;

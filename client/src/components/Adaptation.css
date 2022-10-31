@@ -1,0 +1,12 @@
+.adaptation .collapsible {
+    margin-bottom: 0.5em;
+}
+
+.adaptation .content {
+    background-color: #e6eced;
+    padding: 1em;
+}
+
+.adaptation .metadata {
+    color: #d6dcddff;	
+}

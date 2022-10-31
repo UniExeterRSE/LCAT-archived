@@ -93,7 +93,7 @@ function Vulnerabilities(props) {
                         if (significant) {
                             vulns.push({
                                 key: key,
-                                type: "Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables",
+                                type: "Climate Just NFVI Supporting Variables",
                                 name: nfviColumns[key].name,                        
                                 region: data[0][key],
                                 uk: props.stats[statkey+"_avg"],
@@ -112,7 +112,7 @@ function Vulnerabilities(props) {
             active={loading}
             spinner
             text={'Loading...'}>
-            <h2>Vulnerabilities</h2>
+            <h1>Vulnerabilities</h1>
             <p>
               The following vulnerabilities are the most important to consider in&nbsp; 
               

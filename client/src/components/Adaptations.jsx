@@ -43,7 +43,7 @@ function Adaptations(props) {
 
     return (
         <div>
-          <h2>Adaptations</h2>
+          <h1>Adaptations</h1>
           <p>
             The following adaptations the most important to consider in&nbsp; 
             

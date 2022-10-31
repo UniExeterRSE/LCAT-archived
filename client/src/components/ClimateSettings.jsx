@@ -19,7 +19,7 @@ function ClimateSettings(props) {
             
     return (
         <div>
-          <h2>Climate Summary</h2>
+          <h1>Climate Summary</h1>
           <p>
             Calculate impacts below using
 

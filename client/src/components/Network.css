@@ -29,7 +29,7 @@
 .network-info {
 	width: auto;
 	border-radius: 5px;
-	background: #e6e6e6;	
+	background: #e6ecedff;	
 	padding: 1em;
 	overflow-y: scroll;
 	height: 600px;
@@ -133,4 +133,8 @@ g span {
 .net-node-image-holder {
 	width: 100%;
 	text-align: center;	
+}
+
+.metadata {
+    color: #d6dcddff;	
 }
