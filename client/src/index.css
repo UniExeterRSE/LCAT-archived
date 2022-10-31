@@ -1,7 +1,7 @@
 @font-face {
-  font-family: 'nunito';
-  src: local('nunito'),
-        url('../fonts/NunitoSans-Regular.ttf');
+  font-family: 'lcat-font';
+  src: local('lcat-font'),
+        url('../fonts/Montserrat-Medium.ttf');
 }
 
 body {
@@ -9,7 +9,7 @@ body {
     width: 100%;
     background: white;
 	color: #42273b;
-    font-family: 'nunito',Arial,Helvetica,sans-serif;
+    font-family: 'lcat-font',Arial,Helvetica,sans-serif;
     font-size: 1em;
     padding: 0;
     margin: 0;
@@ -47,7 +47,7 @@ h2 {
 }
 
 select {
-    font-family: 'nunito',Arial,Helvetica,sans-serif;
+    font-family: 'lcat-font',Arial,Helvetica,sans-serif;
 	border: none;
 	background: #b0cacc;
 	font-size: 1em;
@@ -63,7 +63,7 @@ select:hover {
 a { color: #4c9f70; }
 
 button {
-    font-family: 'nunito',Arial,Helvetica,sans-serif;
+    font-family: 'lcat-font',Arial,Helvetica,sans-serif;
 	border: none;
 	background: #b0cacc;
 	font-size: 1em;
