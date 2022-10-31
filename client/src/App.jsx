@@ -26,7 +26,7 @@ import Sector from './components/Sector';
 import StatsLoader from './components/StatsLoader';
 import Vulnerabilities from './components/Vulnerabilities';
 import Adaptations from './components/Adaptations';
-import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_MONO_DARK_GREEN_RGB.svg';
+import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_Primary_RGB.svg';
 
 import { NetworkRenderer } from './core/NetworkRenderer';
 
@@ -73,9 +73,14 @@ class App extends React.Component {
                   width={300}/>
               </header>
               <p>
-                You are looking at the national level testing version - this is in development and the data is not reliable, so it should not be shared yet. We anticipate a new version ready for release in November 2022. <a href="http://climate-tool.thentrythis.org">The working Cornwall prototype is here.</a>
+                This tool allows you to see local climate change predictions in the UK, and explore the impacts on our health and wellbeing. Local vulnerabilities are highlighted, and adaptation priorities are suggested. The information presented is based on scientific research, and links to the relevant data and publications are provided.
               </p>
-              
+              <p>
+                <ul>
+                  <li>FAQ text and link to come</li>
+                  <li>Disclaimer to come</li>
+                </ul>
+              </p>
               {/* bundle up all the api calls into one when decided? */}
               <NetworkLoader
                 id={0}
@@ -143,7 +148,7 @@ class App extends React.Component {
               
               <Graph
                 regions={this.state.regions}
-                regionType={this.state.regionType}                
+                boundary={this.state.regionType}                
               />
               
               {/*<Sector
@@ -183,11 +188,26 @@ class App extends React.Component {
                 network = {this.state.network}
                 year = {this.state.year}
                 climatePrediction = {this.state.climatePrediction}
+                season = {this.state.average}
                 regions = {this.state.regions}
                 loading = {this.state.loadingPrediction}
               />
 
-              <div className={"footer"}/>
+              <div className="footer">
+                <p>
+                  The Local Climate Adaptation Tool has been developed by the University of Exeter’s European Centre for Human Health, Cornwall Council, Then Try This and The Alan Turing Institute with co-design partners from Local Government, the National Health Service, emergency services, and voluntary and private sectors. Funding for the project has been provided, Research England’s Collaboration Fund, Strategic Priorities Fund and Policy Support Fund, as part of the Policy@Exeter initiative, The Schroder Foundation, and the Net Zero Innovation Programme; a UCL and Local Government Association Initiative.
+                </p>
+                
+                <p>
+                  Source code published under the Common Good Public Licence Beta 1.0
+                  Copyright © 2022 Then Try This and University of Exeter
+                </p>
+
+                <p>
+                  LOGOS: exeter, ecehh, ttt, cc, turing
+                </p>
+              </div>
+              
               
             </div> 
         );

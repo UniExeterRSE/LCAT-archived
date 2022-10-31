@@ -1,0 +1,14 @@
+.rv-xy-plot__series--label-text {
+    font-size: 130%;
+    fill: white;
+}
+
+.rv-xy-plot__axis__tick__text {
+    font-size: 130%;
+}
+
+.graph-horiz-container {
+	display: flex;
+	flex-direction: row;
+}
+

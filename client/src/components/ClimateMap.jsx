@@ -22,8 +22,8 @@ const tileLayer = {
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 }
 
-const center = [52, -2.2];
-const highlightCol = "#f5821fff";
+const center = [55, -5.2];
+const highlightCol = "#ffd768ff";
 
 function RegionsListener(props) {
     useEffect(() => {
@@ -41,7 +41,7 @@ class ClimateMap extends React.Component {
         this.state={
             geojson_key: 0,
             geojson: false,
-            regionType: "boundary_msoa",
+            regionType: "boundary_uk_counties",
             regions: [],
             loading: true,
             triggerLoadingIndicator: true,
@@ -148,8 +148,8 @@ class ClimateMap extends React.Component {
     }
 
     regionTypeToName = (type) => {
-        if (type=="boundary_la_districts") return "Local Authority Districts";
         if (type=="boundary_uk_counties") return "UK Counties";
+        if (type=="boundary_la_districts") return "Local Authority Districts";
         if (type=="boundary_parishes") return "Parishes (Eng/Wales)";
         if (type=="boundary_msoa") return "MSOA (Eng/Wales)";
         if (type=="boundary_sc_dz") return "Data Zones (Scotland)";
@@ -161,21 +161,26 @@ class ClimateMap extends React.Component {
             <div>
               <h1>Select Zones</h1>     
               <p>
-                To begin, click/tap on the map to select the 
+
+                To begin, select the area/s you are interested in by clicking/tapping on the map. The map units can be changed and are currently displaying
+                
                 <select onChange={(e) => { this.setState(() => ({
                     regionType: e.target.value,
                     // clear regions when the type changes
                     regions: [],
                     triggerLoadingIndicator: true
                 }));}}>
-                  <option value="boundary_la_districts">Local Authority Districts</option>
                   <option value="boundary_uk_counties">UK Counties</option>
+                  <option value="boundary_la_districts">Local Authority Districts</option>
                   <option value="boundary_parishes">Parishes (Eng/Wales)</option>
                   <option value="boundary_msoa">MSOA (Eng/Wales)</option>
                   <option value="boundary_sc_dz">Data Zones (Scotland)</option>
                   <option value="boundary_lsoa">LSOA (Eng/Wales)</option>
-                </select>
-                you are interested in. {/*The Index of Multiple Deprivation score 
+                </select>.
+
+                Once you have made your selection, your data will appear below.
+                
+                 {/*The Index of Multiple Deprivation score 
 
 		  <select onChange={(e) => { this.setState(() => ({
                     mapProperty: e.target.value,
@@ -202,7 +207,7 @@ class ClimateMap extends React.Component {
                 text={'Loading '+this.regionTypeToName(this.state.regionType)}>
                 <MapContainer
                   center={center}
-                  zoom={12}
+                  zoom={6}
                   scrollWheelZoom={true}>
                   <GeoJSONLoader
                     apicall={"/api/region"}
@@ -218,9 +223,8 @@ class ClimateMap extends React.Component {
                   <TileLayer {...tileLayer} />
                 </MapContainer>
               </LoadingOverlay>
-              <p>
-                English Indices of Deprivation 2019 Open Data from <a href="https://opendatacommunities.org/resource?uri=http%3A%2F%2Fopendatacommunities.org%2Fdata%2Fsocietal-wellbeing%2Fimd2019%2Findices">
-                                                                     Ministry of Housing, Communities and Local Government</a>
+              <p className="note">
+                Data source: The map zones used are from |this place| and |this place|.
               </p>
 
             </div>

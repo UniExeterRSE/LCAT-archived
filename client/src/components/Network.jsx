@@ -167,17 +167,7 @@ function Network(props) {
           <div {...getCollapseProps()}>
             <div className="content">
               <p>
-                The network below shows how 
-
-                <select onChange={(e) => { setClimateVariableFilter(e.target.value); }}>
-                  <option value="All">All climate change</option>
-                  <option value="Temperature">Temperature</option>
-                  <option value="Wind speed">Wind speed</option>
-                  <option value="Rainfall">Rainfall</option>
-                  <option value="Cloud cover">Cloud cover</option>
-                </select>
-
-                will impact
+                The network below shows how climate change will impact health. You can explore the network by clicking/tapping on the nodes and connections for more information. Nodes can be moved around by dragging them, and the network can also be zoomed and panned. You are currently viewing the impacts for
 
                 <select>
                   <option value="All">All sectors</option>
@@ -191,21 +181,7 @@ function Network(props) {
                   <option disabled value="Information & Communication Technology">Information & Communication Technology</option>
                   <option disabled value="International Factors">International Factors</option>                  
                 </select>
-
-                
-                {/*<select onChange={(e) => { setSectorFilter(e.target.value); }}>
-                  <option value="All">All sectors</option>
-                  <option value="Health & Social Care">Health & Social Care</option>
-                  <option value="Biodiversity & Natural Habitats">Biodiversity & Natural Habitats</option>
-                  <option value="Water Supply & Quality">Water Supply & Quality</option>
-                  <option value="Education Services">Education Services</option>
-                  <option value="Transport">Transport</option>
-                  <option value="Energy Supply & Demand">Energy Supply & Demand</option>
-                  <option value="Business & Industry">Business & Industry</option>
-                  <option value="Information & Communication Technology">Information & Communication Technology</option>
-                  <option value="International Factors">International Factors</option>                  
-                  </select>*/}
-
+               
                 in&nbsp;
                 
                 <span className={"projected-regions"}>
@@ -255,8 +231,12 @@ function Network(props) {
                   </p>
                 </div>
               </div>
-            </div>
+            </div>            
           </div>
+          <p className="note">
+            Data source: The impact data is based on published scientific literature and reports. A full reference list is available here, and the references relevant to particular impacts can be explored by clicking on the nodes and connections in the network above.
+          </p>
+          
         </div>
     );
 }

@@ -11,43 +11,59 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import React, { useEffect, useState } from 'react';
+import { andify } from '../utils/utils';
 
 function ClimateSettings(props) {
+    const [rcp, setRcp] = useState("rcp60");
+    
     if (props.regions.length === 0) {
         return null;
     }
-            
+
     return (
         <div>
           <h1>Climate Summary</h1>
           <p>
-            Calculate impacts below using
+            You have selected&nbsp;
 
-            <select onChange={(e) => { props.rcpCallback(e.target.value); }}>           
-              <option value="rcp60">RCP 6.0</option>
-              <option value="rcp85">RCP 8.5</option>
+            <span className={"projected-regions"}>
+              { andify(props.regions.map(e => e.name)) }
+            </span>
+
+            &nbsp;For this area under the
+            
+            <select onChange={(e) => { setRcp(e.target.value); props.rcpCallback(e.target.value); }}>           
+              <option value="rcp60">existing global policies</option>
+              <option value="rcp85">worst case scenario</option>
             </select>
 
-            seasonal average
+            {rcp=="rcp60" && <span>(equivalent to global warming level of 2.0-3.7C which is RCP 6.0)</span>}
+            {rcp=="rcp85" && <span>(equivalent to global warming level of 3.2-5.4C which is RCP 8.5)</span>}
+            
+            &nbsp;the
             
             <select onChange={(e) => { props.averageCallback(e.target.value); }}>           
-              <option value="winter">Winter</option>
-              <option value="annual">Yearly</option>
-              <option value="summer">Summer</option>
+              <option value="annual">yearly average</option>
+              <option value="summer">summer average</option>
+              <option value="winter">winter average</option>
             </select>
             
-            predictions for the decade  
+            climate change for the  
             
             <select onChange={(e) => { props.yearCallback(e.target.value); }}>                  
-              <option value="2020">2020's</option>
-              <option value="2030">2030's</option>
-              <option value="2040">2040's</option>
-              <option value="2050">2050's</option>
-              <option value="2060">2060's</option>
-              <option selected value="2070">2070's</option>
+              <option value="2020">2020</option>
+              <option value="2030">2030</option>
+              <option value="2040">2040</option>
+              <option value="2050">2050</option>
+              <option value="2060">2060</option>
+              <option selected value="2070">2070</option>
             </select>
 
-            compared with the baseline climate records for the 1980's.
+            decade compared with the local climate records for the 1980s.
+
+            <p>
+              Notice that the yearly average climate change does not always reflect the extremes of summer and winter, so it is worth changing the drop down menu above to see the predictions for the different seasons. 
+            </p>
             
           </p>
         </div>

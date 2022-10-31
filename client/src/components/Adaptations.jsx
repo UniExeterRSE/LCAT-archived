@@ -45,8 +45,11 @@ function Adaptations(props) {
         <div>
           <h1>Adaptations</h1>
           <p>
-            The following adaptations the most important to consider in&nbsp; 
-            
+            Based on the expected climate change and the resulting impacts,
+            the following adaptations should be considered.
+            You are currently viewing adaptations for {props.season} and
+            for all sectors in&nbsp;
+
             <span className={"projected-regions"}>
               { andify(props.regions.map(e => e.name)) }
             </span>
@@ -58,7 +61,11 @@ function Adaptations(props) {
                                 <Adaptation a = {a}/>
                               </div>);})
              : <h3>No adaptations found</h3>}
-          </div>  
+          </div>
+
+          <p className="note">
+            Data source: The adaptation data is based on published scientific literature and reports. You can see the references used by expanding each adaptation.
+          </p>
         </div>
     );
 }

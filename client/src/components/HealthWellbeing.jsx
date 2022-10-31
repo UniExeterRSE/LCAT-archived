@@ -58,13 +58,13 @@ function HealthWellbeing(props) {
           <h1>Health Impact Summary</h1>
 
           <p>
-            The climate change forecast in&nbsp;
+            The climate change predicted in your selected areas of&nbsp;
             
             <span className={"projected-regions"}>
               { andify(props.regions.map(e => e.name)) }
             </span>
 
-            &nbsp;is expected to cause these health and wellbeing impacts:
+            &nbsp;is expected to result in these health and wellbeing impacts:
           </p>
           
           <div className={"horiz-container-health"}>        
@@ -81,7 +81,11 @@ function HealthWellbeing(props) {
                   </b>                
                 </div>
             ))}
-          </div>  
+          </div>
+
+          <p className="note">
+            Data source: The impact data is based on published scientific literature and reports. A full reference list is available here, and the references relevant to particular impacts can be explored in the health impact details network.
+          </p>
         </LoadingOverlay>
     );
 }

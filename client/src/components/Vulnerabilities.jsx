@@ -93,7 +93,7 @@ function Vulnerabilities(props) {
                         if (significant) {
                             vulns.push({
                                 key: key,
-                                type: "Climate Just NFVI Supporting Variables",
+                                type: "Climate JustNFVI) Supporting Variables",
                                 name: nfviColumns[key].name,                        
                                 region: data[0][key],
                                 uk: props.stats[statkey+"_avg"],
@@ -114,13 +114,13 @@ function Vulnerabilities(props) {
             text={'Loading...'}>
             <h1>Vulnerabilities</h1>
             <p>
-              The following vulnerabilities are the most important to consider in&nbsp; 
-              
+              The following vulnerabilities are particularly important in your selected areas of&nbsp;              
+
               <span className={"projected-regions"}>
                 { andify(props.regions.map(e => e.name)) }
               </span>
               
-              &nbsp;(these vulnerabilities are in the top
+              &nbsp;These vulnerabilities are in the top
 
               <select onChange={(e) => { setDecile(e.target.value); }}>
                 <option value="dec_1">10%</option>
@@ -134,7 +134,7 @@ function Vulnerabilities(props) {
                 <option value="dec_9">90%</option>
               </select>
 
-              compared with UK averages).
+              compared with UK averages.
             </p>
             
             <div className={"vuln-container"}>        
@@ -154,8 +154,8 @@ function Vulnerabilities(props) {
                       );
                   }) : <h3>{ andify(props.regions.map(e => e.name)) } is not in the top {decileToText(decile)} for any vulnerabilities.</h3>}
             </div>  
-	        <p>
-		      Source data on vulnerabilities from <a href="https://www.climatejust.org.uk">ClimateJust</a> based on work carried out by <a href="http://www.sayersandpartners.co.uk/uploads/6/2/0/9/6209349/sayers_2017_-_present_and_future_flood_vulnerability_risk_and_disadvantage_-_final_report_-_uploaded_05june2017_printed_-_high_quality.pdf">Sayers and Partners LLP for the Joseph Rowntree Foundation</a>.
+	        <p className="note">
+              Data source: The vulnerability data comes from <a href="https://www.climatejust.org.uk">ClimateJust</a> and is based on 2011 census data. This will be updated once the 2021 census data is available.
 	        </p>
           </LoadingOverlay>
         </div>

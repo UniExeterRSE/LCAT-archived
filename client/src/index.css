@@ -63,20 +63,20 @@ h2 {
 
 select {
     font-family: 'Montserrat-SemiBold',Arial,Helvetica,sans-serif;
-	border: none;
+	border: 1px solid white;
 	background: #b2e1bcff;
 	font-size: 1em;
 	border-radius: 5px;
     margin-left: 0.25em;
     margin-right: 0.25em;
-    padding: 0.25em;
+    padding: 0em;
 }
 
 select:hover {
 	background: #f5821fff;
 }
 
-a { color: #f5821fff; }
+a { color: #115158ff; }
 
 button {
     font-family: 'Montserrat-SemiBold',Arial,Helvetica,sans-serif;
@@ -164,3 +164,13 @@ button:hover {
     margin: 1em;
 }
 
+.note {
+    color: #115158;
+    font-size: 80%;
+}
+
+.footer {
+    padding: 1em;
+    background: #f7f7f7;
+    font-size: 75%;
+}

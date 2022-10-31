@@ -57,15 +57,6 @@ function ClimateSummary(props) {
           spinner
           text={'Loading climate data'}>
           <div>
-            <p>
-              The climate forecast in&nbsp;
-
-              <span className={"projected-regions"}>
-                { andify(props.regions.map(e => e.name)) }
-              </span>
-              
-              &nbsp;by { props.year } is          
-            </p>
             <div className={"horiz-container"}>
               <div className={"vert-container"}>
                 <TempSvg/>
@@ -97,6 +88,15 @@ function ClimateSummary(props) {
               </div>
 
             </div>
+            
+            <p className="note">
+              Data source: The climate data used is from <a href="https://catalogue.ceda.ac.uk/uuid/8194b416cbee482b89e0dfbe17c5786c">CHESS-SCAPE</a>,
+              RCP6.0 and 8.5 were selected on the advice of climate researchers
+              and published literature <a href="https://www.unep.org/resources/emissions-gap-report-2022">existing policies point to a 2.8C temperature rise by 2100, in line with RCP6.0</a>.
+              To improve relatability, the baseline used is quite recent (1980
+              decade average), note that this does not fully reflect the extent
+              of climate change since pre-industrial times.              
+            </p>
           </div>
         </LoadingOverlay>        
     );
