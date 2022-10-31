@@ -1,10 +1,15 @@
 # Climate tool for ECEHH/Cornwall Council
 
-A tool for connecting together scientific information across climate, health and policy in Cornwall.
+A tool for connecting together scientific information across climate,
+health and policy in the UK. You can try the [beta version
+here](http://climate-tool.thentrythis.org/).
 
-You can try the [beta version here](http://climate-tool.thentrythis.org/).
+## More information
 
-## Installing
+* [Where does the data come from?](docs/sources.md)
+* [How are the network impacts calculated?](docs/network.md)
+      
+## Installing it yourself
 
 ### NodeJS Server
 
@@ -87,30 +92,12 @@ Setting up the virtual environment:
 Setting up config.yml - this needs to be in the data directory root
 and has the database login (same as the server above) as well as paths
 to the source GeoJSON shapefiles, climate model data, deprivation csv
-files and network data:
+files and network data. See the [docs for what to put in the config
+file and how to build the database](docs/sources.md)
     
-    user: "climate_geo_data"
-    password: "<insert password here>"
-    host: "localhost"
-    dbname: "climate_geo_data"
-    uk_cri_data_path: "path/to/uk-cri-climate/"
-    lsoa_data_shp: "path/to/wales-eng-lsoa/LSOA_2011_EW_BFC.shp"
-    msoa_data_shp: "path/to/msoa/Middle_Layer_Super_Output_Areas_December_2011_Generalised_Clipped_Boundaries_in_England_and_Wales.shp"
-    counties_data_shp: "path/to/counties/Counties_and_Unitary_Authorities_(December_2016)_Boundaries.shp"
-    imd_data_lsoa_csv: "path/to/imd2019lsoa.csv"
-    imd_data_msoa_csv: "path/to/imd2019_msoa_level_data.csv"
-    network_path: "path/to/network_csvs/"
-
-Building the data (this takes a long time):
-    
-    $ cd data
-    $ source venv/bin/activate
-    $ ./build all
-
-There are also separate build commands to build/rebuilt parts one at
-time (see in the 'build' script). When running on a server, we don't
-want to overheat the datacentre and get complaints, so you can leave
-this running for several days at max 25% cpu:
+When running on a server, we don't want to overheat the datacentre and
+get complaints, so you can leave this running for long periods of time
+at max 25% cpu:
     
     $ nohup cpulimit -l 25 -- ./build all 
         
@@ -125,19 +112,5 @@ this running for several days at max 25% cpu:
 * Make a symlink from `climate-tool/server/` to `/var/www/climate-tool`
 * Copy `ubuntu/climate-tool.service` to `/etc/systemd/system/`
 * Start with `sudo service climate-tool start` and set it to run after reboot via `sudo systemtl enable climate-tool`.
-
-## Geographical coordinates used
-
-  * British National Grid (BNG) OSGB 1936 = EPSG:27700
-    - United Kingdom Ordnance Survey
-    - Used by grid location for model data (uk-cli)
-    - Used for LSOA geojsons
-
-  * EPSG:4326 / WGS 84, latitude/longitude coordinate system based on
-    the Earth's center of mass, used by the Global Positioning System
-    among others. EPSG:3857 - Web Mercator projection used for display
-    by many web-based mapping tools, including Google Maps and
-    OpenStreetMap
-    - Our target coordinate system for mapping
 
 
