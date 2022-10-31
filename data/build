@@ -116,9 +116,13 @@ else:
 
     if sys.argv[1]=="load_imd_from_csv":
         # first we need to load in the base imd data (slowly)
+        # scotland
         imd.load_self_sc_dz(db,"boundary_sc_dz",conf['simd_data_dz_csv'])
+        # england
         imd.load_self_lsoa(db,"boundary_lsoa",conf['imd_data_lsoa_csv'])
-                
+        # wales
+        imd.load_self_lsoa_wimd(db,"boundary_lsoa",conf['imd_data_lsoa_wales_csv'])
+        
     if sys.argv[1]=="add_average_imd":
         # now we can use the links to average them across the larger boundaries
         imd.import_to_table(db,"boundary_uk_counties")

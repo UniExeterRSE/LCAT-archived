@@ -58,6 +58,22 @@ def load_self_lsoa(db,table,fn):
                         db.cur.execute(q)                
                         db.conn.commit()        
 
+# based on the supplied csv for wales
+def load_self_lsoa_wimd(db,table,fn):
+    prepare_col(db,table+"_vulnerabilities")
+    with open(fn, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        for i,row in enumerate(reader):
+            if i>0:
+                lsoa_code = row[3]
+                print(lsoa_code)
+                db.cur.execute(f"select gid from {table} where lsoa11cd='{lsoa_code}'")
+                dz_id = db.cur.fetchone()[0]                
+                q=f"update {table}_vulnerabilities set imd_decile='{row[5]}', imd_rank='{row[4]}' where boundary_id='{dz_id}';"
+                print(q)
+                db.cur.execute(q)                
+                db.conn.commit()        
+
 # a different csv format
 def load_self_sc_dz(db,table,fn):
     # add the column to the lsoa GEOJSON
@@ -74,7 +90,8 @@ def load_self_sc_dz(db,table,fn):
                 print(q)
                 db.cur.execute(q)                
                 db.conn.commit()        
-                                          
+
+                
 cols = ["imd_rank","imd_decile"]
                         
 # one to many mapping, averaging lsoa or sc_dzs we contain

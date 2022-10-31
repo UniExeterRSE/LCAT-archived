@@ -39,9 +39,10 @@ build scripts.
 
 | Type              | Notes                                                                   |  Time span | Regions             | LCAT postgres table/col  | Original Format | Coordinate system | Source URL | Authority                  |
 |-------------------|-------------------------------------------------------------------------|------------|---------------------|--------------------------|-----------------|-------------------|------------|----------------------------|
-| NFVI variables    | Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables	  |	2017       | UK                  | `nfvi` and `<boundary_type>_vulnerabilities` | ESRI Shapefile  | https://www.climatejust.org.uk/map | Climate Just |    
-| Indices of Multiple Deprivation | England and Wales                                         | 2019       | England and Wales   | `<boundary_type>_vulnerabilities` | CSV                        | -          |                            |  
+| Climate Just NFVI variables     | Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables	  |	2017       | UK                  | `nfvi` and `<boundary_type>_vulnerabilities` | ESRI Shapefile  | https://www.climatejust.org.uk/map | Climate Just |    
+| Indices of Multiple Deprivation | England                                                   | 2019       | England and Wales   | `<boundary_type>_vulnerabilities` | CSV                        | -          |                            |  
 | Indices of Multiple Deprivation | Scotland                                                  | 2020       | Scotland            | `<boundary_type>_vulnerabilities` | CSV                        | https://simd.scot/#/simd2020/BTTTFTT/12/-4.6223/55.5558/ | scot.gov |  
+| Indices of Multiple Deprivation | Wales                                                     | 2014       | Wales               | `<boundary_type>_vulnerabilities` | CSV                        | https://statswales.gov.wales/Catalogue/Community-Safety-and-Social-Inclusion/Welsh-Index-of-Multiple-Deprivation/WIMD-2019 | Welsh Government |  
     
 ## Impact network data
 
@@ -183,7 +184,47 @@ averages and deciles across all the boundary types so we can present
 the significant vulnerabilities based on deciles via:
 
     $ ./build stats
-                   
+
+## Loading the impact networks
+
+We currently use json files exported from Kumu which contain networks
+which include impacts and adapatations.
+
+    $ ./build network_json
+
+To load the references (and automatically pull in article information
+from doi.org) run this on the CSV export:
+    
+    $ ./build network_refs
+    
+# Config file
+
+`config.yml` is needed to configure the database access, and location
+of all the data required:
+
+    user: "<user>"
+    password: "<password>"
+    host: "localhost"
+    dbname: "<dbname>"
+
+    chess_tiff_path: "<path/to/orignal/tiffs>"
+    chess_tiff_decades_path: "<path/to/decades>"
+    
+    lsoa_data_shp: "<path/to/shapefile>"
+    msoa_data_shp: "<path/to/shapefile>"
+    la_districts_data_shp: "<path/to/shapefile>"
+    sc_dz_data_shp: "<path/to/shapefile>"
+    uk_counties_data_shp: "<path/to/shapefile>"
+    parishes_data_shp: "<path/to/shapefile>"
+
+    imd_data_lsoa_csv: "<path/to/csv>"
+    imd_data_lsoa_wales_csv: "<path/to/csv>" 
+    simd_data_dz_csv: "<path/to/csv>" 
+    nfvi_sfri_shp:  "<path/to/shapefile>"
+
+    network_json:  "<path/to/json>"
+    refs:  "<path/to/refs_csv>"
+                       
 # GeoTiff CRS
 
 For reference, this is the coordinate reference system for the GeoTiffs
