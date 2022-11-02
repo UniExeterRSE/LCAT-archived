@@ -133,6 +133,9 @@ else:
     if sys.argv[1]=="stats":
         stats.compute(db)
 
+    if sys.argv[1]=="climate_stats":
+        stats.compute_climate(db)
+
     # climate ----------------------------------------------------------------
         
     if sys.argv[1]=="chess_tif_grid":         

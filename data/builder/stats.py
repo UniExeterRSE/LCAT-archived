@@ -56,3 +56,21 @@ def compute(db):
             do_stats(db,"boundary_"+table+"_vulnerabilities",col)
 
     
+def compute_climate(db):
+    variables = ['tas','pr','rsds','sfcWind']
+    
+    for climate in ["chess_scape_rcp85_annual","chess_scape_rcp85_summer","chess_scape_rcp85_winter",
+                    "chess_scape_rcp60_annual","chess_scape_rcp60_summer","chess_scape_rcp60_winter"]:
+        vardec=[]
+        name=[]
+        for variable in variables:                
+            for decade in ["1980", "1990", "2000", "2010", "2020", "2030", "2040", "2050", "2060", "2070"]:
+                name.append(f"{variable}_{decade}")
+                vardec.append(f"avg({variable}_{decade}) as {variable}_{decade}")
+
+
+        q=f"select {', '.join(vardec)} from {climate}"
+        db.cur.execute(q)
+        ret = db.cur.fetchall()
+        for i,var in enumerate(ret[0]):
+            print(climate+"_"+name[i]+": "+str(var)+",")

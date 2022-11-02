@@ -18,17 +18,22 @@ import '../../node_modules/react-vis/dist/style.css';
 import ModelLoader from './ModelLoader';
 import './Graph.css';
 import { andify } from '../utils/utils';
+import { climateAverages } from '../core/climate';
 
 const FlexibleXYPlot = makeWidthFlexible(XYPlot); 
 const winterCol = "#a4f9c8";
 const summerCol = "#4c9f70";
 const selectedRegionCol = "#216331";
+const averageRegionCol = "#48b961";
 
 function Graph(props) {
 
     const [data, setData] = useState([]);
+    const [avg, setAvg] = useState([]);
     const [labelData, setLabelData] = useState([]);
-
+    const [avgLabel, setAvgLabel] = useState([]);
+    const [showAverage, setShowAverage] = useState(false);
+    
     const [season,setSeason] = useState("annual");
     const [rcp,setRcp] = useState("rcp60");
     const [variable,setVariable] = useState("tas");
@@ -51,23 +56,38 @@ function Graph(props) {
     }
     
     useEffect(() => {
-        //setData(data.map(v => ({x: v.year, y: v.avg})));
-        //setLabelData(data.map(v => ({x: v.year, y: v.avg+0})));
         if (prediction.length>0) {
             let out = [];
             let label = [];
+            let av = [];
+            let avlabel = [];
             if (prediction[0][variable+"_1980"]!=null) {            
                 for (let year of ["1980","2030","2040","2050","2060","2070"]) {
                     let label_year = year;
+                    let v = variable;
+                    if (v == "sfcwind") v="sfcWind";
+                    let avkey= "chess_scape_"+rcp+"_"+season+"_"+v+"_"+year;
                     if (year=="1980") label_year="1980 baseline";
+
+                    let offset=0;
+                    if (showAverage) offset=50;                
+
                     out.push({x: label_year, y:prediction[0][variable+"_"+year]});
-                    label.push({x: label_year, y:prediction[0][variable+"_"+year]});
-                }            
+                    label.push({x: label_year, y:prediction[0][variable+"_"+year], xOffset: -offset, yOffset: 20});
+
+                    av.push({x: label_year, y:climateAverages[avkey]});
+                    avlabel.push({x: label_year, y:climateAverages[avkey], xOffset: offset, yOffset: 20});
+
+                }
+                setAvg(av);
+                setAvgLabel(avlabel);
                 setData(out);
                 setLabelData(label);
             }
         }
-    }, [prediction,variable]);         
+    }, [prediction,
+        showAverage,
+        variable]);         
     
     if (props.regions.length === 0) {
         return null;
@@ -85,8 +105,7 @@ function Graph(props) {
                 regionType = {props.boundary}
                 average = {season}
                 rcp = {rcp}
-                callback = {(prediction) => {
-                    setPrediction(prediction);}}
+                callback = {(prediction) => setPrediction(prediction)}
                 loadingCallback={ loading => { }}
               />
 
@@ -127,12 +146,21 @@ function Graph(props) {
                 {rcp=="rcp60" && <span>(equivalent to global warming level of 2.0-3.7C which is RCP 6.0)</span>}
                 {rcp=="rcp85" && <span>(equivalent to global warming level of 3.2-5.4C which is RCP 8.5)</span>}.
 
-                Tick this [] to overlay UK average data.
+
+                You are viewing
+                
+                <select onChange={(e) => { setShowAverage(e.target.value==="1"); }}>
+                  <option value="0">your local climate change</option>
+                  <option value="1">comparison with UK averages</option>
+                </select>.
+                
                 
               </p>
 
               <div className="graph-horiz-container">
-                <FlexibleXYPlot height={300} xType="ordinal" color={selectedRegionCol}>
+                <FlexibleXYPlot
+                  height={300}
+                  xType="ordinal">
                   <XAxis
                     title = "Decades"
                     style={{ title: {fontSize: 20} }}/>
@@ -141,14 +169,27 @@ function Graph(props) {
                     position = "middle"
                     style={{ title: {fontSize: 20} }}/>
                   <VerticalBarSeries
+                    color={selectedRegionCol}
                     animation
                     data={data} />
                   <LabelSeries
                     animation
                     data={labelData}
-        /*labelAnchorY = {"auto"}*/
+                    labelAnchorY = {"auto"}
                     labelAnchorX = {"middle"}
                     getLabel={(d) => getLabel(d.y)}/>
+                  { showAverage &&  
+                    <VerticalBarSeries
+                      color={averageRegionCol}
+                      animation
+                      data={avg} /> }
+                  { showAverage && 
+                    <LabelSeries
+                      animation
+                      data={avgLabel}
+                      labelAnchorY = {"auto"}
+                      labelAnchorX = {"middle"}
+                      getLabel={(d) => getLabel(d.y)}/> }
                 </FlexibleXYPlot>
               </div>
               <p className="note">
