@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg1933"
+   width="116.63"
+   height="116.63"
+   version="1.1"
+   viewBox="0 0 30.858 30.858"
+   sodipodi:docname="Hospital admissions.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2184"
+     inkscape:window-height="1426"
+     id="namedview12125"
+     showgrid="false"
+     inkscape:zoom="8.0939726"
+     inkscape:cx="58.314999"
+     inkscape:cy="58.314999"
+     inkscape:window-x="72"
+     inkscape:window-y="41"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1933" />
+  <defs
+     id="defs1927">
+    <style
+       id="style10671">.cls-1{fill:#000000;}</style>
+  </defs>
+  <metadata
+     id="metadata1930">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     transform="translate(0 -266.14)">
+    <circle
+       id="path853-5"
+       cx="15.429"
+       cy="281.57"
+       r="15.429"
+       fill="#266334" />
+    <circle
+       id="path853"
+       cx="15.429"
+       cy="281.57"
+       r="0"
+       fill="#031d44" />
+  </g>
+  <g
+     id="layer2"
+     style="fill:#ffffff;fill-opacity:1">
+    <path
+       id="path10677"
+       class="cls-1"
+       d="m9.6664 10.29a2.8337 2.8337 0 1 0-2.8337-2.8337 2.8337 2.8337 0 0 0 2.8337 2.8337zm-1.8705-3.3969h1.3051v-1.3074h1.1286v1.3074h1.3074v1.1174h-1.3074v1.3185h-1.1286v-1.3074h-1.3051zm17.367 17.087a0.33522 0.33522 0 0 1-0.33522 0.33522h-11.726a0.33522 0.33522 0 0 1-0.33522-0.33522v-5.0954h-1.6873v1.4526a0.22348 0.22348 0 0 1-0.22348 0.22348 0.22348 0.22348 0 0 1-0.15867-0.06704l-2.7086-2.7153a0.22348 0.22348 0 0 1 0-0.31734l2.7086-2.7153a0.22348 0.22348 0 0 1 0.2436-0.05364 0.22348 0.22348 0 0 1 0.13856 0.2056v1.4526h1.6873v-4.9166h-6.1882v12.546a0.33522 0.33522 0 0 1-0.67044 0v-12.886a0.33522 0.33522 0 0 1 0.33522-0.33522h6.8587a0.33522 0.33522 0 0 1 0.33522 0.33522v5.2608h4.2462a0.22348 0.22348 0 0 1 0.22348 0.22348v2.0828a0.22348 0.22348 0 0 1-0.22348 0.22348h-4.2462v4.7602h11.398a0.33522 0.33522 0 0 1 0.32852 0.33522zm-4.6529-11.672a1.0593 1.0593 0 1 1 1.0593 1.0593 1.0593 1.0593 0 0 1-1.0593-1.0593zm-1.542 5.6675 0.37992-3.4863a0.28159 0.28159 0 0 1 0.02235-0.08492 0.99449 0.99449 0 0 1 1.0079-0.78666h0.0581l0.87605 3.3098a0.27935 0.27935 0 0 0 0.26818 0.2056h1.2649v5.7457a0.56541 0.56541 0 1 1-1.1308 0v-3.9176h-0.29946v3.9109a0.56541 0.56541 0 1 1-1.1308 0v-3.7321-0.03129-3.645l-0.10057-0.01117-0.28159 2.6058a0.44696 0.44696 0 0 1-0.5073 0.33075 0.41791 0.41791 0 0 1-0.42685-0.41344zm2.3063-4.3601h1.4884a0.98555 0.98555 0 0 1 1.0191 0.8537v0.01117l0.22348 2.0113a0.42015 0.42015 0 0 1-0.42462 0.41791h-0.26818a0.27041 0.27041 0 0 0-0.03799-0.19442z"
+       fill="#fff"
+       stroke-width=".26458"
+       style="fill:#ffffff;fill-opacity:1" />
+  </g>
+</svg>

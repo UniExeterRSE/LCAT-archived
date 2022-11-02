@@ -53,7 +53,6 @@ function Graph(props) {
     useEffect(() => {
         //setData(data.map(v => ({x: v.year, y: v.avg})));
         //setLabelData(data.map(v => ({x: v.year, y: v.avg+0})));
-        console.log(prediction);
         if (prediction.length>0) {
             let out = [];
             let label = [];
@@ -87,7 +86,6 @@ function Graph(props) {
                 average = {season}
                 rcp = {rcp}
                 callback = {(prediction) => {
-                    console.log("new climate prediction for graph");
                     setPrediction(prediction);}}
                 loadingCallback={ loading => { }}
               />

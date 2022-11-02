@@ -31,15 +31,17 @@ import HealthSvg from '../images/icons/Public health & wellbeing.svg';
 
 import { Network } from './Network';
 import { NetworkParser } from './NetworkParser';
+import { formatTextWrap } from '../utils/utils';
 
 const node_size=25;
 const preview_font_size=6;
+
+const iconCache = {};
 
 class NetworkRenderer extends Network {
 
 	constructor() {
         super([],[]);
-		this.iconCache = {};
 		this.iconCacheLoading = false;
         this.nodeColour = {
             "Driver": "#204545",
@@ -67,7 +69,6 @@ class NetworkRenderer extends Network {
 
     
     loadIcons() {
-        this.loadIcon("Diabetes");        
     }
 
     notFoundIcon(col,text) {
@@ -85,70 +86,69 @@ font-family="Arial" dy=".3em">`+text+`</text>
 </svg>
 `;
     }
-
-    loadIcon(fn,thunk) {
-        if (this.iconCache[fn]!=undefined) {
-            return this.iconCache[fn];
+    
+    async loadImage(fn,thunk) {
+        if (iconCache[fn]!=undefined) {            
+            return iconCache[fn];
         }
         
         let prepend="";
         if (process.env.NODE_ENV==="development") {
             prepend="http://localhost:3000";
         }
-        fetch(prepend+"/images/icons/"+fn+".svg")
-            .then((response) => response.text())
-            .then((data) => {
-                console.log("loaded "+fn);
-                //console.log(data);
-                this.iconCache[fn]=data;
-            });
-        return undefined;
+
+        let response = await fetch(prepend+"/images/"+fn+".svg");
+        
+        if (!response.ok) {
+            console.log(`An error has occured loading ${fn}: ${response.status}`);
+            return this.notFoundIcon("#f00","ERROR");
+        }
+        
+        let data = await response.text();
+        iconCache[fn]=data;
+        return iconCache[fn];
     }
-	
+
 	printable(str) {
 		return str.replace("&","&amp;");
 	}
 	
-	nodeImageURL(node) {
-        var id = node.id;
-        var title = node.label;
-        var code = node.state.asText();
-        var bg = this.nodeColour[node.type];
-        var show_glow = false;
-       
-		let height = 800;
-		if (bg==undefined) bg="#e6e6e6";
-        if (code=="Uncertain") bg="#ff00ff";
-        if (node.uncertaintyCause==true) bg="#ff0000";
-
-        let icon=this.notFoundIcon(bg,code);
-        //var draw = SVG();
-        //console.log(draw);
+	async nodeImageURL(node) {
+        // icons are 117x117 pixels
+        let icon_height=117;        
+        let image_height = 300;
+        let icon_pos = (image_height-icon_height)/2;        
         
-        //let icon=draw.svg(this.iconCache["Diabetes"]);
-        //console.log(icon);
-		let glow="";
+        let draw = SVG().size(117, 300);
+
+        // draw the text as a foreign object so we don't need to line wrap etc
+        let fobj = draw.foreignObject(117,300).move(0,230);
+        let el = document.createElement('div');
+        el.className='node-title';
+        el.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
+        el.style.fontFamily="'Montserrat-Medium', Arial, Helvetica, sans-serif";
+        el.style.background="white";
+        let cel = document.createElement('center');
+        cel.innerText = node.label;
+        el.appendChild(cel);
+        fobj.add(el);
+
+        // draw the icon
+        let g = draw.group();
+        g.svg(await this.loadImage("icons/"+node.label)).move(0,icon_pos);
+
+        if (node.state.value!="deactivated") {
+            // draw the direction
+            let g2 = draw.group();
+            g2.svg(await this.loadImage(node.state.value)).move(44,50);
+        }
+        
+		/*let glow="";
 		if (show_glow) {
-			glow=`<g transform="translate(0,95) scale(7.8)">` + this.iconCache["glow"] + `</g>`;
-		}
+			glow=`<g transform="translate(0,95) scale(7.8)">` + iconCache["glow"] + `</g>`;
+		}*/
         
-//		if (this.iconCache[title]!=null) {
-//			icon=`<g transform="translate(40,330) scale(7)">` + this.iconCache[title] + `</g>`;
- //           console.log(icon);
-//		} else {
-			//console.log("icon for "+title+" not found");
-//		}
-
-		let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="`+height+`" style="overflow:visible;">`
-		    + glow +  
-            `<foreignObject x="0" y="500" width="100%" height="100%">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'nunito',Arial,Helvetica,sans-serif; font-size: 1em; padding: 0em;">
-        <center style="font-size: 3em;">`+this.printable(title)+`</center>
-        </div>
-        </foreignObject> `+icon+`
-        </svg>`;
-
-		let url= "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+		let url= "data:image/svg+xml;charset=utf-8," + encodeURIComponent(draw.svg());
 		return url;
 	}
 
@@ -158,7 +158,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
 	
 ///////////////////////////////////////
     
-	addNode(node) {
+	async addNode(node) {
         if (node.state=="disabled") {
             return;
         }
@@ -167,7 +167,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         	this.nodes.push({
 			    id: node.node_id,
 			    shape: "image",
-			    image: this.nodeImageURL(node),
+			    image: await this.nodeImageURL(node),
 			    size: 30,
 				x: -500,
 				y: this.fixedYPos*150,
@@ -180,7 +180,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         	this.nodes.push({
 			    id: node.node_id,
 			    shape: "image",
-			    image: this.nodeImageURL(node),
+			    image: await this.nodeImageURL(node),
 			    size: 30,
                 mDPSEEA: node.type,
                 sector: node.sector
@@ -190,23 +190,22 @@ font-family="Arial" dy=".3em">`+text+`</text>
 
 	addEdge(edge) {
 
-        let colour = "#eeeeee";
-        if (edge.state=="increase") colour="#afd6e4";
-        if (edge.state=="decrease") colour="#f1b9bd";
-        if (edge.state=="uncertain") colour="#ff00ff";
+        let colour = "#115158";
+        //if (edge.state=="increase") colour="#afd6e4";
+        //if (edge.state=="decrease") colour="#f1b9bd";
+        //if (edge.state=="uncertain") colour="#ff00ff";
         
         let label=edge.type;
         var labelsize = 10;
 
-        if (!["-","+"].includes(edge.type)) return;
-        
         this.edges.push({
 			id: edge.edge_id,
 			from: edge.node_from,
 			to: edge.node_to,
-			arrows: "to",
-            label: edge.state+" ("+label+")",
-			labelHighlightBold: false,
+			arrows: "none",
+            width: 3,
+            //label: edge.state+" ("+label+")",
+			//labelHighlightBold: false,
 			//arrowStrikethrough: false,
             smooth: {
                 type: "dynamic",
@@ -227,9 +226,8 @@ font-family="Arial" dy=".3em">`+text+`</text>
 		});
 	}
     
-	buildGraph(nodes, edges, climatePrediction, year, sector, climateVariableFilter) {               
-        let networkParser = new NetworkParser([...nodes],[...edges]);
-        networkParser.calculate(climatePrediction,year,climateVariableFilter);
+	buildGraph(networkParser, nodes, edges) {               
+        console.log("buildGraph");
         this.parsedNodes = networkParser.nodes;
 		this.parsedEdges = networkParser.edges;
 
@@ -237,16 +235,16 @@ font-family="Arial" dy=".3em">`+text+`</text>
 		this.edges = [];
         this.fixedYPos=0;
 
+		for (let edge of this.parsedEdges) {
+   			this.addEdge(edge);
+		}
+
         // find causes and propagate upwards (right?) from there
 		for (let node of this.parsedNodes) {
             if (["Pressure", "Effect", "State", "Exposure"].includes(node.type) &&
                 node.state.value!="deactivated") {
    			    this.addNode(node);
             }
-		}
-
-		for (let edge of this.parsedEdges) {
-   			this.addEdge(edge);
 		}
 
         let g = {

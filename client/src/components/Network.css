@@ -1,7 +1,18 @@
 .network {
 	display: flex;
 	flex-direction: column;
+    height: 600px;
 }
+
+.fullscreen-enabled .network {
+    background: white;
+    height: 100vh;
+}
+
+.fullscreen-enabled .network-info {
+	width: 20%;
+}
+
 
 @media (min-width: 1200px) {
 	.network {
@@ -17,12 +28,7 @@
 	.network-holder {
 		display: flex;
 		flex: 1;
-	}
-}
-
-@media (min-width: 2000px) {
-	.network-holder {
-		height: 1600px;
+        height: auto;
 	}
 }
 
@@ -32,7 +38,6 @@
 	background: #e6ecedff;	
 	padding: 1em;
 	overflow-y: scroll;
-	height: 600px;
 }
 
 .network-info h2 {
@@ -51,7 +56,6 @@
 	.network-info {
 		width: 16em;
 		overflow-y: auto;
-		height: 600px;
 		font-size: 0.75em;
 	}
 }
@@ -137,4 +141,9 @@ g span {
 
 .metadata {
     color: #d6dcddff;	
+}
+
+
+.node-title: {
+    border: 1px solid red;
 }

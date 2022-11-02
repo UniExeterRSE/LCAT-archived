@@ -11,23 +11,24 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import useCollapse from 'react-collapsed';
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
 
 import Graph from 'react-graph-vis';
 import { andify } from '../utils/utils';
 import References from './References';
+import { NetworkRenderer } from '../core/NetworkRenderer';
 
 import './Network.css';
 
 // triggers when the network changes
 function NetworkListener(props) {
     useEffect(() => {
-        props.networkRenderer.loadIcons();
+        console.log("network update");
         props.callback(props.network);
-    }, [props.network,
-        props.climatePrediction,
+    }, [props.networkParser,
         props.year,
-        props.sector,
-        props.climateVariableFilter]);
+        props.climatePrediction,
+        props.sector]);
     return null;
 }
 
@@ -36,13 +37,16 @@ function Network(props) {
     const [ version, setVersion ] = useState(0);
     const [ graph, setGraph ] = useState({ nodes: [], edges: [] });
     const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
-    const [ infoTitle, setInfoTitle ] = useState("Click on something to see information");
+    const [ infoTitle, setInfoTitle ] = useState("Click on something for details");
     const [ infoText, setInfoText ] = useState("");
     const [ infoMetadata, setInfoMetadata ] = useState([]);
-    const [ climateVariableFilter, setClimateVariableFilter ] = useState("All");
     const [ nodeedgeId, setNodeedgeId ] = useState(0);
     const [ apiCall, setApiCall ] = useState("node_references");
-
+    const [ buildingGraph, setBuildingGraph] = useState(false);
+    const [ networkRenderer, setNetworkRenderer] = useState(new NetworkRenderer);
+    
+    const handle = useFullScreenHandle();
+    
     var options = {
 	    physics: {
 
@@ -101,7 +105,7 @@ function Network(props) {
         select: function(event) {
             if (event.nodes.length>0) {
                 // we clicked on a node
-                let node = props.networkRenderer.getParsedNode(event.nodes[0]);
+                let node = networkRenderer.getParsedNode(event.nodes[0]);
                 setNodeedgeId(node.node_id);
                 setApiCall("node_references");
                 setInfoTitle(node.label);
@@ -118,10 +122,10 @@ function Network(props) {
             } else {
                 if (event.edges.length>0) {
                     // we clicked on an edge                
-                    let edge = props.networkRenderer.getParsedEdge(event.edges[0]);
+                    let edge = networkRenderer.getParsedEdge(event.edges[0]);
                     
-                    let node_from = props.networkRenderer.getParsedNode(edge.node_from);
-                    let node_to = props.networkRenderer.getParsedNode(edge.node_to);
+                    let node_from = networkRenderer.getParsedNode(edge.node_from);
+                    let node_to = networkRenderer.getParsedNode(edge.node_to);
                     let change = " increases ";
                     let title = "Positive correlation";
                     if (edge.type == "-") {
@@ -168,7 +172,7 @@ function Network(props) {
             <div className="content">
               <p>
                 The network below shows how climate change will impact health. You can explore the network by clicking/tapping on the nodes and connections for more information. Nodes can be moved around by dragging them, and the network can also be zoomed and panned. You are currently viewing the impacts for
-
+                
                 <select>
                   <option value="All">All sectors</option>
                   <option disabled value="Health & Social Care">Health & Social Care</option>
@@ -190,47 +194,48 @@ function Network(props) {
               </p>
               <NetworkListener
                 network = {props.network}
-                networkRenderer = {props.networkRenderer}
+                networkRenderer = {networkRenderer}
+                networkParser = {props.networkParser}
                 climatePrediction = {props.climatePrediction}
                 year = {props.year}
                 sector = {props.sector}
-                climateVariableFilter = {climateVariableFilter}
                 callback = {(network) => {
+                    setGraph(networkRenderer.buildGraph(
+                        props.networkParser,
+                        network.nodes,
+                        network.edges));                    
                     setVersion(version+1);
-                    setGraph(props.networkRenderer.buildGraph(network.nodes,
-                                                              network.edges,
-                                                              props.climatePrediction,
-                                                              props.year,
-                                                              props.sector,
-                                                              climateVariableFilter));
                 }}
               />
-              <div className="network">
-                <div className="network-holder">
-                  <Graph
-                    key={version}
-                    graph={graph}
-                    options={options}
-                    events={events}
-                  />
+              <FullScreen handle={handle}>
+                <div className="network">
+                  <div className="network-holder">
+                    <Graph
+                      key={version}
+                      graph={graph}
+                      options={options}
+                      events={events}
+                    />
+                  </div>
+                  <div className="network-info">
+                    <button onClick={() => {handle.enter(); setVersion(version+1);}}>Fullscreen</button>
+                    <h2>{infoTitle}</h2>
+                    <p>{infoText}</p>
+                    <References
+                      id={nodeedgeId}
+                      api_call={apiCall}
+                    />
+                    <p className="metadata">
+                      <h3>Metadata</h3>
+                      <small>
+                        <ul>
+                          {infoMetadata.map(el => (<li><b>{el[0]}</b> : {el[1]}</li>))}
+                        </ul>
+                      </small>
+                    </p>
+                  </div>
                 </div>
-                <div className="network-info">
-                  <h2>{infoTitle}</h2>
-                  <p>{infoText}</p>
-                  <References
-                    id={nodeedgeId}
-                    api_call={apiCall}
-                  />
-                  <p className="metadata">
-                    <h3>Metadata</h3>
-                    <small>
-                      <ul>
-                        {infoMetadata.map(el => (<li><b>{el[0]}</b> : {el[1]}</li>))}
-                      </ul>
-                    </small>
-                  </p>
-                </div>
-              </div>
+              </FullScreen>
             </div>            
           </div>
           <p className="note">

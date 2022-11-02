@@ -22,13 +22,12 @@ import Graph from "./components/Graph";
 import HealthWellbeing from './components/HealthWellbeing';
 import Network from "./components/Network";
 import NetworkLoader from './components/NetworkLoader';
+import { NetworkParser } from './core/NetworkParser';
 import Sector from './components/Sector';
 import StatsLoader from './components/StatsLoader';
 import Vulnerabilities from './components/Vulnerabilities';
 import Adaptations from './components/Adaptations';
 import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_Primary_RGB.svg';
-
-import { NetworkRenderer } from './core/NetworkRenderer';
 
 const meta = {
     title: 'Local Climate Adaptation Tool',
@@ -43,9 +42,6 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
-        // should this be in the state?? seems wrong.
-        this.networkRenderer = new NetworkRenderer();
-
         this.state = {
             regions: [],
             regionType: "counties",
@@ -56,12 +52,9 @@ class App extends React.Component {
             year: 2070,
             loadingPrediction: false,
             sector: "all",
-            stats: []
+            stats: [],
+            networkParser: new NetworkParser([],[])
         };
-    }
-
-    componentDidMount() {
-        this.networkRenderer.loadIcons();
     }
 
     render() {
@@ -69,11 +62,10 @@ class App extends React.Component {
             <div className="App">
               <DocumentMeta {...meta}/>
               <header className="App-header">
-                <LCATLogoSvg
-                  width={300}/>
+                <LCATLogoSvg width={300}/>
               </header>
               <p>
-                This tool allows you to see local climate change predictions in the UK, and explore the impacts on our health and wellbeing. Local vulnerabilities are highlighted, and adaptation priorities are suggested. The information presented is based on scientific research, and links to the relevant data and publications are provided.
+                The tool allows you to see local climate change predictions in the UK, and explore the impact on our health and wellbeing. Local vulnerabilities are highlighted, and adaptation priorities are suggested. The information presented is based on scientific research, and links to the relevant data and publications are provided. The tool has been designed with, and for, local decision makers across the public, private and voluntary sector.                
               </p>
               <p>
                 <ul>
@@ -81,12 +73,12 @@ class App extends React.Component {
                   <li>Disclaimer to come</li>
                 </ul>
               </p>
-              {/* bundle up all the api calls into one when decided? */}
               <NetworkLoader
                 id={0}
                 callback={(nodes, edges) => {
                     this.setState((state) => ({
-                        network: { nodes: nodes, edges: edges },            
+                        network: { nodes: nodes, edges: edges },
+                        networkParser: new NetworkParser(nodes,edges)
                     }));}}
               />
 
@@ -104,10 +96,10 @@ class App extends React.Component {
                 rcp = {this.state.rcp}
                 regionType = {this.state.regionType}
                 callback = {(prediction) => {
-                    console.log("new climate prediction");
+                    console.log("New climate prediction");
                     this.setState((state) => ({
                         climatePrediction: prediction,
-                        loadingPrediction: false
+                        loadingPrediction: false,                        
                     }));}}
                 loadingCallback={ loading => { this.setState(() => ({
                     loadingPrediction: true
@@ -140,7 +132,6 @@ class App extends React.Component {
               
               <ClimateSummary
                 climatePrediction = {this.state.climatePrediction}
-                network = {this.state.network}
                 year = {this.state.year}
                 regions = {this.state.regions}
                 loading = {this.state.loadingPrediction}
@@ -150,17 +141,9 @@ class App extends React.Component {
                 regions={this.state.regions}
                 boundary={this.state.regionType}                
               />
-              
-              {/*<Sector
-                regions = {this.state.regions}
-                callback={(sector) => { this.setState(() => ({
-                    sector: sector
-                    }));}}/>*/}
-                            
-
-              
+                                          
               <HealthWellbeing
-                network = {this.state.network}
+                networkParser = {this.state.networkParser}
                 year = {this.state.year}
                 climatePrediction = {this.state.climatePrediction}
                 regions = {this.state.regions}
@@ -168,14 +151,12 @@ class App extends React.Component {
               />
 
               <Network
-                regions = {this.state.regions}
-                regionType = {this.state.regionType}                
                 network = {this.state.network}
                 year = {this.state.year}
-                average = {this.state.average}
                 climatePrediction = {this.state.climatePrediction}
-                sector = {this.state.sector}
-                networkRenderer = {this.networkRenderer}
+                regions = {this.state.regions}
+                networkParser = {this.state.networkParser}
+                sector = {this.state.sector}               
               />
 
               <Vulnerabilities
@@ -185,7 +166,7 @@ class App extends React.Component {
               />
 
               <Adaptations
-                network = {this.state.network}
+                networkParser = {this.state.networkParser}
                 year = {this.state.year}
                 climatePrediction = {this.state.climatePrediction}
                 season = {this.state.average}
@@ -196,6 +177,10 @@ class App extends React.Component {
               <div className="footer">
                 <p>
                   The Local Climate Adaptation Tool has been developed by the University of Exeter’s European Centre for Human Health, Cornwall Council, Then Try This and The Alan Turing Institute with co-design partners from Local Government, the National Health Service, emergency services, and voluntary and private sectors. Funding for the project has been provided, Research England’s Collaboration Fund, Strategic Priorities Fund and Policy Support Fund, as part of the Policy@Exeter initiative, The Schroder Foundation, and the Net Zero Innovation Programme; a UCL and Local Government Association Initiative.
+                </p>
+
+                <p>
+                  The LCAT project team (University of Exeter, Then Try This, Cornwall Council and The Alan Turing Institute) and their agents, take no responsibility for decisions taken as a result of the use of this tool. While every effort has been made to ensure data represented in the tool are accurate, no liability is accepted for any inaccuracies in the dataset or for any actions taken based on the use of this tool. The views expressed in this tool do not reflect the views of the organisations or the funding bodies. There is no guarantee that the tool will be updated to reflect changes in the source information.
                 </p>
                 
                 <p>

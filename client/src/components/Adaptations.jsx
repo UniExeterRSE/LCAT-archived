@@ -16,24 +16,19 @@ import Adaptation from "./Adaptation";
 
 function Adaptations(props) {
 
-    const [ networkParser, setNetworkParser ] = useState(
-        new NetworkParser(
-            props.network.nodes,
-            props.network.edges));
-
     const [ adaptations, setAdaptations ] = useState([]);
 
     useEffect(() => {
-        setNetworkParser(new NetworkParser(
-            props.network.nodes,
-            props.network.edges));        
-
-        let hw = networkParser.calculateHealthWellbeing(
-            props.climatePrediction,
-            props.year,
-            "All");
-        setAdaptations(networkParser.extractAdaptations());
-    }, [props.network,
+        console.log("Adaptations update");
+        if (props.climatePrediction.length!=0) {
+            let hw = props.networkParser.calculateHealthWellbeing(
+                props.climatePrediction,
+                props.year,
+                "All");
+            setAdaptations(props.networkParser.extractAdaptations());
+        }
+    }, [props.networkParser,
+        props.network,
         props.climatePrediction,
         props.year]);
            

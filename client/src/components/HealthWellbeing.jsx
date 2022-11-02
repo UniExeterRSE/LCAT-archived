@@ -18,19 +18,12 @@ import { andify } from '../utils/utils';
 
 function HealthWellbeing(props) {
 
-    const [ networkParser, setNetworkParser ] = useState(
-        new NetworkParser(
-            props.network.nodes,
-            props.network.edges));
-
     const [ healthNodes, setHealthNodes ] = useState([]);
 
     useEffect(() => {
-        setNetworkParser(new NetworkParser(
-            props.network.nodes,
-            props.network.edges));        
+        console.log("HWB update");
 
-        let hw = networkParser.calculateHealthWellbeing(
+        let hw = props.networkParser.calculateHealthWellbeing(
             props.climatePrediction,
             props.year,
             "All");
@@ -41,7 +34,7 @@ function HealthWellbeing(props) {
             return node;
         }));
 
-    }, [props.network,
+    }, [props.networkParser,
         props.climatePrediction,
         props.year]);
     

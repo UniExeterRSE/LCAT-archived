@@ -144,7 +144,7 @@ class NetworkParser extends Network {
                         } else {
                             if (prediction<-this.globalThreshold) {
                                 this.recurCalculate(pressure,new NetworkState("decrease"));
-                            } else {                    
+                            } else {
                                 this.recurCalculate(pressure,new NetworkState("deactivated"));
                             }
                         }

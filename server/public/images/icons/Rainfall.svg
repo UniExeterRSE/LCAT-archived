@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg id="svg1933" width="30.858mm" height="30.858mm" version="1.1" viewBox="0 0 30.858 30.858" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+ <metadata id="metadata1930">
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g id="layer1" transform="translate(0 -266.14)">
+  <g id="g6312" transform="translate(-159.86 222.62)">
+   <circle id="circle1093-0-85" cx="175.29" cy="58.949" r="15.429" fill="#115158" stroke-width=".465"/>
+   <g id="g1974" transform="matrix(.38638 0 0 .38638 163.24 46.512)" fill="#fff" stroke-width=".68478">
+    <g id="g1972" fill="#fff" stroke-width=".68478">
+     <path id="path1960" d="m45.488 18.014c-1.786-6.976-8.117-12.014-15.488-12.014-8.822 0-16 7.178-16 16-4.411 0-8 3.589-8 8s3.589 8 8 8h32c5.514 0 10-4.486 10-10 0-5.684-4.787-10.301-10.512-9.986zm0.512 15.986h-32c-2.206 0-4-1.794-4-4s1.794-4 4-4c0.506 0 1.005 0.097 1.482 0.288 0.675 0.27 1.441 0.153 2.003-0.304 0.563-0.457 0.834-1.184 0.709-1.898-0.131-0.748-0.194-1.43-0.194-2.086 0-6.617 5.383-12 12-12 6.052 0 11.168 4.528 11.9 10.534 0.07 0.577 0.388 1.094 0.871 1.418 0.481 0.324 1.08 0.421 1.642 0.269 3.957-1.082 7.587 1.953 7.587 5.779 0 3.309-2.691 6-6 6z"/>
+     <path id="path1962" d="m32 42c-1.104 0-2 0.896-2 2v10c0 1.104 0.896 2 2 2s2-0.896 2-2v-10c0-1.104-0.896-2-2-2z"/>
+     <path id="path1964" d="m24 42c-1.104 0-2 0.896-2 2v10c0 1.104 0.896 2 2 2s2-0.896 2-2v-10c0-1.104-0.896-2-2-2z"/>
+     <path id="path1966" d="m16 42c-1.104 0-2 0.896-2 2v10c0 1.104 0.896 2 2 2s2-0.896 2-2v-10c0-1.104-0.896-2-2-2z"/>
+     <path id="path1968" d="m40 42c-1.104 0-2 0.896-2 2v10c0 1.104 0.896 2 2 2s2-0.896 2-2v-10c0-1.104-0.896-2-2-2z"/>
+     <path id="path1970" d="m48 42c-1.104 0-2 0.896-2 2v10c0 1.104 0.896 2 2 2s2-0.896 2-2v-10c0-1.104-0.896-2-2-2z"/>
+    </g>
+   </g>
+  </g>
+ </g>
+</svg>

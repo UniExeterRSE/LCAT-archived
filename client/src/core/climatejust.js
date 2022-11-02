@@ -137,7 +137,7 @@ const nfviColumns = {
         units: "percent",
         direction: "greater-than"
     },
-    s1: {
+/*    s1: {
         name: "% of emergency services exposed to flooding",
         units: "percent",
         direction: "greater-than"
@@ -161,7 +161,7 @@ const nfviColumns = {
         name: "IMD Rank",
         units: "rank",
         direction: "greater-than"
-    },
+    },*/
     imd_decile: {
         name: "IMD Decile",
         units: "percent",

@@ -51,7 +51,6 @@ function ClimateSettings(props) {
             climate change for the  
             
             <select onChange={(e) => { props.yearCallback(e.target.value); }}>                  
-              <option value="2020">2020</option>
               <option value="2030">2030</option>
               <option value="2040">2040</option>
               <option value="2050">2050</option>

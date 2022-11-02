@@ -18,4 +18,18 @@ export function andify(a) {
     }
 }
 
-
+export function formatTextWrap(text, maxLineLength) {
+    const words = text.replace(/[\r\n]+/g, ' ').split(' ');
+    let lineLength = 0;
+    let ret = [''];
+    for (let word of words) {
+        if (lineLength + word.length >= maxLineLength) {
+            lineLength = word.length;
+            ret.push([word]); 
+        } else {
+            lineLength += word.length+1;
+            ret[ret.length-1]+=word+' ';
+        }
+    }
+    return ret;
+}

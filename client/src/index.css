@@ -40,12 +40,14 @@ h1 {
     font-family: 'Montserrat-Black',Arial,Helvetica,sans-serif;
 	font-size: 200%;
 	margin-bottom: 0em;
-    color: #115158ff
+    color: #115158ff;
+    text-transform: uppercase;              
 }
 
 h2 {
     font-family: 'Montserrat-SemiBold',Arial,Helvetica,sans-serif;
     border-bottom: 3px solid #f5821fff;
+    text-transform: uppercase;              
 }
 
 @media (min-width: 1000px) {

@@ -24,7 +24,73 @@ function Vulnerabilities(props) {
     const [ vulnerabilities, setVulnerabilities ] = useState([]);
     const [ decile, setDecile ] = useState("dec_1");
     const [ loading, setLoading ] = useState(false);
+    const [ data, setData ] = useState([]);
 
+    useEffect(() => {
+        if (data.length>0) {
+            let vulns = [];
+            for (let key of Object.keys(nfviColumns)) {
+                let avg = data[0][key];
+                let statkey = props.regionType+"_vulnerabilities_"+key;
+                let comparison = props.stats[statkey+"_"+decile];
+                
+                let significant = true;
+                if (comparison!=undefined) {                        
+                    significant = false;
+                    if (nfviColumns[key].direction=="less-than") {
+                        comparison = props.stats[statkey+"_"+flipDecile(decile)];
+                        if (avg<comparison) {
+                            significant = true;
+                        }
+                    } else {
+                        if (avg>comparison) {
+                            significant = true;
+                        }
+                    }
+                }
+
+                if (key=="imd_decile") {
+                    if (lessThanDecile(data[0][key],decile)) {                    
+                        vulns.push({
+                            key: key,
+                            type: "",
+                            name: "Index of Multiple Deprivation (Decile: "+data[0][key].toFixed()+")",                        
+                            region: 0,
+                            uk: 0,
+                            icon: lazy(() => import('../icons/vulnerabilities/'+key)),
+                        });
+                    }
+                } else {                    
+                    if (significant) {
+                        vulns.push({
+                            key: key,
+                            type: "Climate JustNFVI) Supporting Variables",
+                            name: nfviColumns[key].name,                        
+                            region: data[0][key],
+                            uk: props.stats[statkey+"_avg"],
+                            icon: lazy(() => import('../icons/vulnerabilities/'+key)),
+                        });
+                    }
+                }
+            }
+            setVulnerabilities(vulns);        
+        }
+    }, [decile,data]);
+
+
+    function lessThanDecile(v,decile) {
+        if (decile=="dec_1") return v<1;
+        if (decile=="dec_2") return v<2;
+        if (decile=="dec_3") return v<3;
+        if (decile=="dec_4") return v<4;
+        if (decile=="dec_5") return v<5;
+        if (decile=="dec_6") return v<6;
+        if (decile=="dec_7") return v<7;
+        if (decile=="dec_8") return v<8;
+        return v<9;
+    }
+
+    
     function flipDecile(decile) {
         if (decile=="dec_1") return "dec_9";
         if (decile=="dec_2") return "dec_8";
@@ -36,7 +102,7 @@ function Vulnerabilities(props) {
         if (decile=="dec_8") return "dec_2";
         return "dec_1";
     }
-
+    
     function decileToText(decile) {
         if (decile=="dec_1") return "10%";
         if (decile=="dec_2") return "20%";
@@ -58,56 +124,10 @@ function Vulnerabilities(props) {
           <VulnerabilitiesLoader 
             regions = {props.regions}
             regionType = {props.regionType}
-            callback = {data => {
-                let vulns = [];
-                for (let key of Object.keys(data[0])) {
-                    let avg = data[0][key];
-                    let statkey = props.regionType+"_vulnerabilities_"+key;
-                    let comparison = props.stats[statkey+"_"+decile];
-                     
-                    let significant = true;
-                    if (comparison!=undefined) {                        
-                        significant = false;
-                        if (nfviColumns[key].direction=="less-than") {
-                            comparison = props.stats[statkey+"_"+flipDecile(decile)];
-                            if (avg<comparison) {
-                                significant = true;
-                            }
-                        } else {
-                            if (avg>comparison) {
-                                significant = true;
-                            }
-                        }
-                    }
-
-                    if (key=="imd_rank" || key=="imd_decile") {
-                        vulns.push({
-                            key: key,
-                            type: "Index of Multiple Deprivation",
-                            name: nfviColumns[key].name+" "+data[0][key].toFixed(),                        
-                            region: 0,
-                            uk: 0,
-                            icon: lazy(() => import('../icons/vulnerabilities/'+key)),
-                        });
-                    } else {                    
-                        if (significant) {
-                            vulns.push({
-                                key: key,
-                                type: "Climate JustNFVI) Supporting Variables",
-                                name: nfviColumns[key].name,                        
-                                region: data[0][key],
-                                uk: props.stats[statkey+"_avg"],
-                                icon: lazy(() => import('../icons/vulnerabilities/'+key)),
-                            });
-                        }
-                    }
-                }
-                setVulnerabilities(vulns);
-            }}
+            callback = {data => setData(data)}
             loadingCallback={ loading => { setLoading(loading); }}            
           />
-            
-          
+                      
           <LoadingOverlay
             active={loading}
             spinner
