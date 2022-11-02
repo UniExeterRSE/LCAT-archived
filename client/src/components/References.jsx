@@ -25,7 +25,7 @@ function ArticleReference(props) {
     return (
         <p>
           <ul>
-            <li><a href={props.a.link}>{props.a.title}</a> ({props.a.type})</li>
+            <li><a href={props.a.link} target="_blank">{props.a.title}</a> ({props.a.type})</li>
             <small>
               <li><b>Authors: </b>{props.a.authors}</li>
               <li><b>Journal/Issue: </b>{props.a.journal} {props.a.issue} {props.a.date}</li>
@@ -39,7 +39,7 @@ function WebPageReference(props) {
     return (
         <p>
           <ul>
-            <li><a href={props.a.link}>{props.a.title}</a> ({props.a.type})</li>
+            <li><a href={props.a.link} target="_blank">{props.a.title}</a> ({props.a.type})</li>
             <small>
               <li><b>Source: </b>{baseURL(props.a.link)}</li>
             </small>
@@ -52,7 +52,7 @@ function ReportReference(props) {
     return (
         <p>
           <ul>
-            <li><a href={props.a.link}>{props.a.title}</a> ({props.a.type})</li>
+            <li><a href={props.a.link} target="_blank">{props.a.title}</a> ({props.a.type})</li>
             <small>
               <li><b>Source: </b>{baseURL(props.a.link)}</li>
             </small>
@@ -65,7 +65,7 @@ function BookSectionReference(props) {
     return (
         <p>
           <ul>
-            <li><a href={props.a.link}>{props.a.title}</a> ({props.a.type})</li>
+            <li><a href={props.a.link} target="_blank">{props.a.title}</a> ({props.a.type})</li>
           </ul>
         </p>
     );

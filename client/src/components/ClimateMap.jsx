@@ -167,7 +167,8 @@ class ClimateMap extends React.Component {
             r.clearMe();
         }
         this.setState(() => ({regions: []}));
-    } 
+    }
+    
     render() {
         return (
             <div>
@@ -248,7 +249,7 @@ class ClimateMap extends React.Component {
               </div>
               
               <p className="note">
-                Data source: The map zones used are from |this place| and |this place|.
+                Data source: The boundaries are from <a href="https://gitlab.com/then-try-this/climate-tool/-/blob/main/docs/sources.md" target="_blank">various governmental sources listed here</a>.
               </p>
             </div>
         );

@@ -167,7 +167,7 @@ function Network(props) {
     return (
         <div className="collapsible">
           <div className="header" {...getToggleProps({onClick: handleOnClick})}>
-            {isExpanded ? 'Hide' : 'Show'} more
+            {isExpanded ? 'Hide' : 'Show'} details
           </div>
           <div {...getCollapseProps()}>
             <div className="content">
@@ -242,7 +242,7 @@ function Network(props) {
             </div>            
           </div>
           <p className="note">
-            Data source: The impact data is based on published scientific literature and reports. A full reference list is available here, and the references relevant to particular impacts can be explored by clicking on the nodes and connections in the network above.
+            Data source: The impact data is based on published scientific literature and reports. A <a href="https://docs.google.com/spreadsheets/d/1WbTiJGcWOjo6tp5Z_65NDGE8aHLAQ-NPGMotDpDABEo/edit?ouid=102175944541338588070&usp=sheets_home&ths=true" target="_blank">full reference list is available here</a>, and the references relevant to particular impacts can be explored by clicking on the nodes and connections in the network above.
           </p>
           
         </div>
