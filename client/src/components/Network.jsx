@@ -18,6 +18,7 @@ import { andify } from '../utils/utils';
 import References from './References';
 import { NetworkRenderer } from '../core/NetworkRenderer';
 
+import './vis-network.min.css';
 import './Network.css';
 
 // triggers when the network changes
@@ -100,6 +101,11 @@ function Network(props) {
 		        levelSeparation: 75,
 		    },
 	    },
+        interaction: {
+            navigationButtons: true,
+            keyboard: true
+        },
+        autoResize: true,
     };
     
     var events = {

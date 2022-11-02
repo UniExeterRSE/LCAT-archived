@@ -1,7 +1,6 @@
 .network {
 	display: flex;
 	flex-direction: column;
-    height: 600px;
 }
 
 .fullscreen-enabled .network {
@@ -9,10 +8,13 @@
     height: 100vh;
 }
 
+.fullscreen-enabled .network-holder {
+    height: 100vh;
+}
+
 .fullscreen-enabled .network-info {
 	width: 20%;
 }
-
 
 @media (min-width: 1200px) {
 	.network {
@@ -28,7 +30,6 @@
 	.network-holder {
 		display: flex;
 		flex: 1;
-        height: auto;
 	}
 }
 
@@ -143,7 +144,20 @@ g span {
     color: #d6dcddff;	
 }
 
-
 .node-title: {
     border: 1px solid red;
+}
+
+
+div.vis-network div.vis-navigation div.vis-button.vis-up {
+/*    background-image: url("../images/decrease.svg"); */
+}
+div.vis-network div.vis-navigation div.vis-button.vis-down {
+/*    background-image: url("../images/decrease.svg"); */
+}
+div.vis-network div.vis-navigation div.vis-button.vis-left {
+/*    background-image: url("../images/decrease.svg"); */
+}
+div.vis-network div.vis-navigation div.vis-button.vis-right {
+/*    background-image: url("../images/decrease.svg"); */
 }
