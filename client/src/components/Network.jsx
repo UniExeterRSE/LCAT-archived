@@ -44,6 +44,7 @@ function Network(props) {
     const [ apiCall, setApiCall ] = useState("node_references");
     const [ buildingGraph, setBuildingGraph] = useState(false);
     const [ networkRenderer, setNetworkRenderer] = useState(new NetworkRenderer);
+    const [ networkAPI, setNetworkAPI ] = useState(null);
     
     const handle = useFullScreenHandle();
     
@@ -203,7 +204,8 @@ function Network(props) {
                     setGraph(networkRenderer.buildGraph(
                         props.networkParser,
                         network.nodes,
-                        network.edges));                    
+                        network.edges));
+                    if (networkAPI!=null) networkAPI.fit();
                     setVersion(version+1);
                 }}
               />
@@ -215,6 +217,7 @@ function Network(props) {
                       graph={graph}
                       options={options}
                       events={events}
+                      getNetwork={ network => setNetworkAPI(network) }
                     />
                   </div>
                   <div className="network-info">

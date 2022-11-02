@@ -176,16 +176,17 @@ font-family="Arial" dy=".3em">`+text+`</text>
                 sector: node.sector
 		    });
             this.fixedYPos+=1;
-        } else {
-        	this.nodes.push({
-			    id: node.node_id,
-			    shape: "image",
-			    image: await this.nodeImageURL(node),
-			    size: 30,
-                mDPSEEA: node.type,
-                sector: node.sector
-		    });
+            return;
         }
+        
+        this.nodes.push({
+			id: node.node_id,
+			shape: "image",
+			image: await this.nodeImageURL(node),
+			size: 30,
+            mDPSEEA: node.type,
+            sector: node.sector
+		});
 	}
 
 	addEdge(edge) {
@@ -234,6 +235,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         this.nodes = [];
 		this.edges = [];
         this.fixedYPos=0;
+        this.fixedYPosHealth=0;
 
 		for (let edge of this.parsedEdges) {
    			this.addEdge(edge);
