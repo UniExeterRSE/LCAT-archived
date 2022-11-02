@@ -11,10 +11,10 @@
 
 import LoadingOverlay from "react-loading-overlay";
 
-import { ReactComponent as TempSvg } from '../images/temp.svg';
-import { ReactComponent as RainSvg } from '../images/rain.svg';
-import { ReactComponent as WindSvg } from '../images/wind.svg';
-import { ReactComponent as CloudSvg } from '../images/cloud.svg';
+import TempSvg from '../images/climate/Temperature';
+import RainSvg from '../images/climate/Rain';
+import WindSvg from '../images/climate/WindSpeed';
+import CloudSvg from '../images/climate/CloudCover';
 
 import { andify } from '../utils/utils';
 

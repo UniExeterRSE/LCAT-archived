@@ -11,11 +11,11 @@
 
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 
-import { ReactComponent as HealthAndWellbeingSvg } from '../images/icons/Public health & wellbeing.svg';
 import { andify } from '../utils/utils';
 import { nfviColumns } from '../core/climatejust';
 import LoadingOverlay from "react-loading-overlay";
 import VulnerabilitiesLoader from './VulnerabilitiesLoader';
+import { camelize } from '../utils/utils';
 
 import './Vulnerabilities.css';
 
@@ -53,11 +53,11 @@ function Vulnerabilities(props) {
                     if (lessThanDecile(data[0][key],decile)) {                    
                         vulns.push({
                             key: key,
-                            type: "",
+                            type: "UK/Welsh/Scottish government",
                             name: "Index of Multiple Deprivation (Decile: "+data[0][key].toFixed()+")",                        
                             region: 0,
                             uk: 0,
-                            icon: lazy(() => import('../icons/vulnerabilities/'+key)),
+                            icon: lazy(() => import('../images/vulnerabilities/Imd')),
                         });
                     }
                 } else {                    
@@ -68,7 +68,7 @@ function Vulnerabilities(props) {
                             name: nfviColumns[key].name,                        
                             region: data[0][key],
                             uk: props.stats[statkey+"_avg"],
-                            icon: lazy(() => import('../icons/vulnerabilities/'+key)),
+                            icon: lazy(() => import('../images/vulnerabilities/'+camelize(key))),
                         });
                     }
                 }
@@ -167,7 +167,7 @@ function Vulnerabilities(props) {
                             </Suspense>
                             <div className={"vuln-name"}>{v.name}</div>                      
                             <div className={"vuln-type"}>{v.type}</div>
-                            {!v.name.startsWith("IMD") &&
+                            {!v.name.startsWith("Index") &&
                              <div className={"vuln-type"}>{v.region.toFixed(2)}% vs {v.uk.toFixed(2)}% UK average</div>
                             }
                           </div>

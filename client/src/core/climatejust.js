@@ -117,11 +117,11 @@ const nfviColumns = {
         units: "percent",
         direction: "greater-than"
     },
-    e1: {
+/*    e1: {
         name: "% number of properties within historical flood boundary",
         units: "percent",
         direction: "greater-than"
-    },
+    },*/
     n1: {
         name: "% single-pensioner households",
         units: "percent",

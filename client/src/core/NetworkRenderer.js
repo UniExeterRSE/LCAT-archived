@@ -137,7 +137,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         let g = draw.group();
         g.svg(await this.loadImage("icons/"+node.label)).move(0,icon_pos);
 
-        if (node.state.value!="deactivated") {
+        if (node.state.value!="deactivated" && node.state.value!="unknown") {
             // draw the direction
             let g2 = draw.group();
             g2.svg(await this.loadImage(node.state.value)).move(44,50);

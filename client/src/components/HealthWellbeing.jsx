@@ -11,10 +11,8 @@
 
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import LoadingOverlay from "react-loading-overlay";
-
-import { ReactComponent as HealthAndWellbeingSvg } from '../images/icons/Public health & wellbeing.svg';
 import { NetworkParser } from '../core/NetworkParser';
-import { andify } from '../utils/utils';
+import { andify,camelize } from '../utils/utils';
 
 function HealthWellbeing(props) {
 
@@ -30,7 +28,7 @@ function HealthWellbeing(props) {
 
         // lazy load the icons here
         setHealthNodes(hw.map(node => {
-            node.icon = lazy(() => import('../icons/health/'+node.label));
+            node.icon = lazy(() => import('../images/health/'+camelize(node.label)));
             return node;
         }));
 
