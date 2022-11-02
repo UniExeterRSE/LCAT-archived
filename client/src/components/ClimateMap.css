@@ -13,40 +13,37 @@
 	flex-wrap: wrap;
 }
 
+.leaflet-container {
+    margin: 0;
+}
+
 @media (min-width: 1000px) {
 	.map-container {
 		flex-direction: row;
 	}
 }
 
-#leaflet-map {
-	height: 400px;
+.climate-map {
 	flex: 1 0 350px;
-}
-
-@media (min-width: 1000px) {
-	#leaflet-map {
-		height: 600px;
-	}
 }
 
 .map-selection {
 	margin-top: 1em;
 	width: 100%;
-	margin-left: 0;
+    overflow-y: auto;
+    height: 500px;
 }
 
 @media (min-width: 1000px) {
 	.map-selection {
 		margin-top: 0;
 		width: 10em;
-		margin-left: 1em;
 		padding-left: 1em;
 	}
 }
 
 .map-selection h2 {
-	font-size: 1em;
+	font-size: 0.75em;
 }
 
 .map-selection ul {

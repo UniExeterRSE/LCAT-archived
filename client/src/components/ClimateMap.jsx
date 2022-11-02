@@ -121,7 +121,13 @@ class ClimateMap extends React.Component {
                     regions: [...prev.regions,{
                         id: gid,
                         name: feature.properties.name,
-                        properties: feature.properties
+                        properties: feature.properties,
+                        clearMe: function() {
+                            layer.setStyle({
+                                'fillColor': col,
+                                'fillOpacity': 1
+                            });                    
+                        }
                     }]
                 }));
             } else {
@@ -155,7 +161,13 @@ class ClimateMap extends React.Component {
         if (type=="boundary_sc_dz") return "Data Zones (Scotland)";
         return "LSOA";
     }
-    
+
+    clear = () => {
+        for (let r of this.state.regions) {
+            r.clearMe();
+        }
+        this.setState(() => ({regions: []}));
+    } 
     render() {
         return (
             <div>
@@ -201,32 +213,43 @@ class ClimateMap extends React.Component {
                 callback={this.props.regionsCallback}
               />
 
-              <LoadingOverlay
-                active={this.state.loading}
-                spinner
-                text={'Loading '+this.regionTypeToName(this.state.regionType)}>
-                <MapContainer
-                  center={center}
-                  zoom={6}
-                  scrollWheelZoom={true}>
-                  <GeoJSONLoader
-                    apicall={"/api/region"}
-                    table={this.state.regionType}
-                    callback={this.geojsonCallback}
-                    loadingCallback={ loading => { this.setState(() => ({ loading: loading && this.state.triggerLoadingIndicator })); }}
-                  />
-                  { this.state.geojson &&               
-                    <GeoJSON
-                      key={this.state.geojson_key}
-                      data={this.state.geojson}
-                      onEachFeature={this.onEachFeature}/> }
-                  <TileLayer {...tileLayer} />
-                </MapContainer>
-              </LoadingOverlay>
+              <div className="map-container">
+                <div className="climate-map">
+                  <LoadingOverlay
+                    active={this.state.loading}
+                    spinner
+                    text={'Loading '+this.regionTypeToName(this.state.regionType)}>                
+                    <MapContainer
+                      center={center}
+                      zoom={6}
+                      scrollWheelZoom={true}>
+                      <GeoJSONLoader
+                        apicall={"/api/region"}
+                        table={this.state.regionType}
+                        callback={this.geojsonCallback}
+                        loadingCallback={ loading => { this.setState(() => ({ loading: loading && this.state.triggerLoadingIndicator })); }}
+                      />
+                      { this.state.geojson &&               
+                        <GeoJSON
+                          key={this.state.geojson_key}
+                          data={this.state.geojson}
+                          onEachFeature={this.onEachFeature}/> }
+                      <TileLayer {...tileLayer} />
+                    </MapContainer>
+                  </LoadingOverlay>
+                </div>
+                <div className="map-selection">
+                  {this.state.regions.map(r => (<ul><h2>{r.name}</h2></ul>))}
+                  {this.state.regions.length>0 &&
+                   <button onClick={ () => this.clear()}>
+                     Clear selection
+                     </button>}
+                </div>
+              </div>
+              
               <p className="note">
                 Data source: The map zones used are from |this place| and |this place|.
               </p>
-
             </div>
         );
     }
