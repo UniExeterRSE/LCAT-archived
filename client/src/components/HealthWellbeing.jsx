@@ -14,6 +14,8 @@ import LoadingOverlay from "react-loading-overlay";
 import { NetworkParser } from '../core/NetworkParser';
 import { andify,camelize } from '../utils/utils';
 
+import './HealthWellbeing.css';
+
 function HealthWellbeing(props) {
 
     const [ healthNodes, setHealthNodes ] = useState([]);
@@ -28,6 +30,7 @@ function HealthWellbeing(props) {
 
         // lazy load the icons here
         setHealthNodes(hw.map(node => {
+            node.direction = lazy(() => import('../images/'+node.state));
             node.icon = lazy(() => import('../images/health/'+camelize(node.label)));
             return node;
         }));
@@ -59,19 +62,21 @@ function HealthWellbeing(props) {
           </p>
           
           <div className={"horiz-container-health"}>        
-            { healthNodes.map((node) => (
+            { healthNodes.length ? healthNodes.map((node) => (
                 <div className={"vert-container-health"}>
+                  <div className={"direction-img"}>
+                    <Suspense fallback={<div>Loading direction icon...</div>}>
+                      <node.direction/>
+                    </Suspense>
+                  </div>
                   <div className={"health-img"}>
                     <Suspense fallback={<div>Loading icon...</div>}>
                       <node.icon/>
                     </Suspense>
                   </div>                
                   {node.label}                  
-                  <b>
-                    {node.state}
-                  </b>                
                 </div>
-            ))}
+            )):<h3>No health impacts found for { andify(props.regions.map(e => e.name)) }</h3> }
           </div>
 
           <p className="note">

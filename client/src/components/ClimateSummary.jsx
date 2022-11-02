@@ -22,6 +22,10 @@ import './ClimateSummary.css';
 
 function predict(prediction,year,variable,name,units) {
     if (prediction.length>0) {
+        if (prediction[0][variable+"_1980"]==null) {
+            return (<span>No data</span>);
+        }
+
         let baseline = parseFloat(prediction[0][variable+"_1980"]);
         let predict = parseFloat(prediction[0][variable+"_"+year]);
         let v=predict-baseline;

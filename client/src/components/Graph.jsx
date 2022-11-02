@@ -56,16 +56,16 @@ function Graph(props) {
         if (prediction.length>0) {
             let out = [];
             let label = [];
-            
-            for (let year of ["1980","2030","2040","2050","2060","2070"]) {
-                let label_year = year;
-                if (year=="1980") label_year="1980 baseline";
-                out.push({x: label_year, y:prediction[0][variable+"_"+year]});
-                label.push({x: label_year, y:prediction[0][variable+"_"+year]});
+            if (prediction[0][variable+"_1980"]!=null) {            
+                for (let year of ["1980","2030","2040","2050","2060","2070"]) {
+                    let label_year = year;
+                    if (year=="1980") label_year="1980 baseline";
+                    out.push({x: label_year, y:prediction[0][variable+"_"+year]});
+                    label.push({x: label_year, y:prediction[0][variable+"_"+year]});
+                }            
+                setData(out);
+                setLabelData(label);
             }
-            
-            setData(out);
-            setLabelData(label);
         }
     }, [prediction,variable]);         
     

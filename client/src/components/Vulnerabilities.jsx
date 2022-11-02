@@ -31,45 +31,49 @@ function Vulnerabilities(props) {
             let vulns = [];
             for (let key of Object.keys(nfviColumns)) {
                 let avg = data[0][key];
-                let statkey = props.regionType+"_vulnerabilities_"+key;
-                let comparison = props.stats[statkey+"_"+decile];
-                
-                let significant = true;
-                if (comparison!=undefined) {                        
-                    significant = false;
-                    if (nfviColumns[key].direction=="less-than") {
-                        comparison = props.stats[statkey+"_"+flipDecile(decile)];
-                        if (avg<comparison) {
-                            significant = true;
-                        }
-                    } else {
-                        if (avg>comparison) {
-                            significant = true;
-                        }
-                    }
-                }
 
-                if (key=="imd_decile") {
-                    if (lessThanDecile(data[0][key],decile)) {                    
-                        vulns.push({
-                            key: key,
-                            type: "UK/Welsh/Scottish government",
-                            name: "Index of Multiple Deprivation (Decile: "+data[0][key].toFixed()+")",                        
-                            region: 0,
-                            uk: 0,
-                            icon: lazy(() => import('../images/vulnerabilities/Imd')),
-                        });
+                if (avg!=null) {
+                
+                    let statkey = props.regionType+"_vulnerabilities_"+key;
+                    let comparison = props.stats[statkey+"_"+decile];
+
+                    let significant = true;
+                    if (comparison!=undefined) {                        
+                        significant = false;
+                        if (nfviColumns[key].direction=="less-than") {
+                            comparison = props.stats[statkey+"_"+flipDecile(decile)];
+                            if (avg<comparison) {
+                                significant = true;
+                            }
+                        } else {
+                            if (avg>comparison) {
+                                significant = true;
+                            }
+                        }
                     }
-                } else {                    
-                    if (significant) {
-                        vulns.push({
-                            key: key,
-                            type: "Climate JustNFVI) Supporting Variables",
-                            name: nfviColumns[key].name,                        
-                            region: data[0][key],
-                            uk: props.stats[statkey+"_avg"],
-                            icon: lazy(() => import('../images/vulnerabilities/'+camelize(key))),
-                        });
+
+                    if (key=="imd_decile") {
+                        if (lessThanDecile(data[0][key],decile)) {                    
+                            vulns.push({
+                                key: key,
+                                type: "UK/Welsh/Scottish government",
+                                name: "Index of Multiple Deprivation (Decile: "+data[0][key].toFixed()+")",                        
+                                region: 0,
+                                uk: 0,
+                                icon: lazy(() => import('../images/vulnerabilities/Imd')),
+                            });
+                        }
+                    } else {                    
+                        if (significant) {
+                            vulns.push({
+                                key: key,
+                                type: "Climate JustNFVI) Supporting Variables",
+                                name: nfviColumns[key].name,                        
+                                region: data[0][key],
+                                uk: props.stats[statkey+"_avg"],
+                                icon: lazy(() => import('../images/vulnerabilities/'+camelize(key))),
+                            });
+                        }
                     }
                 }
             }
@@ -168,7 +172,7 @@ function Vulnerabilities(props) {
                             <div className={"vuln-name"}>{v.name}</div>                      
                             <div className={"vuln-type"}>{v.type}</div>
                             {!v.name.startsWith("Index") &&
-                             <div className={"vuln-type"}>{v.region.toFixed(2)}% vs {v.uk.toFixed(2)}% UK average</div>
+                             <div className={"vuln-type"}>({v.region.toFixed(2)}% vs {v.uk.toFixed(2)}% UK average)</div>
                             }
                           </div>
                       );

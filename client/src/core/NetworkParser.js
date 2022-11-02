@@ -165,7 +165,7 @@ class NetworkParser extends Network {
                 // reconstruct the node with the minimun of info
                 ret.push({
                     label: node.label,
-                    state: node.state.asText()
+                    state: node.state.value
                 });
             }
         }

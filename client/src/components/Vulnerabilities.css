@@ -1,9 +1,8 @@
 .vuln-container {
-    margin-left: 50px;
     display: flex;
     flex-direction: row;
     overflow-x: auto;
-    justify-content: center;
+/*    justify-content: center; */
 }
 
 .vuln {

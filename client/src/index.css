@@ -145,27 +145,6 @@ button:hover {
     justify-content: center;
 }
 
-.horiz-container-health {
-	display: flex;
-	flex-direction: row;
-    overflow-x: auto;
-}
-
-.health-img {
-	display: flex;
-	flex-direction: row;    
-    align-items: center;
-    justify-content: center;
-}
-
-
-.vert-container-health {
-	display: flex;
-	flex-direction: column;
-    text-align: center;
-    margin: 1em;
-}
-
 .note {
     color: #115158;
     font-size: 80%;
