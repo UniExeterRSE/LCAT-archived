@@ -29,7 +29,7 @@ class Network {
     }
 
     getEdge(id) {
-        for (let edge in this.edges) {
+        for (let edge of this.edges) {
             if (edge.edge_id == id) return edge;
         }
         return false;

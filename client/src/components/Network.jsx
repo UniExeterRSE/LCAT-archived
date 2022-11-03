@@ -35,9 +35,10 @@ function NetworkListener(props) {
 
 function Network(props) {
 
+    const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
+
     const [ version, setVersion ] = useState(0);
     const [ graph, setGraph ] = useState({ nodes: [], edges: [] });
-    const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
     const [ infoTitle, setInfoTitle ] = useState("Click on something for details");
     const [ infoText, setInfoText ] = useState("");
     const [ infoMetadata, setInfoMetadata ] = useState([]);
@@ -118,7 +119,7 @@ function Network(props) {
         select: async function(event) {
             if (event.nodes.length>0) {
                 // we clicked on a node
-                let node = networkRenderer.getParsedNode(event.nodes[0]);
+                let node = props.networkParser.getNode(event.nodes[0]);
                 
                 // edit the live node on the network using the ref
                 if (previouslySelected!=null) {
@@ -154,19 +155,21 @@ function Network(props) {
                 setInfoMetadata(metadata);
             } else {
                 if (event.edges.length>0) {
-                    // we clicked on an edge                
-                    let edge = networkRenderer.getParsedEdge(event.edges[0]);
-                    
-                    let node_from = networkRenderer.getParsedNode(edge.node_from);
-                    let node_to = networkRenderer.getParsedNode(edge.node_to);
+                    // we clicked on an edge
+                    console.log(event.edges[0]);
+                    console.log(props.networkParser.edges);
+                    let edge = props.networkParser.getEdge(event.edges[0]);
+                    console.log(edge);
+                    let node_from = props.networkParser.getNode(edge.node_from);
+                    let node_to = props.networkParser.getNode(edge.node_to);
                     let change = " increases ";
                     let title = "Positive correlation";
                     if (edge.type == "-") {
                         change = " decreases ";
                         title = "Negative correlation";
                     }
-                    setInfoText(node_from.label+change+node_to.label);
-                    setInfoTitle(title);
+                    setInfoText("");
+                    setInfoTitle(node_from.label+change+node_to.label);
                     setApiCall("edge_references");
                     setNodeedgeId(edge.edge_id);
 

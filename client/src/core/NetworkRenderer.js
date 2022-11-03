@@ -51,22 +51,13 @@ class NetworkRenderer extends Network {
             "Effect": "#422137",
             "Action": "#422137"
         };
+        this.nodePositions = {
+            "Temperature": 0,
+            "Rainfall": 150,
+            "Wind speed": 300,
+            "Cloud cover": 450
+        };      
 	}
-
-    getParsedNode(id) {
-        for (let node of this.parsedNodes) {
-            if (node.node_id === id) return node;
-        }
-        return false;
-    }
-
-    getParsedEdge(id) {
-        for (let edge of this.parsedEdges) {
-            if (edge.edge_id === id) return edge;
-        }
-        return false;
-    }
-
     
     loadIcons() {
     }
@@ -165,6 +156,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         if (node.state=="disabled") {
             return;
         }
+
         
         if (node.type=="Pressure") {
         	this.nodes.push({
@@ -173,12 +165,12 @@ font-family="Arial" dy=".3em">`+text+`</text>
 			    image: await this.nodeImageURL(node,false,false),
 			    size: 30,
 				x: -500,
-				y: this.fixedYPos*150,
+				y: this.nodePositions[node.label],
 				fixed: true,
                 mDPSEEA: node.type,
                 sector: node.sector
 		    });
-            this.fixedYPos+=1;
+
             return;
         }
         
@@ -190,11 +182,13 @@ font-family="Arial" dy=".3em">`+text+`</text>
             mDPSEEA: node.type,
             sector: node.sector
 		});
+
+        return;
 	}
 
 	addEdge(edge) {
 
-        let colour = "#115158";
+        let colour = "#115158" ;
         let highlightColour = "#f5821f";
         //if (edge.state=="increase") colour="#afd6e4";
         //if (edge.state=="decrease") colour="#f1b9bd";
@@ -233,20 +227,18 @@ font-family="Arial" dy=".3em">`+text+`</text>
     
 	buildGraph(networkParser, nodes, edges, sector) {               
         console.log("buildGraph");
-        this.parsedNodes = networkParser.nodes;
-		this.parsedEdges = networkParser.edges;
 
         this.nodes = [];
 		this.edges = [];
-        this.fixedYPos=0;
-        this.fixedYPosHealth=0;
 
-		for (let edge of this.parsedEdges) {
+        // do we want a straight copy of the edges, or apply
+        // same filtering as below?
+		for (let edge of networkParser.edges) {
    			this.addEdge(edge);
 		}
 
         // find causes and propagate upwards (right?) from there
-		for (let node of this.parsedNodes) {
+		for (let node of networkParser.nodes) {
             if (["Pressure", "Effect", "State", "Exposure"].includes(node.type) &&
                 node.state.value!="deactivated") {
                 if (sector!="All" && !node.sector.includes(sector)) {
