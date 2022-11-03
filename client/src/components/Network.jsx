@@ -291,21 +291,29 @@ function Network(props) {
                     />
                   </div>
                   <div className="network-info">
-                    <button onClick={() => {handle.enter(); setVersion(version+1);}}>Fullscreen</button>
+                    <button onClick={() => {
+                        if (handle.active) handle.exit();
+                        else handle.enter();
+                        setVersion(version+1);
+                    }}>
+                      {handle.active ?
+                       <span>Exit fullscreen</span> :
+                       <span>Show fullscreen</span>}
+                    </button>
                     <h2>{infoTitle}</h2>
                     <p>{infoText}</p>
                     <References
                       id={nodeedgeId}
                       api_call={apiCall}
                     />
-                    <p className="metadata">
+                    {/*<p className="metadata">
                       <h3>Metadata</h3>
                       <small>
                         <ul>
                           {infoMetadata.map(el => (<li><b>{el[0]}</b> : {el[1]}</li>))}
                         </ul>
                       </small>
-                    </p>
+                      </p> */}
                   </div>
                 </div>
               </FullScreen>

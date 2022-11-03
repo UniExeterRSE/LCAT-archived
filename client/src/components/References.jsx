@@ -96,21 +96,26 @@ function References(props) {
     },[props.id,
        props.api_call]);
 
-    
-    return (
-        <div>          
-          <h3>References:</h3>
-          { references.map(r => {
-              if (r.type=="Journal Article") return (<ArticleReference a={r}/>);
-              if (r.type=="Conference Proceedings") return (<ArticleReference a={r}/>);
-              if (r.type=="Book") return (<ArticleReference a={r}/>);
-              if (r.type=="Web Page") return (<WebPageReference a={r}/>);
-              if (r.type=="Report") return (<ReportReference a={r}/>);
-              if (r.type=="Book Section") return (<BookSectionReference a={r}/>);
-              return (<p>{ r.type }: not understood</p>);
-          })}          
-        </div>
-    );
+    if (references.length>0) {    
+        return (
+            <div>          
+              <h3>References:</h3>
+              { references.map(r => {
+                  if (r.type=="Journal Article") return (<ArticleReference a={r}/>);
+                  if (r.type=="Conference Proceedings") return (<ArticleReference a={r}/>);
+                  if (r.type=="Book") return (<ArticleReference a={r}/>);
+                  if (r.type=="Web Page") return (<WebPageReference a={r}/>);
+                  if (r.type=="Report") return (<ReportReference a={r}/>);
+                  if (r.type=="Book Section") return (<BookSectionReference a={r}/>);
+                  return (<p>{ r.type }: not understood</p>);
+              })}          
+            </div>
+        );
+    } else {
+        return (
+            <h3>No references</h3>
+        );
+    }
 }
 
 export default References;

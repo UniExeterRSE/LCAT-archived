@@ -118,7 +118,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         }
         
         // draw the text as a foreign object so we don't need to line wrap etc
-        let fobj = draw.foreignObject(117,300).move(0,230);
+        let fobj = draw.foreignObject(117,300).move(10,230);
         let el = document.createElement('div');
         el.className='node-title';
         el.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
