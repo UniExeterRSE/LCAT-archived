@@ -29,6 +29,7 @@ import Adaptations from './components/Adaptations';
 
 import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_Primary_RGB.svg';
 import { ReactComponent as LogoBlockSvg } from './images/logos/logos.svg';
+import { ReactComponent as EmailSvg } from './images/email_button.svg';
 
 const meta = {
     title: 'Local Climate Adaptation Tool',
@@ -65,13 +66,10 @@ class App extends React.Component {
                 <LCATLogoSvg width={300}/>
               </header>
               <p>
-                The tool allows you to see local climate change predictions in the UK, and explore the impact on our health and wellbeing. Local vulnerabilities are highlighted, and adaptation priorities are suggested. The information presented is based on scientific research, and links to the relevant data and publications are provided. The tool has been designed with, and for, local decision makers across the public, private and voluntary sector.                
-              </p>
-              <p>
-                <ul>
-                  <li>FAQ text and link to come</li>
-                  <li>Disclaimer to come</li>
-                </ul>
+                The tool allows you to see local climate change predictions in the UK and explore the impact on our health and wellbeing. Local vulnerabilities are highlighted and adaptation priorities are suggested. The information presented is based on scientific research and links to the relevant data and publications are provided. The tool has been designed with, and for, local decision makers across the public, private and voluntary sectors.
+                <p>
+                  <a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions.pdf">See our Frequently Asked Questions for more information.</a>
+                </p>
               </p>
               <NetworkLoader
                 id={0}
@@ -174,8 +172,9 @@ class App extends React.Component {
               />
 
               <div className="footer">
+
                 <p>
-                  The Local Climate Adaptation Tool has been developed by the University of Exeter’s European Centre for Human Health, Cornwall Council, Then Try This and The Alan Turing Institute with co-design partners from Local Government, the National Health Service, emergency services, and voluntary and private sectors. Funding for the project has been provided, Research England’s Collaboration Fund, Strategic Priorities Fund and Policy Support Fund, as part of the Policy@Exeter initiative, The Schroder Foundation, and the Net Zero Innovation Programme; a UCL and Local Government Association Initiative.
+                  The Local Climate Adaptation Tool has been developed by the <a href="">University of Exeter’s European Centre for Human Health</a>, <a href="">Cornwall Council</a>, <a href="">Then Try This</a> and <a href="">The Alan Turing Institute</a> with co-design partners from Local Government, the National Health Service, emergency services, and voluntary and private sectors. Funding for the project has been provided by Research England’s Collaboration Fund, Strategic Priorities Fund and Policy Support Fund, as part of the Policy@Exeter initiative, The Schroder Foundation, and the Net Zero Innovation Programme; a UCL and Local Government Association Initiative.
                 </p>
 
                 <p>
@@ -183,17 +182,27 @@ class App extends React.Component {
                 </p>
                 
                 <p>
-                  Source code published under the Common Good Public Licence Beta 1.0
-                  Copyright © 2022 Then Try This and University of Exeter
+                  <a href="">Source code published</a> under the <a href="">Common Good Public Licence Beta 1.0</a>
                 </p>
 
                 <p>
-                  <LogoBlockSvg
-                    style={{transform: "scale(2)"}}
-                    width="100%" />
+                  Copyright © 2022 Then Try This and University of Exeter
                 </p>
+                
+                <p>
+                  <a href="mailto:lcat@exeter.ac.uk">
+                    <EmailSvg
+                      className="email-button"
+                      style={{
+                          transform: "scale(2)"
+                      }}
+                    />
+                  </a>
+                </p>                
+
+                <LogoBlockSvg style={{transform: "scale(2)"}}/>
+
               </div>
-              
               
             </div> 
         );

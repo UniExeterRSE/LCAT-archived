@@ -153,5 +153,18 @@ button:hover {
 .footer {
     padding: 1em;
     background: #f7f7f7;
-    font-size: 75%;
+    font-size: 60%;
+    text-align: center;
+}
+
+
+.email-button {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border-radius: 50%;
+    border: 3px solid white;
+}
+
+.email-button:hover {
+    border: 3px solid #f5821f;
 }
