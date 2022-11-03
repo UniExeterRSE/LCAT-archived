@@ -26,7 +26,9 @@ import { NetworkParser } from './core/NetworkParser';
 import StatsLoader from './components/StatsLoader';
 import Vulnerabilities from './components/Vulnerabilities';
 import Adaptations from './components/Adaptations';
+
 import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_Primary_RGB.svg';
+import { ReactComponent as LogoBlockSvg } from './images/logos/logos.svg';
 
 const meta = {
     title: 'Local Climate Adaptation Tool',
@@ -186,7 +188,9 @@ class App extends React.Component {
                 </p>
 
                 <p>
-                  LOGOS: exeter, ecehh, ttt, cc, turing
+                  <LogoBlockSvg
+                    style={{transform: "scale(2)"}}
+                    width="100%" />
                 </p>
               </div>
               

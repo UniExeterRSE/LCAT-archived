@@ -32,12 +32,24 @@ class NetworkParser extends Network {
         this.visited=[];
         this.adaptationVisited=[];
 
+        // sometimes more is good
+        let invertedBenefits = [
+            "Cognitive performance & the ability to learn",
+            "Wellbeing"
+        ];
+        
         // go through the nodes
   		for (let node of nodes) {
             // add a network state to all of them, start off deactivated
             node.state=new NetworkState("deactivated");
             // filter health and pressure nodes into their own lists
             if (node.type==="Effect" && node.disease_injury_wellbeing!="") {
+                // which way is good?
+                if (invertedBenefits.includes(node.label)) {
+                    node.invertedBenefit=true;
+                } else {
+                    node.invertedBenefit=false;
+                }
                 this.healthNodes.push(node);
             }
             if (node.type==="Pressure") {
@@ -232,8 +244,14 @@ class NetworkParser extends Network {
         let pressures = {};
         // start with each healtnode
         for (let node of this.healthNodes) {
-            // if it's "bad" (todo: need to sort this one out)
-            if (node.state.value=="increase") {
+
+            // if it's "bad"
+            let badDirection="increase";
+            if (node.invertedBenefit) {
+                badDirection="decrease";
+            }
+            
+            if (node.state.value==badDirection) {
                 // search backwards looking for actions that can help with
                 // impacts that contribute to this health impact
                 this.reverseRecurAdaptations(node,node,adaptations);
@@ -265,7 +283,7 @@ class NetworkParser extends Network {
             }
             ret.push(adaptations[k]);
         }
-        
+
         return ret;
     }
 }

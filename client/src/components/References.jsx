@@ -113,7 +113,7 @@ function References(props) {
         );
     } else {
         return (
-            <h3>No references</h3>
+            <h3>No references available</h3>
         );
     }
 }
