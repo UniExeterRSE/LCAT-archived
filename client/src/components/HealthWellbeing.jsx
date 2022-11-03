@@ -25,8 +25,7 @@ function HealthWellbeing(props) {
 
         let hw = props.networkParser.calculateHealthWellbeing(
             props.climatePrediction,
-            props.year,
-            "All");
+            props.year);
 
         // lazy load the icons here
         setHealthNodes(hw.map(node => {

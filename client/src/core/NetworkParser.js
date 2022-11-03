@@ -129,34 +129,31 @@ class NetworkParser extends Network {
     }
 
     // recur upwards from the climate change pressures
-    calculate(climatePrediction,year,climateVariableFilter) {
+    calculate(climatePrediction,year) {
         this.visited=[];
         for (let pressure of this.pressureNodes) {
             if (pressure.label!="Climate change") {
-                if (climateVariableFilter == "All" ||
-                    climateVariableFilter == pressure.label) {                
-                    let prediction = this.getPrediction(climatePrediction,year,pressure.label);
-                    if (prediction===false) {
-                        this.recurCalculate(pressure,new NetworkState("unknown"));
-                    } else {               
-                        if (prediction>this.globalThreshold) {
-                            this.recurCalculate(pressure,new NetworkState("increase"));
+                let prediction = this.getPrediction(climatePrediction,year,pressure.label);
+                if (prediction===false) {
+                    this.recurCalculate(pressure,new NetworkState("unknown"));
+                } else {               
+                    if (prediction>this.globalThreshold) {
+                        this.recurCalculate(pressure,new NetworkState("increase"));
+                    } else {
+                        if (prediction<-this.globalThreshold) {
+                            this.recurCalculate(pressure,new NetworkState("decrease"));
                         } else {
-                            if (prediction<-this.globalThreshold) {
-                                this.recurCalculate(pressure,new NetworkState("decrease"));
-                            } else {
-                                this.recurCalculate(pressure,new NetworkState("deactivated"));
-                            }
+                            this.recurCalculate(pressure,new NetworkState("deactivated"));
                         }
-                    }
+                    }               
                 }
             }
         }
     }
 
     // run calculate then return active health impacts for the summary
-    calculateHealthWellbeing(climatePrediction,year,climateVariableFilter) {        
-        this.calculate(climatePrediction,year,climateVariableFilter);
+    calculateHealthWellbeing(climatePrediction,year) {        
+        this.calculate(climatePrediction,year);
         let ret = [];
         // only return nodes that are increasing or decreasing
         for (let node of this.healthNodes) {
@@ -230,7 +227,7 @@ class NetworkParser extends Network {
         }
     }
 
-    extractAdaptations() {
+    extractAdaptations(sectorFilter) {
         let adaptations = {};
         let pressures = {};
         // start with each healtnode
@@ -244,10 +241,22 @@ class NetworkParser extends Network {
             }
         }
 
-        let ret = [];
-
+        // filter the adaptations by sector
+        if (sectorFilter!="All") {
+            let filteredAdaptations = {};
+            // remove ones not in this sector            
+            for (let key in adaptations) {
+                let a = adaptations[key];
+                if (a.action.sector.includes(sectorFilter)) {
+                    filteredAdaptations[a.action.node_id]=a;
+                }                    
+            };
+            adaptations=filteredAdaptations;
+        }
+        
         // while we are here, search for the originating pressures that
         // cause these problems
+        let ret = [];
         for (let k in adaptations) {            
             adaptations[k].pressures=[];
             for (let p of adaptations[k].parents) {
@@ -255,7 +264,8 @@ class NetworkParser extends Network {
                 this.adaptationVisited=[];
             }
             ret.push(adaptations[k]);
-        }        
+        }
+        
         return ret;
     }
 }
