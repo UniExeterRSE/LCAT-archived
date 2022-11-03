@@ -24,7 +24,7 @@ const nfviColumns = {
 // SERVICE	Service availability composite Indicator
 // SOC_NET	Social networks composite Indicator
 
-    
+
     a1:	{
         name: "Young children (% people under 5 years)",
         units: "percent",

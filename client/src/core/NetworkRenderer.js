@@ -113,14 +113,19 @@ font-family="Arial" dy=".3em">`+text+`</text>
 		return str.replace("&","&amp;");
 	}
 	
-	async nodeImageURL(node) {
+	async nodeImageURL(node,glow,transparent) {
         // icons are 117x117 pixels
         let icon_height=117;        
         let image_height = 300;
         let icon_pos = (image_height-icon_height)/2;        
         
-        let draw = SVG().size(117, 300);
+        let draw = SVG()
+            .size(137, 300);
 
+        if (transparent) {
+            draw.attr('filter','grayscale(1.0) contrast(0.25) brightness(2)');
+        }
+        
         // draw the text as a foreign object so we don't need to line wrap etc
         let fobj = draw.foreignObject(117,300).move(0,230);
         let el = document.createElement('div');
@@ -133,23 +138,21 @@ font-family="Arial" dy=".3em">`+text+`</text>
         el.appendChild(cel);
         fobj.add(el);
 
+        // glow
+        if (glow) {
+            draw.group().svg(await this.loadImage("glow")).move(-3,icon_pos-10);
+        }
+        
         // draw the icon
-        let g = draw.group();
-        g.svg(await this.loadImage("icons/"+node.label)).move(0,icon_pos);
+        draw.group().svg(await this.loadImage("icons/"+node.label))
+            .move(10,icon_pos);
 
         if (node.state.value!="deactivated" && node.state.value!="unknown") {
             // draw the direction
-            let g2 = draw.group();
-            g2.svg(await this.loadImage(node.state.value)).move(44,50);
+            draw.group().svg(await this.loadImage(node.state.value)).move(54,50);
         }
-        
-		/*let glow="";
-		if (show_glow) {
-			glow=`<g transform="translate(0,95) scale(7.8)">` + iconCache["glow"] + `</g>`;
-		}*/
-        
-		let url= "data:image/svg+xml;charset=utf-8," + encodeURIComponent(draw.svg());
-		return url;
+
+		return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(draw.svg());
 	}
 
 	getRnd(min, max) {
@@ -167,7 +170,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         	this.nodes.push({
 			    id: node.node_id,
 			    shape: "image",
-			    image: await this.nodeImageURL(node),
+			    image: await this.nodeImageURL(node,false,false),
 			    size: 30,
 				x: -500,
 				y: this.fixedYPos*150,
@@ -182,7 +185,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         this.nodes.push({
 			id: node.node_id,
 			shape: "image",
-			image: await this.nodeImageURL(node),
+			image: await this.nodeImageURL(node,false,false),
 			size: 30,
             mDPSEEA: node.type,
             sector: node.sector
@@ -192,6 +195,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
 	addEdge(edge) {
 
         let colour = "#115158";
+        let highlightColour = "#f5821f";
         //if (edge.state=="increase") colour="#afd6e4";
         //if (edge.state=="decrease") colour="#f1b9bd";
         //if (edge.state=="uncertain") colour="#ff00ff";
@@ -221,13 +225,13 @@ font-family="Arial" dy=".3em">`+text+`</text>
 			},
 			color: {
 				color: colour,
-				highlight: colour,
+				highlight: highlightColour,
 			},
             endPointOffset: { to: 1.2 }
 		});
 	}
     
-	buildGraph(networkParser, nodes, edges) {               
+	buildGraph(networkParser, nodes, edges, sector) {               
         console.log("buildGraph");
         this.parsedNodes = networkParser.nodes;
 		this.parsedEdges = networkParser.edges;
@@ -245,6 +249,9 @@ font-family="Arial" dy=".3em">`+text+`</text>
 		for (let node of this.parsedNodes) {
             if (["Pressure", "Effect", "State", "Exposure"].includes(node.type) &&
                 node.state.value!="deactivated") {
+                if (sector!="All" && !node.sector.includes(sector)) {
+                    node.transparent=true;
+                }
    			    this.addNode(node);
             }
 		}

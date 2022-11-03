@@ -75,6 +75,27 @@ class Network {
         return ret;
     }
 
+    getOutgoingEdges(node) {
+        let ret = [];
+        for (let edge of this.edges) {
+            if (edge.node_from == node.node_id) {
+                ret.push(edge);                
+            }
+        }
+        return ret;
+    }
+
+    getEdges(node) {
+        let ret = [];
+        for (let edge of this.edges) {
+            if (edge.node_from == node.node_id ||
+                edge.node_from == node.node_id) {
+                ret.push(edge);                
+            }
+        }
+        return ret;
+    }
+    
 }
 
 export { Network }

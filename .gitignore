@@ -1,4 +1,6 @@
 *.*~
+\#*
+.\#*
 .env
 config.yml
 package-lock.json

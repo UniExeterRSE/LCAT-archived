@@ -46,8 +46,13 @@ function Network(props) {
     const [ buildingGraph, setBuildingGraph] = useState(false);
     const [ networkRenderer, setNetworkRenderer] = useState(new NetworkRenderer);
     const [ networkAPI, setNetworkAPI ] = useState(null);
+    const [ sector, setSector ] = useState("All");
+    const [ previouslySelected, setPreviouslySelected] = useState(null);
+    const [ greyedNodeIDs, setGreyedNodeIDs ] = useState([]);
     
     const handle = useFullScreenHandle();
+
+    const ref = useRef(null);
     
     var options = {
 	    physics: {
@@ -107,12 +112,33 @@ function Network(props) {
         },
         autoResize: true,
     };
+
     
     var events = {
-        select: function(event) {
+        select: async function(event) {
             if (event.nodes.length>0) {
                 // we clicked on a node
                 let node = networkRenderer.getParsedNode(event.nodes[0]);
+                
+                // edit the live node on the network using the ref
+                if (previouslySelected!=null) {
+                    // clear previous
+                    ref.current.nodes.update({
+                        id: previouslySelected.node_id,
+                        image: await networkRenderer.nodeImageURL(
+                            previouslySelected,
+                            false,
+                            greyedNodeIDs.includes(previouslySelected.node_id))
+                    });
+                }
+                // highlight current
+                ref.current.nodes.update({
+                    id: node.node_id,
+                    image: await networkRenderer.nodeImageURL(node,true,false)
+                });
+                setPreviouslySelected(node);
+
+                // update the text                
                 setNodeedgeId(node.node_id);
                 setApiCall("node_references");
                 setInfoTitle(node.label);
@@ -153,15 +179,48 @@ function Network(props) {
                         }
                     }
                     setInfoMetadata(metadata);
-                    
-                    /*setInfoMetadata([["Evidence paper 1", "Info & link"],
-                                     ["Evidence paper 2", "Info & link"],
-                                     ["Evidence paper 3", "Info & link"]]);*/
                 }
             }
         }
     };
 
+    async function updateSector(sector) {
+        let updateNodesList = [];
+        let updateEdgesList = [];
+        let greyedList = [];
+        
+        for (let node of props.networkParser.nodes) {
+            let liveNode = ref.current.nodes.get(node.node_id);
+            // not all nodes are rendered so check
+            if (liveNode!=null) {
+                let grey = sector!="All" && !node.sector.includes(sector);
+                
+                updateNodesList.push({
+                    id: liveNode.id,
+                    image: await networkRenderer.nodeImageURL(
+                        node,
+                        false,
+                        grey)
+                });;
+                let col = "#115158";
+                if (grey) {
+                    greyedList.push(node.node_id);
+                    col = "#eee";
+                }
+                
+                for (let edge of props.networkParser.getEdges(node)) {
+                    updateEdgesList.push({
+                        id: edge.edge_id,
+                        color: { color: col }
+                    });                   
+                }
+            }
+        }
+        setGreyedNodeIDs(greyedList);
+        ref.current.nodes.update(updateNodesList);
+        ref.current.edges.update(updateEdgesList);
+    }
+    
     function handleOnClick() {
         setVersion(version+1);
     }
@@ -180,17 +239,17 @@ function Network(props) {
               <p>
                 The network below shows how climate change will impact health. You can explore the network by clicking/tapping on the nodes and connections for more information. Nodes can be moved around by dragging them, and the network can also be zoomed and panned. You are currently viewing the impacts for
                 
-                <select>
+                <select onChange={(e) => updateSector(e.target.value)} >
                   <option value="All">All sectors</option>
-                  <option disabled value="Health & Social Care">Health & Social Care</option>
-                  <option disabled value="Biodiversity & Natural Habitats">Biodiversity & Natural Habitats</option>
-                  <option disabled value="Water Supply & Quality">Water Supply & Quality</option>
-                  <option disabled value="Education Services">Education Services</option>
-                  <option disabled value="Transport">Transport</option>
-                  <option disabled value="Energy Supply & Demand">Energy Supply & Demand</option>
-                  <option disabled value="Business & Industry">Business & Industry</option>
-                  <option disabled value="Information & Communication Technology">Information & Communication Technology</option>
-                  <option disabled value="International Factors">International Factors</option>                  
+                  <option value="Health & Social Care">Health & Social Care</option>
+                  <option value="Biodiversity & Natural Habitats">Biodiversity & Natural Habitats</option>
+                  <option value="Water Supply & Quality">Water Supply & Quality</option>
+                  <option value="Education Services">Education Services</option>
+                  <option value="Transport">Transport</option>
+                  <option value="Energy Supply & Demand">Energy Supply & Demand</option>
+                  <option value="Business & Industry">Business & Industry</option>
+                  <option value="Information & Communication Technology">Information & Communication Technology</option>
+                  <option value="International Factors">International Factors</option>                  
                 </select>
                
                 in&nbsp;
@@ -205,12 +264,13 @@ function Network(props) {
                 networkParser = {props.networkParser}
                 climatePrediction = {props.climatePrediction}
                 year = {props.year}
-                sector = {props.sector}
+                sector = {sector}
                 callback = {(network) => {
                     setGraph(networkRenderer.buildGraph(
                         props.networkParser,
                         network.nodes,
-                        network.edges));
+                        network.edges,
+                        sector));
                     if (networkAPI!=null) networkAPI.fit();
                     setVersion(version+1);
                 }}
@@ -219,6 +279,7 @@ function Network(props) {
                 <div className="network">
                   <div className="network-holder">
                     <Graph
+                      ref={ref}
                       key={version}
                       graph={graph}
                       options={options}

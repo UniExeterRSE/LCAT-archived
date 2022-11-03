@@ -23,7 +23,6 @@ import HealthWellbeing from './components/HealthWellbeing';
 import Network from "./components/Network";
 import NetworkLoader from './components/NetworkLoader';
 import { NetworkParser } from './core/NetworkParser';
-import Sector from './components/Sector';
 import StatsLoader from './components/StatsLoader';
 import Vulnerabilities from './components/Vulnerabilities';
 import Adaptations from './components/Adaptations';
@@ -50,8 +49,7 @@ class App extends React.Component {
             average: "winter",
             rcp: "rcp60",
             year: 2070,
-            loadingPrediction: false,
-            sector: "all",
+            loadingPrediction: false,          
             stats: [],
             networkParser: new NetworkParser([],[])
         };
@@ -156,7 +154,6 @@ class App extends React.Component {
                 climatePrediction = {this.state.climatePrediction}
                 regions = {this.state.regions}
                 networkParser = {this.state.networkParser}
-                sector = {this.state.sector}               
               />
 
               <Vulnerabilities
