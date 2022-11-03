@@ -156,10 +156,21 @@ function Network(props) {
             } else {
                 if (event.edges.length>0) {
                     // we clicked on an edge
-                    console.log(event.edges[0]);
-                    console.log(props.networkParser.edges);
+
+                    // clear selected node
+                    if (previouslySelected!=null) {
+                        // clear previous
+                        ref.current.nodes.update({
+                            id: previouslySelected.node_id,
+                            image: await networkRenderer.nodeImageURL(
+                                previouslySelected,
+                                false,
+                                greyedNodeIDs.includes(previouslySelected.node_id))
+                        });
+                        setPreviouslySelected(null);
+                    }
+                    
                     let edge = props.networkParser.getEdge(event.edges[0]);
-                    console.log(edge);
                     let node_from = props.networkParser.getNode(edge.node_from);
                     let node_to = props.networkParser.getNode(edge.node_to);
                     let change = " increases ";
