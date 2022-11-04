@@ -10,7 +10,8 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import React, { useState, useEffect } from 'react';
-import {XYPlot, XAxis, YAxis, VerticalBarSeries, makeWidthFlexible, LabelSeries} from 'react-vis';
+import {XYPlot, XAxis, YAxis, VerticalBarSeries, makeWidthFlexible,
+        LabelSeries, ChartLabel} from 'react-vis';
 import useCollapse from 'react-collapsed';
 import ClimatePredictionLoader from './ClimatePredictionLoader';
 
@@ -69,14 +70,16 @@ function Graph(props) {
                     let avkey= "chess_scape_"+rcp+"_"+season+"_"+v+"_"+year;
                     if (year=="1980") label_year="1980 baseline";
 
+                    // seems that react-vis is incapable of positioning
+                    // labels on bars when multiple barseries are used?
                     let offset=0;
-                    if (showAverage) offset=50;                
+                    if (showAverage) offset={pr:5,tas:10,sfcwind:10,rsds:5}[variable];
 
                     out.push({x: label_year, y:prediction[0][variable+"_"+year]});
-                    label.push({x: label_year, y:prediction[0][variable+"_"+year], xOffset: -offset, yOffset: 20});
+                    label.push({x: label_year, y:prediction[0][variable+"_"+year], xOffset: -offset, yOffset: 0});
 
                     av.push({x: label_year, y:climateAverages[avkey]});
-                    avlabel.push({x: label_year, y:climateAverages[avkey], xOffset: offset, yOffset: 20});
+                    avlabel.push({x: label_year, y:climateAverages[avkey], xOffset: offset, yOffset: 0});
 
                 }
                 setAvg(av);
@@ -111,6 +114,7 @@ function Graph(props) {
 
             
             <div className="content">
+              <h1>Climate details</h1>
               <p>
                 The graph below shows the future climate change 
                 expected in&nbsp; 
@@ -153,7 +157,7 @@ function Graph(props) {
                 <select onChange={(e) => { setShowAverage(e.target.value==="1"); }}>
                   <option value="0">your local climate change</option>
                   <option value="1">comparison with UK averages</option>
-                </select>.
+                </select>
                 
                 
               </p>
@@ -161,14 +165,28 @@ function Graph(props) {
               <div className="graph-horiz-container">
                 <FlexibleXYPlot
                   height={300}
+                  margin={{bottom: 80, left: 100, right: 0, top: 10}}
                   xType="ordinal">
-                  <XAxis
-                    title = "Decades"
-                    style={{ title: {fontSize: 20} }}/>
-                  <YAxis
-                    title = {getYAxis()}
-                    position = "middle"
-                    style={{ title: {fontSize: 20} }}/>
+                  <ChartLabel
+                    text="Decades"
+                    className="graph-axes-label"
+                    includeMargin={false}
+                    xPercent={0.45}
+                    yPercent={1.3}
+                  />
+                  <ChartLabel
+                    text={getYAxis()}
+                    className="graph-axes-label"
+                    includeMargin={false}
+                    xPercent={-0.05}
+                    yPercent={0.25}
+                    style={{
+                        transform: 'rotate(-90)',
+                        textAnchor: 'end'
+                    }}
+                  />
+                  <XAxis/>
+                  <YAxis/>
                   <VerticalBarSeries
                     color={selectedRegionCol}
                     animation
@@ -176,8 +194,7 @@ function Graph(props) {
                   <LabelSeries
                     animation
                     data={labelData}
-                    labelAnchorY = {"auto"}
-                    labelAnchorX = {"middle"}
+                    labelAnchorX = {showAverage ? "end" : "middle"}
                     getLabel={(d) => getLabel(d.y)}/>
                   { showAverage &&  
                     <VerticalBarSeries
@@ -188,8 +205,7 @@ function Graph(props) {
                     <LabelSeries
                       animation
                       data={avgLabel}
-                      labelAnchorY = {"auto"}
-                      labelAnchorX = {"middle"}
+                      labelAnchorX = {"right"}
                       getLabel={(d) => getLabel(d.y)}/> }
                 </FlexibleXYPlot>
               </div>

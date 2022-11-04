@@ -1,10 +1,10 @@
 .rv-xy-plot__series--label-text {
-    font-size: 80%;
+    font-size: 0.8vw;
     fill: white;
 }
 
 .rv-xy-plot__axis__tick__text {
-    font-size: 130%;
+    font-size: 100%;
 }
 
 .graph-horiz-container {
@@ -12,3 +12,11 @@
 	flex-direction: row;
 }
 
+.rv-xy-plot__axis__title text {
+    font-size: 75%;
+}
+
+.graph-axes-label {
+    border: 1px solid red;
+    font-size: 130%;
+}
