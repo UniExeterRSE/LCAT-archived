@@ -28,7 +28,7 @@ function HealthWellbeing(props) {
             props.year);
 
         // lazy load the icons here
-        setHealthNodes(hw.map(node => {
+        setHealthNodes(hw.map(node => {            
             node.direction = lazy(() => import('../images/'+node.state));
             node.icon = lazy(() => import('../images/health/'+camelize(node.label)));
             return node;
@@ -51,7 +51,7 @@ function HealthWellbeing(props) {
           <h1>Health Impact Summary</h1>
 
           <p>
-            The climate change predicted in your selected areas of&nbsp;
+            The climate change predicted in your selected area of&nbsp;
             
             <span className={"projected-regions"}>
               { andify(props.regions.map(e => e.name)) }
@@ -63,23 +63,23 @@ function HealthWellbeing(props) {
           <div className={"horiz-container-health"}>        
             { healthNodes.length ? healthNodes.map((node) => (
                 <div key={node.node_id} className={"vert-container-health"}>
-                  <div className={"direction-img"}>
+                  <div className="direction-img">
                     <Suspense fallback={<div>Loading direction icon...</div>}>
                       <node.direction/>
                     </Suspense>
                   </div>
-                  <div className={"health-img"}>
+                  <div className="health-img">
                     <Suspense fallback={<div>Loading icon...</div>}>
                       <node.icon/>
                     </Suspense>
                   </div>                
-                  {node.label}                 
+                  <div className="health-text">{node.label} { node.state=="increase" ? "increasing" : "decreasing" }</div>                 
                 </div>
             )):<h3>No health impacts found for { andify(props.regions.map(e => e.name)) }</h3> }
           </div>
 
           <p className="note">
-            Data source: The impact data is based on published scientific literature and reports. A full reference list is available here, and the references relevant to particular impacts can be explored in the health impact details network.
+            Data source: The impact data is based on published scientific literature and reports. <a href="https://docs.google.com/spreadsheets/d/1HRlKyfjhKSaOb8YlA4TI4TPfzlKmeQLhaHnmR4cGg2M/">A full reference list is available</a>, and the references relevant to particular impacts can be explored in the health impact details network.
           </p>
         </LoadingOverlay>
     );

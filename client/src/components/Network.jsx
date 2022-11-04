@@ -41,6 +41,7 @@ function Network(props) {
     const [ graph, setGraph ] = useState({ nodes: [], edges: [] });
     const [ infoTitle, setInfoTitle ] = useState("Click on something for details");
     const [ infoText, setInfoText ] = useState("");
+    const [ infoExplanation, setInfoExplanation ] = useState("");
     const [ infoMetadata, setInfoMetadata ] = useState([]);
     const [ nodeedgeId, setNodeedgeId ] = useState(0);
     const [ apiCall, setApiCall ] = useState("node_references");
@@ -142,7 +143,19 @@ function Network(props) {
                 // update the text                
                 setNodeedgeId(node.node_id);
                 setApiCall("node_references");
-                setInfoTitle(node.label);
+
+                let dir = "";
+                let expl = "";
+                if (node.state.value=="decrease") dir = "decreasing";
+                if (node.state.value=="increase") dir = "increasing";
+                if (node.state.value=="uncertain") {
+                    setInfoExplanation("We can not be certain what will happen to "+node.label+" as the evidence is conflicting or unavailable.");
+                    dir = "uncertain";
+                } else {
+                    setInfoExplanation("");
+                }
+                
+                setInfoTitle(node.label+" "+dir);
                 setInfoText(node.description);
                 let metadata = [];              
                 for (let key of Object.keys(node)) {
@@ -251,7 +264,7 @@ function Network(props) {
           <div {...getCollapseProps()}>
             <div className="content">
               <p>
-                The network below shows how climate change will impact health. You can explore the network by clicking/tapping on the nodes and connections for more information. Nodes can be moved around by dragging them, and the network can also be zoomed and panned. You are currently viewing the impacts for
+                The network below shows how climate change will impact health. You can explore the network by clicking/tapping on the nodes and connections for more information. Nodes can be moved around by dragging them, and the network can also be zoomed and panned. You are currently viewing the impacts for&nbsp;
                 
                 <select onChange={(e) => updateSector(e.target.value)} >
                   <option value="All">All sectors</option>
@@ -266,7 +279,7 @@ function Network(props) {
                   <option value="International Factors">International Factors</option>                  
                 </select>
                
-                in&nbsp;
+                &nbsp;in&nbsp;
                 
                 <span className={"projected-regions"}>
                   { andify(props.regions.map(e => e.name)) }
@@ -312,6 +325,7 @@ function Network(props) {
                        <span>Show fullscreen</span>}
                     </button>
                     <h2>{infoTitle}</h2>
+                    <p>{infoExplanation}</p>
                     <p>{infoText}</p>
                     <References
                       id={nodeedgeId}
@@ -324,8 +338,8 @@ function Network(props) {
                           {infoMetadata.map(el => (<li key={el[0]}><b>{el[0]}</b> : {el[1]}</li>))}
                         </ul>
                       </small>
-                    </div> */}
-                    </div>
+                    </div>*/} 
+                    </div> 
                 </div>
               </FullScreen>
             </div>            

@@ -152,6 +152,7 @@ button:hover {
 }
 
 .footer {
+    margin-top: 5em;
     padding: 1em;
     background: #f7f7f7;
     font-size: 60%;

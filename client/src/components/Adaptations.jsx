@@ -43,7 +43,7 @@ function Adaptations(props) {
           <p>
             Based on the expected climate change and the resulting impacts,
             the following adaptations should be considered.
-            You are currently viewing adaptations for {props.season} and
+            You are currently viewing adaptations for <b>{props.season}</b> and
             for&nbsp;
             
             <select onChange={(e) => setSector(e.target.value)} >
@@ -59,7 +59,7 @@ function Adaptations(props) {
               <option value="International Factors">International Factors</option>                  
             </select>
 
-            in&nbsp;
+            &nbsp;in&nbsp;
 
             <span className={"projected-regions"}>
               { andify(props.regions.map(e => e.name)) }

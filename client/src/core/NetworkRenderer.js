@@ -118,11 +118,12 @@ font-family="Arial" dy=".3em">`+text+`</text>
         }
         
         // draw the text as a foreign object so we don't need to line wrap etc
-        let fobj = draw.foreignObject(117,300).move(10,230);
+        let fobj = draw.foreignObject(117,300).move(10,220);
         let el = document.createElement('div');
         el.className='node-title';
         el.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
         el.style.fontFamily="'Montserrat-Medium', Arial, Helvetica, sans-serif";
+        el.style.borderRadius="5px";
         el.style.background="white";
         let cel = document.createElement('center');
         cel.innerText = node.label;
@@ -140,7 +141,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
 
         if (node.state.value!="deactivated" && node.state.value!="unknown") {
             // draw the direction
-            draw.group().svg(await this.loadImage(node.state.value)).move(54,50);
+            draw.group().svg(await this.loadImage(node.state.value)).move(54,60);
         }
 
 		return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(draw.svg());

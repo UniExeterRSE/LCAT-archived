@@ -138,14 +138,14 @@ function Vulnerabilities(props) {
             text={'Loading...'}>
             <h1>Vulnerabilities</h1>
             <p>
-              The following vulnerabilities are particularly important in your selected areas of&nbsp;              
+              The following vulnerabilities are particularly important in your selected area of&nbsp;              
 
               <span className={"projected-regions"}>
                 { andify(props.regions.map(e => e.name)) }
               </span>
               
-              &nbsp;These vulnerabilities are in the top
-
+              .&nbsp;These vulnerabilities are in the top&nbsp;
+              
               <select onChange={(e) => { setDecile(e.target.value); }}>
                 <option value="dec_1">10%</option>
                 <option value="dec_2">20%</option>
@@ -158,7 +158,7 @@ function Vulnerabilities(props) {
                 <option value="dec_9">90%</option>
               </select>
 
-              compared with UK averages.
+              &nbsp;compared with UK averages:
             </p>
             
             <div className={"vuln-container"}>        
@@ -169,10 +169,9 @@ function Vulnerabilities(props) {
                             <Suspense fallback={<div>Loading icon...</div>}>
                               <v.icon/>
                             </Suspense>
-                            <div className={"vuln-name"}>{v.name}</div>                      
-                            <div className={"vuln-type"}>{v.type}</div>
+                            <div className={"vuln-name"}>{v.name}</div>                                                  
                             {!v.name.startsWith("Index") &&
-                             <div className={"vuln-type"}>({v.region.toFixed(2)}% vs {v.uk.toFixed(2)}% UK average)</div>
+                             <div className={"vuln-type"}>{v.region.toFixed(2)}% vs {v.uk.toFixed(2)}% UK average</div>
                             }
                           </div>
                       );

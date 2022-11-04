@@ -5,11 +5,35 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg8"
    version="1.1"
    viewBox="0 0 7.9375 5.2916679"
    height="5.2916679mm"
-   width="7.9375mm">
+   width="7.9375mm"
+   sodipodi:docname="uncertain.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1509"
+     inkscape:window-height="1158"
+     id="namedview6151"
+     showgrid="false"
+     inkscape:zoom="11.799997"
+     inkscape:cx="15"
+     inkscape:cy="10.000002"
+     inkscape:window-x="72"
+     inkscape:window-y="41"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg8" />
   <defs
      id="defs2" />
   <metadata
@@ -20,7 +44,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -31,9 +55,9 @@
        id="text861"
        y="50.80386"
        x="25.917248"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#f5821f;fill-opacity:0.94117647;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#f5821f;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
        xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:7.05555534px;font-family:Montserrat;-inkscape-font-specification:'Montserrat Medium';fill:#f5821f;fill-opacity:0.94117647;stroke-width:0.26458332"
+         style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:7.05555534px;font-family:Montserrat;-inkscape-font-specification:'Montserrat Heavy';fill:#f5821f;fill-opacity:1;stroke-width:0.26458332;"
          y="50.80386"
          x="25.917248"
          id="tspan859">?</tspan></text>

@@ -25,6 +25,8 @@
 
 .network-holder {
     height: 600px;
+    border: 1px solid black;
+    box-sizing: border-box;
 }
 
 @media (min-width: 1200px) {
@@ -37,15 +39,16 @@
 .network-info {
 	width: auto;
 	height: auto;
-	border-radius: 5px;
 	background: #e6ecedff;	
 	padding: 1em;
-	overflow-y: scroll;
+	overflow-y: auto;
+    box-sizing: border-box;
 }
 
 .network-info h2 {
     margin-left: 0;
     margin-right: 0;
+    font-size: 120%;
 }
 
 @media (min-width: 1200px) {
@@ -140,11 +143,6 @@ g span {
     color: #d6dcddff;	
 }
 
-.node-title: {
-    border: 1px solid red;
-}
-
-
 div.vis-network div.vis-navigation div.vis-button.vis-up {
 /*    background-image: url("../images/decrease.svg"); */
 }
@@ -156,4 +154,8 @@ div.vis-network div.vis-navigation div.vis-button.vis-left {
 }
 div.vis-network div.vis-navigation div.vis-button.vis-right {
 /*    background-image: url("../images/decrease.svg"); */
+}
+
+div.vis-network div.vis-navigation div.vis-button.vis-zoomExtends {
+    display: none;
 }

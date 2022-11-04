@@ -199,7 +199,7 @@ class App extends React.Component {
                 </p>
                 
                 <p>
-                  <a href="https://gitlab.com/then-try-this/climate-tool" target="_blank">Source code published</a> under the <a href="http://www.cgpl.org/" target="_blank">Common Good Public Licence Beta 1.0</a>
+                  <a href="https://gitlab.com/then-try-this/climate-tool" target="_blank">Source code published</a> open source under the <a href="http://www.cgpl.org/" target="_blank">Common Good Public Licence Beta 1.0</a>
                 </p>
 
                 <p>
