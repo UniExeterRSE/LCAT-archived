@@ -94,10 +94,11 @@ button:hover {
 
 /* Style the button that is used to open and close the collapsible content */
 .collapsible {
-	box-sizing: content-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: content-box;
 	position: relative;
-	width: 100%;
-	display: block;
 	border: none;
 	border-radius: 5px;	
 }
@@ -105,11 +106,12 @@ button:hover {
 .collapsible .header {
     font-family: 'Montserrat-SemiBold',Arial,Helvetica,sans-serif;
     text-align: center;
-    padding: 0.5em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    padding-left: 2em;
+    padding-right: 2em;
 	background: #ffd768ff;
-	border-radius: 2px;
-	padding-left: 0.25em;
-	padding-right: 0.25em;
+	border-radius: 5px;
 }
 
 .collapsible .header:hover {

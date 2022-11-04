@@ -1,6 +1,3 @@
-.adaptation .collapsible {
-    margin-bottom: 0.5em;
-}
 
 .adaptation .content {
     background-color: #e6eced;
@@ -9,4 +6,10 @@
 
 .adaptation .metadata {
     color: #d6dcddff;	
+}
+
+.adaptation.collapsible {
+    padding-bottom: 0.5em;
+    width: auto;
+    display: block;
 }
