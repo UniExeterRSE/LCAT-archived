@@ -22,7 +22,7 @@
 .arrow {
     position: absolute;
     right: 1em;
-    top: 0.85em;    
+    top: 1em;    
     border: solid black;
     border-width: 0 3px 3px 0;
     display: inline-block;

@@ -238,7 +238,8 @@ class ClimateMap extends React.Component {
                   </LoadingOverlay>
                 </div>
                 <div className="map-selection">
-                  {this.state.regions.map(r => (<ul key={r.name}><h2>{r.name}</h2></ul>))}
+                  <h2>{ this.regionTypeToName(this.state.regionType) } selected</h2>
+                  {this.state.regions.map(r => (<ul key={r.name}>{r.name}</ul>))}
                   {this.state.regions.length>0 &&
                    <button onClick={ () => this.clear()}>
                      Clear selection
