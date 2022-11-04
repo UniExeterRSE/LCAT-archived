@@ -259,10 +259,11 @@ function Network(props) {
     return (
         <div className="collapsible">
           <div className="header" {...getToggleProps({onClick: handleOnClick})}>
-            {isExpanded ? 'Hide' : 'Show'} details
+            {isExpanded ? 'Hide' : 'Explore'} impact details
           </div>
           <div {...getCollapseProps()}>
             <div className="content">
+              <h1>Health impact details</h1>
               <p>
                 The network below shows how climate change will impact health. You can explore the network by clicking/tapping on the nodes and connections for more information. Nodes can be moved around by dragging them, and the network can also be zoomed and panned. You are currently viewing the impacts for&nbsp;
                 

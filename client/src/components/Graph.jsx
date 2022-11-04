@@ -99,7 +99,7 @@ function Graph(props) {
     return (        
         <div className="collapsible">
           <div className="header" {...getToggleProps()}>
-            {isExpanded ? 'Hide' : 'Show'} details 
+            {isExpanded ? 'Hide' : 'Explore'} climate details 
           </div>
           <div {...getCollapseProps()}>
 

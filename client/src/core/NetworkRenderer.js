@@ -103,7 +103,14 @@ font-family="Arial" dy=".3em">`+text+`</text>
 	printable(str) {
 		return str.replace("&","&amp;");
 	}
-	
+
+    capLength(str) {
+        if (str.length>49) {
+            return str.substring(0, 49)+"...";
+        }
+        return str;
+    }
+    
 	async nodeImageURL(node,glow,transparent) {
         // icons are 117x117 pixels
         let icon_height=117;        
@@ -126,7 +133,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         el.style.borderRadius="5px";
         el.style.background="white";
         let cel = document.createElement('center');
-        cel.innerText = node.label;
+        cel.innerText = this.capLength(node.label);
         el.appendChild(cel);
         fobj.add(el);
 
