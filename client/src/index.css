@@ -159,14 +159,15 @@ button:hover {
     text-align: center;
 }
 
-
 .email-button {
-    margin-top: 1em;
-    margin-bottom: 1em;
-    border-radius: 50%;
-    border: 3px solid white;
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    background: url("images/email_button.png") no-repeat;
+    background-size: 100% 100%; 
 }
 
 .email-button:hover {
-    border: 3px solid #f5821f;
+    background: url("images/email_button_selected_yellow.png") no-repeat;
+    background-size: 100% 100%; 
 }

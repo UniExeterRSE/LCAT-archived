@@ -29,7 +29,6 @@ import Adaptations from './components/Adaptations';
 
 import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_Primary_RGB.svg';
 import { ReactComponent as LogoBlockSvg } from './images/logos/logos.svg';
-import { ReactComponent as EmailSvg } from './images/email_button.svg';
 
 const meta = {
     title: 'Local Climate Adaptation Tool',
@@ -174,15 +173,33 @@ class App extends React.Component {
               <div className="footer">
 
                 <p>
-                  The Local Climate Adaptation Tool has been developed by the <a href="">University of Exeter’s European Centre for Human Health</a>, <a href="">Cornwall Council</a>, <a href="">Then Try This</a> and <a href="">The Alan Turing Institute</a> with co-design partners from Local Government, the National Health Service, emergency services, and voluntary and private sectors. Funding for the project has been provided by Research England’s Collaboration Fund, Strategic Priorities Fund and Policy Support Fund, as part of the Policy@Exeter initiative, The Schroder Foundation, and the Net Zero Innovation Programme; a UCL and Local Government Association Initiative.
+                  The Local Climate Adaptation Tool has been developed by
+                  the <a href="https://www.ecehh.org/" target="_blank">University of Exeter’s European Centre for Human Health</a>, <a href="https://www.cornwall.gov.uk/" target="_blank">Cornwall Council</a>, <a href="https://thentrythis.org" target="_blank">Then Try This</a> and <a href="https://www.turing.ac.uk/" target="_blank">The Alan Turing Institute</a> with
+                  co-design partners from Local Government, the National
+                  Health Service, emergency services, and voluntary and private
+                  sectors. Funding for the project has been provided by Research
+                  England’s Collaboration Fund, Strategic Priorities Fund and
+                  Policy Support Fund, as part of the Policy@Exeter initiative,
+                  The Schroder Foundation, and the Net Zero Innovation
+                  Programme; a UCL and Local Government Association Initiative.
                 </p>
 
                 <p>
-                  The LCAT project team (University of Exeter, Then Try This, Cornwall Council and The Alan Turing Institute) and their agents, take no responsibility for decisions taken as a result of the use of this tool. While every effort has been made to ensure data represented in the tool are accurate, no liability is accepted for any inaccuracies in the dataset or for any actions taken based on the use of this tool. The views expressed in this tool do not reflect the views of the organisations or the funding bodies. There is no guarantee that the tool will be updated to reflect changes in the source information.
+                  The LCAT project team (University of Exeter, Then Try This,
+                  Cornwall Council and The Alan Turing Institute) and their
+                  agents, take no responsibility for decisions taken as a
+                  result of the use of this tool. While every effort has been
+                  made to ensure data represented in the tool are accurate, no
+                  liability is accepted for any inaccuracies in the dataset or
+                  for any actions taken based on the use of this tool. The
+                  views expressed in this tool do not reflect the views of the
+                  organisations or the funding bodies. There is no guarantee
+                  that the tool will be updated to reflect changes in the
+                  source information.
                 </p>
                 
                 <p>
-                  <a href="">Source code published</a> under the <a href="">Common Good Public Licence Beta 1.0</a>
+                  <a href="https://gitlab.com/then-try-this/climate-tool" target="_blank">Source code published</a> under the <a href="http://www.cgpl.org/" target="_blank">Common Good Public Licence Beta 1.0</a>
                 </p>
 
                 <p>
@@ -190,14 +207,7 @@ class App extends React.Component {
                 </p>
                 
                 <p>
-                  <a href="mailto:lcat@exeter.ac.uk">
-                    <EmailSvg
-                      className="email-button"
-                      style={{
-                          transform: "scale(2)"
-                      }}
-                    />
-                  </a>
+                  <a className="email-button" href="mailto:lcat@exeter.ac.uk"/>
                 </p>                
 
                 <LogoBlockSvg style={{transform: "scale(2)"}}/>

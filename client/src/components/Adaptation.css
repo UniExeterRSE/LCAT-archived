@@ -8,8 +8,34 @@
     color: #d6dcddff;	
 }
 
+
+
 .adaptation.collapsible {
     padding-bottom: 0.5em;
     width: auto;
     display: block;
+}
+
+.adaptation.header {
+}
+
+.arrow {
+    position: absolute;
+    right: 1em;
+    top: 0.85em;    
+    border: solid black;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
+    transition: transform 300ms linear;
+}
+
+.right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}
+
+.down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
 }

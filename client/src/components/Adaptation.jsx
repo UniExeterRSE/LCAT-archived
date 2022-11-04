@@ -26,8 +26,9 @@ function Adaptation(props) {
     
     return (
         <div className="adaptation collapsible">
-          <div className="header"  {...getToggleProps()}>
+          <div className="adaptation header"  {...getToggleProps()}>
             {props.a.action.label}
+            <div className={isExpanded ? "arrow down" : "arrow right"}/>
           </div>
           <div {...getCollapseProps()}>
             <div className="content">
