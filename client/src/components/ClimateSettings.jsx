@@ -30,17 +30,19 @@ function ClimateSettings(props) {
               { andify(props.regions.map(e => e.name)) }
             </span>
 
-            .&nbsp;For this area under the
+            .&nbsp;For this area under the&nbsp;
             
             <select onChange={(e) => { setRcp(e.target.value); props.rcpCallback(e.target.value); }}>           
               <option value="rcp60">existing global policies</option>
               <option value="rcp85">worst case scenario</option>
             </select>
 
+            &nbsp;
+            
             {rcp=="rcp60" && <span>(equivalent to global warming level of 2.0-3.7C which is RCP 6.0)</span>}
             {rcp=="rcp85" && <span>(equivalent to global warming level of 3.2-5.4C which is RCP 8.5)</span>}
             
-            &nbsp;the
+            &nbsp;the&nbsp;
             
             <select onChange={(e) => { props.averageCallback(e.target.value); }}>           
               <option value="annual">yearly average</option>
@@ -48,7 +50,7 @@ function ClimateSettings(props) {
               <option value="winter">winter average</option>
             </select>
             
-            climate change for 
+            &nbsp;climate change for&nbsp;
             
             <select defaultValue="2070" onChange={(e) => { props.yearCallback(e.target.value); }}>                  
               <option value="2030">2030</option>
@@ -58,11 +60,7 @@ function ClimateSettings(props) {
               <option value="2070">2070</option>
             </select>
 
-            compared with local records for the 1980s.
-          </p>
-
-          <p>
-            Notice that the yearly average climate change does not always reflect the extremes of summer and winter, so it is worth changing the drop down menu above to see the predictions for the different seasons. 
+            &nbsp;compared with local records for the 1980s is expected to be: 
           </p>
           
         </div>

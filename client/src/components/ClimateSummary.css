@@ -1,3 +1,12 @@
-.vert-container p {
+.climate-summary .vert-container {
     text-align: center;
+}
+
+.climate-summary .vert-container .climate-arrow {
+    margin-bottom: 0.5em;
+}
+
+.summary-text {
+    width: 12em;
+    font-size: 75%;
 }

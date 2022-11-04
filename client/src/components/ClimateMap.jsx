@@ -173,7 +173,7 @@ class ClimateMap extends React.Component {
               <h1>Select Zones</h1>     
               <p>
 
-                To begin, select the area/s you are interested in by clicking/tapping on the map. The map units can be changed and are currently displaying
+                To begin, select the area/s you are interested in by clicking/tapping on the map. The map units can be changed and are currently displaying&nbsp;
                 
                 <select onChange={(e) => { this.setState(() => ({
                     regionType: e.target.value,
@@ -187,9 +187,9 @@ class ClimateMap extends React.Component {
                   <option value="boundary_msoa">MSOA (Eng/Wales)</option>
                   <option value="boundary_sc_dz">Data Zones (Scotland)</option>
                   <option value="boundary_lsoa">LSOA (Eng/Wales)</option>
-                </select>.
+                </select>
 
-                Once you have made your selection, your data will appear below.
+                .&nbsp;Once you have made your selection, your data will appear below.
                 
                  {/*The Index of Multiple Deprivation score 
 

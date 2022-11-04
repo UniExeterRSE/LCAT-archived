@@ -119,7 +119,7 @@ function Graph(props) {
                   { andify(props.regions.map(e => e.name)) }
                 </span>
                 
-                .&nbsp;You are viewing the 
+                .&nbsp;You are viewing the&nbsp;
 
                 <select onChange={(e) => { setSeason(e.target.value); }}>           
                   <option value="annual">yearly averages</option>
@@ -127,7 +127,7 @@ function Graph(props) {
                   <option value="winter">winter averages</option>
                 </select>
 
-                for 
+                &nbsp;for&nbsp; 
 
                 <select onChange={(e) => { setVariable(e.target.value); }}>
                   <option value="tas">temperature</option>
@@ -136,18 +136,19 @@ function Graph(props) {
                   <option value="rsds">cloudiness</option>
                 </select>
 
-                under the 
+                &nbsp;under the&nbsp; 
                 
                 <select onChange={(e) => { setRcp(e.target.value); }}>           
                   <option value="rcp60">existing global policies</option>
                   <option value="rcp85">worst case scenario</option>
                 </select>
+
+                &nbsp;
                 
                 {rcp=="rcp60" && <span>(equivalent to global warming level of 2.0-3.7C which is RCP 6.0)</span>}
                 {rcp=="rcp85" && <span>(equivalent to global warming level of 3.2-5.4C which is RCP 8.5)</span>}.
 
-
-                You are viewing
+                &nbsp;You are viewing&nbsp;
                 
                 <select onChange={(e) => { setShowAverage(e.target.value==="1"); }}>
                   <option value="0">your local climate change</option>
