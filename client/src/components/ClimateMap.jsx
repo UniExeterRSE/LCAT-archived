@@ -85,9 +85,7 @@ class ClimateMap extends React.Component {
         col = "#00000000";
         
         let gid = feature.properties.gid;
-        layer.bindTooltip(feature.properties.name+
-                          "<br> "+feature.properties.gid+": "+this.state.mapProperty+" "+
-                          feature.properties[this.state.mapProperty]+" "+v);
+        layer.bindTooltip(feature.properties.name);
         layer.setStyle({
             'color': "#115158ff",
             'weight': 3,

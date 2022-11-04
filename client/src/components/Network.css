@@ -36,7 +36,7 @@
 
 .network-info {
 	width: auto;
-	height: 600px;
+	height: auto;
 	border-radius: 5px;
 	background: #e6ecedff;	
 	padding: 1em;
@@ -51,6 +51,7 @@
 @media (min-width: 1200px) {
 	.network-info {
 		width: 16em;
+	    height: 600px;
 		overflow-y: auto;
 		font-size: 0.75em;
 	}

@@ -29,9 +29,13 @@
 
 .map-selection {
 	margin-top: 1em;
+    padding-right: 1em;
 	width: 100%;
     overflow-y: auto;
-    height: 500px;
+    background: #e6eced;
+    height: auto;
+    padding-bottom: 1em;
+    border: 2px solid #e6eced;
 }
 
 @media (min-width: 1000px) {
@@ -39,6 +43,8 @@
 		margin-top: 0;
 		width: 10em;
 		padding-left: 1em;
+        height: 500px;
+        padding-bottom: 0;
 	}
 }
 

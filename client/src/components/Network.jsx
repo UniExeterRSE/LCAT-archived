@@ -317,23 +317,22 @@ function Network(props) {
                       id={nodeedgeId}
                       api_call={apiCall}
                     />
-                    <div className="metadata">
+                    {/*<div className="metadata">
                       <h3>Metadata</h3>
                       <small>
                         <ul>
                           {infoMetadata.map(el => (<li key={el[0]}><b>{el[0]}</b> : {el[1]}</li>))}
                         </ul>
                       </small>
+                    </div> */}
                     </div>
-                  </div>
                 </div>
               </FullScreen>
             </div>            
-          </div>
-          <p className="note">
-            Data source: The impact data is based on published scientific literature and reports. A <a href="https://docs.google.com/spreadsheets/d/1WbTiJGcWOjo6tp5Z_65NDGE8aHLAQ-NPGMotDpDABEo/edit?ouid=102175944541338588070&usp=sheets_home&ths=true" target="_blank">full reference list is available here</a>, and the references relevant to particular impacts can be explored by clicking on the nodes and connections in the network above.
-          </p>
-          
+            <p className="note">
+              Data source: The impact data is based on published scientific literature and reports. A <a href="https://docs.google.com/spreadsheets/d/1WbTiJGcWOjo6tp5Z_65NDGE8aHLAQ-NPGMotDpDABEo/edit?ouid=102175944541338588070&usp=sheets_home&ths=true" target="_blank">full reference list is available here</a>, and the references relevant to particular impacts can be explored by clicking on the nodes and connections in the network above.
+            </p>
+          </div>          
         </div>
     );
 }
