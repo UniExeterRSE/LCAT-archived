@@ -68,9 +68,7 @@ function Adaptations(props) {
           
           <div>        
             {adaptations.length ? adaptations.map(
-                a => {return (<div>
-                                <Adaptation a = {a}/>
-                              </div>);})
+                a => {return (<Adaptation key={a.action.node_id} a = {a}/>);})
              : <h3>No adaptations found</h3>}
           </div>
 

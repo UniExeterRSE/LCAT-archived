@@ -165,7 +165,7 @@ function Vulnerabilities(props) {
               {vulnerabilities.length ? vulnerabilities.map(
                   v => {
                       return (
-                          <div className={"vuln"}>
+                          <div key={v.name} className={"vuln"}>
                             <Suspense fallback={<div>Loading icon...</div>}>
                               <v.icon/>
                             </Suspense>

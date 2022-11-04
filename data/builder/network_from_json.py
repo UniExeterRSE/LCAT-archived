@@ -124,14 +124,14 @@ class network_db:
             for ref in edge["attributes"]["reference_id"]:
                 self.add_edge_article_mapping(edge["_id"], ref)
         else:
-            print("no ref for edge? "+edge["_id"])
+            print("no ref for edge? "+edge["_id"]+" "+edge["from"]+"->"+edge["to"])
         
                     
     def add_ref(self,row):
         self.db.cur.execute("select article_id from articles where article_id=%s",(row[0],))
         self.db.conn.commit()
         if (len(self.db.cur.fetchall())>0):
-            print("skipping "+row[0])
+            print("not found, skipping article "+row[0])
             return
         
         ref = False
@@ -142,7 +142,7 @@ class network_db:
         if row[4]!="": link=row[4]
             
         if ref!=False:
-            self.db.cur.execute("insert into articles (article_id, doi, type, link, title, authors, date, journal, issue, notes) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            self.db.cur.execute("insert into articles (article_id, doi, type, link, title, authors, date, journal, issue) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
             (row[0],
              ref["doi"],
              row[1],
@@ -151,16 +151,14 @@ class network_db:
              ref["authors"],
              ref["date"],
              ref["journal"],
-             ref["issue"],
-             row[5]))        
+             ref["issue"]))        
         else:
-            self.db.cur.execute("insert into articles (article_id, title, doi, type, link, notes) values (%s, %s, %s, %s, %s, %s)",
+            self.db.cur.execute("insert into articles (article_id, title, doi, type, link) values (%s, %s, %s, %s, %s)",
             (row[0],
              row[6],
              row[2],
              row[1],
-             link,
-             row[5]))
+             link))
         self.db.conn.commit()
         return row[0]
 

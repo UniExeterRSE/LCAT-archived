@@ -67,9 +67,9 @@ class App extends React.Component {
               </header>
               <p>
                 The tool allows you to see local climate change predictions in the UK and explore the impact on our health and wellbeing. Local vulnerabilities are highlighted and adaptation priorities are suggested. The information presented is based on scientific research and links to the relevant data and publications are provided. The tool has been designed with, and for, local decision makers across the public, private and voluntary sectors.
-                <p>
-                  <a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions.pdf">See our Frequently Asked Questions for more information.</a>
-                </p>
+              </p>
+              <p>
+                <a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions.pdf">See our Frequently Asked Questions for more information.</a>
               </p>
               <NetworkLoader
                 id={0}

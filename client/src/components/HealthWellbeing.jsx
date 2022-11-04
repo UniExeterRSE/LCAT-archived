@@ -62,7 +62,7 @@ function HealthWellbeing(props) {
           
           <div className={"horiz-container-health"}>        
             { healthNodes.length ? healthNodes.map((node) => (
-                <div className={"vert-container-health"}>
+                <div key={node.node_id} className={"vert-container-health"}>
                   <div className={"direction-img"}>
                     <Suspense fallback={<div>Loading direction icon...</div>}>
                       <node.direction/>
@@ -73,7 +73,7 @@ function HealthWellbeing(props) {
                       <node.icon/>
                     </Suspense>
                   </div>                
-                  {node.label}                  
+                  {node.label}                 
                 </div>
             )):<h3>No health impacts found for { andify(props.regions.map(e => e.name)) }</h3> }
           </div>

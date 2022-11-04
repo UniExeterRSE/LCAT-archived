@@ -50,21 +50,21 @@ function ClimateSettings(props) {
             
             climate change for 
             
-            <select onChange={(e) => { props.yearCallback(e.target.value); }}>                  
+            <select defaultValue="2070" onChange={(e) => { props.yearCallback(e.target.value); }}>                  
               <option value="2030">2030</option>
               <option value="2040">2040</option>
               <option value="2050">2050</option>
               <option value="2060">2060</option>
-              <option selected value="2070">2070</option>
+              <option value="2070">2070</option>
             </select>
 
             compared with local records for the 1980s.
-
-            <p>
-              Notice that the yearly average climate change does not always reflect the extremes of summer and winter, so it is worth changing the drop down menu above to see the predictions for the different seasons. 
-            </p>
-            
           </p>
+
+          <p>
+            Notice that the yearly average climate change does not always reflect the extremes of summer and winter, so it is worth changing the drop down menu above to see the predictions for the different seasons. 
+          </p>
+          
         </div>
     );
 }

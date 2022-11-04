@@ -1,0 +1,9 @@
+.reference-container {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    padding-inline-start: 0;
+	list-style-type: none; /* Remove bullets */
+}
+
+.reference-title {
+}

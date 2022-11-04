@@ -16,6 +16,8 @@ import { ReactComponent as HealthAndWellbeingSvg } from '../images/icons/Public 
 import { NetworkParser } from '../core/NetworkParser';
 import { andify } from '../utils/utils';
 
+import './References.css';
+
 function baseURL(url) {
     let domain = (new URL(url));
     return domain.hostname;
@@ -23,51 +25,51 @@ function baseURL(url) {
 
 function ArticleReference(props) {
     return (
-        <p>
-          <ul>
-            <li><a href={props.a.link} target="_blank">{props.a.title}</a> ({props.a.type})</li>
-            <small>
-              <li><b>Authors: </b>{props.a.authors}</li>
-              <li><b>Journal/Issue: </b>{props.a.journal} {props.a.issue} {props.a.date}</li>
-            </small>
-          </ul>
-        </p>
+        <ul className="reference-container">
+          <li><a href={props.a.link}
+                 className="reference-title"
+                 target="_blank">
+                {props.a.title}
+              </a> ({props.a.type})</li>
+          <li><b>Authors: </b>{props.a.authors}</li>
+          <li><b>Journal/Issue: </b>{props.a.journal} {props.a.issue} {props.a.date}</li>
+        </ul>
     );
 }
 
 function WebPageReference(props) {
     return (
-        <p>
-          <ul>
-            <li><a href={props.a.link} target="_blank">{props.a.title}</a> ({props.a.type})</li>
-            <small>
-              <li><b>Source: </b>{baseURL(props.a.link)}</li>
-            </small>
-          </ul>
-        </p>
+        <ul className="reference-container">
+          <li><a href={props.a.link}
+                 className="reference-title"
+                 target="_blank">
+                {props.a.title}
+              </a> ({props.a.type})</li>
+          <li><b>Source: </b>{baseURL(props.a.link)}</li>            
+        </ul>
     );
 }
 
 function ReportReference(props) {
     return (
-        <p>
-          <ul>
-            <li><a href={props.a.link} target="_blank">{props.a.title}</a> ({props.a.type})</li>
-            <small>
-              <li><b>Source: </b>{baseURL(props.a.link)}</li>
-            </small>
-          </ul>
-        </p>
+        <ul className="reference-container">
+          <li><a href={props.a.link}
+                 className="reference-title"
+                 target="_blank">{props.a.title}
+              </a> ({props.a.type})</li>
+          <li><b>Source: </b>{baseURL(props.a.link)}</li>
+        </ul>
     );
 }
 
 function BookSectionReference(props) {
     return (
-        <p>
-          <ul>
-            <li><a href={props.a.link} target="_blank">{props.a.title}</a> ({props.a.type})</li>
-          </ul>
-        </p>
+        <ul className="reference-container">
+          <li><a href={props.a.link}
+                 className="reference-title"
+                 target="_blank">{props.a.title}
+              </a> ({props.a.type})</li>
+        </ul>
     );
 }
 
@@ -101,12 +103,12 @@ function References(props) {
             <div>          
               <h3>References:</h3>
               { references.map(r => {
-                  if (r.type=="Journal Article") return (<ArticleReference a={r}/>);
-                  if (r.type=="Conference Proceedings") return (<ArticleReference a={r}/>);
-                  if (r.type=="Book") return (<ArticleReference a={r}/>);
-                  if (r.type=="Web Page") return (<WebPageReference a={r}/>);
-                  if (r.type=="Report") return (<ReportReference a={r}/>);
-                  if (r.type=="Book Section") return (<BookSectionReference a={r}/>);
+                  if (r.type=="Journal Article") return (<ArticleReference key={r.article_id} a={r}/>);
+                  if (r.type=="Conference Proceedings") return (<ArticleReference key={r.article_id} a={r}/>);
+                  if (r.type=="Book") return (<ArticleReference key={r.article_id} a={r}/>);
+                  if (r.type=="Web Page") return (<WebPageReference key={r.article_id} a={r}/>);
+                  if (r.type=="Report") return (<ReportReference key={r.article_id} a={r}/>);
+                  if (r.type=="Book Section") return (<BookSectionReference key={r.article_id} a={r}/>);
                   return (<p>{ r.type }: not understood</p>);
               })}          
             </div>

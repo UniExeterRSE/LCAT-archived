@@ -173,6 +173,7 @@ class NetworkParser extends Network {
                 node.state.value=="decrease") {
                 // reconstruct the node with the minimun of info
                 ret.push({
+                    node_id: node.node_id,
                     label: node.label,
                     state: node.state.value
                 });

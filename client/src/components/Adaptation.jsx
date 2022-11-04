@@ -37,7 +37,7 @@ function Adaptation(props) {
               <ul>
                 {props.a.parents.map(
                     p => {
-                        return (<li>{fixesText(p)}</li>);
+                        return (<li key={p.node.node_id}>{fixesText(p)}</li>);
                     })
                 }
               </ul>
@@ -45,7 +45,7 @@ function Adaptation(props) {
               <ul>
                 {props.a.healthnodes.map(
                     p => {
-                        return (<li>{p.label}</li>);
+                        return (<li key={p.node_id}>{p.label}</li>);
                     })
                 }
               </ul>
@@ -53,7 +53,7 @@ function Adaptation(props) {
               <ul>
                 {props.a.pressures.map(
                     p => {
-                        return (<li>{p.label}</li>);
+                        return (<li key={p.node_id}>{p.label}</li>);
                     })
                 }
               </ul>
@@ -63,16 +63,6 @@ function Adaptation(props) {
                 api_call={"node_references"}
               />
 
-              {/* <div className="metadata">
-                <h3>Metadata</h3>
-                <small>
-                  <ul>
-                    <li><b>Climate hazard:</b> {props.a.action.climate_hazard}</li> 
-                    <li><b>Sector:</b> {props.a.action.sector}</li> 
-                    <li><b>UN SDG:</b> {props.a.action.sdg}</li> 
-                  </ul>
-                </small>
-                </div> */}
             </div>
           </div>
         </div>

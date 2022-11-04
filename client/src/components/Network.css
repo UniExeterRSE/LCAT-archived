@@ -48,13 +48,6 @@
     margin-right: 0;
 }
 
-.network-info ul {
-	padding-inline-start: 0;
-	list-style-type: none; /* Remove bullets */
-	padding: 0; /* Remove padding */
-	margin: 0; /* Remove margins */
-}
-
 @media (min-width: 1200px) {
 	.network-info {
 		width: 16em;
