@@ -39,3 +39,14 @@ export function camelize(str) {
         return word.toUpperCase();
     }).replace(/\s+/g, '');
 }
+
+export const rcpText = {
+    rcp60:"existing global policies",
+    "rcp85":"worst case scenario"
+}
+
+export const seasonText = {
+    annual:"yearly",
+    winter:"winter",
+    summer:"summer"
+};

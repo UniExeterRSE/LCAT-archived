@@ -12,7 +12,7 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import LoadingOverlay from "react-loading-overlay";
 import { NetworkParser } from '../core/NetworkParser';
-import { andify,camelize } from '../utils/utils';
+import { andify, camelize, rcpText, seasonText } from '../utils/utils';
 
 import './HealthWellbeing.css';
 
@@ -51,13 +51,13 @@ function HealthWellbeing(props) {
           <h1>Health Impact Summary</h1>
 
           <p>
-            The climate change predicted in your selected area of&nbsp;
+            The climate change in&nbsp;
             
             <span className={"projected-regions"}>
               { andify(props.regions.map(e => e.name)) }
             </span>
 
-            &nbsp;is expected to result in these health and wellbeing impacts:
+            &nbsp;under the <b>{rcpText[props.rcp]}</b> when considering <b>{seasonText[props.season]}</b> averages, is expected to result in these health and wellbeing impacts:
           </p>
           
           <div className={"horiz-container-health"}>        

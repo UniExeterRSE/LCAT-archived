@@ -153,6 +153,8 @@ class App extends React.Component {
                 climatePrediction = {this.state.climatePrediction}
                 regions = {this.state.regions}
                 loading = {this.state.loadingPrediction}
+                season={this.state.season}
+                rcp={this.state.rcp}
               />
 
               <Network
@@ -161,6 +163,8 @@ class App extends React.Component {
                 climatePrediction = {this.state.climatePrediction}
                 regions = {this.state.regions}
                 networkParser = {this.state.networkParser}
+                season={this.state.season}
+                rcp={this.state.rcp}
               />
 
               <Vulnerabilities
@@ -173,6 +177,7 @@ class App extends React.Component {
                 year = {this.state.year}
                 climatePrediction = {this.state.climatePrediction}
                 season = {this.state.season}
+                rcp={this.state.rcp}
                 regions = {this.state.regions}
                 loading = {this.state.loadingPrediction}
               />

@@ -10,7 +10,7 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import React, { useEffect, useState, lazy, Suspense } from 'react';
-import { andify } from '../utils/utils';
+import { andify, rcpText, seasonText } from '../utils/utils';
 import { NetworkParser } from '../core/NetworkParser.js';
 import Adaptation from "./Adaptation";
 
@@ -41,10 +41,15 @@ function Adaptations(props) {
         <div>
           <h1>Adaptations</h1>
           <p>
-            Based on the expected climate change and the resulting impacts,
+            Based on the expected climate change and the resulting impacts in&nbsp;
+
+            <span className={"projected-regions"}>
+              { andify(props.regions.map(e => e.name)) }
+            </span>
+
+            ,&nbsp;under the <b>{rcpText[props.rcp]}</b> when considering <b>{seasonText[props.season]}</b> averages,
             the following adaptations should be considered.
-            You are currently viewing adaptations for <b>{props.season}</b> and
-            for&nbsp;
+            You are currently viewing adaptations for&nbsp;
             
             <select onChange={(e) => setSector(e.target.value)} >
               <option value="All">All sectors</option>
@@ -58,12 +63,6 @@ function Adaptations(props) {
               <option value="Information & Communication Technology">Information & Communication Technology</option>
               <option value="International Factors">International Factors</option>                  
             </select>
-
-            &nbsp;in&nbsp;
-
-            <span className={"projected-regions"}>
-              { andify(props.regions.map(e => e.name)) }
-            </span>
           </p>
           
           <div>        

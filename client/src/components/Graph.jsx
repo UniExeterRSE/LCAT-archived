@@ -125,28 +125,8 @@ function Graph(props) {
                 <span className={"projected-regions"}>
                   { andify(props.regions.map(e => e.name)) }
                 </span>
-                
-                .&nbsp;You are viewing the&nbsp;
 
-                <select value={season} onChange={(e) => {
-                    setSeason(e.target.value);
-                    props.seasonCallback(e.target.value);
-                }}>           
-                  <option value="annual">yearly averages</option>
-                  <option value="summer">summer averages</option>
-                  <option value="winter">winter averages</option>
-                </select>
-
-                &nbsp;for&nbsp; 
-
-                <select onChange={(e) => { setVariable(e.target.value); }}>
-                  <option value="tas">temperature</option>
-                  <option value="pr">rain</option>
-                  <option value="sfcwind">wind</option>
-                  <option value="rsds">cloudiness</option>
-                </select>
-
-                &nbsp;under the&nbsp; 
+                &nbsp;under&nbsp;
                 
                 <select value={rcp} onChange={(e) => {
                     setRcp(e.target.value);
@@ -157,17 +137,36 @@ function Graph(props) {
                 </select>
 
                 &nbsp;
-                
-                {rcp=="rcp60" && <span>(equivalent to global warming level of 2.0-3.7C which is RCP 6.0)</span>}
-                {rcp=="rcp85" && <span>(equivalent to global warming level of 3.2-5.4C which is RCP 8.5)</span>}.
 
-                &nbsp;You are viewing&nbsp;
+                {rcp=="rcp60" && <span>(equivalent to global warming level of 2.0-3.7C which is RCP 6.0)</span>}
+                {rcp=="rcp85" && <span>(equivalent to global warming level of 3.2-5.4C which is RCP 8.5)</span>}
+                
+                ,&nbsp;and shows the&nbsp;
+
+                <select value={season} onChange={(e) => {
+                    setSeason(e.target.value);
+                    props.seasonCallback(e.target.value);
+                }}>           
+                  <option value="annual">yearly</option>
+                  <option value="summer">summer</option>
+                  <option value="winter">winter</option>
+                </select>
+
+                &nbsp;averages for&nbsp; 
+
+                <select onChange={(e) => { setVariable(e.target.value); }}>
+                  <option value="tas">temperature</option>
+                  <option value="pr">rain</option>
+                  <option value="sfcwind">wind</option>
+                  <option value="rsds">cloudiness</option>
+                </select>
+
+                &nbsp;for your&nbsp; 
                 
                 <select onChange={(e) => { setShowAverage(e.target.value==="1"); }}>
-                  <option value="0">your local climate change</option>
-                  <option value="1">comparison with UK averages</option>
+                  <option value="0">selected areas only</option>
+                  <option value="1">your areas vs the UK</option>
                 </select>
-                
                 
               </p>
 

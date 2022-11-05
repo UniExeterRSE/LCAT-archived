@@ -14,7 +14,7 @@ import useCollapse from 'react-collapsed';
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 
 import Graph from 'react-graph-vis';
-import { andify } from '../utils/utils';
+import { andify, rcpText, seasonText } from '../utils/utils';
 import References from './References';
 import { NetworkRenderer } from '../core/NetworkRenderer';
 
@@ -265,7 +265,18 @@ function Network(props) {
             <div className="content">
               <h1>Health impact details</h1>
               <p>
-                The network below shows how climate change will impact health. You can explore the network by clicking/tapping on the nodes and connections for more information. Nodes can be moved around by dragging them, and the network can also be zoomed and panned. You are currently viewing the impacts for&nbsp;
+
+                The network below shows how climate change will impact health in &nbsp;
+            
+                <span className={"projected-regions"}>
+                  { andify(props.regions.map(e => e.name)) }
+                </span>
+                
+                &nbsp;under the <b>{rcpText[props.rcp]}</b> when considering <b>{seasonText[props.season]}</b> averages.
+                
+                You can explore the network by clicking/tapping on the nodes and connections for more information. Nodes can be moved around by dragging them, and the network can also be zoomed and panned.
+
+                View impacts relevant to&nbsp;
                 
                 <select onChange={(e) => updateSector(e.target.value)} >
                   <option value="All">All sectors</option>
@@ -279,12 +290,7 @@ function Network(props) {
                   <option value="Information & Communication Technology">Information & Communication Technology</option>
                   <option value="International Factors">International Factors</option>                  
                 </select>
-               
-                &nbsp;in&nbsp;
                 
-                <span className={"projected-regions"}>
-                  { andify(props.regions.map(e => e.name)) }
-                </span>.
               </p>
               <NetworkListener
                 network = {props.network}

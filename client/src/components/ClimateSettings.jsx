@@ -52,12 +52,12 @@ function ClimateSettings(props) {
             &nbsp;the&nbsp;
             
             <select value={season} onChange={(e) => { props.seasonCallback(e.target.value); }}>
-              <option value="annual">yearly average</option>
-              <option value="summer">summer average</option>
-              <option value="winter">winter average</option>
+              <option value="annual">yearly</option>
+              <option value="summer">summer</option>
+              <option value="winter">winter</option>
             </select>
             
-            &nbsp;climate change for 2070
+            &nbsp;average climate change for 2070
             {/*
             <select defaultValue="2070" onChange={(e) => { props.yearCallback(e.target.value); }}>                  
               <option value="2030">2030</option>

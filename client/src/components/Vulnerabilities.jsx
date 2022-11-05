@@ -137,7 +137,7 @@ function Vulnerabilities(props) {
                             */}
                           </div>
                       );
-                  }) : <h3>{ andify(props.regions.map(e => e.name)) } is not in the top {decileToText(decile)} for any vulnerabilities.</h3>}
+                  }) : <h3>Your selected area/s are not in the top {decileToText(decile)} for any vulnerabilities.</h3>}
             </div>  
 	        <p className="note">
               Data source: The vulnerability data comes from <a href="https://www.climatejust.org.uk">ClimateJust</a> and is based on 2011 census data. This will be updated once the 2021 census data is available.
