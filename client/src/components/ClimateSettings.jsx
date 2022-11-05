@@ -15,7 +15,12 @@ import { andify } from '../utils/utils';
 
 function ClimateSettings(props) {
     const [rcp, setRcp] = useState("rcp60");
-    
+    const [season,setSeason] = useState("annual");
+
+    // change when graph changes
+    useEffect(() => { setRcp(props.rcp); }, [props.rcp]);
+    useEffect(() => { setSeason(props.season); }, [props.season]);
+
     if (props.regions.length === 0) {
         return null;
     }
@@ -32,7 +37,9 @@ function ClimateSettings(props) {
 
             .&nbsp;For this area under the&nbsp;
             
-            <select onChange={(e) => { setRcp(e.target.value); props.rcpCallback(e.target.value); }}>           
+            <select value={rcp} onChange={(e) => {
+                props.rcpCallback(e.target.value);
+            }}>           
               <option value="rcp60">existing global policies</option>
               <option value="rcp85">worst case scenario</option>
             </select>
@@ -44,14 +51,14 @@ function ClimateSettings(props) {
             
             &nbsp;the&nbsp;
             
-            <select onChange={(e) => { props.averageCallback(e.target.value); }}>           
+            <select value={season} onChange={(e) => { props.seasonCallback(e.target.value); }}>
               <option value="annual">yearly average</option>
               <option value="summer">summer average</option>
               <option value="winter">winter average</option>
             </select>
             
-            &nbsp;climate change for&nbsp;
-            
+            &nbsp;climate change for 2070
+            {/*
             <select defaultValue="2070" onChange={(e) => { props.yearCallback(e.target.value); }}>                  
               <option value="2030">2030</option>
               <option value="2040">2040</option>
@@ -59,7 +66,7 @@ function ClimateSettings(props) {
               <option value="2060">2060</option>
               <option value="2070">2070</option>
             </select>
-
+            */}
             &nbsp;compared with local records for the 1980s is expected to be: 
           </p>
           

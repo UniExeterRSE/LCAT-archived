@@ -4,6 +4,7 @@ import xmltodict
 import time
 
 # Use doi.org API to look up paper information
+# This is not particularly good, or useful - just scraping
 
 class doi_lookup:
     def __init__(self):
@@ -33,8 +34,9 @@ class doi_lookup:
             r = opener.open('http://dx.doi.org/'+doi)
             d = xmltodict.parse(r.read())
 
-            print(type)
-            if type=="Journal Article":
+            type = type.strip()
+            print("["+type+"]")
+            if type=="Journal Article" or type=="Journal article":
                 self.read_article(doi,d)
             else:
                 self.read_book(doi,d)
@@ -46,20 +48,33 @@ class doi_lookup:
         #print (json.dumps(d["crossref_result"]["query_result"]["body"]["query"]["doi_record"], indent=4))
 
         book = d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]["book"]
-        print (json.dumps(d["crossref_result"]["query_result"]["body"]["query"]["doi_record"], indent=4))
+        #print (json.dumps(d["crossref_result"]["query_result"]["body"]["query"]["doi_record"], indent=4))
+        #print (json.dumps(book, indent=4))
 
-        title = book["book_metadata"]["titles"]["title"]
+        for k in book.keys():
+            print(k)
+
+        main_key = 'book_metadata' 
+        if not main_key in book:
+            main_key = 'book_series_metadata'
+
+        title = book[main_key]["titles"]["title"]
 
         authors = ""
         if "content_item" in book:
-            for contributor in book["content_item"]["contributors"]["person_name"]:
-                authors+=(contributor["given_name"]+" "+contributor["surname"]+", ")
+            names = book["content_item"]["contributors"]["person_name"]
+            print(names)
+            if isinstance(names,list):                
+                for contributor in names:
+                    authors+=(contributor["given_name"]+" "+contributor["surname"]+", ")
+            else:
+                authors+=(names["given_name"]+" "+names["surname"]+", ")
         else:
-            contributor= book["book_metadata"]["contributors"]["person_name"]
+            contributor= book[main_key]["contributors"]["person_name"]
             authors+=(contributor["given_name"]+" "+contributor["surname"]+", ")
 
         
-        date=book["book_metadata"]["publication_date"]["year"]
+        date=book[main_key]["publication_date"]["year"]
                 
         journal_title = ""
 
@@ -75,12 +90,16 @@ class doi_lookup:
             "issue": issue,
         }
 
+
     def read_article(self,doi,d):
         journal = d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]["journal"]
         article = journal["journal_article"]
 
         #print(d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]["journal"]["journal_article"])
         title = article["titles"]["title"]
+
+        if isinstance(title,dict):
+            title=title["#text"]
         
         authors = ""
         #print(article["contributors"]["person_name"])
@@ -123,6 +142,7 @@ class doi_lookup:
             "issue": issue,
         }
 
+        print (self.doicache[doi])
         
     def get_reference(self,doi):
         if doi in self.doicache:

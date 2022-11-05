@@ -74,3 +74,33 @@ def compute_climate(db):
         ret = db.cur.fetchall()
         for i,var in enumerate(ret[0]):
             print(climate+"_"+name[i]+": "+str(var)+",")
+
+def compute_vulnerabilities(db):
+    table = "nfvi_sfri"
+    q=f"select count(*) from {table};"
+    db.cur.execute(q)
+    count = db.cur.fetchone()[0]
+    dec = count/10;
+
+    for col in ["a1", "a2", "h1", "h2", "i1", "i2", "i3", "i4", "i5",
+                "f1","f2", "k1", "t1", "t2", "m1", "m2", "m3", "c1", "l1", "e1", "s1",
+	        "s2", "s3", "s4", "n1", "n2", "n3"]:
+        print("deciles_"+col+": [")
+        for d in range(1,10):
+            q=f"select {col} from {table} order by {col} desc limit 1 offset {dec*d}"         
+            db.cur.execute(q)
+            v = db.cur.fetchone()
+            print("    "+str(v[0])+",")
+        print("],")
+
+def compute_vulnerability_averages(db):
+    table = "nfvi_sfri"
+
+    for col in ["a1", "a2", "h1", "h2", "i1", "i2", "i3", "i4", "i5",
+                "f1","f2", "k1", "t1", "t2", "m1", "m2", "m3", "c1", "l1", "e1", "s1",
+	        "s2", "s3", "s4", "n1", "n2", "n3"]:
+
+        q=f"select avg({col}) from {table}"         
+        db.cur.execute(q)
+        v = db.cur.fetchone()
+        print("average_"+col+": "+str(v[0])+",")

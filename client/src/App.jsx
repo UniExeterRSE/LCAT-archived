@@ -23,7 +23,6 @@ import HealthWellbeing from './components/HealthWellbeing';
 import Network from "./components/Network";
 import NetworkLoader from './components/NetworkLoader';
 import { NetworkParser } from './core/NetworkParser';
-import StatsLoader from './components/StatsLoader';
 import Vulnerabilities from './components/Vulnerabilities';
 import Adaptations from './components/Adaptations';
 
@@ -37,7 +36,7 @@ const meta = {
     meta: {
         charset: 'utf-8',
     }
-}
+};
 
 class App extends React.Component {
     constructor(props) {
@@ -48,11 +47,10 @@ class App extends React.Component {
             regionType: "counties",
             network: { nodes: [], edges: [] },
             climatePrediction: [],           
-            average: "winter",
+            season: "annual",
             rcp: "rcp60",
             year: 2070,
             loadingPrediction: false,          
-            stats: [],
             networkParser: new NetworkParser([],[])
         };
     }
@@ -79,22 +77,21 @@ class App extends React.Component {
                     }));}}
               />
 
-              <StatsLoader
+              {/*<StatsLoader
                 id={0}
                 callback={(stats) => {
                     this.setState((state) => ({
                         stats: stats
                     }));}}
-              />
+              />*/}
               
               <ClimatePredictionLoader
                 regions = {this.state.regions}
-                average = {this.state.average}
+                season = {this.state.season}
                 rcp = {this.state.rcp}
                 regionType = {this.state.regionType}
                 callback = {(prediction) => {
-                    console.log("New climate prediction");
-                    this.setState((state) => ({
+                      this.setState((state) => ({
                         climatePrediction: prediction,
                         loadingPrediction: false,                        
                     }));}}
@@ -104,7 +101,6 @@ class App extends React.Component {
               />
 
               <ClimateMap
-                stats = {this.state.stats}
                 regionType = {this.state.regionType}
                 regionsCallback={(regions,regionType) => {
                     this.setState({
@@ -116,12 +112,15 @@ class App extends React.Component {
 
               <ClimateSettings
                 regions={this.state.regions}
+                season={this.state.season}
+                rcp={this.state.rcp}
                 rcpCallback={(rcp) => { this.setState(() => ({
                     rcp: rcp                  
                 }));}}
-                averageCallback={(average) => { this.setState(() => ({
-                    average: average                  
-                }));}}
+                seasonCallback={(season) => {
+                    this.setState(() => ({
+                        season: season                  
+                    }));}}
                 yearCallback={(year) => { this.setState(() => ({
                     year: year                  
                 }));}}
@@ -136,7 +135,16 @@ class App extends React.Component {
               
               <Graph
                 regions={this.state.regions}
-                boundary={this.state.regionType}                
+                boundary={this.state.regionType}
+                season={this.state.season}
+                rcp={this.state.rcp}
+                seasonCallback={(season) => {
+                    this.setState(() => ({
+                        season: season                  
+                    }));}}
+                rcpCallback={(rcp) => { this.setState(() => ({
+                    rcp: rcp                  
+                }));}}
               />
                                           
               <HealthWellbeing
@@ -158,14 +166,13 @@ class App extends React.Component {
               <Vulnerabilities
                 regions = {this.state.regions}
                 regionType = {this.state.regionType}                
-                stats = {this.state.stats}
               />
 
               <Adaptations
                 networkParser = {this.state.networkParser}
                 year = {this.state.year}
                 climatePrediction = {this.state.climatePrediction}
-                season = {this.state.average}
+                season = {this.state.season}
                 regions = {this.state.regions}
                 loading = {this.state.loadingPrediction}
               />

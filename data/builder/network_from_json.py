@@ -105,8 +105,12 @@ class network_db:
         self.db.conn.commit()
 
         if "reference_id" in node["attributes"]:
+            found = 0
             for ref in node["attributes"]["reference_id"]:
-                self.add_node_article_mapping(node["_id"], ref)
+                if self.add_node_article_mapping(node["_id"], ref):
+                    found+=1
+            if found!=len(node["attributes"]["reference_id"]):
+                print(str(found)+"/"+str(len(node["attributes"]["reference_id"])))
             
 
     def add_edge(self,edge):
@@ -121,31 +125,44 @@ class network_db:
         self.db.conn.commit()
 
         if "reference_id" in edge["attributes"]:
+            found = 0
             for ref in edge["attributes"]["reference_id"]:
-                self.add_edge_article_mapping(edge["_id"], ref)
+                if self.add_edge_article_mapping(edge["_id"], ref):
+                    found+=1
+            if found!=len(edge["attributes"]["reference_id"]):
+                print(str(found)+"/"+str(len(edge["attributes"]["reference_id"])))
         else:
             print("no ref for edge? "+edge["_id"]+" "+edge["from"]+"->"+edge["to"])
         
                     
     def add_ref(self,row):
+        row_id = row[0]
+        row_type = row[1]
+        row_doi = row[2] 
+        row_orig_link = row[3] 
+        row_rep_link = row[4]
+        row_title = row[5]
+
         self.db.cur.execute("select article_id from articles where article_id=%s",(row[0],))
         self.db.conn.commit()
         if (len(self.db.cur.fetchall())>0):
-            print("not found, skipping article "+row[0])
+            print("already done, skipping article "+row_id)
             return
+
+        print(row)
         
         ref = False
-        if row[2]!="":
-            ref = self.doi_lookup.doi2info(row[2],row[1])
+        if row_doi!="":
+            ref = self.doi_lookup.doi2info(row_doi,row_type)
 
-        link=row[3]
-        if row[4]!="": link=row[4]
+        link=row_orig_link
+        if row_rep_link!="": link=row_rep_link
             
         if ref!=False:
             self.db.cur.execute("insert into articles (article_id, doi, type, link, title, authors, date, journal, issue) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-            (row[0],
+            (row_id,
              ref["doi"],
-             row[1],
+             row_type,
              link,
              ref["title"],
              ref["authors"],
@@ -154,37 +171,38 @@ class network_db:
              ref["issue"]))        
         else:
             self.db.cur.execute("insert into articles (article_id, title, doi, type, link) values (%s, %s, %s, %s, %s)",
-            (row[0],
-             row[6],
-             row[2],
-             row[1],
+            (row_id,
+             row_title,
+             row_orig_link, # save original link as doi
+             row_type,
              link))
         self.db.conn.commit()
-        return row[0]
+        return row_id
 
     def add_node_article_mapping(self, node_id, article_id):
         self.db.cur.execute("select article_id from articles where article_id=%s",(article_id,))
         self.db.conn.commit()
         if (len(self.db.cur.fetchall())==0):
-            print("skipping "+article_id)
-            return
+            print("can't find node article no: "+article_id+" ("+node_id+")")
+            return False
 
         self.db.cur.execute(f"""insert into node_article_mapping (node_id, article_id) values
         ('{node_id}','{article_id}')""")
         self.db.conn.commit()
+        return True
 
 
     def add_edge_article_mapping(self, edge_id, article_id):
         self.db.cur.execute("select article_id from articles where article_id=%s",(article_id,))
         self.db.conn.commit()
         if (len(self.db.cur.fetchall())==0):
-            print("skipping "+article_id)
-            return
+            print("can't find edge article no: "+article_id+" ("+edge_id+")")
+            return False
 
         self.db.cur.execute(f"""insert into edge_article_mapping (edge_id, article_id) values
         ('{edge_id}','{article_id}')""")
         self.db.conn.commit()
-            
+        return True
 
 def reset(db):
     nd = network_db(db)
@@ -209,6 +227,23 @@ def load(db,path,mapname):
             for edge in map["connections"]:
                 nd.add_edge(find_item(net["connections"],edge["connection"]))
 
+# 7   doi.org 404
+# 165 doi.org 404
+# 212 doi.org error
+# 235 doi.org timeout
+
+# 146 is a Journal Article (csv fix) OK
+
+
+# missing articles
+#can't find edge article no: 119 (conn-H4EXWpEO)
+#0/1
+#can't find edge article no: 94 (conn-dvyTdIOG)
+#0/1
+#can't find edge article no: 138 (conn-TOOR7ysY)
+#can't find edge article no: 139 (conn-TOOR7ysY)
+#0/2
+
 def load_refs(db,refssheet):                
     nd = network_db(db)
     ##nd.reset_refs()
@@ -216,11 +251,11 @@ def load_refs(db,refssheet):
     with open(refssheet) as csvfile:
         reader = csv.reader(csvfile)
         for i,row in enumerate(reader):
-            if i>0 and not row[0] in ["7","125","165","178","184","212",""]:
+            if i>0 and not row[0] in ["7", "165","212", "235", ""]:
                 nd.add_ref(row)
                 
- 
-
+    for broken_id in ["7", "165","212", "235"]:
+        nd.add_ref([broken_id,"fixme_type","","fixme_org_link","fixme_rep_link","fixme_title"])
                                    
 
         

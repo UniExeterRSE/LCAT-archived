@@ -34,31 +34,25 @@ function Adaptation(props) {
             <div className="content">
               <b>Description:</b>
               <p>{props.a.action.description}</p>
-              <b>Directly effects:</b>
+              <b>Direct effects:</b>
               <ul>
-                {props.a.parents.map(
-                    p => {
-                        return (<li key={p.node.node_id}>{fixesText(p)}</li>);
-                    })
-                }
+                {props.a.parents.map(p => (
+                    <li key={p.node.node_id}>{fixesText(p)}</li>
+                ))}
               </ul>
               <b>Alleviates these health impacts:</b>
               <ul>
-                {props.a.healthnodes.map(
-                    p => {
-                        return (<li key={p.node_id}>{p.label}</li>);
-                    })
-                }
+                {props.a.healthnodes.map(p => (
+                    <li key={p.node_id}>{p.label}</li>
+                ))}
               </ul>
               <b>Required due to these pressures:</b>
               <ul>
-                {props.a.pressures.map(
-                    p => {
-                        return (<li key={p.node_id}>{p.label}</li>);
-                    })
-                }
+                {props.a.pressures.map(p => (
+                    <li key={p.node_id}>{p.label}</li>
+                ))}
               </ul>
-
+              
               <References
                 id={props.a.action.node_id}
                 api_call={"node_references"}

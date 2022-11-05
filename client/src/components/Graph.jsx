@@ -28,7 +28,7 @@ const selectedRegionCol = "#216331";
 const averageRegionCol = "#48b961";
 
 function Graph(props) {
-
+    
     const [data, setData] = useState([]);
     const [avg, setAvg] = useState([]);
     const [labelData, setLabelData] = useState([]);
@@ -42,6 +42,10 @@ function Graph(props) {
     
     const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
 
+    // change when settings change
+    useEffect(() => { setRcp(props.rcp); }, [props.rcp]);
+    useEffect(() => { setSeason(props.season); }, [props.season]);
+    
     function getYAxis() {
         if (variable=="tas") return 'Temperature (°C)';
         if (variable=="pr") return 'Rainfall (mm/day)';
@@ -103,15 +107,14 @@ function Graph(props) {
           </div>
           <div {...getCollapseProps()}>
 
-              <ClimatePredictionLoader
-                regions = {props.regions}
-                regionType = {props.boundary}
-                average = {season}
-                rcp = {rcp}
-                callback = {(prediction) => setPrediction(prediction)}
-                loadingCallback={ loading => { }}
-              />
-
+            <ClimatePredictionLoader
+              regions = {props.regions}
+              regionType = {props.boundary}
+              season = {season}
+              rcp = {rcp}
+              callback = {(prediction) => setPrediction(prediction)}
+              loadingCallback={ loading => { }}
+            />
             
             <div className="content">
               <h1>Climate details</h1>
@@ -125,7 +128,10 @@ function Graph(props) {
                 
                 .&nbsp;You are viewing the&nbsp;
 
-                <select onChange={(e) => { setSeason(e.target.value); }}>           
+                <select value={season} onChange={(e) => {
+                    setSeason(e.target.value);
+                    props.seasonCallback(e.target.value);
+                }}>           
                   <option value="annual">yearly averages</option>
                   <option value="summer">summer averages</option>
                   <option value="winter">winter averages</option>
@@ -142,7 +148,10 @@ function Graph(props) {
 
                 &nbsp;under the&nbsp; 
                 
-                <select onChange={(e) => { setRcp(e.target.value); }}>           
+                <select value={rcp} onChange={(e) => {
+                    setRcp(e.target.value);
+                    props.rcpCallback(e.target.value);
+                }}>           
                   <option value="rcp60">existing global policies</option>
                   <option value="rcp85">worst case scenario</option>
                 </select>

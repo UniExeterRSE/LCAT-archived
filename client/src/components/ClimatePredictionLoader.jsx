@@ -23,7 +23,7 @@ function ClimatePredictionLoader(props) {
                 var url = prepend+"/api/chess_scape?"+
                     new URLSearchParams({
                         rcp: props.rcp,
-                        season: props.average,
+                        season: props.season,
                         boundary: props.regionType
                     })+"&"+
                     // clumsy, fixme
@@ -41,7 +41,7 @@ function ClimatePredictionLoader(props) {
         }
     },[props.rcp,
        props.regions,
-       props.average,
+       props.season,
        props.regionType]);
 
     return null;
