@@ -39,7 +39,7 @@ build scripts.
 
 | Type              | Notes                                                                   |  Time span | Regions             | LCAT postgres table/col  | Original Format | Coordinate system | Source URL | Authority                  |
 |-------------------|-------------------------------------------------------------------------|------------|---------------------|--------------------------|-----------------|-------------------|------------|----------------------------|
-| Climate Just NFVI variables     | Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables	  |	2017       | UK                  | `nfvi` and `<boundary_type>_vulnerabilities` | ESRI Shapefile  | https://www.climatejust.org.uk/map | Climate Just |    
+| Climate Just NFVI variables     | Neighbourhood Flood Vulnerability Index (NFVI) Supporting Variables	  |	2017 | UK            | `nfvi` and `<boundary_type>_vulnerabilities` | ESRI Shapefile  | https://www.climatejust.org.uk/map | Climate Just |    
 | Indices of Multiple Deprivation | England                                                   | 2019       | England and Wales   | `<boundary_type>_vulnerabilities` | CSV                        | -          |                            |  
 | Indices of Multiple Deprivation | Scotland                                                  | 2020       | Scotland            | `<boundary_type>_vulnerabilities` | CSV                        | https://simd.scot/#/simd2020/BTTTFTT/12/-4.6223/55.5558/ | scot.gov |  
 | Indices of Multiple Deprivation | Wales                                                     | 2014       | Wales               | `<boundary_type>_vulnerabilities` | CSV                        | https://statswales.gov.wales/Catalogue/Community-Safety-and-Social-Inclusion/Welsh-Index-of-Multiple-Deprivation/WIMD-2019 | Welsh Government |  
@@ -48,5 +48,6 @@ build scripts.
 
 | Type              | Notes                                                                   |  Time span | Regions             | LCAT postgres table/col  | Original Format | Coordinate system | Source URL | Authority                  |
 |-------------------|-------------------------------------------------------------------------|------------|---------------------|--------------------------|-----------------|-------------------|------------|----------------------------|
-| Impacts network   | Exported from Kumu, contains reference ID numbers                       | 2022       | n/a                 | 'network'                                                    
+| Impacts network   | Exported from Kumu, contains reference ID numbers                       | 2022       | n/a                 | `network_nodes` & `network_edges` | JSON   | -                 | -          | LCAT Team                  |                         
+| References        | The evidence base for the network conenctions and adaptations           | 2022       | n/a                 | `articles`               | CSV             | -                 | -          | LCAT Team                  |                         
     

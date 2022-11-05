@@ -8,19 +8,19 @@
   "dependencies": {
     "@adminjs/express": "^4.1.3",
     "@adminjs/sequelize": "^2.1.5",
-    "adminjs": "^5.10.3",
+    "adminjs": "^5.11.0",
     "cookie-parser": "~1.4.4",
     "debug": "^4.3.4",
-    "dotenv": "^16.0.1",
-    "express": "^4.18.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
     "express-formidable": "^1.2.0",
     "express-session": "^1.17.3",
     "http-errors": "^2.0.0",
     "morgan": "^1.10.0",
-    "pg": "^8.6.0",
+    "pg": "^8.8.0",
     "pug": "^3.0.2",
-    "sequelize": "^6.20.0",
+    "sequelize": "^6.25.3",
     "sequelize-auto": "^0.8.8",
-    "tslib": "^2.4.0"
+    "tslib": "^2.4.1"
   }
 }

@@ -102,17 +102,16 @@ else:
         link_geom_lsoa.centroids(db,"boundary_msoa","sc_dz","4326")
         link_geom_lsoa.centroids(db,"boundary_parishes","sc_dz","4326")
     
-
     if sys.argv[1]=="climatejust_load_nfvi":         
         db.load_shp_geom(conf['nfvi_sfri_shp'],"nfvi_sfri","27700")
 
     if sys.argv[1]=="climatejust_average_nfvi":
-        vulnerabilities.import_to_self(db,"boundary_lsoa")
-        vulnerabilities.import_to_self(db,"boundary_sc_dz")
-        vulnerabilities.import_to_table(db,"boundary_uk_counties")
-        vulnerabilities.import_to_table(db,"boundary_la_districts")
-        vulnerabilities.import_to_table(db,"boundary_msoa")
-        vulnerabilities.import_to_table(db,"boundary_parishes")
+        #vulnerabilities.import_to_self(db,"boundary_lsoa")
+        #vulnerabilities.import_to_self(db,"boundary_sc_dz")
+        vulnerabilities.import_to_table_median(db,"boundary_uk_counties")
+        vulnerabilities.import_to_table_median(db,"boundary_la_districts")
+        vulnerabilities.import_to_table_median(db,"boundary_msoa")
+        vulnerabilities.import_to_table_median(db,"boundary_parishes")
 
     if sys.argv[1]=="load_imd_from_csv":
         # first we need to load in the base imd data (slowly)

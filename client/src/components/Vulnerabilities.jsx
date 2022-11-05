@@ -31,7 +31,7 @@ function Vulnerabilities(props) {
             let vulns = [];
             for (let key of Object.keys(nfviColumns)) {
                 let avg = data[0][key];
-
+                console.log(key+" "+avg);
                 if (avg!=null) {
                 
                     let statkey = props.regionType+"_vulnerabilities_"+key;
