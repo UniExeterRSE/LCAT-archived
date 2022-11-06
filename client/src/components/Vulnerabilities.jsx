@@ -22,7 +22,7 @@ import './Vulnerabilities.css';
 function Vulnerabilities(props) {
 
     const [ vulnerabilities, setVulnerabilities ] = useState([]);
-    const [ decile, setDecile ] = useState("dec_1");
+    const [ decile, setDecile ] = useState("dec_2");
     const [ loading, setLoading ] = useState(false);
     const [ data, setData ] = useState([]);
 
@@ -31,7 +31,7 @@ function Vulnerabilities(props) {
             let vulns = [];
             for (let key of Object.keys(nfviColumns)) {
                 let avg = data[0][key];
-                console.log(key+" "+avg);
+
                 if (avg!=null) {
                 
                     let statkey = props.regionType+"_vulnerabilities_"+key;
@@ -108,7 +108,7 @@ function Vulnerabilities(props) {
               
               .&nbsp;These vulnerabilities are in the top&nbsp;
               
-              <select onChange={(e) => { setDecile(e.target.value); }}>
+              <select value="dec_2" onChange={(e) => { setDecile(e.target.value); }}>
                 <option value="dec_1">10%</option>
                 <option value="dec_2">20%</option>
                 <option value="dec_3">30%</option>
@@ -137,7 +137,22 @@ function Vulnerabilities(props) {
                             */}
                           </div>
                       );
-                  }) : <h3>Your selected area/s are not in the top {decileToText(decile)} for any vulnerabilities.</h3>}
+                  }) :
+               <div>
+                 {["boundary_uk_counties",
+                   "boundary_la_districts"].includes(props.regionType) ?
+                  (<h3>
+                    Your selected area/s are not in the top {decileToText(decile)} for any vulnerabilities.
+                    Note: Averaging across large areas tends to hide vulnerabilities that may be present.
+                   </h3>) 
+                 :
+                  (<h3>
+                     Your selected area/s are not in the top {decileToText(decile)} for any vulnerabilities.
+                   </h3>)
+                 }
+               </div> 
+              }
+                 
             </div>  
 	        <p className="note">
               Data source: The vulnerability data comes from <a href="https://www.climatejust.org.uk">ClimateJust</a> and is based on 2011 census data. This will be updated once the 2021 census data is available.
