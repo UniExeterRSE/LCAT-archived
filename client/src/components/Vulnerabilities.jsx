@@ -108,7 +108,7 @@ function Vulnerabilities(props) {
               
               .&nbsp;These vulnerabilities are in the top&nbsp;
               
-              <select value="dec_2" onChange={(e) => { setDecile(e.target.value); }}>
+              <select value={decile} onChange={(e) => { setDecile(e.target.value); }}>
                 <option value="dec_1">10%</option>
                 <option value="dec_2">20%</option>
                 <option value="dec_3">30%</option>
@@ -143,7 +143,7 @@ function Vulnerabilities(props) {
                    "boundary_la_districts"].includes(props.regionType) ?
                   (<h3>
                     Your selected area/s are not in the top {decileToText(decile)} for any vulnerabilities.
-                    Note: Averaging across large areas tends to hide vulnerabilities that may be present.
+                     Note: Averaging across large areas tends to hide vulnerabilities that may be present.
                    </h3>) 
                  :
                   (<h3>
