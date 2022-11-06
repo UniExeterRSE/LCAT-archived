@@ -9,4 +9,5 @@ here](http://climate-tool.thentrythis.org/).
 * [Official website](http://lcat.uk)
 * [Where does the data come from?](docs/sources.md)
 * [How are the network impacts calculated?](docs/network.md)
-* [Notes and instructions on how the server is set up](docs/building.md)
+* [Notes on how the database is set up](docs/building.md)
+* [Server install instructions](docs/install.md)
