@@ -35,7 +35,7 @@ function climateChange(prediction,variable,year) {
 
 function arrow(prediction,year,variable) {
     let v = climateChange(prediction,variable,year);
-    if (v==null) return;
+    if (v==null) return null;
     // more radiation = less cloud
     if (variable=="rsds") { v=-v; }
     if (v<0) return <DecreaseSvg className="climate-arrow"/>;
@@ -45,7 +45,7 @@ function arrow(prediction,year,variable) {
 function predict(prediction,year,variable,name,units) {
     if (prediction.length>0) {
         let v=climateChange(prediction,variable,year);        
-        if (v==null) return (<span>No data</span>);
+        if (v==null) return (<span>No data yet for this area, coming soon.</span>);
         let pv = Math.abs(v).toFixed(2);        
         if (variable=="rsds") { v=-v; }
         let dir = "increases";
