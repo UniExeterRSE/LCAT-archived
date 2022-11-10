@@ -40,7 +40,8 @@ function Graph(props) {
     const [variable,setVariable] = useState("tas");
     const [prediction,setPrediction] = useState([]);
     
-    const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
+    const [ isExpanded, setExpanded ] = useState(false);
+    const { getCollapseProps, getToggleProps } = useCollapse({isExpanded});
 
     // change when settings change
     useEffect(() => { setRcp(props.rcp); }, [props.rcp]);
@@ -94,6 +95,12 @@ function Graph(props) {
     }, [prediction,
         showAverage,
         variable]);         
+
+    useEffect(() => setExpanded(false), [props.regions]);
+
+    function handleOnClick() {
+        setExpanded(!isExpanded);
+    }
     
     if (props.regions.length === 0) {
         return null;
@@ -101,7 +108,7 @@ function Graph(props) {
     
     return (        
         <div className="collapsible">
-          <div className="header" {...getToggleProps()}>
+          <div className="header" {...getToggleProps({onClick: handleOnClick})}>
             {isExpanded ? 'Hide' : 'Explore'} climate details 
           </div>
           <div {...getCollapseProps()}>

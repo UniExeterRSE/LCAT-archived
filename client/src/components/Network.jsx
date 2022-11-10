@@ -35,8 +35,6 @@ function NetworkListener(props) {
 
 function Network(props) {
 
-    const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
-
     const [ version, setVersion ] = useState(0);
     const [ graph, setGraph ] = useState({ nodes: [], edges: [] });
     const [ infoTitle, setInfoTitle ] = useState("Click on something for details");
@@ -52,6 +50,9 @@ function Network(props) {
     const [ previouslySelected, setPreviouslySelected] = useState(null);
     const [ greyedNodeIDs, setGreyedNodeIDs ] = useState([]);
     
+    const [ isExpanded, setExpanded ] = useState(false);
+    const { getCollapseProps, getToggleProps } = useCollapse({isExpanded});
+
     const handle = useFullScreenHandle();
 
     const ref = useRef(null);
@@ -247,11 +248,14 @@ function Network(props) {
         ref.current.nodes.update(updateNodesList);
         ref.current.edges.update(updateEdgesList);
     }
-    
+
+    useEffect(() => setExpanded(false), [props.regions]);
+
     function handleOnClick() {
+        setExpanded(!isExpanded);
         setVersion(version+1);
     }
-    
+            
     if (props.regions.length === 0) {
         return null;
     }
