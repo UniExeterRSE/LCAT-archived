@@ -55,6 +55,9 @@ function Network(props) {
     const handle = useFullScreenHandle();
 
     const ref = useRef(null);
+
+    // preload some icons
+    networkRenderer.loadIcons();
     
     var options = {
 	    physics: {

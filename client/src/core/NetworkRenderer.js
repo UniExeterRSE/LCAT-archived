@@ -58,8 +58,10 @@ class NetworkRenderer extends Network {
             "Cloud cover": 450
         };      
 	}
-    
+
+    // preload some icons
     loadIcons() {
+        this.loadImage("glow");
     }
 
     notFoundIcon(col,text) {
