@@ -27,7 +27,6 @@ import Vulnerabilities from './components/Vulnerabilities';
 import Adaptations from './components/Adaptations';
 
 import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_Primary_RGB.svg';
-import { ReactComponent as LogoBlockSvg } from './images/logos/logos.svg';
 
 const meta = {
     title: 'Local Climate Adaptation Tool',
@@ -226,7 +225,9 @@ class App extends React.Component {
                   <a className="email-button" href="mailto:lcat@exeter.ac.uk"/>
                 </p>                
 
-                <LogoBlockSvg className="logo-block"/>
+                <div className="logo-block">
+                  <img className="logos"/>
+                </div>
 
               </div>
               

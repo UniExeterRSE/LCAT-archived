@@ -177,6 +177,11 @@ button:hover {
 }
 
 .logo-block {
-    transform: scale(2);
-    max-width: 100%;
+    width: 100%;
+}
+
+.logos {
+    content: url("images/logos/v2_new.png");
+    width: 100%;
+    max-width: 1000px;
 }
