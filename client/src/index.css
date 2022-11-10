@@ -73,6 +73,10 @@ select {
     padding: 0em;
 }
 
+select option {
+	background: #b2e1bcff;
+}
+
 select:hover {
 	background: #f5821fff;
 }
