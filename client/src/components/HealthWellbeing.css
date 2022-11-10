@@ -30,8 +30,8 @@
     width: 33.33%;
     box-sizing: border-box;
     margin-bottom: 1.5em;
+    line-height: 1.6;    
 }
-
 .health-text {
     padding-left: 2em;
     padding-right: 2em;

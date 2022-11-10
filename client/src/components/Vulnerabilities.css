@@ -14,6 +14,7 @@
     width: 33.33%;
     box-sizing: border-box;
     margin-bottom: 1.5em;
+    line-height: 1.6;
 }
 
 @media (min-width: 1000px) {
@@ -29,7 +30,6 @@
 
 .vuln-name {
     margin-top: 1em;
-    font-weight: bold;
     text-align: center;
     padding-left: 2em;
     padding-right: 2em;
