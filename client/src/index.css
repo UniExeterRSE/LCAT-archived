@@ -27,7 +27,7 @@ body {
     margin: 0;
     padding-left: 1em;
     padding-right: 1em;
-    line-height: 2.1;
+    line-height: 1.9;
 }
 
 @media (min-width: 1000px) {
