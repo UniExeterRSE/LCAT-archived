@@ -77,12 +77,6 @@
 	}
 }
 
-@media (min-width: 2000px) {
-	.network-info {
-		height: 800px;
-	}
-}
-
 .network-info h3 {
 	margin-block-start: 0;
 }

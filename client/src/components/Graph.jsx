@@ -178,7 +178,7 @@ function Graph(props) {
 
               <div className="graph-horiz-container">
                 <FlexibleXYPlot
-                  height={300}
+                  height={450}
                   margin={{bottom: 80, left: 100, right: 0, top: 10}}
                   xType="ordinal">
                   <ChartLabel
