@@ -1,10 +1,10 @@
 .rv-xy-plot__series--label-text {
-    font-size: 0.8vw;
+    font-size: 2vw;
     fill: white;
 }
 
 .rv-xy-plot__axis__tick__text {
-    font-size: 100%;
+    font-size: 1.5vw;
 }
 
 .graph-horiz-container {
@@ -13,7 +13,7 @@
 }
 
 .rv-xy-plot__axis__title text {
-    font-size: 75%;
+    font-size: 1.5vw;
 }
 
 .graph-axes-label {

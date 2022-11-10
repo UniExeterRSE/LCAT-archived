@@ -175,3 +175,8 @@ button:hover {
 .projected-regions {
     font-family: 'Montserrat-SemiBold',Arial,Helvetica,sans-serif;    
 }
+
+.logo-block {
+    transform: scale(2);
+    max-width: 100%;
+}

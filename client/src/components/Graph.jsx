@@ -54,10 +54,11 @@ function Graph(props) {
     }
 
     function getLabel(v) {
-        if (variable=="tas") return v.toFixed(2)+'°C';
+        /*if (variable=="tas") return v.toFixed(2)+'°C';
         if (variable=="pr") return v.toFixed(2)+' mm/day';
         if (variable=="sfcwind") return v.toFixed(2)+' m/s';
-        return v.toFixed(2)+' W/m²';
+        return v.toFixed(2)+' W/m²';*/
+        return v.toFixed(2);
     }
     
     useEffect(() => {
@@ -67,24 +68,22 @@ function Graph(props) {
             let av = [];
             let avlabel = [];
             if (prediction[0][variable+"_1980"]!=null) {            
-                for (let year of ["1980","2030","2040","2050","2060","2070"]) {
+                for (let year of [1980,2030,2040,2050,2060,2070]) {
                     let label_year = year;
                     let v = variable;
                     if (v == "sfcwind") v="sfcWind";
                     let avkey= "chess_scape_"+rcp+"_"+season+"_"+v+"_"+year;
-                    if (year=="1980") label_year="1980 baseline";
+                    if (year==1980) label_year="1980 baseline";
 
-                    // seems that react-vis is incapable of positioning
-                    // labels on bars when multiple barseries are used?
                     let offset=0;
-                    if (showAverage) offset={pr:5,tas:10,sfcwind:10,rsds:5}[variable];
+                    if (showAverage) offset=2;
 
                     out.push({x: label_year, y:prediction[0][variable+"_"+year]});
-                    label.push({x: label_year, y:prediction[0][variable+"_"+year], xOffset: -offset, yOffset: 0});
+                    label.push({x: label_year, y:prediction[0][variable+"_"+year], xOffset:-offset});
 
                     av.push({x: label_year, y:climateAverages[avkey]});
-                    avlabel.push({x: label_year, y:climateAverages[avkey], xOffset: offset, yOffset: 0});
-
+                    avlabel.push({x: label_year, y:climateAverages[avkey], xOffset:offset});
+                    
                 }
                 setAvg(av);
                 setAvgLabel(avlabel);
@@ -186,7 +185,7 @@ function Graph(props) {
                     text={getYAxis()}
                     className="graph-axes-label"
                     includeMargin={false}
-                    xPercent={-0.05}
+                    xPercent={-0.06}
                     yPercent={0.25}
                     style={{
                         transform: 'rotate(-90)',

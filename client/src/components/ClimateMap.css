@@ -1,9 +1,10 @@
 .leaflet-container {
-  margin: 30px auto;
-  height: 500px;
-  z-index: 0;
-  border: 2px solid #333;
-  overflow: hidden;
+    width: 100%;
+    height: 500px;
+    z-index: 0;
+    border: 2px solid #333;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 
@@ -25,24 +26,31 @@
 
 .climate-map {
 	flex: 1 0 350px;
+    width: 100%;
+}
+
+@media (min-width: 1000px) {
+    .climate-map {
+        width: auto;
+    }
 }
 
 .map-selection {
-	margin-top: 1em;
+	padding-left: 1em;
     padding-right: 1em;
-	width: 100%;
+    box-sizing: border-box;
+ 	width: 100%;
     overflow-y: auto;
     background: #e6eced;
     height: auto;
     padding-bottom: 1em;
-    border: 2px solid #e6eced;
 }
 
 @media (min-width: 1000px) {
 	.map-selection {
+	    margin-top: 1em;
 		margin-top: 0;
 		width: 10em;
-		padding-left: 1em;
         height: 500px;
         padding-bottom: 0;
 	}

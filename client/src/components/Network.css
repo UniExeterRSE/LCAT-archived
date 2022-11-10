@@ -4,17 +4,10 @@
 }
 
 .fullscreen-enabled .network {
+	display: flex;
+	flex-direction: row;
     background: white;
     height: 100vh;
-}
-
-.fullscreen-enabled .network-holder {
-    height: 100vh;
-}
-
-.fullscreen-enabled .network-info {
-	width: 20%;
-	height: 100%;
 }
 
 @media (min-width: 1200px) {
@@ -35,6 +28,30 @@
 		flex: 1;
 	}
 }
+
+.fullscreen-enabled .network-holder {
+    height: 100vh;
+}
+
+.fullscreen-enabled .network-info {
+	width: 20%;
+	height: 100%;
+}
+
+
+
+/* turn off fullscreen on mobile, as it's full width anyway */
+.fullscreen-button {
+    display: none;
+}
+
+@media (min-width: 1200px) {
+	.fullscreen-button {
+		display: block;
+	}
+}
+
+
 
 .network-info {
 	width: auto;

@@ -322,7 +322,7 @@ function Network(props) {
                     />
                   </div>
                   <div className="network-info">
-                    <button onClick={() => {
+                    <button className="fullscreen-button" onClick={() => {
                         if (handle.active) handle.exit();
                         else handle.enter();
                         setVersion(version+1);
@@ -351,7 +351,7 @@ function Network(props) {
               </FullScreen>
             </div>            
             <p className="note">
-              Data source: The impact data is based on published scientific literature and reports. A <a href="https://docs.google.com/spreadsheets/d/1WbTiJGcWOjo6tp5Z_65NDGE8aHLAQ-NPGMotDpDABEo/edit?ouid=102175944541338588070&usp=sheets_home&ths=true" target="_blank">full reference list is available here</a>, and the references relevant to particular impacts can be explored by clicking on the nodes and connections in the network above.
+              Data source: The impact data is based on published scientific literature and reports. A <a href="https://docs.google.com/spreadsheets/d/1HRlKyfjhKSaOb8YlA4TI4TPfzlKmeQLhaHnmR4cGg2M/" target="_blank">full reference list is available here</a>, and the references relevant to particular impacts can be explored by clicking on the nodes and connections in the network above.
             </p>
           </div>          
         </div>

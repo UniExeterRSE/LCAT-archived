@@ -79,7 +79,8 @@ function HealthWellbeing(props) {
           </div>
 
           <p className="note">
-            Data source: The impact data is based on published scientific literature and reports. <a href="https://docs.google.com/spreadsheets/d/1HRlKyfjhKSaOb8YlA4TI4TPfzlKmeQLhaHnmR4cGg2M/">A full reference list is available</a>, and the references relevant to particular impacts can be explored in the health impact details network.
+            Data source: The impact data is based on published scientific
+            literature and reports. <a href="https://docs.google.com/spreadsheets/d/1HRlKyfjhKSaOb8YlA4TI4TPfzlKmeQLhaHnmR4cGg2M/" target="_blank">A full reference list is available</a>, and the references relevant to particular impacts can be explored in the health impact details network.
           </p>
         </LoadingOverlay>
     );

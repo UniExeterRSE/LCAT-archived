@@ -226,7 +226,7 @@ class App extends React.Component {
                   <a className="email-button" href="mailto:lcat@exeter.ac.uk"/>
                 </p>                
 
-                <LogoBlockSvg style={{transform: "scale(2)"}}/>
+                <LogoBlockSvg className="logo-block"/>
 
               </div>
               
