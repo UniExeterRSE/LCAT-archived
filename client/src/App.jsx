@@ -194,6 +194,10 @@ class App extends React.Component {
                   Policy Support Fund, as part of the Policy@Exeter initiative,
                   The Schroder Foundation, and the Net Zero Innovation
                   Programme; a UCL and Local Government Association Initiative.
+                  This work was also supported by Wave 1 of The UKRI Strategic
+                  Priorities Fund under the EPSRC Grant EP/W006022/1, delivered
+                  through the “Environment and Sustainability” theme within The
+                  Alan Turing Institute.
                 </p>
 
                 <p>
