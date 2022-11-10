@@ -101,7 +101,7 @@ function References(props) {
     if (references.length>0) {    
         return (
             <div>          
-              <h3>References:</h3>
+              <b>References:</b>
               { references.map(r => {
                   if (r.type=="Journal Article") return (<ArticleReference key={r.article_id} a={r}/>);
                   if (r.type=="Journal article ") return (<ArticleReference key={r.article_id} a={r}/>);
@@ -117,7 +117,7 @@ function References(props) {
         );
     } else {
         return (
-            <h3>No references available</h3>
+            <b>No references available</b>
         );
     }
 }
