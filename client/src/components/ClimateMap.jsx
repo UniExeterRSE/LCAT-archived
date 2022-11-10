@@ -148,6 +148,12 @@ class ClimateMap extends React.Component {
                 geojson_key: this.state.geojson_key+1,
                 triggerLoadingIndicator: false
             }));
+        } else {
+            this.setState(() => ({
+                geojson: {features:[]},
+                geojson_key: this.state.geojson_key+1,
+                triggerLoadingIndicator: false
+            }));
         }
     }
 
