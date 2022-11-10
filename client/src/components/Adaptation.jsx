@@ -34,25 +34,37 @@ function Adaptation(props) {
             <div className="content">
               <b>Description:</b>
               <p>{props.a.action.description}</p>
-              <b>Direct effects:</b>
-              <ul>
-                {props.a.parents.map(p => (
-                    <li key={p.node.node_id}>{fixesText(p)}</li>
-                ))}
-              </ul>
-              <b>Alleviates these health impacts:</b>
-              <ul>
-                {props.a.healthnodes.map(p => (
-                    <li key={p.node_id}>{p.label}</li>
-                ))}
-              </ul>
-              <b>Required due to these pressures:</b>
-              <ul>
-                {props.a.pressures.map(p => (
-                    <li key={p.node_id}>{p.label}</li>
-                ))}
-              </ul>
               
+              { props.a.parents.length>0 &&
+                <div>
+                  <b>Direct effects:</b>
+                  <ul>
+                    {props.a.parents.map(p => (
+                        <li key={p.node.node_id}>{fixesText(p)}</li>
+                    ))}
+                  </ul>
+                </div>
+              }
+              { props.a.healthnodes.length>0 &&
+                <div>
+                  <b>Alleviates these health impacts:</b>
+                  <ul>
+                    {props.a.healthnodes.map(p => (
+                        <li key={p.node_id}>{p.label}</li>
+                    ))}
+                  </ul>
+                </div>
+              }
+              { props.a.pressures.length>0 &&
+                <div>
+                  <b>Required due to these pressures:</b>
+                  <ul>
+                    {props.a.pressures.map(p => (
+                        <li key={p.node_id}>{p.label}</li>
+                    ))}
+                  </ul>
+                </div>
+              }
               <References
                 id={props.a.action.node_id}
                 api_call={"node_references"}

@@ -21,8 +21,6 @@ function HealthWellbeing(props) {
     const [ healthNodes, setHealthNodes ] = useState([]);
 
     useEffect(() => {
-        console.log("HWB update");
-
         let hw = props.networkParser.calculateHealthWellbeing(
             props.climatePrediction,
             props.year);

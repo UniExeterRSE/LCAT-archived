@@ -234,8 +234,6 @@ font-family="Arial" dy=".3em">`+text+`</text>
 	}
     
 	buildGraph(networkParser, nodes, edges, sector) {               
-        console.log("buildGraph");
-
         this.nodes = [];
 		this.edges = [];
 

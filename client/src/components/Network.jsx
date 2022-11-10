@@ -24,7 +24,6 @@ import './Network.css';
 // triggers when the network changes
 function NetworkListener(props) {
     useEffect(() => {
-        console.log("network update");
         props.callback(props.network);
     }, [props.networkParser,
         props.year,

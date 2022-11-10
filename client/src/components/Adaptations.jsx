@@ -20,7 +20,6 @@ function Adaptations(props) {
     const [ sector, setSector ] = useState("All");
     
     useEffect(() => {
-        console.log("Adaptations update");
         if (props.climatePrediction.length!=0) {
             let hw = props.networkParser.calculateHealthWellbeing(
                 props.climatePrediction,
