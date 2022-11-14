@@ -61,7 +61,7 @@ function Graph(props) {
             } else {
                 if (window.innerWidth>1300) {
                     setMargin({
-                        bottom: 100,
+                        bottom: 200,
                         left: 200,
                         height: 700
                     });                
