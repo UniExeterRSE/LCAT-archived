@@ -58,15 +58,22 @@ class App extends React.Component {
         return (
             <div className="App">
               <DocumentMeta {...meta}/>
-              <header className="App-header">
-                <LCATLogoSvg width={300}/>
-              </header>
-              <p>
-                The tool allows you to see local climate change predictions in the UK and explore the impact on our health and wellbeing. Local vulnerabilities are highlighted and adaptation priorities are suggested. The information presented is based on scientific research and links to the relevant data and publications are provided. The tool has been designed with, and for, local decision makers across the public, private and voluntary sectors.
-              </p>
-              <p>
-                <a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions.pdf">See our Frequently Asked Questions for more information.</a>
-              </p>
+
+              <div className="white-section">                
+                <header className="App-header">
+                  <LCATLogoSvg width={300}/>
+                </header>
+              </div>
+              
+              <div className="grey-section">
+                <p>
+                  The tool allows you to see local climate change predictions in the UK and explore the impact on our health and wellbeing. Local vulnerabilities are highlighted and adaptation priorities are suggested. The information presented is based on scientific research and links to the relevant data and publications are provided. The tool has been designed with, and for, local decision makers across the public, private and voluntary sectors.
+                </p>
+                <p>
+                  <a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions.pdf">See our Frequently Asked Questions for more information.</a>
+                </p>
+              </div>
+              
               <NetworkLoader
                 id={0}
                 callback={(nodes, edges) => {
@@ -99,87 +106,101 @@ class App extends React.Component {
                 }));}}
               />
 
-              <ClimateMap
-                regionType = {this.state.regionType}
-                regionsCallback={(regions,regionType) => {
-                    this.setState({
-                        regionType: regionType,
-                        regions: regions,
-                    });
-                }}
-              />
+               <div className="white-section">
+                <ClimateMap
+                  regionType = {this.state.regionType}
+                  regionsCallback={(regions,regionType) => {
+                      this.setState({
+                          regionType: regionType,
+                          regions: regions,
+                      });
+                  }}
+                />
+              </div>
 
-              <ClimateSettings
-                regions={this.state.regions}
-                season={this.state.season}
-                rcp={this.state.rcp}
-                rcpCallback={(rcp) => { this.setState(() => ({
-                    rcp: rcp                  
-                }));}}
-                seasonCallback={(season) => {
-                    this.setState(() => ({
-                        season: season                  
-                    }));}}
-                yearCallback={(year) => { this.setState(() => ({
-                    year: year                  
-                }));}}
-              />
+              {this.state.regions.length>0 &&              
+              <div className="grey-section">
+                <ClimateSettings
+                  regions={this.state.regions}
+                  season={this.state.season}
+                  rcp={this.state.rcp}
+                  rcpCallback={(rcp) => { this.setState(() => ({
+                      rcp: rcp                  
+                  }));}}
+                  seasonCallback={(season) => {
+                      this.setState(() => ({
+                          season: season                  
+                      }));}}
+                  yearCallback={(year) => { this.setState(() => ({
+                      year: year                  
+                  }));}}
+                />
+                
+                <ClimateSummary
+                  climatePrediction = {this.state.climatePrediction}
+                  year = {this.state.year}
+                  regions = {this.state.regions}
+                  loading = {this.state.loadingPrediction}
+                />
+                
+                <Graph
+                  regions={this.state.regions}
+                  boundary={this.state.regionType}
+                  season={this.state.season}
+                  rcp={this.state.rcp}
+                  seasonCallback={(season) => {
+                      this.setState(() => ({
+                          season: season                  
+                      }));}}
+                  rcpCallback={(rcp) => { this.setState(() => ({
+                      rcp: rcp                  
+                  }));}}
+                />
+              </div>}
               
-              <ClimateSummary
-                climatePrediction = {this.state.climatePrediction}
-                year = {this.state.year}
-                regions = {this.state.regions}
-                loading = {this.state.loadingPrediction}
-              />
+              {this.state.regions.length>0 &&              
+              <div className="white-section">
+                <HealthWellbeing
+                  networkParser = {this.state.networkParser}
+                  year = {this.state.year}
+                  climatePrediction = {this.state.climatePrediction}
+                  regions = {this.state.regions}
+                  loading = {this.state.loadingPrediction}
+                  season={this.state.season}
+                  rcp={this.state.rcp}
+                />
+
+                <Network
+                  network = {this.state.network}
+                  year = {this.state.year}
+                  climatePrediction = {this.state.climatePrediction}
+                  regions = {this.state.regions}
+                  networkParser = {this.state.networkParser}
+                  season={this.state.season}
+                  rcp={this.state.rcp}
+                />
+              </div>}
+
+              {this.state.regions.length>0 &&              
+              <div className="grey-section">
+                <Vulnerabilities
+                  regions = {this.state.regions}
+                  regionType = {this.state.regionType}                
+                />
+              </div>}
               
-              <Graph
-                regions={this.state.regions}
-                boundary={this.state.regionType}
-                season={this.state.season}
-                rcp={this.state.rcp}
-                seasonCallback={(season) => {
-                    this.setState(() => ({
-                        season: season                  
-                    }));}}
-                rcpCallback={(rcp) => { this.setState(() => ({
-                    rcp: rcp                  
-                }));}}
-              />
-                                          
-              <HealthWellbeing
-                networkParser = {this.state.networkParser}
-                year = {this.state.year}
-                climatePrediction = {this.state.climatePrediction}
-                regions = {this.state.regions}
-                loading = {this.state.loadingPrediction}
-                season={this.state.season}
-                rcp={this.state.rcp}
-              />
-
-              <Network
-                network = {this.state.network}
-                year = {this.state.year}
-                climatePrediction = {this.state.climatePrediction}
-                regions = {this.state.regions}
-                networkParser = {this.state.networkParser}
-                season={this.state.season}
-                rcp={this.state.rcp}
-              />
-
-              <Vulnerabilities
-                regions = {this.state.regions}
-                regionType = {this.state.regionType}                
-              />
-
-              <Adaptations
-                networkParser = {this.state.networkParser}
-                year = {this.state.year}
-                climatePrediction = {this.state.climatePrediction}
-                season = {this.state.season}
-                rcp={this.state.rcp}
-                regions = {this.state.regions}
-                loading = {this.state.loadingPrediction}
-              />
+              {this.state.regions.length>0 &&              
+               <div className="white-section">
+                <Adaptations
+                  networkParser = {this.state.networkParser}
+                  year = {this.state.year}
+                  climatePrediction = {this.state.climatePrediction}
+                  season = {this.state.season}
+                  rcp={this.state.rcp}
+                  regions = {this.state.regions}
+                  loading = {this.state.loadingPrediction}
+                />
+               </div>}
 
               <div className="footer">
 

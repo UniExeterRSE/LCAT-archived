@@ -25,17 +25,9 @@ body {
     font-size: 1em;
     padding: 0;
     margin: 0;
-    padding-left: 1em;
-    padding-right: 1em;
     line-height: 1.9; /* measured to match iOS when selects push the text apart */
 }
 
-@media (min-width: 1000px) {
-    body {
-        padding-left: 50px;
-        padding-right: 50px; 
-    }
-}
 
 h1 {
     font-family: 'Montserrat-Black',Arial,Helvetica,sans-serif;
@@ -188,4 +180,50 @@ button:hover {
     content: url("images/logos/v2_new.png");
     width: 100%;
     max-width: 1000px;
+}
+
+.white-section {
+    background: #ffffff;
+    padding-top: 0.5em;
+    padding-bottom: 1.5em;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.grey-section {
+    background: #f7f7f7;
+    padding-top: 0.5em;
+    padding-bottom: 1.5em;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+
+
+.white-section {
+    background: #ffffff;
+    padding-top: 0.5em;
+    padding-bottom: 1.5em;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.grey-section {
+    background: #f7f7f7;
+    padding-top: 0.5em;
+    padding-bottom: 1.5em;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+@media (min-width: 1000px) {
+    .white-section {
+        padding-left: 50px;
+        padding-right: 50px;
+    }
+    .grey-section {
+
+        padding-left: 50px;
+        padding-right: 50px;
+    }
 }
