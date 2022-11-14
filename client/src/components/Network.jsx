@@ -222,6 +222,7 @@ function Network(props) {
         ref.current.Network.unselectAll();
         setInfoTitle("Click on something for details");
         setInfoText("");
+        setNodeedgeId(0);
         
         for (let node of props.networkParser.nodes) {
             let liveNode = ref.current.nodes.get(node.node_id);
