@@ -59,11 +59,19 @@ function Graph(props) {
                     height: 300
                 });                
             } else {
-                setMargin({
-                    bottom: 100,
-                    left: 100,
-                    height: 450
-                });
+                if (window.innerWidth>1300) {
+                    setMargin({
+                        bottom: 100,
+                        left: 200,
+                        height: 700
+                    });                
+                } else {                
+                    setMargin({
+                        bottom: 100,
+                        left: 100,
+                        height: 450
+                    });
+                }
             }
         }
         
