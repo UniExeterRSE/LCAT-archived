@@ -17,9 +17,15 @@
 }
 
 .network-holder {
-    height: 600px;
+    height: 400px;
     border: 1px solid black;
     box-sizing: border-box;
+}
+
+@media (min-width: 1200px) {
+	.network-holder {
+        height: 600px;
+    }
 }
 
 @media (min-width: 1200px) {

@@ -34,7 +34,10 @@ function Graph(props) {
     const [labelData, setLabelData] = useState([]);
     const [avgLabel, setAvgLabel] = useState([]);
     const [showAverage, setShowAverage] = useState(false);
-    
+    const [margin, setMargin] = useState({
+        bottom: undefined,
+        left: undefined,
+    });
     const [season,setSeason] = useState("annual");
     const [rcp,setRcp] = useState("rcp60");
     const [variable,setVariable] = useState("tas");
@@ -46,6 +49,27 @@ function Graph(props) {
     // change when settings change
     useEffect(() => { setRcp(props.rcp); }, [props.rcp]);
     useEffect(() => { setSeason(props.season); }, [props.season]);
+    useEffect(() => {
+        function handleResize() {
+            // ridiculous (fix, and that margins are defined in pixels)
+            if (window.innerWidth<700) {
+                setMargin({
+                    bottom: 30,
+                    left: 50,
+                    height: 300
+                });                
+            } else {
+                setMargin({
+                    bottom: 100,
+                    left: 100,
+                    height: 450
+                });
+            }
+        }
+        
+        window.addEventListener("resize", handleResize);    
+        handleResize();
+    }, []); 
     
     function getYAxis() {
         if (variable=="tas") return 'Temperature (°C)';
@@ -179,8 +203,8 @@ function Graph(props) {
               <div className="graph-horiz-container">
                 {/* <div className="graph-y-axis">{getYAxis()}</div> */}
                 <FlexibleXYPlot
-                  height={450}                  
-                  margin={{bottom: 100, left: 100, right: 0, top: 10}}
+                  height={margin.height}                  
+                  margin={{bottom: margin.bottom, left: margin.left, right: 0, top: 10}}
                   xType="ordinal">
                   <ChartLabel
                     text="Decades"
