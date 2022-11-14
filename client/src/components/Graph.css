@@ -1,10 +1,16 @@
 .rv-xy-plot__series--label-text {
-    font-size: 2vw;
+    font-size: 7pt;
     fill: white;
 }
 
+@media (min-width: 1000px) {
+    .rv-xy-plot__series--label-text {
+        font-size: 16pt;
+    }
+}
+
 .rv-xy-plot__axis__tick__text {
-    font-size: 1.5vw;
+    font-size: 8pt;
 }
 
 .graph-horiz-container {
@@ -13,10 +19,34 @@
 }
 
 .rv-xy-plot__axis__title text {
-    font-size: 1.5vw;
+    font-size: 8pt; 
+}
+
+@media (min-width: 1000px) {
+    .rv-xy-plot__axis__tick__text {
+        font-size: 13pt;
+    }
+    .rv-xy-plot__axis__title text {
+        font-size: 13pt; 
+    }
 }
 
 .graph-axes-label {
     border: 1px solid red;
     font-size: 130%;
+}
+
+.graph-y-axis {
+    font-size: 2vw;
+    padding-top: 200px;
+    padding-bottom: 200px;
+    height: 450px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.graph-x-axis {
+    font-size: 2vw;
+    width: 100%;
+    text-align: center;
 }

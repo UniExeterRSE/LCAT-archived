@@ -177,9 +177,10 @@ function Graph(props) {
               </p>
 
               <div className="graph-horiz-container">
+                {/* <div className="graph-y-axis">{getYAxis()}</div> */}
                 <FlexibleXYPlot
-                  height={450}
-                  margin={{bottom: 80, left: 100, right: 0, top: 10}}
+                  height={450}                  
+                  margin={{bottom: 100, left: 100, right: 0, top: 10}}
                   xType="ordinal">
                   <ChartLabel
                     text="Decades"
@@ -192,7 +193,7 @@ function Graph(props) {
                     text={getYAxis()}
                     className="graph-axes-label"
                     includeMargin={false}
-                    xPercent={-0.06}
+                    xPercent={-0.07}
                     yPercent={0.25}
                     style={{
                         transform: 'rotate(-90)',
@@ -223,6 +224,7 @@ function Graph(props) {
                       getLabel={(d) => getLabel(d.y)}/> }
                 </FlexibleXYPlot>
               </div>
+              {/* <div className="graph-x-axis">Decades</div> */}
               <p className="note">
                 Data source: The climate data used is from <a href="https://catalogue.ceda.ac.uk/uuid/8194b416cbee482b89e0dfbe17c5786c">CHESS-SCAPE</a>.
                 Note that the UK average data is currently based on Scotland,
