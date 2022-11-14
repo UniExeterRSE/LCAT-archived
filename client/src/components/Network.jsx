@@ -218,6 +218,10 @@ function Network(props) {
         let updateNodesList = [];
         let updateEdgesList = [];
         let greyedList = [];
+
+        ref.current.Network.unselectAll();
+        setInfoTitle("Click on something for details");
+        setInfoText("");
         
         for (let node of props.networkParser.nodes) {
             let liveNode = ref.current.nodes.get(node.node_id);
@@ -239,9 +243,24 @@ function Network(props) {
                 }
                 
                 for (let edge of props.networkParser.getEdges(node)) {
+                    let edgecol = col;
+                    // if looking at a filtered set and the current one is shown
+                    if (sector!="All" && !grey) {
+                        // make grey if the other side is filtered too
+                        let other = null;
+                        if (edge.node_to==node.node_id) {
+                            other = props.networkParser.getNode(edge.node_from);
+                        } else {
+                            other = props.networkParser.getNode(edge.node_to);
+                        }
+                        if (!other.sector.includes(sector)) {
+                            edgecol = "#eee";
+                        }                        
+                    }
+                    
                     updateEdgesList.push({
                         id: edge.edge_id,
-                        color: { color: col }
+                        color: { color: edgecol }
                     });                   
                 }
             }
