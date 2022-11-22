@@ -22,6 +22,130 @@
   <defs
      id="defs2">
     <marker
+       inkscape:stockid="Arrow2Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Send"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path5966"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round;stroke:#ef9649;stroke-opacity:1;fill:#ef9649;fill-opacity:1"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.3) rotate(180) translate(-2.3,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Tail"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Tail"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <g
+         id="g5981"
+         transform="scale(-1.2)"
+         style="stroke:#ef9649;stroke-opacity:1;fill:#ef9649;fill-opacity:1">
+        <path
+           id="path5969"
+           d="M -3.8048674,-3.9585227 L 0.54352094,0"
+           style="fill:#ef9649;fill-rule:evenodd;stroke:#ef9649;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1;fill-opacity:1" />
+        <path
+           id="path5971"
+           d="M -1.2866832,-3.9585227 L 3.0617053,0"
+           style="fill:#ef9649;fill-rule:evenodd;stroke:#ef9649;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1;fill-opacity:1" />
+        <path
+           id="path5973"
+           d="M 1.3053582,-3.9585227 L 5.6537466,0"
+           style="fill:#ef9649;fill-rule:evenodd;stroke:#ef9649;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1;fill-opacity:1" />
+        <path
+           id="path5975"
+           d="M -3.8048674,4.1775838 L 0.54352094,0.21974226"
+           style="fill:#ef9649;fill-rule:evenodd;stroke:#ef9649;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1;fill-opacity:1" />
+        <path
+           id="path5977"
+           d="M -1.2866832,4.1775838 L 3.0617053,0.21974226"
+           style="fill:#ef9649;fill-rule:evenodd;stroke:#ef9649;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1;fill-opacity:1" />
+        <path
+           id="path5979"
+           d="M 1.3053582,4.1775838 L 5.6537466,0.21974226"
+           style="fill:#ef9649;fill-rule:evenodd;stroke:#ef9649;stroke-width:0.8;stroke-linecap:round;stroke-opacity:1;fill-opacity:1" />
+      </g>
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Send"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path5948"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#ef9649;stroke-width:1pt;stroke-opacity:1;fill:#ef9649;fill-opacity:1"
+         transform="scale(0.2) rotate(180) translate(6,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker6242"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path5942"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#ef9649;stroke-width:1pt;stroke-opacity:1;fill:#ef9649;fill-opacity:1"
+         transform="scale(0.4) rotate(180) translate(10,0)" />
+    </marker>
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="marker6233"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Mend">
+      <path
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         style="fill:#ef9649;fill-opacity:1;fill-rule:evenodd;stroke:#ef9649;stroke-width:1.00000003pt;stroke-opacity:1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path6231"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="marker6217"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Mend">
+      <path
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         style="fill:#ef9649;fill-opacity:1;fill-rule:evenodd;stroke:#ef9649;stroke-width:1.00000003pt;stroke-opacity:1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path6215"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Mstart"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path5939"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#ef9649;stroke-width:1pt;stroke-opacity:1;fill:#ef9649;fill-opacity:1"
+         transform="scale(0.4) translate(10,0)" />
+    </marker>
+    <marker
        inkscape:stockid="Arrow1Mend"
        orient="auto"
        refY="0.0"
@@ -476,12 +600,13 @@
        refX="0"
        id="Arrow1Mend-2-5-2-7-9-0-1-3-3"
        style="overflow:visible"
-       inkscape:isstock="true">
+       inkscape:isstock="true"
+       inkscape:collect="always">
       <path
          inkscape:connector-curvature="0"
          id="path910-7-9-2-3-4-4-0-4-2"
          d="M 0,0 5,-5 -12.5,0 5,5 Z"
-         style="fill:#929296;fill-opacity:1;fill-rule:evenodd;stroke:#929296;stroke-width:1.00000003pt;stroke-opacity:1"
+         style="fill:#ef9649;fill-opacity:1;fill-rule:evenodd;stroke:#ef9649;stroke-width:1.00000003pt;stroke-opacity:1"
          transform="matrix(-0.4,0,0,-0.4,-4,0)" />
     </marker>
     <marker
@@ -506,12 +631,13 @@
        refX="0"
        id="Arrow1Mend-2-5-2-7-9-0-1-3-3-2"
        style="overflow:visible"
-       inkscape:isstock="true">
+       inkscape:isstock="true"
+       inkscape:collect="always">
       <path
          inkscape:connector-curvature="0"
          id="path910-7-9-2-3-4-4-0-4-2-8"
          d="M 0,0 5,-5 -12.5,0 5,5 Z"
-         style="fill:#929296;fill-opacity:1;fill-rule:evenodd;stroke:#929296;stroke-width:1.00000003pt;stroke-opacity:1"
+         style="fill:#ef9649;fill-opacity:1;fill-rule:evenodd;stroke:#ef9649;stroke-width:1.00000003pt;stroke-opacity:1"
          transform="matrix(-0.4,0,0,-0.4,-4,0)" />
     </marker>
     <marker
@@ -724,6 +850,186 @@
          style="fill:#929296;fill-opacity:1;fill-rule:evenodd;stroke:#929296;stroke-width:1.00000003pt;stroke-opacity:1"
          transform="matrix(-0.4,0,0,-0.4,-4,0)" />
     </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-2-5-2-7-9-0-1-3-3-2-3"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path910-7-9-2-3-4-4-0-4-2-8-6"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#929296;fill-opacity:1;fill-rule:evenodd;stroke:#929296;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-2-5-2-7-9-0-1-3-3-7"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path910-7-9-2-3-4-4-0-4-2-53"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#929296;fill-opacity:1;fill-rule:evenodd;stroke:#929296;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-2-5-2-8-4-8-0-6-5"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path910-7-9-2-1-4-5-3-5-6"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#929296;fill-opacity:1;fill-rule:evenodd;stroke:#929296;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-2-5-2-8-4-8-0-6-5-0"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path910-7-9-2-1-4-5-3-5-6-3"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#929296;fill-opacity:1;fill-rule:evenodd;stroke:#929296;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-2-5-2-8-4-8-0-6-5-1"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path910-7-9-2-1-4-5-3-5-6-0"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#929296;fill-opacity:1;fill-rule:evenodd;stroke:#929296;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-2-5-2-8-4-8-0-6-5-0-7"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path910-7-9-2-1-4-5-3-5-6-3-6"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#929296;fill-opacity:1;fill-rule:evenodd;stroke:#929296;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-2-5-2-8-4-8-0-6-5-1-6"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path910-7-9-2-1-4-5-3-5-6-0-9"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#ef9649;fill-opacity:1;fill-rule:evenodd;stroke:#ef9649;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-2-5-2-8-4-8-0-6-5-1-4"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path910-7-9-2-1-4-5-3-5-6-0-4"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#929296;fill-opacity:1;fill-rule:evenodd;stroke:#929296;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Send-7"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path5966-8"
+         style="fill:#ef9649;fill-opacity:1;fill-rule:evenodd;stroke:#ef9649;stroke-width:0.625;stroke-linejoin:round;stroke-opacity:1"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(-0.3,0,0,-0.3,0.69,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Send-8"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path5966-84"
+         style="fill:#ef9649;fill-opacity:1;fill-rule:evenodd;stroke:#ef9649;stroke-width:0.625;stroke-linejoin:round;stroke-opacity:1"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(-0.3,0,0,-0.3,0.69,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Send-8-1"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path5966-84-4"
+         style="fill:#ef9649;fill-opacity:1;fill-rule:evenodd;stroke:#ef9649;stroke-width:0.625;stroke-linejoin:round;stroke-opacity:1"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(-0.3,0,0,-0.3,0.69,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-2-5-2-8-4-8-0-6-5-0-7-0"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path910-7-9-2-1-4-5-3-5-6-3-6-4"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#929296;fill-opacity:1;fill-rule:evenodd;stroke:#929296;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -734,7 +1040,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
      inkscape:cx="1287.8634"
-     inkscape:cy="823.30548"
+     inkscape:cy="-262.40881"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -758,7 +1064,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -3491,5 +3797,423 @@
          x="33.41209"
          y="413.91901"
          style="stroke-width:0.26458332">+</tspan></text>
+    <path
+       style="fill:none;stroke:#929296;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend-2-5-2-8-4-8-0-6-5)"
+       d="m 250.85177,385.33611 c 0,0 19.00071,-2.38047 43.26197,-0.48848"
+       id="path899-0-2-1-9-7-64-1-6-2"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <g
+       id="g882-0-6-1-0-1-5-9-7-2"
+       transform="translate(199.65261,295.94409)"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
+      <circle
+         r="7.3499122"
+         cy="89.46521"
+         cx="41.159508"
+         id="path817-6-1-5-8-7-8-3-9-7"
+         style="fill:#929296;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.26182963" />
+      <text
+         id="text821-2-2-9-8-5-6-3-6-0"
+         y="92.37294"
+         x="37.711861"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         xml:space="preserve"><tspan
+           style="stroke-width:0.26458332"
+           y="92.37294"
+           x="37.711861"
+           id="tspan819-6-9-4-5-9-2-8-0-9"
+           sodipodi:role="line">A</tspan></text>
+    </g>
+    <circle
+       style="fill:#929296;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.26182963"
+       id="path817-6-2-8-9-0-6-8-0-4-36"
+       cx="306.12637"
+       cy="383.85947"
+       r="7.3499122"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="302.67874"
+       y="387.29648"
+       id="text821-2-0-4-0-9-2-47-5-1-06"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan819-6-2-5-9-6-1-2-6-0-2"
+         x="302.67874"
+         y="387.29648"
+         style="stroke-width:0.26458332">B</tspan></text>
+    <circle
+       style="fill:#929296;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.26182963"
+       id="path817-6-7-7-8-7-4-6-4-6"
+       cx="440.41101"
+       cy="383.85263"
+       r="7.3499122"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="436.43414"
+       y="387.28949"
+       id="text821-2-8-7-5-8-0-4-8-1"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan819-6-6-1-6-5-6-0-7-8"
+         x="436.43414"
+         y="387.28949"
+         style="stroke-width:0.26458332">D</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="432.77628"
+       y="394.38687"
+       id="text3433-9-4-7-8-5-1-6-4-2"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan3431-2-8-6-4-9-3-7-7-3"
+         x="432.77628"
+         y="394.38687"
+         style="font-size:3.52777767px;stroke-width:0.26458332">Increase</tspan></text>
+    <circle
+       style="fill:#929296;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.26182963"
+       id="path817-6-2-8-9-0-6-8-0-4-3-2"
+       cx="373.19656"
+       cy="383.53012"
+       r="7.3499122"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="368.69058"
+       y="386.96704"
+       id="text821-2-0-4-0-9-2-47-5-1-0-8"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan819-6-2-5-9-6-1-2-6-0-1-9"
+         x="368.69058"
+         y="386.96704"
+         style="stroke-width:0.26458332">C</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="228.71466"
+       y="375.51321"
+       id="text3433-6-1-1-7-2-0-0-7-9"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan3431-6-5-1-4-9-4-8-9-4"
+         x="228.71466"
+         y="375.51321"
+         style="font-size:3.52777767px;stroke-width:0.26458332">Climate variable</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="289.75781"
+       y="374.00128"
+       id="text3433-6-1-1-7-2-0-0-7-9-7"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan3431-6-5-1-4-9-4-8-9-4-8"
+         x="289.75781"
+         y="374.00128"
+         style="font-size:3.52777767px;stroke-width:0.26458332">Infrastructure Impact</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="433.6723"
+       y="374.58591"
+       id="text3433-6-1-1-7-2-0-0-7-9-4"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         x="433.6723"
+         y="374.58591"
+         style="font-size:3.52777767px;stroke-width:0.26458332"
+         id="tspan3645">Disease</tspan></text>
+    <path
+       style="fill:none;stroke:#929296;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend-2-5-2-8-4-8-0-6-5-0)"
+       d="m 317.69397,383.93591 c 0,0 19.00071,-2.38047 43.26197,-0.48848"
+       id="path899-0-2-1-9-7-64-1-6-2-6"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <path
+       style="fill:none;stroke:#929296;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend-2-5-2-8-4-8-0-6-5-1)"
+       d="m 384.02879,384.69187 c 0,0 19.00071,-2.38047 43.26197,-0.48848"
+       id="path899-0-2-1-9-7-64-1-6-2-63"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="360.78848"
+       y="373.62836"
+       id="text3433-6-1-1-7-2-0-0-7-9-7-2"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan3431-6-5-1-4-9-4-8-9-4-8-0"
+         x="360.78848"
+         y="373.62836"
+         style="font-size:3.52777767px;stroke-width:0.26458332">Another Impact</tspan></text>
+    <circle
+       style="fill:#ef9649;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.26182963"
+       id="path817-6-2-8-9-0-6-8-0-4-36-6"
+       cx="306.3497"
+       cy="435.77982"
+       r="7.3499122"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="291.57193"
+       y="427.0184"
+       id="text3433-4-9-5-1-9-6-6-2-5"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan3431-9-7-9-8-08-2-2-0-4"
+         x="291.57193"
+         y="427.0184"
+         style="font-size:3.52777767px;stroke-width:0.26458332">Action (adaptation)</tspan></text>
+    <path
+       style="fill:none;stroke:#929296;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend-2-5-2-8-4-8-0-6-5-0-7)"
+       d="m 305.52962,422.28405 c 0,0 -0.10076,-15.91727 -0.43658,-27.47698"
+       id="path899-0-2-1-9-7-64-1-6-2-6-5"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <path
+       style="fill:none;stroke:#ef9649;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Send);fill-opacity:1"
+       d="m 428.57747,395.32884 c 0,0 -28.24775,3.27117 -43.50984,-1.90349"
+       id="path899-0-2-1-9-7-64-1-6-2-63-3"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <circle
+       style="fill:#929296;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.26182963"
+       id="path817-6-7-7-8-7-4-6-4-6-7"
+       cx="405.37946"
+       cy="340.57812"
+       r="7.3499122"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="401.40259"
+       y="344.01498"
+       id="text821-2-8-7-5-8-0-4-8-1-4"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan819-6-6-1-6-5-6-0-7-8-5"
+         x="401.40259"
+         y="344.01498"
+         style="stroke-width:0.26458332">E</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="393.50018"
+       y="331.12241"
+       id="text3433-6-1-1-7-2-0-0-7-9-4-4"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         x="393.50018"
+         y="331.12241"
+         style="font-size:3.52777767px;stroke-width:0.26458332"
+         id="tspan3645-7">Another Impact</tspan></text>
+    <path
+       style="fill:none;stroke:#929296;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend-2-5-2-8-4-8-0-6-5-1-4)"
+       d="m 379.60366,369.29007 c 0,0 2.15072,-15.14248 13.5765,-22.24291"
+       id="path899-0-2-1-9-7-64-1-6-2-63-30"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <path
+       style="fill:none;stroke:#ef9649;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Send-7);fill-opacity:1"
+       d="m 363.34404,393.60788 c 0,0 -28.24775,3.27117 -43.50984,-1.90349"
+       id="path899-0-2-1-9-7-64-1-6-2-63-3-6"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <path
+       style="fill:none;stroke:#ef9649;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Send-8)"
+       d="m 296.63124,396.25371 c 0,0 -28.24775,3.27117 -43.50984,-1.90349"
+       id="path899-0-2-1-9-7-64-1-6-2-63-3-3"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <path
+       style="fill:none;stroke:#ef9649;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Send-8-1)"
+       d="m 312.27468,398.88594 c 0,0 2.52902,6.51607 -1.9156,22.00651"
+       id="path899-0-2-1-9-7-64-1-6-2-63-3-3-9"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#ef9649;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="387.61453"
+       y="405.29019"
+       id="text9345"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan9343"
+         x="387.61453"
+         y="405.29019"
+         style="font-size:5.29166651px;fill:#ef9649;fill-opacity:1;stroke-width:0.26458332">Adaptation search</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#ef9649;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="318.92313"
+       y="402.05093"
+       id="text9345-2"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan9343-0"
+         x="318.92313"
+         y="402.05093"
+         style="font-size:5.29166651px;fill:#ef9649;fill-opacity:1;stroke-width:0.26458332">Adaptation search</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#ef9649;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="253.72223"
+       y="404.50778"
+       id="text9345-6"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan9343-8"
+         x="253.72223"
+         y="404.50778"
+         style="font-size:5.29166651px;fill:#ef9649;fill-opacity:1;stroke-width:0.26458332">Adaptation search</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="379.40747"
+       y="353.23782"
+       id="text3433-6-1-1-7-2-0-0-7-9-4-4-9"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         x="379.40747"
+         y="353.23782"
+         style="font-size:3.52777767px;stroke-width:0.26458332"
+         id="tspan9391">Has no effect on D so isn't searched</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="266.56271"
+       y="447.37158"
+       id="text3433-6-1-1-7-2-0-0-7-9-4-4-9-6"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         x="266.56271"
+         y="447.37158"
+         style="font-size:3.52777767px;stroke-width:0.26458332"
+         id="tspan9391-6">Has indirect but proven effect on D so is added to the list</tspan></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot9437"
+       style="fill:black;fill-opacity:1;stroke:none;font-family:'TT Norms Pro';font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;letter-spacing:0px;word-spacing:0px;-inkscape-font-specification:'TT Norms Pro';font-stretch:normal;font-variant:normal"><flowRegion
+         id="flowRegion9439"><rect
+           id="rect9441"
+           width="152.85715"
+           height="586.42859"
+           x="1007.8571"
+           y="1052.5197" /></flowRegion><flowPara
+         id="flowPara9443"></flowPara></flowRoot>    <circle
+       style="fill:#ef9649;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.26182963"
+       id="path817-6-2-8-9-0-6-8-0-4-36-6-4"
+       cx="354.6817"
+       cy="335.07248"
+       r="7.3499122"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'TT Norms Pro';-inkscape-font-specification:'TT Norms Pro';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="339.33694"
+       y="325.17712"
+       id="text3433-4-9-5-1-9-6-6-2-5-9"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan3431-9-7-9-8-08-2-2-0-4-5"
+         x="339.33694"
+         y="325.17712"
+         style="font-size:3.52777767px;stroke-width:0.26458332">Action (adaptation)</tspan></text>
+    <path
+       style="fill:none;stroke:#929296;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend-2-5-2-8-4-8-0-6-5-0-7-0)"
+       d="m 365.30423,336.43735 c 0,0 15.83591,1.61044 27.36476,2.51887"
+       id="path899-0-2-1-9-7-64-1-6-2-6-5-8"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/dave/code/climate-tool2/docs/images/adaptation.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"
+       inkscape:transform-center-x="11.061835"
+       inkscape:transform-center-y="6.6199217" />
   </g>
 </svg>

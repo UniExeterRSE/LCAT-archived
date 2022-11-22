@@ -67,23 +67,65 @@ increasing or decreasing in combination with the correlation being
 positive or negative.
 
 The bottom two examples show disagreements, where we can't be certain
-whether the impact is increasing or decreasing. 
-        
+whether the impact is increasing or decreasing.
+            
 ![](images/adding.png)
 
+Uncertainties may due to:
+
+1. Not breaking evidence down into enough nodes and connections
+2. An indication that more research is needed to be done
+3. Actually uncertain, and needing to be communicated to the user
+    
 ## 4. Uncertainties lead to more uncertainty
 
 Once we have an uncertain increase/decrease, all following impacts
 have to become uncertain too. Dealing with uncertainty this way
 (simply giving up as soon as we encounter some conflicting evidence)
-is the most conservative (and simplest) approach. It's worth noting
-that so far in the data this only seems to occur in one impact, it may
-be that this simply indicates something that needs tweaking in the
-network rather than a problem in the literature.
+is the most conservative (and simplest) approach. 
 
 ![](images/uncertain-more.png)
 
-## 5. Ways to reduce uncertainty
+In future the only way we have discussed to counter uncertainty is for
+these cases to be checked and 'overridden' when they are
+uncertain. This will act like a default setting - with documentation
+and evidence: "Although we have contradictory evidence for this
+impact, based on <this reference> we have evidence that it will <increase
+or decrease>".
+    
+## 5. Finding adaptations for health and wellbeing impacts
+
+LCAT's focus [is this still true?] is on determining only those
+adaptations that can be proven to alliviate health and wellbeing
+impacts that are a problem *for your local area* based on the climate
+change predictions there.
+
+After running the network we build a list of the health impacts that
+are getting worse (note: 'worse' may be indicated either by an
+increase e.g. a disease or a decrease e.g. wellbeing).
+
+In the new heat network the actions (adaptations) needed are mostly
+not connected or associated directly with the health impacts however,
+so for each of the 'worse' health impacts we search backwards through
+all the nodes that we have evidence impacts on them until we loop or
+come to an end point (usually the climate model variable).
+
+![](images/adaptation.png)
+
+Note that by following nodes backwards, we only search impact that
+have an effect on our health impact - no matter how distant.
+
+
+
+
+
+
+
+
+
+
+            
+## 6. Ways to reduce uncertainty (OLD)
 
 Originally we talked about reducing this uncertainty by adding two
 more states: probable increase/decrease (this is not done yet, but it
@@ -94,7 +136,7 @@ impact size is equal for each connection*.
 
 ![](images/probable.png)
 
-## 6. Future cases we're not sure how do deal with
+## 6. Future cases we're not sure how do deal with (OLD)
 
 1. Should we use "probable" to add certainty to a previously uncertain state?
 2. What should we do if we need to add together a probable state with a certain one?
