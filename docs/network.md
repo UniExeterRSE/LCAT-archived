@@ -109,12 +109,12 @@ the 'worse' health impacts we need to search backwards up through all
 the nodes that we have evidence impacts on them, until we either loop
 or come to an end point (usually the climate model variable).
 
-By following nodes backwards, it measn we only search impacts that we
-have evidence have an effect on our health impact - no matter how
-distant it is. This has the nice side effect of being able to show in
-the tool the reason we are suggesting an adaptation, as both the
-direct effect and indirect health benefit can be shown - along with
-the original climate change causation.
+By following nodes backwards, we only search impacts that we have
+evidence have an effect on our health impact - no matter how distant
+it is. This has the nice side effect of being able to show in the tool
+the reason we are suggesting an adaptation, as both the direct effect
+and indirect health benefit can be shown - along with the original
+climate change causation.
 
 ![](images/adaptation.png)
 
@@ -131,7 +131,7 @@ impact size is equal for each connection*.
 
 ![](images/probable.png)
 
-## 6. Future cases we're not sure how do deal with 
+## 7. Future cases we're not sure how do deal with 
 
 1. Should we use "probable" to add certainty to a previously uncertain state?
 2. What should we do if we need to add together a probable state with a certain one?
