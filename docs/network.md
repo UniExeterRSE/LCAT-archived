@@ -118,7 +118,7 @@ climate change causation.
 
 ![](images/adaptation.png)
 
-# Old things we are not doing - but keeping here for documentation purposes
+# Things we previously decided we are not doing - but keeping here in case we change our minds!
 
 ## 6. Ways to reduce uncertainty
 
