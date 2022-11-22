@@ -95,25 +95,26 @@ or decrease>".
     
 ## 5. Finding adaptations for health and wellbeing impacts
 
-LCAT's focus [is this still true?] is on determining only those
-adaptations that can be proven to alliviate health and wellbeing
-impacts that are a problem *for your local area* based on the climate
-change predictions there.
+Once we have tagged all the nodes in the network with increase,
+decrease or uncertain our next job is to search for adaptations that
+will improve health and wellbeing outcomes.
 
-After running the network we build a list of the health impacts that
-are getting worse (note: 'worse' may be indicated either by an
-increase e.g. a disease or a decrease e.g. wellbeing).
+We firstly build a list of the health impacts that are getting 'worse'
+- this may be indicated either by an increase e.g. in a disease or a
+decrease e.g. in wellbeing impacts.
 
-In the new heat network the actions (adaptations) needed are mostly
-not connected or associated directly with the health impacts however,
-so for each of the 'worse' health impacts we search backwards through
-all the nodes that we have evidence impacts on them until we loop or
-come to an end point (usually the climate model variable).
+Adaptations (actions) are mostly not connected or associated directly
+with the health impacts however, so for each of the 'worse' health
+impacts we need to search backwards up through all the nodes that we
+have evidence impacts on them until we either loop or come to an end
+point (usually the climate model variable).
+
+By following nodes backwards, it measn we only search impacts that we
+have evidence have an effect on our health impact - no matter how
+distant it is.
 
 ![](images/adaptation.png)
 
-Note that by following nodes backwards, we only search impact that
-have an effect on our health impact - no matter how distant.
 
 
 
