@@ -197,7 +197,7 @@ class ClimateMap extends React.Component {
                   <option value="boundary_lsoa">LSOA (Eng/Wales)</option>
                 </select>
 
-                .&nbsp;Data for your local area will appear below the map.
+                &nbsp;Data for your local area/s will appear below the map.
                 
                  {/*The Index of Multiple Deprivation score 
 
