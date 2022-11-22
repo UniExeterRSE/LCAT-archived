@@ -385,7 +385,7 @@ function Network(props) {
             </div>            
             <p className="note">
               Data source: The impact data is based on published scientific literature and reports. A <a href="https://static.thentrythis.org/data/climate-data/network/LCAT%20impact%20network%20references%20-%20for%20sharing%20-%20Sheet1.csv" target="_blank">full reference list is available here</a>, and the references relevant to particular impacts can be explored by clicking on the nodes and connections in the network above.
-              The <a href="https://static.thentrythis.org/data/climate-data/kumu-lcat-project-lcat-edits.json" target="_blank">full network data (exported from Kumu as JSON) can be downloaded here.</a>
+              The <a href="https://static.thentrythis.org/data/climate-data/network/kumu-lcat-project-lcat-edits.json" target="_blank">full network data (exported from Kumu as JSON) can be downloaded here.</a>
             </p>
           </div>          
         </div>
