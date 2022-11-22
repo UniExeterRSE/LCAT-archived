@@ -66,9 +66,17 @@ class App extends React.Component {
               </div>
               
               <div className="grey-section">
+
                 <p>
-                  The tool allows you to see local climate change predictions in the UK and explore the impact on our health and wellbeing. Local vulnerabilities are highlighted and adaptation priorities are suggested. The information presented is based on scientific research and links to the relevant data and publications are provided. The tool has been designed with, and for, local decision makers across the public, private and voluntary sectors.
+                  Use this tool to see what the scientific research is saying about:
+                  <ul>
+                    <li>How your local climate will change</li>
+                    <li>The impacts on public health, and which groups are most vulnerable locally</li>
+                    <li>Adaptations most appropriate to your local area</li>
+                  </ul>                  
+                  LCAT is evidence based and designed with and for local decision makers. The tool is under continued development, and currently only considers heat impacts.
                 </p>
+                
                 <p>
                   <a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions.pdf">See our Frequently Asked Questions for more information.</a>
                 </p>

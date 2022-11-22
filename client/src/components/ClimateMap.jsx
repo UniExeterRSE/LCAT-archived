@@ -179,9 +179,9 @@ class ClimateMap extends React.Component {
               <h1>Select Zones</h1>     
               <p>
 
-                To begin, select the area/s you are interested in by
+                Select the area/s you are interested in by
                 clicking/tapping on the map.
-                The map units can be changed and are currently displaying&nbsp;
+                You are currently viewing&nbsp;
                 
                 <select onChange={(e) => { this.setState(() => ({
                     regionType: e.target.value,
@@ -197,8 +197,7 @@ class ClimateMap extends React.Component {
                   <option value="boundary_lsoa">LSOA (Eng/Wales)</option>
                 </select>
 
-                .&nbsp;Once you have made your selection, data for your
-                local area will appear below.
+                .&nbsp;Data for your local area will appear below the map.
                 
                  {/*The Index of Multiple Deprivation score 
 

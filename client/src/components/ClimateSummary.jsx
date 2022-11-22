@@ -96,7 +96,7 @@ function ClimateSummary(props) {
 
             </div>
             <p>
-              Notice that the yearly average climate change does not always reflect the extremes of summer and winter, so it is worth changing the drop down menu above to see the predictions for the different seasons.
+              Note: Yearly average climate change does not always reflect the extremes of summer and winter. Change the drop down menu above to see the predictions for the different seasons.
             </p>
             <p className="note">
               Data source: The climate data used is from <a href="https://catalogue.ceda.ac.uk/uuid/8194b416cbee482b89e0dfbe17c5786c" target="_blank">CHESS-SCAPE</a>,

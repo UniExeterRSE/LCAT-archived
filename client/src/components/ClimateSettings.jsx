@@ -29,13 +29,13 @@ function ClimateSettings(props) {
         <div>
           <h1>Climate Summary</h1>
           <p>
-            You have selected&nbsp;
+            For&nbsp;
 
             <span className={"projected-regions"}>
               { andify(props.regions.map(e => e.name)) }
             </span>
 
-            .&nbsp;For this area under the&nbsp;
+            &nbsp;under the&nbsp;
             
             <select value={rcp} onChange={(e) => {
                 props.rcpCallback(e.target.value);
