@@ -78,7 +78,7 @@ function HealthWellbeing(props) {
 
           <p className="note">
             Data source: The impact data is based on published scientific
-            literature and reports. <a href="https://docs.google.com/spreadsheets/d/1HRlKyfjhKSaOb8YlA4TI4TPfzlKmeQLhaHnmR4cGg2M/" target="_blank">A full reference list is available</a>, and the references relevant to particular impacts can be explored in the health impact details network.
+            literature and reports. <a href="https://static.thentrythis.org/data/climate-data/network/LCAT%20impact%20network%20references%20-%20for%20sharing%20-%20Sheet1.csv" target="_blank">A full reference list is available</a>, and the references relevant to particular impacts can be explored in the health impact details network.
           </p>
         </LoadingOverlay>
     );

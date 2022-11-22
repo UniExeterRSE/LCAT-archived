@@ -62,6 +62,9 @@ class NetworkRenderer extends Network {
     // preload some icons
     loadIcons() {
         this.loadImage("glow");
+        this.loadImage("increase");
+        this.loadImage("decrease");
+        this.loadImage("uncertain");
     }
 
     notFoundIcon(col,text) {
