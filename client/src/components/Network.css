@@ -35,6 +35,12 @@
 	}
 }
 
+@media (min-width: 2000px) {
+	.network-holder {
+        height: 750px;
+    }
+}
+
 .fullscreen-enabled .network-holder {
     height: 100vh;
 }
@@ -82,6 +88,13 @@
 		font-size: 0.75em;
 	}
 }
+
+@media (min-width: 2000px) {
+	.network-info {
+        height: 750px;
+    }
+}
+
 
 .network-info h3 {
 	margin-block-start: 0;
