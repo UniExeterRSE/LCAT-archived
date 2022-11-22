@@ -34,15 +34,20 @@ function NetworkListener(props) {
 
 function Network(props) {
 
+    function defaultInfo() {
+        return {
+            title: "Click on something for details",
+            text: "",
+            explanation: "",
+            metadata: []
+        };
+    }
+    
     const [ version, setVersion ] = useState(0);
     const [ graph, setGraph ] = useState({ nodes: [], edges: [] });
-    const [ infoTitle, setInfoTitle ] = useState("Click on something for details");
-    const [ infoText, setInfoText ] = useState("");
-    const [ infoExplanation, setInfoExplanation ] = useState("");
-    const [ infoMetadata, setInfoMetadata ] = useState([]);
+    const [ info, setInfo ] = useState(defaultInfo());
     const [ nodeedgeId, setNodeedgeId ] = useState(0);
     const [ apiCall, setApiCall ] = useState("node_references");
-    const [ buildingGraph, setBuildingGraph] = useState(false);
     const [ networkRenderer, setNetworkRenderer] = useState(new NetworkRenderer);
     const [ networkAPI, setNetworkAPI ] = useState(null);
     const [ sector, setSector ] = useState("All");
@@ -54,7 +59,8 @@ function Network(props) {
 
     const handle = useFullScreenHandle();
 
-    const ref = useRef(null);
+    const graphRef = useRef(null);
+    const infoRef = useRef(null);
 
     // preload some icons
     networkRenderer.loadIcons();
@@ -128,7 +134,7 @@ function Network(props) {
                 // edit the live node on the network using the ref
                 if (previouslySelected!=null) {
                     // clear previous
-                    ref.current.nodes.update({
+                    graphRef.current.nodes.update({
                         id: previouslySelected.node_id,
                         image: await networkRenderer.nodeImageURL(
                             previouslySelected,
@@ -137,7 +143,7 @@ function Network(props) {
                     });
                 }
                 // highlight current
-                ref.current.nodes.update({
+                graphRef.current.nodes.update({
                     id: node.node_id,
                     image: await networkRenderer.nodeImageURL(node,true,false)
                 });
@@ -147,28 +153,28 @@ function Network(props) {
                 setNodeedgeId(node.node_id);
                 setApiCall("node_references");
 
+                // todo: the info should be a component, rather than all this kerfuffle
+                let info = defaultInfo();
+
                 let dir = "";
-                let expl = "";
                 if (node.state.value=="decrease") dir = "decreasing";
                 if (node.state.value=="increase") dir = "increasing";
                 if (node.state.value=="uncertain") {
-                    setInfoExplanation("We can not be certain what will happen to "+node.label+" as the evidence is conflicting or unavailable.");
+                    info.explanation = "We can not be certain what will happen to "+node.label+" as the evidence is conflicting or unavailable.";
                     dir = "uncertain";
-                } else {
-                    setInfoExplanation("");
                 }
                 
-                setInfoTitle(node.label+" "+dir);
-                setInfoText(node.description);
-                let metadata = [];              
+                info.title=node.label+" "+dir;
+                info.text=node.description;
+
                 for (let key of Object.keys(node)) {
                     if (!["description", "label", "state"].includes(key)) {
                         if (node[key]!="" && node[key]!=null) {
-                            metadata.push([key,node[key]]);
+                            info.metadata.push([key,node[key]]);
                         }
                     }
                 }
-                setInfoMetadata(metadata);
+                setInfo(info);                
             } else {
                 if (event.edges.length>0) {
                     // we clicked on an edge
@@ -176,7 +182,7 @@ function Network(props) {
                     // clear selected node
                     if (previouslySelected!=null) {
                         // clear previous
-                        ref.current.nodes.update({
+                        graphRef.current.nodes.update({
                             id: previouslySelected.node_id,
                             image: await networkRenderer.nodeImageURL(
                                 previouslySelected,
@@ -195,20 +201,19 @@ function Network(props) {
                         change = " decreases ";
                         title = "Negative correlation";
                     }
-                    setInfoText("");
-                    setInfoTitle(node_from.label+change+node_to.label);
+                    info.text="";
+                    info.title=node_from.label+change+node_to.label;
                     setApiCall("edge_references");
                     setNodeedgeId(edge.edge_id);
 
-                    let metadata = [];              
                     for (let key of Object.keys(edge)) {
                         if (!["description", "label", "state"].includes(key)) {
                             if (edge[key]!="" && edge[key]!=null) {
-                                metadata.push([key,edge[key]]);
+                                info.metadata.push([key,edge[key]]);
                             }
                         }
                     }
-                    setInfoMetadata(metadata);
+                    setInfo(info);
                 }
             }
         }
@@ -219,13 +224,12 @@ function Network(props) {
         let updateEdgesList = [];
         let greyedList = [];
 
-        ref.current.Network.unselectAll();
-        setInfoTitle("Click on something for details");
-        setInfoText("");
+        graphRef.current.Network.unselectAll();
+        setInfo(defaultInfo());
         setNodeedgeId(0);
         
         for (let node of props.networkParser.nodes) {
-            let liveNode = ref.current.nodes.get(node.node_id);
+            let liveNode = graphRef.current.nodes.get(node.node_id);
             // not all nodes are rendered so check
             if (liveNode!=null) {
                 let grey = sector!="All" && !node.sector.includes(sector);
@@ -267,11 +271,14 @@ function Network(props) {
             }
         }
         setGreyedNodeIDs(greyedList);
-        ref.current.nodes.update(updateNodesList);
-        ref.current.edges.update(updateEdgesList);
+        graphRef.current.nodes.update(updateNodesList);
+        graphRef.current.edges.update(updateEdgesList);
     }
 
     useEffect(() => setExpanded(false), [props.regions]);
+
+    // reset the scroll position of the info box when the info changes
+    useEffect(() => { infoRef.current.scrollTop = 0; }, [info]);
 
     function handleOnClick() {
         setExpanded(!isExpanded);
@@ -339,7 +346,7 @@ function Network(props) {
                 <div className="network">
                   <div className="network-holder">
                     <Graph
-                      ref={ref}
+                      ref={graphRef}
                       key={version}
                       graph={graph}
                       options={options}
@@ -347,7 +354,7 @@ function Network(props) {
                       getNetwork={ network => setNetworkAPI(network) }
                     />
                   </div>
-                  <div className="network-info">
+                  <div ref={infoRef} className="network-info">
                     <button className="fullscreen-button" onClick={() => {
                         if (handle.active) handle.exit();
                         else handle.enter();
@@ -357,9 +364,9 @@ function Network(props) {
                        <span>Exit fullscreen</span> :
                        <span>Show fullscreen</span>}
                     </button>
-                    <h2>{infoTitle}</h2>
-                    <p>{infoExplanation}</p>
-                    <p>{infoText}</p>
+                    <h2>{info.title}</h2>
+                    <p>{info.explanation}</p>
+                    <p>{info.text}</p>
                     <References
                       id={nodeedgeId}
                       api_call={apiCall}
@@ -368,7 +375,7 @@ function Network(props) {
                       <h3>Metadata</h3>
                       <small>
                         <ul>
-                          {infoMetadata.map(el => (<li key={el[0]}><b>{el[0]}</b> : {el[1]}</li>))}
+                          {info.metadata.map(el => (<li key={el[0]}><b>{el[0]}</b> : {el[1]}</li>))}
                         </ul>
                       </small>
                     </div>*/} 
