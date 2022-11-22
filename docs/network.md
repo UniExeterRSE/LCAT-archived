@@ -99,34 +99,28 @@ Once we have tagged all the nodes in the network with increase,
 decrease or uncertain our next job is to search for adaptations that
 will improve health and wellbeing outcomes.
 
-We firstly build a list of the health impacts that are getting 'worse'
-- this may be indicated either by an increase e.g. in a disease or a
-decrease e.g. in wellbeing impacts.
+We firstly build a list of the health impacts that are getting
+'worse', which may be indicated either by an increase e.g. in a
+disease impact or a decrease e.g. in wellbeing impacts.
 
-Adaptations (actions) are mostly not connected or associated directly
-with the health impacts however, so for each of the 'worse' health
-impacts we need to search backwards up through all the nodes that we
-have evidence impacts on them until we either loop or come to an end
-point (usually the climate model variable).
+The adaptations (action nodes) themselves are mostly not connected or
+associated directly with the health impacts however, so for each of
+the 'worse' health impacts we need to search backwards up through all
+the nodes that we have evidence impacts on them, until we either loop
+or come to an end point (usually the climate model variable).
 
 By following nodes backwards, it measn we only search impacts that we
 have evidence have an effect on our health impact - no matter how
-distant it is.
+distant it is. This has the nice side effect of being able to show in
+the tool the reason we are suggesting an adaptation, as both the
+direct effect and indirect health benefit can be shown - along with
+the original climate change causation.
 
 ![](images/adaptation.png)
 
+# Old things we are not doing - but keeping here for documentation purposes
 
-
-
-
-
-
-
-
-
-
-            
-## 6. Ways to reduce uncertainty (OLD)
+## 6. Ways to reduce uncertainty
 
 Originally we talked about reducing this uncertainty by adding two
 more states: probable increase/decrease (this is not done yet, but it
@@ -137,7 +131,7 @@ impact size is equal for each connection*.
 
 ![](images/probable.png)
 
-## 6. Future cases we're not sure how do deal with (OLD)
+## 6. Future cases we're not sure how do deal with 
 
 1. Should we use "probable" to add certainty to a previously uncertain state?
 2. What should we do if we need to add together a probable state with a certain one?
