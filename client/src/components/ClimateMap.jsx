@@ -230,6 +230,7 @@ class ClimateMap extends React.Component {
                     <MapContainer
                       center={center}
                       zoom={6}
+                      minZoom={5}
                       scrollWheelZoom={true}>
                       <GeoJSONLoader
                         apicall={"/api/region"}
