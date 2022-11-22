@@ -50,3 +50,18 @@
     width: 100%;
     text-align: center;
 }
+
+.key-regional {
+	border-radius: 5px;
+    padding: 2px;
+    background: #216331;
+    color: white;
+}
+
+.key-average {
+	border-radius: 5px;
+    padding: 2px;
+    background: #48b961;
+    color: white;
+}
+

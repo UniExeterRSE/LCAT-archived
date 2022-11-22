@@ -93,6 +93,14 @@ function Graph(props) {
         return v.toFixed(2)+' W/m²';*/
         return v.toFixed(2);
     }
+
+    function getAvLabel(v) {
+        /*if (variable=="tas") return v.toFixed(2)+'°C';
+        if (variable=="pr") return v.toFixed(2)+' mm/day';
+        if (variable=="sfcwind") return v.toFixed(2)+' m/s';
+        return v.toFixed(2)+' W/m²';*/
+        return v.toFixed(2)+"<br> UK";
+    }
     
     useEffect(() => {
         if (prediction.length>0) {
@@ -205,7 +213,14 @@ function Graph(props) {
                   <option value="0">selected areas only</option>
                   <option value="1">your areas vs the UK</option>
                 </select>
+
+                &nbsp;
                 
+                { showAverage && 
+                  <p>
+                    Key: <span className="key-regional">Your area</span> <span className="key-average">UK average</span>
+                  </p>
+                }        
               </p>
 
               <div className="graph-horiz-container">
