@@ -155,7 +155,7 @@ function Vulnerabilities(props) {
                  
             </div>  
 	        <p className="note">
-              Data source: The vulnerability data comes from <a href="https://www.climatejust.org.uk">ClimateJust</a> and is based on 2011 census data. This will be updated once the 2021 census data is available.
+              Data source: The vulnerability data comes from <a href="https://www.climatejust.org.uk" target="_blank">ClimateJust</a> and is based on 2011 census data. This will be updated once the 2021 census data is available.
 	        </p>
           </LoadingOverlay>
         </div>

@@ -258,7 +258,7 @@ function Graph(props) {
               </div>
               {/* <div className="graph-x-axis">Decades</div> */}
               <p className="note">
-                Data source: The climate data used is from <a href="https://catalogue.ceda.ac.uk/uuid/8194b416cbee482b89e0dfbe17c5786c">CHESS-SCAPE</a>.
+                Data source: The climate data used is from <a href="https://catalogue.ceda.ac.uk/uuid/8194b416cbee482b89e0dfbe17c5786c" target="_blank">CHESS-SCAPE</a>.
                 Note that the UK average data is currently based on Scotland,
                 Wales and England, and does not include Northern Ireland or all
                 islands, as this is not available within the climate dataset.                
