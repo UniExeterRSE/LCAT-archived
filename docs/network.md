@@ -86,7 +86,7 @@ is the most conservative (and simplest) approach.
 
 ![](images/uncertain-more.png)
 
-In future the only way we have discussed to counter uncertainty is for
+In future the best way we have discussed to counter uncertainty is for
 these cases to be checked and 'overridden' when they are
 uncertain. This will act like a default setting - with documentation
 and evidence: "Although we have contradictory evidence for this
