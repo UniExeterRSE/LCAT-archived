@@ -132,21 +132,23 @@ collected in the Kumu map, as they are indications that we need to
 find geolocated data for a specific climate, environmental or
 socioeconomic variable. Once added they will appear automatically.
 
-2. A connection between two impacts is not a + or a - type. It is only
-possible to support positive or negative correlation. All following
-impact nodes (if they have no other contributing connections)
-therefore can't be shown either. This is still useful to use as a
-placeholder though, when building the network in Kumu.
+2. A connection between two impacts is not a + or a - type. It is not
+possible to create impact predictions for the user otherwise. All the
+following impact nodes (if they have no other contributing
+connections) therefore have to be removed as well. This is still
+useful to use as a placeholder connection though, when building the
+network in Kumu, as it won't break the tool to have it included.
 
 ## 7. Reasons that adaptations are not shown in the list
 
 1. The health impact(s) at the end of the chain they are part of is
-uncertain or decreasing. This means we can't be sure that they will
-improve any health or wellbeing impacts in this area. This is the tool
-working as designed, as we are aiming to provide specific advice for
-very local regions.
+uncertain or decreasing. This is the tool working as designed, as it
+means the evidence shows it won't improve any health or wellbeing
+impacts in the selected area, and we are aiming to provide specific advice
+for very local regions.
 
 2. There is no health impact at the end of the chain of impacts they
 are part of. This means we can't be sure that they are of benefit to
 health and wellbeing. This can be fixed by providing a
 reference/connection to a health and wellbeing impact.
+
