@@ -1,9 +1,11 @@
-# How the climate data for a selected region is currently passed through the impact network
+# LCAT impact network philosophy
 
-How impacts are currently calculated around our network of mDPSEEA
-nodes, from climate variables through to health impacts. This is
-currently under development - so the initial goal is to make sure we
-are doing this correctly, after which it can be used as documentation.
+1. Our aim is to provide the user with a customised list of health impacts and adaptations for their local area selection
+2. We start with the climate data variables, which increase or decrease in different places and seasons and feed them into impacts to figure out if they increase or decrease
+3. Where any two connections leading into a node disagree with each other (the evidence is contradictory) the result is uncertain
+4. Uncertain nodes cause all following nodes to be uncertain
+5. We only show adaptations where they have a known positive effect on health outcomes in their local area
+6. We do not show adaptations where we don't know what their health impacts will be
 
 This document refers to the [code found here](../client/src/core/NetworkParser.js).
 
@@ -118,9 +120,40 @@ climate change causation.
 
 ![](images/adaptation.png)
 
+## 6. Reasons that impacts may not be shown in the map after importing from Kumu
+
+1. The "chain" they are part of does not originate in a Pressure we
+have data for. We can only show impacts if we can tell the user if
+they are increasing, decreasing or uncertain in the area they have
+selected. We can't provide global data for these, as they may be wrong
+(e.g. population level changes increasing when the user has selected
+only the Isles of Scilly). However, these are still important to be be
+collected in the Kumu map, as they are indications that we need to
+find geolocated data for a specific climate, environmental or
+socioeconomic variable. Once added they will appear automatically.
+
+2. A connection between two impacts is not a + or a - type. It is only
+possible to support positive or negative correlation. All following
+impact nodes (if they have no other contributing connections)
+therefore can't be shown either. This is still useful to use as a
+placeholder though, when building the network in Kumu.
+
+## 7. Reasons that adaptations are not shown in the list
+
+1. The health impact(s) at the end of the chain they are part of is
+uncertain or decreasing. This means we can't be sure that they will
+improve any health or wellbeing impacts in this area. This is the tool
+working as designed, as we are aiming to provide specific advice for
+very local regions.
+
+2. There is no health impact at the end of the chain of impacts they
+are part of. This means we can't be sure that they are of benefit to
+health and wellbeing. This can be fixed by providing a
+reference/connection to a health and wellbeing impact.
+
 # Things we previously decided we are not doing - but keeping here in case we change our minds!
 
-## 6. Ways to reduce uncertainty
+## 8. Ways to reduce uncertainty
 
 Originally we talked about reducing this uncertainty by adding two
 more states: probable increase/decrease (this is not done yet, but it
@@ -131,7 +164,7 @@ impact size is equal for each connection*.
 
 ![](images/probable.png)
 
-## 7. Future cases we're not sure how do deal with 
+## 9. Future cases we're not sure how do deal with 
 
 1. Should we use "probable" to add certainty to a previously uncertain state?
 2. What should we do if we need to add together a probable state with a certain one?
