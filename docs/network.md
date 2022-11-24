@@ -123,21 +123,22 @@ climate change causation.
 ## 6. Reasons that impacts may not be shown in the map after importing from Kumu
 
 1. The "chain" they are part of does not originate in a Pressure we
-have data for. We can only show impacts if we can tell the user if
-they are increasing, decreasing or uncertain in the area they have
-selected. We can't provide global data for these, as they may be wrong
+have data for. We can only show impacts if we can give the user an
+evidence based prediction for them in the area they have selected. We
+can't provide global data for these, as they may be wrong
 (e.g. population level changes increasing when the user has selected
 only the Isles of Scilly). However, these are still important to be be
 collected in the Kumu map, as they are indications that we need to
 find geolocated data for a specific climate, environmental or
 socioeconomic variable. Once added they will appear automatically.
 
-2. A connection between two impacts is not a + or a - type. It is not
-possible to create impact predictions for the user otherwise. All the
-following impact nodes (if they have no other contributing
-connections) therefore have to be removed as well. This is still
-useful to use as a placeholder connection though, when building the
-network in Kumu, as it won't break the tool to have it included.
+2. A connection between two impacts is not a + or a - type. If we
+can't clearly show what the evidence indicates with a correlation,
+then we run the risk of misleading the user. All the following impact
+nodes (if they have no other contributing connections) therefore have
+to be removed as well. This is still useful to use as a placeholder
+connection though, when building the network in Kumu, as it won't
+break the tool to have it included.
 
 ## 7. Reasons that adaptations are not shown in the list
 
