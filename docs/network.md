@@ -150,24 +150,3 @@ very local regions.
 are part of. This means we can't be sure that they are of benefit to
 health and wellbeing. This can be fixed by providing a
 reference/connection to a health and wellbeing impact.
-
-# Things we previously decided we are not doing - but keeping here in case we change our minds!
-
-## 8. Ways to reduce uncertainty
-
-Originally we talked about reducing this uncertainty by adding two
-more states: probable increase/decrease (this is not done yet, but it
-can be added). The inputs here "vote" to indicate a majority
-decrease. This does not solve a 50/50 split of course, so
-uncertainties are still possible, *and it assumes the confidence and
-impact size is equal for each connection*. 
-
-![](images/probable.png)
-
-## 9. Future cases we're not sure how do deal with 
-
-1. Should we use "probable" to add certainty to a previously uncertain state?
-2. What should we do if we need to add together a probable state with a certain one?
-
-![](images/probable2.png)
-
