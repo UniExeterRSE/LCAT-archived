@@ -206,7 +206,7 @@ class network_db:
 
 def reset(db):
     nd = network_db(db)
-    nd.reset_refs()
+    #nd.reset_refs()
     
 def find_item(l,id):
     for el in l:

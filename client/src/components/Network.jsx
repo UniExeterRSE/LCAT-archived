@@ -160,8 +160,8 @@ function Network(props) {
                 if (node.state.value=="decrease") dir = "decreasing";
                 if (node.state.value=="increase") dir = "increasing";
                 if (node.state.value=="uncertain") {
-                    info.explanation = "We can not be certain what will happen to "+node.label+" as the evidence is conflicting or unavailable.";
-                    dir = "uncertain";
+                    info.explanation = "We can not be certain what will happen to "+node.label+" as the evidence is contradictory.";
+                    dir = "contradictory";
                 }
                 
                 info.title=node.label+" "+dir;

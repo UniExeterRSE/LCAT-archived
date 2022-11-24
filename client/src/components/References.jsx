@@ -116,9 +116,7 @@ function References(props) {
             </div>
         );
     } else {
-        return (
-            <b>No references available</b>
-        );
+        return null;
     }
 }
 

@@ -170,7 +170,7 @@ else:
     # network ----------------------------------------------------------
                 
     if sys.argv[1]=="network_json":
-        network_from_json.load(db,conf['network_json'],"Heat")
+        network_from_json.load(db,conf['network_json'],"Heat version 2")
 
     if sys.argv[1]=="network_refs":
         network_from_json.load_refs(db,conf['refs'])
