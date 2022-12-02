@@ -160,11 +160,11 @@ function Network(props) {
                 if (node.state.value=="decrease") dir = "decreasing";
                 if (node.state.value=="increase") dir = "increasing";
                 if (node.state.value=="uncertain") {
-                    info.explanation = "We can not be certain what will happen to "+node.label+" as the evidence is contradictory.";
-                    dir = "contradictory";
+                    info.explanation = "No direction (positive or negative) is displayed for "+node.label+", as the impacts that affect it are mixed.";
+                    dir = "mixed impact";
                 }
                 
-                info.title=node.label+" "+dir;
+                info.title=node.label+" - "+dir;
                 info.text=node.description;
 
                 for (let key of Object.keys(node)) {
@@ -297,8 +297,7 @@ function Network(props) {
           <div {...getCollapseProps()}>
             <div className="content">
               <h1>Health impact details</h1>
-              <p>
-
+              <p>                                
                 The network below shows how climate change will impact health in &nbsp;
             
                 <span className={"projected-regions"}>
@@ -306,7 +305,7 @@ function Network(props) {
                 </span>
                 
                 &nbsp;under the <b>{rcpText[props.rcp]}</b> when considering <b>{seasonText[props.season]}</b> averages.
-                
+
                 You can explore the network by clicking/tapping on the nodes and connections for more information. Nodes can be moved around by dragging them, and the network can also be zoomed and panned.
 
                 View impacts relevant to&nbsp;
@@ -325,6 +324,10 @@ function Network(props) {
                 </select>
                 
               </p>
+              <p>
+                The map is exploring heat impacts on health. It is currently at prototype stage and therefore incomplete.
+              </p>
+
               <NetworkListener
                 network = {props.network}
                 networkRenderer = {networkRenderer}

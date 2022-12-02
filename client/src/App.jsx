@@ -78,7 +78,7 @@ class App extends React.Component {
                 </p>
                 
                 <p>
-                  <a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions.pdf">See our Frequently Asked Questions for more information.</a>
+                  <a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions-1.pdf"  target="_blank">See our Frequently Asked Questions for more information.</a>
                 </p>
               </div>
               

@@ -80,7 +80,10 @@ class NetworkState {
         if (this.value===other.value) return false;
 
         if (this.isOppositeTo(other)) this.value="uncertain";
+        //if (this.value==="uncertain" || other.value==="uncertain") this.value="uncertain";
         if (this.value==="uncertain" || other.value==="uncertain") this.value="uncertain";
+
+        // just disregard these values asap
         if (this.value==="unknown") this.value=other.value;
         if (this.value==="deactivated") this.value=other.value;
 
