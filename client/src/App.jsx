@@ -21,6 +21,7 @@ import ClimatePredictionLoader from './components/ClimatePredictionLoader';
 import Graph from "./components/Graph";
 import HealthWellbeing from './components/HealthWellbeing';
 import Network from "./components/Network";
+import NetworkNamesLoader from './components/NetworkNamesLoader';
 import NetworkLoader from './components/NetworkLoader';
 import { NetworkParser } from './core/NetworkParser';
 import Vulnerabilities from './components/Vulnerabilities';
@@ -44,6 +45,8 @@ class App extends React.Component {
         this.state = {
             regions: [],
             regionType: "counties",
+            networks: [],
+            networkID: 0,
             network: { nodes: [], edges: [] },
             climatePrediction: [],           
             season: "annual",
@@ -81,9 +84,17 @@ class App extends React.Component {
                   <a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions-1.pdf"  target="_blank">See our Frequently Asked Questions for more information.</a>
                 </p>
               </div>
-              
-              <NetworkLoader
+
+              <NetworkNamesLoader
                 id={0}
+                callback={(names) => {
+                    this.setState((state) => ({
+                        networks: names
+                    }));}}
+              />
+
+              <NetworkLoader
+                id={this.state.networkID}
                 callback={(nodes, edges) => {
                     this.setState((state) => ({
                         network: { nodes: nodes, edges: edges },
@@ -167,7 +178,18 @@ class App extends React.Component {
               </div>}
               
               {this.state.regions.length>0 &&              
-              <div className="white-section">
+               <div className="white-section">
+
+                 
+               <p>
+                 Choose network:&nbsp;
+                 <select onChange={(e) => this.setState({ networkID: e.target.value })}>
+                   {this.state.networks.map((network) => {
+                       return <option value={network.network_id}>{network.name}</option>;
+                   })}
+                 </select>
+               </p>
+                 
                 <HealthWellbeing
                   networkParser = {this.state.networkParser}
                   year = {this.state.year}
@@ -179,6 +201,7 @@ class App extends React.Component {
                 />
 
                 <Network
+                  networks = {this.state.networks}
                   network = {this.state.network}
                   year = {this.state.year}
                   climatePrediction = {this.state.climatePrediction}

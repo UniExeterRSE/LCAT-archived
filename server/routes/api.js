@@ -196,18 +196,16 @@ router.get('/vulnerabilities', function (req, res) {
         });
         query.on("error", function (err, result) {
             console.log("------------------error-------------------------");
-            console.log(req);
             console.log(err);
         });
     }
 });
 
-
-router.get('/network_edges', function (req, res) {
+router.get('/networks', function (req, res) {
 	var client = new Client(conString);
     client.connect();
 
-    var q=`select * from network_edges;`
+    var q=`select * from networks;`
 	var query = client.query(new Query(q));
 	
 	query.on("row", function (row, result) {
@@ -220,18 +218,51 @@ router.get('/network_edges', function (req, res) {
     });
     query.on("error", function (err, result) {
         console.log("------------------error-------------------------");
-        console.log(req);
+        console.log(err);
+    });
+});
+
+
+router.get('/network_edges', function (req, res) {
+	let network_id = req.query.network_id;
+    
+	var client = new Client(conString);
+    client.connect();
+
+    var q=`select e.* from network_edge_mapping as m 
+           join network_edges as e on m.edge_id=e.edge_id
+           where m.network_id=`+network_id+`;`
+	var query = client.query(new Query(q));
+	
+	query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+        res.send(result.rows);
+        res.end();
+		client.end();
+    });
+    query.on("error", function (err, result) {
+        console.log("------------------error-------------------------");
         console.log(err);
     });
 });
 
 router.get('/network_nodes', function (req, res) {
+	let network_id = req.query.network_id;
+    
 	var client = new Client(conString);
     client.connect();
 
-    var q=`select * from network_nodes;`
+    console.log(network_id);
+    
+    var q=`select e.* from network_node_mapping as m 
+           join network_nodes as e on m.node_id=e.node_id
+           where m.network_id=`+network_id+`;`
+    console.log(q);
 	var query = client.query(new Query(q));
-	
+
+    
 	query.on("row", function (row, result) {
         result.addRow(row);
     });
@@ -242,7 +273,6 @@ router.get('/network_nodes', function (req, res) {
     });
     query.on("error", function (err, result) {
         console.log("------------------error-------------------------");
-        console.log(req);
         console.log(err);
     });    
 });
