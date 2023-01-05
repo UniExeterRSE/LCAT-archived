@@ -114,7 +114,9 @@ class network_db:
             
 
     def add_edge(self,edge):
-        # match nodes by label
+        if not 'connection type' in edge['attributes']:
+            return
+        
         self.db.cur.execute(
             "insert into network_edges (edge_id, type, node_from, node_to) values (%s, %s, %s, %s)",
             (edge['_id'],
