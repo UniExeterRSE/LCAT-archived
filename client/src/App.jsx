@@ -65,22 +65,22 @@ class App extends React.Component {
                 </header>
               </div>
               
-              <div className="grey-section">
-
-                <p>
-                  Use this tool to see what the scientific research is saying about:
-                  <ul>
-                    <li>How your local climate will change</li>
-                    <li>The impacts on public health, and which groups are most vulnerable locally</li>
-                    <li>Adaptations most appropriate to your local area</li>
-                  </ul>                  
-                  LCAT is evidence based and designed with and for local decision makers. The tool is under continued development, and currently only considers heat impacts.
-                </p>
-                
-                <p>
-                  <a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions-1.pdf"  target="_blank">See our Frequently Asked Questions for more information.</a>
-                </p>
-              </div>
+		<div className="grey-section">
+		    <h1>This is the <span style="color:red;">beta version</span> for testing purposes - it may contain unverified information</h1>
+                    <p>
+			Use this tool to see what the scientific research is saying about:
+			<ul>
+			    <li>How your local climate will change</li>
+			    <li>The impacts on public health, and which groups are most vulnerable locally</li>
+			    <li>Adaptations most appropriate to your local area</li>
+			</ul>                  
+			LCAT is evidence based and designed with and for local decision makers. The tool is under continued development, and currently only considers heat impacts.
+                    </p>
+                    
+                    <p>
+			<a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions-1.pdf"  target="_blank">See our Frequently Asked Questions for more information.</a>
+                    </p>
+		</div>
               
               <NetworkLoader
                 id={0}
