@@ -31,6 +31,9 @@ class network_db:
         self.db = db
         self.doi_lookup = doi_lookup.doi_lookup()
 
+    def read_node_title(self,node_id):
+        self.db.cur.execute(f"select label from network_nodes where node_id={node_id}")
+        
     def reset_network(self):
         self.db.cur.execute("drop table if exists network_nodes cascade")
         q = """create table network_nodes (node_id text primary key,
@@ -114,6 +117,15 @@ class network_db:
             
 
     def add_edge(self,edge):
+
+        if not 'connection type' in edge['attributes']:
+            print("no connection type for edge? "+edge["_id"]+" "+edge["from"]+"->"+edge["to"])
+            return
+
+        if edge['attributes']['connection type']!="+" and edge['attributes']['connection type']!="-":
+            print("wrong connection type for edge? ("+edge['attributes']['connection type']+") "+edge["_id"]+" "+edge["from"]+"->"+edge["to"])
+            return
+        
         # match nodes by label
         self.db.cur.execute(
             "insert into network_edges (edge_id, type, node_from, node_to) values (%s, %s, %s, %s)",
@@ -176,7 +188,7 @@ class network_db:
              row_orig_link, # save original link as doi
              row_type,
              link))
-        self.db.conn.commit()
+            self.db.conn.commit()
         return row_id
 
     def add_node_article_mapping(self, node_id, article_id):

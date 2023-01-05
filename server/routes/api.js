@@ -160,7 +160,7 @@ router.get('/chess_scape', function (req, res) {
         });
         query.on("error", function (err, result) {
             console.log("------------------error-------------------------");
-            console.log(req);
+            //console.log(req);
             console.log(err);
         });
     }
@@ -196,7 +196,7 @@ router.get('/vulnerabilities', function (req, res) {
         });
         query.on("error", function (err, result) {
             console.log("------------------error-------------------------");
-            console.log(req);
+            //console.log(req);
             console.log(err);
         });
     }
@@ -226,7 +226,8 @@ router.get('/network_edges', function (req, res) {
 });
 
 router.get('/network_nodes', function (req, res) {
-	var client = new Client(conString);
+    console.log(conString);
+    var client = new Client(conString);
     client.connect();
 
     var q=`select * from network_nodes;`
@@ -242,7 +243,7 @@ router.get('/network_nodes', function (req, res) {
     });
     query.on("error", function (err, result) {
         console.log("------------------error-------------------------");
-        console.log(req);
+        //console.log(req);
         console.log(err);
     });    
 });

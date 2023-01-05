@@ -66,7 +66,7 @@ class App extends React.Component {
               </div>
               
 		<div className="grey-section">
-		    <h1>This is the <span style="color:red;">beta version</span> for testing purposes - it may contain unverified information</h1>
+		    <h1>This is the beta version for testing purposes - it may contain unverified information</h1>
                     <p>
 			Use this tool to see what the scientific research is saying about:
 			<ul>
