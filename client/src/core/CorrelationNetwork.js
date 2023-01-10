@@ -28,8 +28,7 @@ class CorrelationNetwork extends Network {
     
     constructor(nodes,edges) {
         super(nodes,edges);        
-        this.clearVotes();
-        
+        this.clearVotes();        
     }
 
     clearVotes() {
@@ -53,9 +52,9 @@ class CorrelationNetwork extends Network {
             hist[votes[vote]]+=1;
         }
 
-        if (this.override_uncertainties) {
-            // allow uncertain to be overridden
-            // causes instabilities in looped networks
+        if (!this.override_uncertainties) {
+            // any uncertainty gets passed on
+            // not doing this causes instabilities in looped networks
             if (hist['uncertain']>0) return 'uncertain';
         }
         
@@ -74,6 +73,8 @@ class CorrelationNetwork extends Network {
     updateStates(node_id,direction,source_id) {
         let node = this.getNode(node_id);
 
+        if (node.state==="disabled") return;
+        
         // record the vote from this source
         node.votes[source_id]=direction;
         node.visits+=1;

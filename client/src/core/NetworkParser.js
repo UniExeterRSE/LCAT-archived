@@ -50,7 +50,12 @@ class NetworkParser extends CorrelationNetwork {
                 this.healthNodes.push(node);
             }
             if (node.type==="Pressure") {
-                this.pressureNodes.push(node);
+                if (node.label==="Climate change") {
+                    node.state="disabled";
+                    console.log("skipping climate change pressure");
+                } else {                
+                    this.pressureNodes.push(node);
+                }
 		    }
         }
     }
