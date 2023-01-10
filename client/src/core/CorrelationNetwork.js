@@ -73,6 +73,11 @@ class CorrelationNetwork extends Network {
     updateStates(node_id,direction,source_id) {
         let node = this.getNode(node_id);
 
+        if (node.label=="Temperature") {            
+            console.log("updatestate temp");
+            console.log(node.state);
+        }
+
         if (node.state==="disabled") return;
         
         // record the vote from this source
@@ -90,6 +95,12 @@ class CorrelationNetwork extends Network {
         if (state == node.state) return;
         //console.log([node.state,state]);
         node.state = state;
+
+        if (node.label=="Temperature") {            
+            console.log(node.state);
+            console.log(node.votes);
+        }
+
         
         for (let edge of this.getOutgoingEdges(node)) {
             let dir = state;

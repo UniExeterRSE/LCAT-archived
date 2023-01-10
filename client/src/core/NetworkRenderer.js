@@ -153,9 +153,9 @@ font-family="Arial" dy=".3em">`+text+`</text>
             .move(10,icon_pos);
 
         // no unknown any more...
-        if (node.state!="unknown") {
+        if (node.state.value!="deactivated" && node.state.value!="unknown") {
             // draw the direction
-            draw.group().svg(await this.loadImage(node.state)).move(54,60);
+            draw.group().svg(await this.loadImage(node.state.value)).move(54,60);
         }
 
 		return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(draw.svg());
@@ -202,7 +202,6 @@ font-family="Arial" dy=".3em">`+text+`</text>
 	}
 
 	addEdge(edge) {
-
         let colour = "#115158" ;
         let highlightColour = "#f5821f";
         //if (edge.state=="increase") colour="#afd6e4";
@@ -253,7 +252,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         // find causes and propagate upwards (right?) from there
 		for (let node of networkParser.nodes) {
             if (["Pressure", "Effect", "State", "Exposure"].includes(node.type) &&
-                node.state!="none") {
+                node.state.value!="deactivated") {
                 if (sector!="All" && !node.sector.includes(sector)) {
                     node.transparent=true;
                 }
