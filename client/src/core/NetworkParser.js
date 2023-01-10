@@ -18,13 +18,12 @@
 // starting with a climate prediction (and other variables eventually)
 
 import { Network } from "./Network.js";
-import { NetworkState } from "./NetworkState.js";
+import { CorrelationNetwork } from "./CorrelationNetwork.js";
 
-class NetworkParser extends Network {
+class NetworkParser extends CorrelationNetwork {
 
     constructor(nodes,edges) {
         super(nodes,edges);
-        this.edges = edges.filter(edge => (edge.type=="+" || edge.type=="-"));        
 		this.healthNodes = [];
         this.pressureNodes = [];
         this.globalThreshold = 0.0;
@@ -40,8 +39,6 @@ class NetworkParser extends Network {
         
         // go through the nodes
   		for (let node of nodes) {
-            // add a network state to all of them, start off deactivated
-            node.state=new NetworkState("deactivated");
             // filter health and pressure nodes into their own lists
             if (node.type==="Effect" && node.disease_injury_wellbeing!="") {
                 // which way is good?
@@ -93,53 +90,6 @@ class NetworkParser extends Network {
         return false;
     }
 
-    // go around the graph until we have labelled all nodes
-    // and there are no conflicts any more
-    recurCalculate(node,state) {        
-        // set the supplied state to the node now
-        node.state=state;
-
-        // we only process these node types
-        if (!["Pressure", "Effect", "State", "Exposure"].includes(node.type)) return;
-        
-        // look through the edges and calculate the states for all our child nodes
-        for (let edge of this.edges) {
-            if (edge.node_from==node.node_id) {                              
-                // find the downwards connected node
-                let child = this.searchNode(edge.node_to);                
-                // make a copy of the parent state
-                let childState = new NetworkState(state.value);
-                // calculate the child's new state based on the edge +/-
-                childState.apply(edge);
-
-                // debugging... show the influence of the parent
-                // (after +/- applied) from this edge
-                edge.state = childState.value;
-                
-                let previousState = this.visited[child.node_id];
-                
-                // we have visited this node before?
-                if (previousState!=undefined) {                    
-                    // just for debugging purposes
-                    if (childState.isOppositeTo(previousState)) {
-                        child.uncertaintyCause=true;                    
-                    }
-                    
-                    // returns true if we need to recur because we've changed
-                    if (childState.composite(previousState)) {
-                        this.visited[child.node_id]=childState;
-                        this.recurCalculate(child,childState);
-                    }
-                    
-                } else {
-                    // first time we've seen this node
-                    this.visited[child.node_id]=childState;
-                    this.recurCalculate(child,childState);
-                }
-            }            
-        }
-    }
-
     // recur upwards from the climate change pressures
     calculate(climatePrediction,year) {
         this.visited=[];
@@ -147,16 +97,14 @@ class NetworkParser extends Network {
             if (pressure.label!="Climate change") {
                 let prediction = this.getPrediction(climatePrediction,year,pressure.label);
                 if (prediction===false) {
-                    this.recurCalculate(pressure,new NetworkState("unknown"));
+                    this.updateStates(pressure.node_id,'unknown','init');
                 } else {               
                     if (prediction>this.globalThreshold) {
-                        this.recurCalculate(pressure,new NetworkState("increase"));
+                        this.updateStates(pressure.node_id,"increase","init");
                     } else {
                         if (prediction<-this.globalThreshold) {
-                            this.recurCalculate(pressure,new NetworkState("decrease"));
-                        } else {
-                            this.recurCalculate(pressure,new NetworkState("deactivated"));
-                        }
+                            this.updateStates(pressure.node_id,"decrease","init");
+                        } 
                     }               
                 }
             }
@@ -169,13 +117,13 @@ class NetworkParser extends Network {
         let ret = [];
         // only return nodes that are increasing or decreasing
         for (let node of this.healthNodes) {
-            if (node.state.value=="increase" ||
-                node.state.value=="decrease") {
+            if (node.state=="increase" ||
+                node.state=="decrease") {
                 // reconstruct the node with the minimun of info
                 ret.push({
                     node_id: node.node_id,
                     label: node.label,
-                    state: node.state.value
+                    state: node.state
                 });
             }
         }
@@ -252,7 +200,7 @@ class NetworkParser extends Network {
                 badDirection="decrease";
             }
             
-            if (node.state.value==badDirection) {
+            if (node.state==badDirection) {
                 // search backwards looking for actions that can help with
                 // impacts that contribute to this health impact
                 this.reverseRecurAdaptations(node,node,adaptations);

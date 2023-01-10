@@ -30,6 +30,7 @@ import HealthSvg from '../images/icons/Public health & wellbeing.svg';
 // Driver, Pressure, State, Exposure, Effect, Action
 
 import { Network } from './Network';
+import { CorrelationNetwork } from './CorrelationNetwork';
 import { NetworkParser } from './NetworkParser';
 import { formatTextWrap } from '../utils/utils';
 
@@ -151,9 +152,10 @@ font-family="Arial" dy=".3em">`+text+`</text>
         draw.group().svg(await this.loadImage("icons/"+node.label))
             .move(10,icon_pos);
 
-        if (node.state.value!="deactivated" && node.state.value!="unknown") {
+        // no unknown any more...
+        if (node.state!="unknown") {
             // draw the direction
-            draw.group().svg(await this.loadImage(node.state.value)).move(54,60);
+            draw.group().svg(await this.loadImage(node.state)).move(54,60);
         }
 
 		return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(draw.svg());
@@ -214,7 +216,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
 			id: edge.edge_id,
 			from: edge.node_from,
 			to: edge.node_to,
-			arrows: "none",
+			arrows: "middle",
             width: 3,
             //label: edge.state+" ("+label+")",
 			//labelHighlightBold: false,
@@ -251,7 +253,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         // find causes and propagate upwards (right?) from there
 		for (let node of networkParser.nodes) {
             if (["Pressure", "Effect", "State", "Exposure"].includes(node.type) &&
-                node.state.value!="deactivated") {
+                node.state!="none") {
                 if (sector!="All" && !node.sector.includes(sector)) {
                     node.transparent=true;
                 }
