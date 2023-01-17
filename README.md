@@ -1,8 +1,8 @@
 # Climate tool for ECEHH/Cornwall Council
 
 A tool for connecting together scientific information across climate,
-health and policy in the UK. You can try the [beta version
-here](http://climate-tool.thentrythis.org/).
+health and policy in the UK. You can try the [prototype version
+here](https://lcat.uk/).
 
 ## More information
 
