@@ -35,6 +35,28 @@ class network_db:
         self.db.cur.execute(f"select label from network_nodes where node_id={node_id}")
         
     def reset_network(self):
+        self.db.cur.execute("drop table if exists networks cascade")
+        q = """create table networks (network_id serial primary key, name text);"""
+        self.db.cur.execute(q)
+
+        self.db.cur.execute("drop table if exists network_node_mapping cascade")
+        q = """create table network_node_mapping (id serial primary key,
+               network_id int, 
+               node_id text,
+               constraint fk_network foreign key(network_id) references networks(network_id),
+               constraint fk_node foreign key(node_id) references network_nodes(node_id)  
+          );"""
+        self.db.cur.execute(q)
+
+        self.db.cur.execute("drop table if exists network_edge_mapping cascade")
+        q = """create table network_edge_mapping (id serial primary key,
+               network_id int, 
+               edge_id text,
+               constraint fk_network foreign key(network_id) references networks(network_id),
+               constraint fk_edge foreign key(edge_id) references network_edges(edge_id)
+          );"""
+        self.db.cur.execute(q)
+
         self.db.cur.execute("drop table if exists network_nodes cascade")
         q = """create table network_nodes (node_id text primary key,
         label text,
@@ -47,7 +69,8 @@ class network_db:
         sector text,
         sdg text,
         urban_rural text,
-        vulnerabilities text);"""
+        vulnerabilities text
+        );"""
         self.db.cur.execute(q)
         
         self.db.cur.execute("drop table if exists network_edges cascade")
@@ -91,6 +114,11 @@ class network_db:
         self.db.cur.execute(q)        
         self.db.conn.commit()
 
+    def add_network(self,name):
+        self.db.cur.execute("insert into networks (name) values (%s) returning network_id",(name,))
+        self.db.conn.commit()
+        return self.db.cur.fetchone()[0]
+        
     def add_node(self,node):
         self.db.cur.execute("insert into network_nodes (node_id, label, type, tags, description, climate_hazard, disease_injury_wellbeing, icd11, sector, sdg, urban_rural, vulnerabilities) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) returning node_id",
                             (node["_id"],
@@ -105,6 +133,7 @@ class network_db:
                              sg(node["attributes"],"un_sdg"),
                              sg(node["attributes"],"urban_rural"),
                              sg(node["attributes"],"vulnerability")))
+
         self.db.conn.commit()
 
         if "reference_id" in node["attributes"]:
@@ -116,8 +145,12 @@ class network_db:
                 print(str(found)+"/"+str(len(node["attributes"]["reference_id"])))
             
 
+    def add_network_node_mapping(self,network_id,node_id):
+        self.db.cur.execute("insert into network_node_mapping (network_id, node_id) values (%s,%s)",
+                            (network_id,node_id))        
+        self.db.conn.commit()
+                
     def add_edge(self,edge):
-
         if not 'connection type' in edge['attributes']:
             print("no connection type for edge? "+edge["_id"]+" "+edge["from"]+"->"+edge["to"])
             return
@@ -146,6 +179,10 @@ class network_db:
         else:
             print("no ref for edge? "+edge["_id"]+" "+edge["from"]+"->"+edge["to"])
         
+    def add_network_edge_mapping(self,network_id,edge_id):
+        self.db.cur.execute("insert into network_edge_mapping (network_id, edge_id) values (%s,%s)",
+                            (network_id,edge_id))        
+        self.db.conn.commit()                
                     
     def add_ref(self,row):
         row_id = row[0]
@@ -192,6 +229,10 @@ class network_db:
         return row_id
 
     def add_node_article_mapping(self, node_id, article_id):
+        if not article_id.isnumeric():
+            print("problem with article_id for node "+node_id+" = "+article_id)
+            return False
+
         self.db.cur.execute("select article_id from articles where article_id=%s",(article_id,))
         self.db.conn.commit()
         if (len(self.db.cur.fetchall())==0):
@@ -205,6 +246,10 @@ class network_db:
 
 
     def add_edge_article_mapping(self, edge_id, article_id):
+        if not article_id.isnumeric():
+            print("problem with article_id for edge "+edge_id+" = "+article_id)
+            return False
+        
         self.db.cur.execute("select article_id from articles where article_id=%s",(article_id,))
         self.db.conn.commit()
         if (len(self.db.cur.fetchall())==0):
@@ -226,18 +271,27 @@ def find_item(l,id):
     print(id+" not found")
     return False
     
-def load(db,path,mapname):    
+def load(db,path):    
     nd = network_db(db)
     nd.reset_network()
     
     net = json.load(open(path))
 
+    # add all the nodes and edges
+    for node in net["elements"]:
+        nd.add_node(node)
+    for edge in net["connections"]:
+        nd.add_edge(edge)
+
     for map in net["maps"]:
-        if map["name"]==mapname:    
-            for node in map["elements"]:
-                nd.add_node(find_item(net["elements"],node["element"]))
-            for edge in map["connections"]:
-                nd.add_edge(find_item(net["connections"],edge["connection"]))
+        print(map["name"])
+        network_id = nd.add_network(map["name"])
+        for node in map["elements"]:
+            nd.add_network_node_mapping(network_id,node["element"])
+        for edge in map["connections"]:
+            nd.add_network_edge_mapping(network_id,edge["connection"])
+            
+
 
 # 7   doi.org 404
 # 165 doi.org 404

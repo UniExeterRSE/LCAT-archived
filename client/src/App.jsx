@@ -21,6 +21,7 @@ import ClimatePredictionLoader from './components/ClimatePredictionLoader';
 import Graph from "./components/Graph";
 import HealthWellbeing from './components/HealthWellbeing';
 import Network from "./components/Network";
+import NetworkNamesLoader from './components/NetworkNamesLoader';
 import NetworkLoader from './components/NetworkLoader';
 import { NetworkParser } from './core/NetworkParser';
 import Vulnerabilities from './components/Vulnerabilities';
@@ -44,6 +45,8 @@ class App extends React.Component {
         this.state = {
             regions: [],
             regionType: "counties",
+            networks: [],
+            networkID: 0,
             network: { nodes: [], edges: [] },
             climatePrediction: [],           
             season: "annual",
@@ -65,25 +68,35 @@ class App extends React.Component {
                 </header>
               </div>
               
-		<div className="grey-section">
-		    <h1>This is the beta version for testing purposes - it may contain unverified information</h1>
-                    <p>
-			Use this tool to see what the scientific research is saying about:
-			<ul>
-			    <li>How your local climate will change</li>
-			    <li>The impacts on public health, and which groups are most vulnerable locally</li>
-			    <li>Adaptations most appropriate to your local area</li>
-			</ul>                  
-			LCAT is evidence based and designed with and for local decision makers. The tool is under continued development, and currently only considers heat impacts.
-                    </p>
-                    
-                    <p>
-			<a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions-1.pdf"  target="_blank">See our Frequently Asked Questions for more information.</a>
-                    </p>
-		</div>
+              
+		      <div className="grey-section">
+		        <h1>This is the beta version for testing purposes - it may contain unverified information</h1>
+                <p>
+			      Use this tool to see what the scientific research is saying about:
+			      <ul>
+			        <li>How your local climate will change</li>
+			        <li>The impacts on public health, and which groups are most vulnerable locally</li>
+			        <li>Adaptations most appropriate to your local area</li>
+			      </ul>                  
+			      LCAT is evidence based and designed with and for local decision makers. The tool is under continued development, and currently only considers heat impacts.
+                </p>
+                
+                <p>
+			      <a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions-1.pdf"  target="_blank">See our Frequently Asked Questions for more information.</a>
+                </p>
+		      </div>
+              
+              
+              <NetworkNamesLoader                
+                id={0}
+                callback={(names) => {
+                    this.setState((state) => ({
+                        networks: names
+                    }));}}
+              />
               
               <NetworkLoader
-                id={0}
+                id={this.state.networkID}
                 callback={(nodes, edges) => {
                     this.setState((state) => ({
                         network: { nodes: nodes, edges: edges },
@@ -167,7 +180,18 @@ class App extends React.Component {
               </div>}
               
               {this.state.regions.length>0 &&              
-              <div className="white-section">
+               <div className="white-section">
+
+                 
+               <p>
+                 Choose network:&nbsp;
+                 <select onChange={(e) => this.setState({ networkID: e.target.value })}>
+                   {this.state.networks.map((network) => {
+                       return <option value={network.network_id}>{network.name}</option>;
+                   })}
+                 </select>
+               </p>
+                 
                 <HealthWellbeing
                   networkParser = {this.state.networkParser}
                   year = {this.state.year}
@@ -179,6 +203,7 @@ class App extends React.Component {
                 />
 
                 <Network
+                  networks = {this.state.networks}
                   network = {this.state.network}
                   year = {this.state.year}
                   climatePrediction = {this.state.climatePrediction}

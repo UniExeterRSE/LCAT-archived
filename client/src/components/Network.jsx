@@ -53,7 +53,7 @@ function Network(props) {
     const [ sector, setSector ] = useState("All");
     const [ previouslySelected, setPreviouslySelected] = useState(null);
     const [ greyedNodeIDs, setGreyedNodeIDs ] = useState([]);
-    
+
     const [ isExpanded, setExpanded ] = useState(false);
     const { getCollapseProps, getToggleProps } = useCollapse({isExpanded});
 
