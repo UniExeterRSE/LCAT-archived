@@ -121,6 +121,11 @@ class NetworkParser extends Network {
                 // debugging... show the influence of the parent
                 // (after +/- applied) from this edge
                 edge.state = childState.value;
+
+                // override
+                if (child.label == "Urban Heat Island effect") {
+                    childState.value="increase";
+                }                
                 
                 let previousState = this.visited[child.node_id];
                 
@@ -285,7 +290,7 @@ class NetworkParser extends Network {
                 badDirection="decrease";
             }
             
-            if (node.state.value==badDirection) {
+            if (node.state.value==badDirection || node.state.value=="uncertain") {
                 // search backwards looking for actions that can help with
                 // impacts that contribute to this health impact
                 this.reverseRecurAdaptations(node,node,adaptations);

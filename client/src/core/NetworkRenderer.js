@@ -172,7 +172,6 @@ font-family="Arial" dy=".3em">`+text+`</text>
             return;
         }
 
-        
         if (node.type=="Pressure") {
         	this.nodes.push({
 			    id: node.node_id,
@@ -209,7 +208,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
         //if (edge.state=="uncertain") colour="#ff00ff";
         
         let label=edge.type;
-        var labelsize = 10;
+        var labelsize = 40;
 
         this.edges.push({
 			id: edge.edge_id,
@@ -217,7 +216,7 @@ font-family="Arial" dy=".3em">`+text+`</text>
 			to: edge.node_to,
 			arrows: "middle",
             width: 3,
-            //label: edge.state+" ("+label+")",
+            label: edge.type,
 			//labelHighlightBold: false,
 			//arrowStrikethrough: false,
             smooth: {

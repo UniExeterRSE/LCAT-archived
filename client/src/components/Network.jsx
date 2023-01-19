@@ -336,12 +336,14 @@ function Network(props) {
                 year = {props.year}
                 sector = {sector}
                 callback = {(network) => {
+                    console.log("setting graph from load...");
                     setGraph(networkRenderer.buildGraph(
                         props.networkParser,
                         network.nodes,
                         network.edges,
                         sector));
                     if (networkAPI!=null) networkAPI.fit();
+                    else console.log("network API is null");
                     setVersion(version+1);
                 }}
               />
