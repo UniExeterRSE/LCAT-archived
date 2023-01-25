@@ -159,7 +159,6 @@ class network_db:
             print("wrong connection type for edge? ("+edge['attributes']['connection type']+") "+edge["_id"]+" "+edge["from"]+"->"+edge["to"])
             return
         
-        # match nodes by label
         self.db.cur.execute(
             "insert into network_edges (edge_id, type, node_from, node_to) values (%s, %s, %s, %s)",
             (edge['_id'],

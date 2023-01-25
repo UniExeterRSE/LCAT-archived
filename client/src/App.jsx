@@ -76,17 +76,20 @@ class App extends React.Component {
 		      <div className="grey-section">
 		        <h1>This is the beta version for testing purposes - it may contain unverified information</h1>
                 <p>
-			      Use this tool to see what the scientific research is saying about:
-			      <ul>
-			        <li>How your local climate will change</li>
-			        <li>The impacts on public health, and which groups are most vulnerable locally</li>
-			        <li>Adaptations most appropriate to your local area</li>
-			      </ul>                  
-			      LCAT is evidence based and designed with and for local decision makers. The tool is under continued development, and currently only considers heat impacts.
+                  Use this tool to see what the scientific research is saying about:
+                </p>
+                <ul>
+                  <li>How your local climate will change</li>
+                  <li>The impacts on public health, and which groups are most vulnerable locally</li>
+                  <li>Adaptations most appropriate to your local area</li>
+                </ul>                  
+                <p>
+                  LCAT is evidence based and designed with and for local decision makers.
+                  The tool is a prototype and under continued development, and currently only considers some heat impacts.
                 </p>
                 
                 <p>
-			      <a href="https://www.ecehh.org/wp/wp-content/uploads/2021/09/Frequently-Asked-Questions-1.pdf"  target="_blank">See our Frequently Asked Questions for more information.</a>
+                  <a href="https://www.ecehh.org/wp/wp-content/uploads/2023/01/Frequently-Asked-Questions-1.pdf"  target="_blank">See our Frequently Asked Questions for more information.</a>
                 </p>
 		      </div>
               
