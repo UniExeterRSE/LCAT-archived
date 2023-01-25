@@ -123,9 +123,9 @@ class NetworkParser extends Network {
                 edge.state = childState.value;
 
                 // override
-                if (child.label == "Urban Heat Island effect") {
-                    childState.value="increase";
-                }                
+                //if (child.label == "Urban Heat Island effect") {
+                //    childState.value="increase";
+                //}                
                 
                 let previousState = this.visited[child.node_id];
                 

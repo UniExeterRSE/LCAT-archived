@@ -26,6 +26,7 @@ import NetworkLoader from './components/NetworkLoader';
 import { NetworkParser } from './core/NetworkParser';
 import Vulnerabilities from './components/Vulnerabilities';
 import Adaptations from './components/Adaptations';
+import { loadIcons } from './utils/iconLoader';
 
 import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_Primary_RGB.svg';
 
@@ -42,11 +43,14 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
+        // preload some icons
+        loadIcons();
+        
         this.state = {
             regions: [],
             regionType: "counties",
             networks: [],
-            networkID: 0,
+            networkID: 4,
             network: { nodes: [], edges: [] },
             climatePrediction: [],           
             season: "annual",
@@ -88,30 +92,23 @@ class App extends React.Component {
               
               
               <NetworkNamesLoader                
-                id={0}
                 callback={(names) => {
                     this.setState((state) => ({
                         networks: names
-                    }));}}
+                    }));
+                }}
               />
-              
+                           
               <NetworkLoader
                 id={this.state.networkID}
                 callback={(nodes, edges) => {
+                    console.log("APP LOAD NETWORK RETURNED "+this.state.networkID);
                     this.setState((state) => ({
                         network: { nodes: nodes, edges: edges },
                         networkParser: new NetworkParser(nodes,edges)
                     }));}}
               />
 
-              {/*<StatsLoader
-                id={0}
-                callback={(stats) => {
-                    this.setState((state) => ({
-                        stats: stats
-                    }));}}
-              />*/}
-              
               <ClimatePredictionLoader
                 regions = {this.state.regions}
                 season = {this.state.season}
@@ -119,15 +116,15 @@ class App extends React.Component {
                 regionType = {this.state.regionType}
                 callback = {(prediction) => {
                       this.setState((state) => ({
-                        climatePrediction: prediction,
+                          climatePrediction: prediction,
                         loadingPrediction: false,                        
                     }));}}
                 loadingCallback={ loading => { this.setState(() => ({
                     loadingPrediction: true
                 }));}}
               />
-
-               <div className="white-section">
+              
+              <div className="white-section">
                 <ClimateMap
                   regionType = {this.state.regionType}
                   regionsCallback={(regions,regionType) => {
@@ -183,14 +180,14 @@ class App extends React.Component {
                <div className="white-section">
 
                  
-               <p>
+               {/*<p>
                  Choose network:&nbsp;
                  <select onChange={(e) => this.setState({ networkID: e.target.value })}>
-                   {this.state.networks.map((network) => {
-                       return <option value={network.network_id}>{network.name}</option>;
-                   })}
-                 </select>
-               </p>
+                 {this.state.networks.map((network) => {
+                 return <option value={network.network_id}>{network.name}</option>;
+                 })}
+                 </select> 
+                 </p>*/}
                  
                 <HealthWellbeing
                   networkParser = {this.state.networkParser}
@@ -224,9 +221,9 @@ class App extends React.Component {
               
               {this.state.regions.length>0 &&              
                <div className="white-section">
-                <Adaptations
-                  networkParser = {this.state.networkParser}
-                  year = {this.state.year}
+                 <Adaptations
+                   networkParser = {this.state.networkParser}
+                   year = {this.state.year}
                   climatePrediction = {this.state.climatePrediction}
                   season = {this.state.season}
                   rcp={this.state.rcp}
@@ -234,7 +231,7 @@ class App extends React.Component {
                   loading = {this.state.loadingPrediction}
                 />
                </div>}
-
+              
               <div className="footer">
 
                 <p>

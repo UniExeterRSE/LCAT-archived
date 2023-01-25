@@ -17,6 +17,7 @@ import Graph from 'react-graph-vis';
 import { andify, rcpText, seasonText } from '../utils/utils';
 import References from './References';
 import { NetworkRenderer } from '../core/NetworkRenderer';
+import { getImage } from '../utils/iconLoader';
 
 import './vis-network.min.css';
 import './Network.css';
@@ -33,7 +34,6 @@ function NetworkListener(props) {
 }
 
 function Network(props) {
-
     function defaultInfo() {
         return {
             title: "Click on something for details",
@@ -60,11 +60,8 @@ function Network(props) {
     const handle = useFullScreenHandle();
 
     const graphRef = useRef(null);
-    const infoRef = useRef(null);
+    const infoRef = useRef(null);    
 
-    // preload some icons
-    networkRenderer.loadIcons();
-    
     var options = {
 	    physics: {
 
@@ -139,13 +136,15 @@ function Network(props) {
                         image: await networkRenderer.nodeImageURL(
                             previouslySelected,
                             false,
-                            greyedNodeIDs.includes(previouslySelected.node_id))
+                            greyedNodeIDs.includes(previouslySelected.node_id),
+                            // presume we are cached by now
+                            getImage("icons/"+node.label))
                     });
                 }
                 // highlight current
                 graphRef.current.nodes.update({
                     id: node.node_id,
-                    image: await networkRenderer.nodeImageURL(node,true,false)
+                    image: await networkRenderer.nodeImageURL(node,true,false,getImage("icons/"+node.label))
                 });
                 setPreviouslySelected(node);
 
@@ -187,7 +186,8 @@ function Network(props) {
                             image: await networkRenderer.nodeImageURL(
                                 previouslySelected,
                                 false,
-                                greyedNodeIDs.includes(previouslySelected.node_id))
+                                greyedNodeIDs.includes(previouslySelected.node_id),
+                                getImage("icons/"+previouslySelected.label))
                         });
                         setPreviouslySelected(null);
                     }
@@ -239,7 +239,8 @@ function Network(props) {
                     image: await networkRenderer.nodeImageURL(
                         node,
                         false,
-                        grey)
+                        grey,
+                        getImage("icons/"+node.label))
                 });;
                 let col = "#115158";
                 if (grey) {
@@ -328,28 +329,32 @@ function Network(props) {
                 The map is exploring heat impacts on health. It is currently at prototype stage and therefore incomplete.
               </p>
 
-              <NetworkListener
-                network = {props.network}
-                networkRenderer = {networkRenderer}
-                networkParser = {props.networkParser}
-                climatePrediction = {props.climatePrediction}
-                year = {props.year}
-                sector = {sector}
-                callback = {(network) => {
-                    console.log("setting graph from load...");
-                    setGraph(networkRenderer.buildGraph(
-                        props.networkParser,
-                        network.nodes,
-                        network.edges,
-                        sector));
-                    if (networkAPI!=null) networkAPI.fit();
-                    else console.log("network API is null");
-                    setVersion(version+1);
-                }}
-              />
               <FullScreen handle={handle}>
                 <div className="network">
                   <div className="network-holder">
+                    {/* only load the network when we are visible - otherwise things don't update properly */}
+                    {isExpanded ? <NetworkListener
+                      network = {props.network}
+                      networkParser = {props.networkParser}
+                      climatePrediction = {props.climatePrediction}
+                      year = {props.year}
+                      sector = {sector}
+                      callback = {(network) => {
+                          setGraph(networkRenderer.buildGraph(
+                              props.networkParser,
+                              network.nodes,
+                              network.edges,
+                              sector,
+                              async (node, image) => {
+                                  graphRef.current.nodes.update({
+                                      id: node.node_id,
+                                      image: await networkRenderer.nodeImageURL(node,false,false,image)
+                                  });
+                              }));
+                          if (networkAPI!=null) networkAPI.fit();                          
+                          setVersion(version+1);
+                      }}
+                      /> : null }
                     <Graph
                       ref={graphRef}
                       key={version}

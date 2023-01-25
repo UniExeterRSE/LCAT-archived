@@ -20,6 +20,8 @@ function NetworkLoader(props) {
             }
 
             let s = new URLSearchParams({network_id: props.id});
+
+//            console.log("LOADING NETWORK: "+props.id);
             
             fetch(prepend+"/api/network_nodes?"+s)
                 .then(nodes_response => {
@@ -29,8 +31,6 @@ function NetworkLoader(props) {
                                 .then(edges_response => {
                                     edges_response.json()
                                         .then( edges => {
-                                            console.log(nodes);
-                                            console.log(edges);
                                             props.callback(nodes,edges);
                                         });
                                 });
