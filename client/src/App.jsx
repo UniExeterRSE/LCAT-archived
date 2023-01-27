@@ -50,8 +50,7 @@ class App extends React.Component {
             regions: [],
             regionType: "counties",
             networks: [],
-            networkID: 4,
-            network: { nodes: [], edges: [] },
+            networkID: 3,
             climatePrediction: [],           
             season: "annual",
             rcp: "rcp60",
@@ -107,7 +106,6 @@ class App extends React.Component {
                 callback={(nodes, edges) => {
                     console.log("APP LOAD NETWORK RETURNED "+this.state.networkID);
                     this.setState((state) => ({
-                        network: { nodes: nodes, edges: edges },
                         networkParser: new NetworkParser(nodes,edges)
                     }));}}
               />
@@ -183,14 +181,14 @@ class App extends React.Component {
                <div className="white-section">
 
                  
-               {/*<p>
-                 Choose network:&nbsp;
-                 <select onChange={(e) => this.setState({ networkID: e.target.value })}>
-                 {this.state.networks.map((network) => {
-                 return <option value={network.network_id}>{network.name}</option>;
-                 })}
-                 </select> 
-                 </p>*/}
+                 <p>
+                   Choose network:&nbsp;
+                   <select onChange={(e) => this.setState({ networkID: e.target.value })}>
+                     {this.state.networks.map((network) => {
+                         return <option value={network.network_id}>{network.name}</option>;
+                     })}
+                   </select> 
+                 </p>
                  
                 <HealthWellbeing
                   networkParser = {this.state.networkParser}
@@ -204,7 +202,6 @@ class App extends React.Component {
 
                 <Network
                   networks = {this.state.networks}
-                  network = {this.state.network}
                   year = {this.state.year}
                   climatePrediction = {this.state.climatePrediction}
                   regions = {this.state.regions}

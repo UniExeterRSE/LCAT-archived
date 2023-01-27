@@ -25,7 +25,7 @@ import './Network.css';
 // triggers when the network changes
 function NetworkListener(props) {
     useEffect(() => {
-        props.callback(props.network);
+        props.callback();
     }, [props.networkParser,
         props.year,
         props.climatePrediction,
@@ -334,16 +334,13 @@ function Network(props) {
                   <div className="network-holder">
                     {/* only load the network when we are visible - otherwise things don't update properly */}
                     {isExpanded ? <NetworkListener
-                      network = {props.network}
                       networkParser = {props.networkParser}
                       climatePrediction = {props.climatePrediction}
                       year = {props.year}
                       sector = {sector}
-                      callback = {(network) => {
+                      callback = {() => {
                           setGraph(networkRenderer.buildGraph(
                               props.networkParser,
-                              network.nodes,
-                              network.edges,
                               sector,
                               async (node, image) => {
                                   graphRef.current.nodes.update({

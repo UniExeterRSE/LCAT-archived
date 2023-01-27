@@ -29,16 +29,16 @@ import HealthSvg from '../images/icons/Public health & wellbeing.svg';
 // mDPSEEA (Morris et al., 2006)
 // Driver, Pressure, State, Exposure, Effect, Action
 
-import { Network } from './Network';
+import { CorrelationNetwork } from './CorrelationNetwork';
 //import { CorrelationNetwork } from './CorrelationNetwork';
 import { NetworkParser } from './NetworkParser';
 import { formatTextWrap } from '../utils/utils';
-import { loadImage, placeholderIcon, imageLoaded, getImage } from '../utils/iconLoader';
+import { loadImage, placeholderIcon, imageLoaded, getImage, textIcon } from '../utils/iconLoader';
 
 const node_size=25;
 const preview_font_size=6;
 
-class NetworkRenderer extends Network {
+class NetworkRenderer extends CorrelationNetwork {
 
 	constructor() {
         super([],[]);
@@ -103,13 +103,19 @@ class NetworkRenderer extends Network {
             draw.group().svg(await loadImage("glow")).move(-3,icon_pos-10);
         }
 
-        // draw the icon
-        draw.group().svg(image).move(10,icon_pos);
+        if (this.votesMixed(node.votes)) {
+            let hist = this.votes2Hist(node.votes);
+            let str = hist["increase"]+":"+hist["decrease"]+":"+hist["uncertain"];            
+            draw.group().svg(textIcon("#f0f",str)).move(10,icon_pos);
+        } else {           
+            // draw the icon
+            draw.group().svg(image).move(10,icon_pos);
+        }
         
         // no unknown any more...
-        if (node.state.value!="deactivated" && node.state.value!="unknown") {
+        if (node.state!="uncalculated" && node.state!="unknown") {
             // draw the direction
-            draw.group().svg(await loadImage(node.state.value)).move(54,60);
+            draw.group().svg(await loadImage(node.state)).move(54,60);
         }
 
 		return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(draw.svg());
@@ -122,10 +128,6 @@ class NetworkRenderer extends Network {
 ///////////////////////////////////////
 
 	async addNode(node,image_callback) {
-        if (node.state=="disabled") {
-            return;
-        }
-
         // start with a placeholder version
         let image = placeholderIcon(this.nodeColour[node.type]);
         let imageFilename = "icons/"+node.label;
@@ -173,15 +175,19 @@ class NetworkRenderer extends Network {
         //if (edge.state=="uncertain") colour="#ff00ff";
         
         let label=edge.type;
-        var labelsize = 40;
+        var labelsize = 15;
 
+        let dir="^";
+        if (edge.state=="decrease") dir="v";
+        if (edge.state=="uncertain") dir="?";
+        
         this.edges.push({
 			id: edge.edge_id,
 			from: edge.node_from,
 			to: edge.node_to,
-			arrows: "middle",
+			arrows: "to",
             width: 3,
-            label: edge.type,
+            label: dir+" ("+edge.type+")",
 			//labelHighlightBold: false,
 			//arrowStrikethrough: false,
             smooth: {
@@ -203,7 +209,7 @@ class NetworkRenderer extends Network {
 		});
 	}
     
-	buildGraph(networkParser, nodes, edges, sector, image_callback) {               
+	buildGraph(networkParser, sector, image_callback) {               
         this.nodes = [];
 		this.edges = [];
 
@@ -214,9 +220,9 @@ class NetworkRenderer extends Network {
 		}
 
         // find causes and propagate upwards (right?) from there
-		for (let node of networkParser.nodes) {
+		for (let node of networkParser.nodes) {            
             if (["Pressure", "Effect", "State", "Exposure"].includes(node.type) &&
-                node.state.value!="deactivated") {
+                node.state!="uncalculated" && node.state!="disabled") {
                 if (sector!="All" && !node.sector.includes(sector)) {
                     node.transparent=true;
                 }

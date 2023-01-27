@@ -17,9 +17,39 @@ import { andify, camelize, rcpText, seasonText } from '../utils/utils';
 import './HealthWellbeing.css';
 
 function HealthWellbeing(props) {
-
+    
     const [ healthNodes, setHealthNodes ] = useState([]);
 
+    let supported = [
+        "AdversePregnancyOutcomes",
+        "AllCauseDeaths",
+        "Allergies",
+        "BoneHealth&ImmuneSystemStrength",
+        "CardiovascularDeaths",
+        "CardiovascularDiseases",
+        "CerebrovascularDeaths",
+        "CognitivePerformance&TheAbilityToLearn",
+        "ColdRelatedDeaths",
+        "ColdRelatedMorbidity",
+        "ColdRelatedMortality",
+        "CommunicableDiseases",
+        "Diabetes",
+        "InfectionsCausedByPathogenicOrganisms",
+        "Injuries",
+        "Injury",
+        "LungCancer",
+        "MentalHealthDisorders",
+        "NonCommunicableDiseases",
+        "Obesity",
+        "OpthalmicDiseases",
+        "RespiratoryDeaths",
+        "RespiratoryDiseases",
+        "SkinCancer",
+        "SleepDisruption&Disorders",
+        "Vector-BorneDiseases",
+        "Wellbeing",
+    ];
+    
     useEffect(() => {
         let hw = props.networkParser.calculateHealthWellbeing(
             props.climatePrediction,
@@ -28,7 +58,11 @@ function HealthWellbeing(props) {
         // lazy load the icons here
         setHealthNodes(hw.map(node => {            
             node.direction = lazy(() => import('../images/'+node.state));
-            node.icon = lazy(() => import('../images/health/'+camelize(node.label)));
+            if (!supported.includes(camelize(node.label))) {
+                node.icon = lazy(() => import('../images/health/Injury'));
+            } else {
+                node.icon = lazy(() => import('../images/health/'+camelize(node.label)));
+            }
             return node;
         }));
 

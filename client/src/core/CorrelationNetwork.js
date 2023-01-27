@@ -25,6 +25,7 @@ class CorrelationNetwork extends Network {
 
     max_visits = 99;
     override_uncertainties = false;
+    vote_to_remove_uncertainties = true;
     
     constructor(nodes,edges) {
         super(nodes,edges);        
@@ -36,12 +37,12 @@ class CorrelationNetwork extends Network {
   		for (let node of this.nodes) {
             // adding empty votes 
             node.votes={};
-            node.state="none";
+            if (node.state!="disabled") node.state="uncalculated";
             node.visits=0;
         }
     }
 
-    calcState(votes) {
+    votes2Hist(votes) {
         let hist = {
             "increase":0,
             "decrease":0,
@@ -51,13 +52,13 @@ class CorrelationNetwork extends Network {
         for (let vote in votes) {
             hist[votes[vote]]+=1;
         }
-
-        if (!this.override_uncertainties) {
-            // any uncertainty gets passed on
-            // not doing this causes instabilities in looped networks
-            if (hist['uncertain']>0) return 'uncertain';
-        }
         
+        return hist;
+    }
+    
+    calcState(votes) {
+        let hist = this.votes2Hist(votes);
+
         if (hist['increase']==0 && hist['decrease']>0) {
             return 'decrease';
         }
@@ -65,23 +66,45 @@ class CorrelationNetwork extends Network {
         if (hist['decrease']==0 && hist['increase']>0) {
             return 'increase';
         }
-        
+
+        if (this.vote_to_remove_uncertainties) {
+            if (hist['increase']>hist['decrease']) {
+                return 'increase';
+            }
+            
+            if (hist['increase']<hist['decrease']) {
+                return 'decrease';
+            }
+        }
+
+        if (!this.override_uncertainties) {
+            // any uncertainty gets passed on
+            // not doing this causes instabilities in looped networks
+            if (hist['uncertain']>0) return 'uncertain';
+        }
+
+
         return 'uncertain';
+    }
+
+    votesMixed(votes) {
+        let hist = this.votes2Hist(votes);
+        return hist['decrease']>0 && hist['increase']>0;
     }
     
     // recur upwards from the climate change pressures
     updateStates(node_id,direction,source_id) {
         let node = this.getNode(node_id);
 
-        if (node.label=="Temperature") {            
-            console.log("updatestate temp");
-            console.log(node.state);
-        }
+        // we only process these node types
+        if (!["Pressure", "Effect", "State", "Exposure"].includes(node.type)) return;
 
-        if (node.state==="disabled") return;
-        
+        if (node.state=="disabled") return;
+
         // record the vote from this source
         node.votes[source_id]=direction;
+
+        // debug check
         node.visits+=1;
         if (node.visits>this.max_visits) {
             // stuck in a loop flipping
@@ -93,33 +116,37 @@ class CorrelationNetwork extends Network {
         let state = this.calcState(node.votes);
         // no change, stop here
         if (state == node.state) return;
-        //console.log([node.state,state]);
+
         node.state = state;
 
-        if (node.label=="Temperature") {            
-            console.log(node.state);
-            console.log(node.votes);
-        }
-
-        
+        // this function is reentrant - so only refer to node.* from here on        
         for (let edge of this.getOutgoingEdges(node)) {
-            let dir = state;
-            if (state!="uncertain" && edge.type=="-") {
-                if (dir=="increase") dir="decrease";
-                else dir="increase";
+            let dir = node.state;
+            if (state=="increase" || state=="decrease") {
+                if (edge.type=="-") {
+                    if (dir=="increase") dir="decrease";
+                    else dir="increase";
+                }
             }
+            // for debugging
+            edge.state = dir;
             this.updateStates(edge.node_to,dir,node_id);            
         }
-        
     }
 
+    printNode(node) {
+        console.log("-------- "+node.label+" ----------");
+        let str="";
+        for (let s in node.votes) {
+            str+=s+":"+node.votes[s]+"\n";
+        }
+        console.log(node.node_id+"|"+node.state+" = ");
+        console.log(str);
+    }
+    
     print() {
         for (let node of this.nodes) {
-            let str="";
-            for (let s in node.votes) {
-                str+=s+":"+node.votes[s]+" ";
-            }
-            console.log(node.node_id+"|"+node.state+" = "+str); 
+            this.printNode(node);
         }
     }
 }
@@ -173,6 +200,6 @@ function test() {
 
 }
 
-test();
+//test();
 
 export { CorrelationNetwork };

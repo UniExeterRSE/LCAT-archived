@@ -28,6 +28,20 @@ export function placeholderIcon(col) {
 `;
 }
 
+export function textIcon(col,text) {
+    return `
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg id="svg1933" width="116.63" height="116.63" version="1.1" viewBox="0 0 30.858 30.858" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <g id="layer1" transform="translate(0 -266.14)">
+    <circle id="path853-5" cx="15.429" cy="281.57" r="15.429" fill="`+col+`"/>
+  </g>
+  <style> .small { font: 8px sans-serif; } </style>
+  <text x="15%" y="60%" class="small">`+text+`<text>
+</svg>
+`;
+}
+
 // <svg width="300" height="600">
 // <circle
 //              style="fill:`+col+`;fill-opacity:1;stroke-width:0.46499997"
@@ -62,7 +76,7 @@ export async function loadImage(fn,thunk) {
     
     if (!response.ok) {
         console.log(`An error has occured loading ${fn}: ${response.status}`);
-        return placeholderIcon("#f00");
+        return placeholderIcon("#3da274");
     }
         
     let data = await response.text();
