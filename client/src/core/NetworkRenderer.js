@@ -106,7 +106,7 @@ class NetworkRenderer extends CorrelationNetwork {
         if (this.votesMixed(node.votes)) {
             let hist = this.votes2Hist(node.votes);
             let str = hist["increase"]+":"+hist["decrease"]+":"+hist["uncertain"];            
-            draw.group().svg(textIcon("#f0f",str)).move(10,icon_pos);
+            draw.group().svg(textIcon("#f177f1",str)).move(10,icon_pos);
         } else {           
             // draw the icon
             draw.group().svg(image).move(10,icon_pos);
@@ -170,9 +170,9 @@ class NetworkRenderer extends CorrelationNetwork {
 	addEdge(edge) {
         let colour = "#115158" ;
         let highlightColour = "#f5821f";
-        //if (edge.state=="increase") colour="#afd6e4";
-        //if (edge.state=="decrease") colour="#f1b9bd";
-        //if (edge.state=="uncertain") colour="#ff00ff";
+        if (edge.state=="increase") colour="#afd6e4";
+        if (edge.state=="decrease") colour="#f1b9bd";
+        if (edge.state=="uncertain") colour="#ff00ff";
         
         let label=edge.type;
         var labelsize = 15;
