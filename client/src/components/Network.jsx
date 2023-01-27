@@ -156,9 +156,9 @@ function Network(props) {
                 let info = defaultInfo();
 
                 let dir = "";
-                if (node.state.value=="decrease") dir = "decreasing";
-                if (node.state.value=="increase") dir = "increasing";
-                if (node.state.value=="uncertain") {
+                if (node.state=="decrease") dir = "decreasing";
+                if (node.state=="increase") dir = "increasing";
+                if (node.state=="uncertain") {
                     info.explanation = "No direction (positive or negative) is displayed for "+node.label+", as the impacts that affect it are mixed.";
                     dir = "mixed impact";
                 }
