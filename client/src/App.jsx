@@ -181,14 +181,14 @@ class App extends React.Component {
                <div className="white-section">
 
                  
-                 <p>
+		   {/*                 <p>
                    Choose network:&nbsp;
                    <select onChange={(e) => this.setState({ networkID: e.target.value })}>
                      {this.state.networks.map((network) => {
                          return <option value={network.network_id}>{network.name}</option>;
                      })}
                    </select> 
-                 </p>
+                   </p> */}
                  
                 <HealthWellbeing
                   networkParser = {this.state.networkParser}
