@@ -16,7 +16,6 @@
 // faster to do directly in SVG
 
 import React, { useState, useEffect } from 'react';
-import { render_graph } from '../utils/graph.js';
 import { climateAverages } from '../core/climate';
 
 const decades=["1980","2030","2040","2050","2060","2070"];
@@ -97,7 +96,7 @@ function ClimateGraph(props) {
                       <g>
                         <rect x={x} y={y-h}
                               width={(barWidth/2)-2} height={h}
-                              fill={averageRegionCol}/>
+                              fill={selectedRegionCol}/>
                         <text x={x+(barWidth/4)} y={y-h+15}
                               fill="#fff"                          
                               fontSize="15"
@@ -108,7 +107,7 @@ function ClimateGraph(props) {
                         
                         <rect x={x+barWidth/2-2} y={y-ah}
                               width={(barWidth/2)-2} height={ah}
-                              fill={selectedRegionCol}/>
+                              fill={averageRegionCol}/>
                         <text x={x+(barWidth/2)-2+(barWidth/4)} y={y-ah+15}
                               fill="#fff"
                               fontSize="15"
