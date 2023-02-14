@@ -50,7 +50,7 @@ class App extends React.Component {
             regions: [],
             regionType: "counties",
             networks: [],
-            networkID: 4,
+            networkID: 3,
             climatePrediction: [],           
             season: "annual",
             rcp: "rcp60",

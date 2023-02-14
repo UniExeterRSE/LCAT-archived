@@ -43,10 +43,40 @@ export function camelize(str) {
 export const rcpText = {
     rcp60:"existing global policies",
     "rcp85":"worst case scenario"
-}
+};
 
 export const seasonText = {
     annual:"yearly",
     winter:"winter",
     summer:"summer"
 };
+
+export function arr2avg(arr) {
+	let ret=0;
+	for (let v of arr) {
+		ret+=v;
+	}
+	return ret/arr.length;
+}
+
+export function calculate_decades(graph_data) {
+	let decades = {};
+
+	// collect values for each decade
+	for (let year of graph_data) {
+		let dec = Math.floor((year.year%2000)/10);
+		if (decades[dec]==undefined) {
+			decades[dec]=[year.avg];
+		} else {
+			decades[dec].push(year.avg);
+		}
+	}
+
+	// average them together
+	for (let dec of Object.keys(decades)) {
+		decades[dec]=arr2avg(decades[dec]);
+	}
+
+	return decades;
+}
+
