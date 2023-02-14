@@ -16,7 +16,6 @@
 // faster to do directly in SVG
 
 import React, { useState, useEffect } from 'react';
-import { render_graph } from '../utils/graph.js';
 import { climateAverages } from '../core/climate';
 
 const decades=["1980","2030","2040","2050","2060","2070"];
