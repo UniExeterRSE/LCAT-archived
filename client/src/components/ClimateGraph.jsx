@@ -9,6 +9,12 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
+// WHY are we writing our own graph in the presence of hundreds of js
+// and react libraries in existence you ask? Because none (we have yet
+// found) allow precice control of labelling of axes, scaling of data,
+// font sizes and device independant viewing in a way that isn't
+// faster to do directly in SVG
+
 import React, { useState, useEffect } from 'react';
 import { render_graph } from '../utils/graph.js';
 import { climateAverages } from '../core/climate';
@@ -62,8 +68,8 @@ function ClimateGraph(props) {
             let ticks=[];
 	        for (let i=0; i<=maximums[props.variable]; i+=tickUnits[props.variable]) {
                 ticks.push({
-                    x:46,
-                    y:(graphHeight-i*scale)+10,
+                    x:60,
+                    y:(graphHeight-i*scale),
                     v:i.toFixed()
                 });
 	        }
@@ -92,24 +98,30 @@ function ClimateGraph(props) {
                         <rect x={x} y={y-h}
                               width={(barWidth/2)-2} height={h}
                               fill={averageRegionCol}/>
-                        <text x={x+5} y={y-h+20}
-                              fill="#fff"
-                              fontSize="15">
+                        <text x={x+(barWidth/4)} y={y-h+15}
+                              fill="#fff"                          
+                              fontSize="15"
+                              dominant-baseline="middle"
+                              text-anchor="middle">
                           {v.toFixed(2)}
                         </text>
                         
                         <rect x={x+barWidth/2-2} y={y-ah}
                               width={(barWidth/2)-2} height={ah}
                               fill={selectedRegionCol}/>
-                        <text x={x+(barWidth/2)+3} y={y-ah+20}
+                        <text x={x+(barWidth/2)-2+(barWidth/4)} y={y-ah+15}
                               fill="#fff"
-                              fontSize="15">
+                              fontSize="15"
+                              dominant-baseline="middle"
+                              text-anchor="middle">
                           {av.toFixed(2)}
                         </text>
                         
-                        <text x={x+10} y={y+30}
+                        <text x={x+barWidth/2} y={y+20}
                               fill="#42273b"
-                              fontSize="25">
+                              fontSize="25"
+                              dominant-baseline="middle"
+                              text-anchor="middle">
                           {decades[i]}
                         </text>                    
                       </g>
@@ -121,14 +133,19 @@ function ClimateGraph(props) {
                         <rect x={x} y={y-h}
                               width={barWidth-2} height={h}
                               fill={selectedRegionCol}/>
-                        <text x={x+20} y={y-h+20}
+                        <text x={x+barWidth/2} y={y-h+15}
                               fill="#fff"
-                              fontSize="15">
+                              fontSize="15"
+                              dominant-baseline="middle"
+                              text-anchor="middle" >
                           {v.toFixed(2)}
-                        </text>                    
-                        <text x={x+10} y={y+30}
+                        </text>
+                                                
+                        <text x={x+barWidth/2} y={y+20}
                               fill="#42273b"
-                              fontSize="25">
+                              fontSize="25"
+                              dominant-baseline="middle"
+                              text-anchor="middle">
                           {decades[i]}
                         </text>                    
                       </g>
@@ -140,7 +157,9 @@ function ClimateGraph(props) {
               return (
                   <text
                     x={tick.x} y={tick.y}
-                    fontSize="15">
+                    fontSize="15"
+                    dominant-baseline="middle"
+                    text-anchor="middle">
                     {tick.v}
                   </text>
               );
@@ -151,20 +170,22 @@ function ClimateGraph(props) {
             x="0" y="0"
             fill="#42273b"
             fontSize="15"
-            transform={"translate(30,"+(graphHeight-50)+") rotate(-90)"}>
+            transform={"translate(30,"+(graphHeight/2)+") rotate(-90)"}
+            dominant-baseline="middle"
+            text-anchor="middle" >
             {labels[props.variable]}
           </text>
           
           <line
             x1="90"
-            y1={graphHeight+5}
+            y1={graphHeight}
             x2="790"
-            y2={graphHeight+5}
+            y2={graphHeight}
             stroke={"#000"}/>
           
           <line
             x1="90"
-            y1={graphHeight+5}
+            y1={graphHeight}
             x2="90"
             y2="5"
             stroke={"#000"}/>
