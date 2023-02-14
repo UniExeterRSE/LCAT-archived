@@ -44,7 +44,8 @@ class App extends React.Component {
         this.state = {
             regions: [],
             regionType: "counties",
-            network: { nodes: [], edges: [] },
+            networks: [],
+            networkID: 3,
             climatePrediction: [],           
             season: "annual",
             rcp: "rcp60",
