@@ -53,14 +53,20 @@
 
 .key-regional {
 	border-radius: 5px;
-    padding: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
     background: #216331;
     color: white;
 }
 
 .key-average {
 	border-radius: 5px;
-    padding: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
     background: #48b961;
     color: white;
 }
