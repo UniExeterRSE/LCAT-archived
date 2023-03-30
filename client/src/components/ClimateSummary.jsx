@@ -105,6 +105,13 @@ function ClimateSummary(props) {
               To improve relatability, the baseline used is quite recent (1980
               decade average), note that this does not fully reflect the extent
               of climate change since pre-industrial times.              
+              The CHESS-SCAPE dataset is produced by the UK Centre for Ecology
+              & Hydrology (CEH) using four members of the MetOffice UKCP18
+              regional projections. CEH adapted the Climate, Hydrology and
+              Ecology research Support System (CHESS) downscaling methodology,
+              taking into account topographic and observational data to
+              downscale from 12km to 1km grid cells. We use the bias corrected
+              datasets for RCP6.0 and 8.5.
             </p>
           </div>
         </LoadingOverlay>        
