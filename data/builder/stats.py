@@ -58,6 +58,13 @@ def compute(db):
     
 def compute_climate(db):
     variables = ['tas','pr','rsds','sfcWind']
+    gmin = {}
+    gmax = {}
+
+    for var in variables:
+        gmin[var]=9999
+        gmax[var]=0
+
     
     for climate in ["chess_scape_rcp85_annual","chess_scape_rcp85_summer","chess_scape_rcp85_winter",
                     "chess_scape_rcp60_annual","chess_scape_rcp60_summer","chess_scape_rcp60_winter"]:
@@ -65,15 +72,28 @@ def compute_climate(db):
         name=[]
         for variable in variables:                
             for decade in ["1980", "1990", "2000", "2010", "2020", "2030", "2040", "2050", "2060", "2070"]:
-                name.append(f"{variable}_{decade}")
-                vardec.append(f"avg({variable}_{decade}) as {variable}_{decade}")
+                name.append(f"{variable}_{decade}_avg")
+                name.append(f"{variable}_{decade}_min")
+                name.append(f"{variable}_{decade}_max")
+                vardec.append(f"avg({variable}_{decade}) as {variable}_{decade}_avg")
+                vardec.append(f"min({variable}_{decade}) as {variable}_{decade}_min")
+                vardec.append(f"max({variable}_{decade}) as {variable}_{decade}_max")
 
 
         q=f"select {', '.join(vardec)} from {climate}"
         db.cur.execute(q)
         ret = db.cur.fetchall()
+        
         for i,var in enumerate(ret[0]):
+            # compute global min/max (of AVERAGES)
+            v = name[i].split("_")[0]
+            if name[i].endswith("avg") and var<gmin[v]: gmin[v]=var
+            if name[i].endswith("avg") and var>gmax[v]: gmax[v]=var
+            
             print(climate+"_"+name[i]+": "+str(var)+",")
+
+    print(gmin)
+    print(gmax)
 
 def compute_vulnerabilities(db):
     table = "nfvi_sfri"
