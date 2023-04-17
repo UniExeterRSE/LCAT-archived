@@ -10,7 +10,7 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import React, { useState, useEffect } from 'react';
-import useCollapse from 'react-collapsed';
+import { useCollapse } from 'react-collapsed';
 import ClimatePredictionLoader from './ClimatePredictionLoader';
 import ClimateGraph from './ClimateGraph';
 
