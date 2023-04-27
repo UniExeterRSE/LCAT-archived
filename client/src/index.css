@@ -19,7 +19,7 @@
 body {
     box-sizing: border-box;
     width: 100%;
-    background: white;
+    background: #f7f7f7;
 	color: black;
     font-family: 'Montserrat-Medium',Arial,Helvetica,sans-serif;
     font-size: 1em;
@@ -31,7 +31,7 @@ body {
 
 h1 {
     font-family: 'Montserrat-Black',Arial,Helvetica,sans-serif;
-	font-size: 200%;
+	font-size: 150%;
 	margin-bottom: 0em;
     color: #115158ff;
     text-transform: uppercase;              
@@ -45,7 +45,7 @@ h2 {
 
 @media (min-width: 1000px) {
     body {
-		font-size: 1.3em;
+		font-size: 1.2em;
     }
 }    
 
@@ -183,40 +183,22 @@ button:hover {
 }
 
 .white-section {
-    background: #ffffff;
-    padding-top: 0.5em;
-    padding-bottom: 1.5em;
-    padding-left: 50px;
-    padding-right: 50px;
-}
-
-.grey-section {
     background: #f7f7f7;
     padding-top: 0.5em;
     padding-bottom: 1.5em;
-    padding-left: 50px;
-    padding-right: 50px;
-}
-
-
-
-.white-section {
-    background: #ffffff;
-    padding-top: 0.5em;
-    padding-bottom: 1.5em;
-    padding-left: 1em;
-    padding-right: 1em;
+    padding-left: 3em;
+    padding-right: 3em;
 }
 
 .grey-section {
-    background: #f7f7f7;
+    background: #e8efef;
     padding-top: 0.5em;
     padding-bottom: 1.5em;
-    padding-left: 1em;
-    padding-right: 1em;
+    padding-left: 3em;
+    padding-right: 3em;
 }
 
-@media (min-width: 1000px) {
+/*@media (min-width: 1000px) {
     .white-section {
         padding-left: 50px;
         padding-right: 50px;
@@ -226,4 +208,4 @@ button:hover {
         padding-left: 50px;
         padding-right: 50px;
     }
-}
+}*/

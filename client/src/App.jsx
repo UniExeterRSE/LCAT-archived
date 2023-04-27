@@ -73,7 +73,7 @@ class App extends React.Component {
               
               
 		      <div className="grey-section">
-		        <h1>This is the beta version for testing purposes - it may contain unverified information</h1>
+		        <h3>This is the beta version for testing purposes - it may contain unverified information</h3>
                 <p>
                   Use this tool to see what the scientific research is saying about:
                 </p>
@@ -232,7 +232,7 @@ class App extends React.Component {
                 />
                </div>}
               
-              <div className="footer">
+              <div className="footer grey-section">
 
                 <p>
                   The Local Climate Adaptation Tool has been developed by
