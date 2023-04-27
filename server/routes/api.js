@@ -96,7 +96,7 @@ router.get('/region', function (req, res) {
                                      ST_Transform(geom,27700),$1),4326))::json
                    ))
               )
-         	  from `+table+` where geom && ST_TRANSFORM(ST_MakeEnvelope($2,$3,$4,$5,4326),`+srid+`);`
+         	  from `+table+` where ST_TRANSFORM(geom,4326) && ST_MakeEnvelope($2,$3,$4,$5,4326);`
 
 	    var query = client.query(new Query(lsoa_query,
                                            [tolerance,
