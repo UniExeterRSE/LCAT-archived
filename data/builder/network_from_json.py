@@ -191,16 +191,17 @@ class network_db:
         row_rep_link = row[4]
         row_title = row[5]
 
+        print("["+row_id+"]")
+        
         self.db.cur.execute("select article_id from articles where article_id=%s",(row[0],))
         self.db.conn.commit()
         if (len(self.db.cur.fetchall())>0):
             print("already done, skipping article "+row_id)
             return
 
-        print(row)
-        
         ref = False
-        if row_doi!="":
+        print(row_type)
+        if row_type not in ["Report","Web Page"] and row_doi!="":
             ref = self.doi_lookup.doi2info(row_doi,row_type)
 
         link=row_orig_link
@@ -262,7 +263,7 @@ class network_db:
 
 def reset(db):
     nd = network_db(db)
-    #nd.reset_refs()
+    nd.reset_refs()
     
 def find_item(l,id):
     for el in l:
@@ -292,35 +293,19 @@ def load(db,path):
             
 
 
-# 7   doi.org 404
-# 165 doi.org 404
-# 212 doi.org error
-# 235 doi.org timeout
-
-# 146 is a Journal Article (csv fix) OK
-
-
-# missing articles
-#can't find edge article no: 119 (conn-H4EXWpEO)
-#0/1
-#can't find edge article no: 94 (conn-dvyTdIOG)
-#0/1
-#can't find edge article no: 138 (conn-TOOR7ysY)
-#can't find edge article no: 139 (conn-TOOR7ysY)
-#0/2
-
 def load_refs(db,refssheet):                
     nd = network_db(db)
     ##nd.reset_refs()
- 
+
     with open(refssheet) as csvfile:
         reader = csv.reader(csvfile)
         for i,row in enumerate(reader):
-            if i>0 and not row[0] in ["7", "165","212", "235", ""]:
+            if i>0:
                 nd.add_ref(row)
-                
-    for broken_id in ["7", "165","212", "235"]:
-        nd.add_ref([broken_id,"fixme_type","","fixme_org_link","fixme_rep_link","fixme_title"])
+
+        print(nd.doi_lookup.errors)
+
+
                                    
 
         
