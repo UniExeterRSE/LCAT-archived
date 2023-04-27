@@ -4,7 +4,7 @@
     overflow-x: auto;
     flex-wrap: wrap;
     width: 100%;
-/*    justify-content: center; */
+    justify-content: center; 
 }
 
 .health-img {
@@ -19,7 +19,7 @@
 	flex-direction: row;    
     align-items: center;
     justify-content: center;
-    padding-bottom: 0.5em;
+    padding-bottom: 0.1em;
 }
 
 .vert-container-health {
@@ -27,9 +27,9 @@
 	flex-direction: column;
     text-align: center;
     font-size: 80%;
-    width: 33.33%;
+    width: 20em;
     box-sizing: border-box;
-    margin-bottom: 1.5em;
+    margin-bottom: 1em;
     line-height: 1.6;    
 }
 .health-text {
@@ -37,8 +37,4 @@
     padding-right: 2em;
 }
 
-@media (min-width: 1000px) {
-    .vert-container-health {
-        width: 20%;
-    }
-}
+
