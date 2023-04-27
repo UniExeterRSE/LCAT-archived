@@ -9,7 +9,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
-import { useCollapse } from 'react-collapsed';
+import useCollapse from 'react-collapsed';
 import References from './References';
 
 import "./Adaptation.css";

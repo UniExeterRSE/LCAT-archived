@@ -10,7 +10,7 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import React, { useEffect, useState, useRef } from 'react';
-import { useCollapse } from 'react-collapsed';
+import useCollapse from 'react-collapsed';
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 
 import Graph from 'react-graph-vis';
