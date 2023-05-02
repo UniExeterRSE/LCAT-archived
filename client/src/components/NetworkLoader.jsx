@@ -31,6 +31,7 @@ function NetworkLoader(props) {
                                 .then(edges_response => {
                                     edges_response.json()
                                         .then( edges => {
+                                            console.log([nodes,edges]);
                                             props.callback(nodes,edges);
                                         });
                                 });

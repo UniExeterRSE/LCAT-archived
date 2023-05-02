@@ -172,11 +172,17 @@ else:
     if sys.argv[1]=="network_json":
         network_from_json.load(db,conf['network_json'])
 
+    if sys.argv[1]=="network_summary_json":
+        network_from_json.load(db,conf['network_summary_json'])
+
     if sys.argv[1]=="network_refs":
         network_from_json.load_refs(db,conf['refs'])
 
     if sys.argv[1]=="network_nuke":
-        network_from_json.reset(db)
+        network_from_json.reset_network(db)
+
+    if sys.argv[1]=="network_refs_nuke":
+        network_from_json.reset_refs(db)
         
     if sys.argv[1]=="all":
         #ukcri.load(db,conf['uk_cri_data_path'])

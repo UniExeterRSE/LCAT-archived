@@ -255,7 +255,7 @@ router.get('/network_nodes', function (req, res) {
 
     console.log(network_id);
     
-    var q=`select e.* from network_node_mapping as m 
+    var q=`select e.*, m.x, m.y from network_node_mapping as m 
            join network_nodes as e on m.node_id=e.node_id
            where m.network_id=`+network_id+`;`
     console.log(q);

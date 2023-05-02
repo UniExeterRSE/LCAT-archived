@@ -23,7 +23,7 @@ import HealthWellbeing from './components/HealthWellbeing';
 import Network from "./components/Network";
 import NetworkNamesLoader from './components/NetworkNamesLoader';
 import NetworkLoader from './components/NetworkLoader';
-import { NetworkParser } from './core/NetworkParser';
+import { SimpleNetworkParser } from './core/SimpleNetworkParser';
 import Vulnerabilities from './components/Vulnerabilities';
 import Adaptations from './components/Adaptations';
 import { loadIcons } from './utils/iconLoader';
@@ -50,13 +50,13 @@ class App extends React.Component {
             regions: [],
             regionType: "counties",
             networks: [],
-            networkID: 3,
+            networkID: 2,
             climatePrediction: [],           
             season: "annual",
             rcp: "rcp60",
             year: 2070,
             loadingPrediction: false,          
-            networkParser: new NetworkParser([],[])
+            networkParser: new SimpleNetworkParser([],[])
         };
     }
 
@@ -106,7 +106,7 @@ class App extends React.Component {
                 callback={(nodes, edges) => {
                     console.log("APP LOAD NETWORK RETURNED "+this.state.networkID);
                     this.setState((state) => ({
-                        networkParser: new NetworkParser(nodes,edges)
+                        networkParser: new SimpleNetworkParser(nodes,edges)
                     }));}}
               />
 
@@ -181,16 +181,16 @@ class App extends React.Component {
                <div className="white-section">
 
                  
-		   {/*                 <p>
+		         <p>
                    Choose network:&nbsp;
                    <select onChange={(e) => this.setState({ networkID: e.target.value })}>
                      {this.state.networks.map((network) => {
                          return <option value={network.network_id}>{network.name}</option>;
                      })}
                    </select> 
-                   </p> */}
+                   </p>
                  
-                <HealthWellbeing
+                 {/*<HealthWellbeing
                   networkParser = {this.state.networkParser}
                   year = {this.state.year}
                   climatePrediction = {this.state.climatePrediction}
@@ -198,7 +198,7 @@ class App extends React.Component {
                   loading = {this.state.loadingPrediction}
                   season={this.state.season}
                   rcp={this.state.rcp}
-                />
+                  />*/}
 
                 <Network
                   networks = {this.state.networks}

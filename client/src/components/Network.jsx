@@ -16,7 +16,7 @@ import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import Graph from 'react-graph-vis';
 import { andify, rcpText, seasonText } from '../utils/utils';
 import References from './References';
-import { NetworkRenderer } from '../core/NetworkRenderer';
+import { SimpleNetworkRenderer } from '../core/SimpleNetworkRenderer';
 import { getImage } from '../utils/iconLoader';
 
 import './vis-network.min.css';
@@ -48,13 +48,13 @@ function Network(props) {
     const [ info, setInfo ] = useState(defaultInfo());
     const [ nodeedgeId, setNodeedgeId ] = useState(0);
     const [ apiCall, setApiCall ] = useState("node_references");
-    const [ networkRenderer, setNetworkRenderer] = useState(new NetworkRenderer);
+    const [ networkRenderer, setNetworkRenderer] = useState(new SimpleNetworkRenderer);
     const [ networkAPI, setNetworkAPI ] = useState(null);
     const [ sector, setSector ] = useState("All");
     const [ previouslySelected, setPreviouslySelected] = useState(null);
     const [ greyedNodeIDs, setGreyedNodeIDs ] = useState([]);
 
-    const [ isExpanded, setExpanded ] = useState(false);
+    const [ isExpanded, setExpanded ] = useState(true);
     const { getCollapseProps, getToggleProps } = useCollapse({isExpanded});
 
     const handle = useFullScreenHandle();
@@ -66,14 +66,14 @@ function Network(props) {
 	    physics: {
 
             stabilization: {
-                enabled: true,
+                enabled: false,
                 iterations: 500, // maximum number of iteration to stabilize
                 updateInterval: 10,
                 onlyDynamicEdges: false,
                 fit: true
             },
             
-            enabled: true,
+            enabled: false,
 		    //solver: "forceAtlas2Based",
 		    //solver: "repulsion",
 		    solver: "barnesHut",

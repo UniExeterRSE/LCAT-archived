@@ -2,6 +2,7 @@ import json
 import urllib.request
 import xmltodict
 import time
+import xml
 
 # Use doi.org API to look up paper information
 # This is not particularly good, or useful - just scraping
@@ -32,10 +33,11 @@ class doi_lookup:
         opener.addheaders = [('Accept', 'application/vnd.crossref.unixsd+xml'),
                              ('user-agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36')]
 
-        print("reading doi.org: "+doi)
+        #print("reading doi.org: "+doi)
         try:
             r = opener.open('http://dx.doi.org/'+doi)
-            d = xmltodict.parse(r.read())
+            t = r.read()
+            d = xmltodict.parse(t)
 
             type = type.strip()
             print("["+type+"]")
@@ -45,7 +47,21 @@ class doi_lookup:
                 self.read_book(doi,d)
                     
             return self.doicache[doi]
-        except Exception as e:
+        
+        except xml.parsers.expat.ExpatError as e:
+            print (e)
+            self.errors.append(doi)
+            self.doicache[doi]={
+                "type": "ERROR",
+                "doi": doi,
+                "title": "ERROR",
+                "authors": "",
+                "date": "",
+                "journal": "",
+                "issue": "",
+            }
+            return self.doicache[doi]
+        except urllib.error.HTTPError as e:
             print (e)
             self.errors.append(doi)
             self.doicache[doi]={
@@ -60,6 +76,23 @@ class doi_lookup:
             return self.doicache[doi]
 
 
+    def read_year(self,date):
+        if isinstance(date, list):
+            for d in date:
+                if d["@media_type"]=="print":
+                    return d["year"]
+        else:
+            return date["year"]
+
+        
+
+    def read_contributors(self,contributors):
+        if "organization" in contributors:
+            return self.read_authors_org(contributors["organization"])
+        else:
+            return self.read_authors(contributors["person_name"])
+
+        
     def read_authors(self,person_name):
         authors = ""
         alist = person_name
@@ -77,6 +110,25 @@ class doi_lookup:
             if "given_name" in alist: 
                 given_name = alist["given_name"]
             authors+=(given_name+" "+alist["surname"]+", ")
+        return authors
+
+    def read_authors_org(self,person_name):
+        authors = ""
+        alist = person_name
+        print(alist)
+        if isinstance(alist, list):
+            for contributor in alist:
+                if contributor["@contributor_role"]=="author":
+                    given_name = ""
+                    if "author" in contributor: 
+                        given_name = contributor["author"]
+                    
+                    authors+=(given_name+", ")
+        else:
+            given_name = ""
+            if "author" in alist: 
+                given_name = alist["author"]
+            authors+=(given_name+", ")
         return authors
 
     
@@ -97,14 +149,13 @@ class doi_lookup:
         title = book[main_key]["titles"]["title"]
 
         authors = ""
-        if "content_item" in book:
-            authors = self.read_authors(book["content_item"]["contributors"]["person_name"])
-        else:
-            authors = self.read_authors(book[main_key]["contributors"]["person_name"])
 
-        print (book[main_key]["publication_date"])
-            
-        date=book[main_key]["publication_date"]["year"]
+        if "content_item" in book:
+            authors = self.read_contributors(book["content_item"]["contributors"])
+        else:
+            authors = self.read_contributors(book[main_key]["contributors"])
+
+        date=self.read_year(book[main_key]["publication_date"])
                 
         journal_title = ""
 
@@ -120,17 +171,61 @@ class doi_lookup:
             "issue": issue,
         }
 
+    def read_conference(self,doi,d):
+        article = d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]["conference"]["conference_paper"]
+        print(article.keys())
+        title = article["titles"]["title"]
+        date = self.read_year(article["publication_date"])
+        authors = self.read_contributors(article["contributors"])
+        self.doicache[doi]={
+            "type": "article",
+            "doi": doi,
+            "title": title,
+            "authors": authors,
+            "date": date,
+            "journal": "",
+            "issue": "",
+        }
+        return
 
+    def read_report_paper(self,doi,d):
+        article = d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]["report-paper"]["report-paper_metadata"]
+        title = article["titles"]["title"]
+        date = self.read_year(article["publication_date"])
+        authors = self.read_contributors(article["contributors"])        
+        self.doicache[doi]={
+            "type": "article",
+            "doi": doi,
+            "title": title,
+            "authors": authors,
+            "date": date,
+            "journal": "",
+            "issue": "",
+        }
+        return
+        
     def read_article(self,doi,d):
-        if "journal" not in d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]:
-            if "book" in d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]:
-                print("ITS A BOOK")
+        result = d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]
+        print (result.keys())
+        
+        if "journal" not in result:
+            if "book" in result:
                 self.read_book(doi,d)
                 return
-            article = d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]["posted_content"]
+
+            if "conference" in result:
+                self.read_conference(doi,d)                
+                return
+
+            if "report-paper" in result:
+                self.read_report_paper(doi,d)                
+                return
+
+            
+            article = result["posted_content"]
             title = article["titles"]["title"]
-            date = article["acceptance_date"]["year"]
-            authors = self.read_authors(article["contributors"]["person_name"])
+            date = self.read_year(article["acceptance_date"])
+            authors = self.read_contributors(article["contributors"])        
             
             self.doicache[doi]={
                 "type": "article",
@@ -143,22 +238,15 @@ class doi_lookup:
             }
             return
 
-        journal = d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]["journal"]
+        journal = result["journal"]
         article = journal["journal_article"]
 
         title = article["titles"]["title"]
         if isinstance(title,dict):
             title=title["#text"]
         
-        authors = self.read_authors(article["contributors"]["person_name"])
-
-        date = ""
-        if isinstance(article["publication_date"], list):
-            for d in article["publication_date"]:
-                if d["@media_type"]=="print":
-                    date = d["year"]
-        else:
-            date=article["publication_date"]["year"]
+        authors = self.read_contributors(article["contributors"])        
+        date = self.read_year(article["publication_date"])
                 
         journal_title = journal["journal_metadata"]["full_title"]
         #print(journal["journal_issue"])
