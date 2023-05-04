@@ -19,7 +19,8 @@ function NetworkLoader(props) {
                 prepend="http://localhost:3000";
             }
 
-            let s = new URLSearchParams({network_id: props.id});
+            let s = new URLSearchParams({network_id: props.id,
+                                         layer_name: props.layerName});
 
 //            console.log("LOADING NETWORK: "+props.id);
             
@@ -40,7 +41,8 @@ function NetworkLoader(props) {
         } catch(error) {
             console.error(error);
         }
-    },[props.id]);
+    },[props.id,
+       props.layerName]);
     
     return null;
 }

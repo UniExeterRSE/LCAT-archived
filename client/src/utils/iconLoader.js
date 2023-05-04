@@ -72,15 +72,17 @@ export async function loadImage(fn,thunk) {
         prepend="http://localhost:3000";
     }
     
-    let response = await fetch(prepend+"/images/"+fn+".svg");
+    //let response = await fetch(prepend+"/images/"+fn+".svg");
     
-    if (!response.ok) {
-        console.log(`An error has occured loading ${fn}: ${response.status}`);
-        return placeholderIcon("#3da274");
-    }
+    //if (!response.ok) {
+    //    console.log(`An error has occured loading ${fn}: ${response.status}`);
+    //    return placeholderIcon("#3da274");
+    //}
         
-    let data = await response.text();
-    iconCache[fn]=data;
+    //let data = await response.text();
+    //iconCache[fn]=data;
+
+    iconCache[fn]=placeholderIcon("#3da274");
     return iconCache[fn];
 }
 

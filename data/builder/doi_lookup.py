@@ -40,7 +40,7 @@ class doi_lookup:
             d = xmltodict.parse(t)
 
             type = type.strip()
-            print("["+type+"]")
+            #print("["+type+"]")
             if type=="Journal Article" or type=="Journal article":
                 self.read_article(doi,d)
             else:
@@ -96,7 +96,7 @@ class doi_lookup:
     def read_authors(self,person_name):
         authors = ""
         alist = person_name
-        print(alist)
+        #print(alist)
         if isinstance(alist, list):
             for contributor in alist:
                 if contributor["@contributor_role"]=="author":
@@ -115,7 +115,7 @@ class doi_lookup:
     def read_authors_org(self,person_name):
         authors = ""
         alist = person_name
-        print(alist)
+        #print(alist)
         if isinstance(alist, list):
             for contributor in alist:
                 if contributor["@contributor_role"]=="author":
@@ -135,6 +135,10 @@ class doi_lookup:
     def read_book(self,doi,d):
         #print (json.dumps(d["crossref_result"]["query_result"]["body"]["query"]["doi_record"], indent=4))
 
+        if "journal" in d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]:
+            self.read_article(doi,d)
+            return
+        
         book = d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]["book"]
         #print (json.dumps(d["crossref_result"]["query_result"]["body"]["query"]["doi_record"], indent=4))
         #print (json.dumps(book, indent=4))
@@ -173,7 +177,7 @@ class doi_lookup:
 
     def read_conference(self,doi,d):
         article = d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]["conference"]["conference_paper"]
-        print(article.keys())
+        #print(article.keys())
         title = article["titles"]["title"]
         date = self.read_year(article["publication_date"])
         authors = self.read_contributors(article["contributors"])
@@ -206,7 +210,7 @@ class doi_lookup:
         
     def read_article(self,doi,d):
         result = d["crossref_result"]["query_result"]["body"]["query"]["doi_record"]["crossref"]
-        print (result.keys())
+        #print (result.keys())
         
         if "journal" not in result:
             if "book" in result:
@@ -274,7 +278,7 @@ class doi_lookup:
             "issue": issue,
         }
 
-        print (self.doicache[doi])
+        #print (self.doicache[doi])
         
     def get_reference(self,doi):
         if doi in self.doicache:

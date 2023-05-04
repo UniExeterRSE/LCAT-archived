@@ -39,6 +39,15 @@ const meta = {
     }
 };
 
+const network_layers = [
+    [""],
+    ["Coastal security In Full", "Coastal security Summary"],
+    ["Extreme storms In Full", "Extreme storms Summary"],
+    ["Flooding and drought in full","Drought summary","Flooding summary"],
+	["Food and personal security in full", "Food and personal security summary"],
+    ["Temperature In Full", "Temperature Summary"],
+];
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -49,14 +58,15 @@ class App extends React.Component {
         this.state = {
             regions: [],
             regionType: "counties",
-            networks: [],
-            networkID: 2,
+            networks: ["Coastal Security"],
+            networkID: 1,
             climatePrediction: [],           
             season: "annual",
             rcp: "rcp60",
             year: 2070,
             loadingPrediction: false,          
-            networkParser: new SimpleNetworkParser([],[])
+            networkParser: new SimpleNetworkParser([],[]),
+            layerName: "All"
         };
     }
 
@@ -103,8 +113,8 @@ class App extends React.Component {
                            
               <NetworkLoader
                 id={this.state.networkID}
+                layerName={this.state.layerName}
                 callback={(nodes, edges) => {
-                    console.log("APP LOAD NETWORK RETURNED "+this.state.networkID);
                     this.setState((state) => ({
                         networkParser: new SimpleNetworkParser(nodes,edges)
                     }));}}
@@ -183,12 +193,23 @@ class App extends React.Component {
                  
 		         <p>
                    Choose network:&nbsp;
-                   <select onChange={(e) => this.setState({ networkID: e.target.value })}>
+                   <select onChange={(e) => {
+                       this.setState({
+                           networkID: e.target.value,
+                           layerName: network_layers[e.target.value][0],
+                       });}}>
                      {this.state.networks.map((network) => {
                          return <option value={network.network_id}>{network.name}</option>;
                      })}
                    </select> 
-                   </p>
+                   &nbsp;& layer:&nbsp;
+                   <select onChange={(e) => this.setState({layerName: e.target.value})}>
+                     {network_layers[this.state.networkID].map((layer) => {
+                         return <option value={layer}>{layer}</option>;
+                     })}
+                   </select>                 
+                 </p>
+                 
                  
                  {/*<HealthWellbeing
                   networkParser = {this.state.networkParser}

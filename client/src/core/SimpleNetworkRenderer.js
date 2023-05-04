@@ -98,18 +98,22 @@ class SimpleNetworkRenderer extends CorrelationNetwork {
         el.appendChild(cel);
         fobj.add(el);
 
+        /*
         // glow
         if (glow) {
             draw.group().svg(await loadImage("glow")).move(-3,icon_pos-10);
         }
 
+        
         if (this.votesMixed(node.votes)) {
             let hist = this.votes2Hist(node.votes);
             let str = hist["increase"]+":"+hist["decrease"]+":"+hist["uncertain"];            
             draw.group().svg(textIcon("#f177f1",str)).move(10,icon_pos);
         } else {           
-            // draw the icon
-            draw.group().svg(image).move(10,icon_pos);
+*/           // draw the icon
+        draw.group().svg(image).move(10,icon_pos);
+
+        /*
         }
         
         // no unknown any more...
@@ -117,7 +121,7 @@ class SimpleNetworkRenderer extends CorrelationNetwork {
             // draw the direction
             draw.group().svg(await loadImage(node.state)).move(54,60);
         }
-
+        */
 		return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(draw.svg());
 	}
 
@@ -183,17 +187,16 @@ class SimpleNetworkRenderer extends CorrelationNetwork {
             });
         }
 
-        console.log([node.x,node.y]);
-
-        let kumuscale = 0.5;
+        let kumuscale_x = 0.5;
+        let kumuscale_y = 1.0;
         
         this.nodes.push({
 			id: node.node_id,
 			shape: "image",
 			image: await this.nodeImageURL(node,false,false,image),
 			size: 30,
-			x: node.x*kumuscale,
-			y: node.y*kumuscale,
+			x: node.x*kumuscale_x,
+			y: node.y*kumuscale_y,
 			fixed: false,
             mDPSEEA: node.type,
             sector: node.sector
@@ -251,8 +254,10 @@ class SimpleNetworkRenderer extends CorrelationNetwork {
    			this.addEdge(edge);
 		}
 
-		for (let node of networkParser.nodes) {            
-   			this.addFixedNode(node,image_callback);
+		for (let node of networkParser.nodes) {
+            if (node.type!="Action") {
+   			    this.addFixedNode(node,image_callback);
+            }
 		}
 
         return {

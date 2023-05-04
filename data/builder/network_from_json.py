@@ -31,12 +31,29 @@ class network_db:
         self.db = db
         self.doi_lookup = doi_lookup.doi_lookup()
 
-    def read_node_title(self,node_id):
-        self.db.cur.execute(f"select label from network_nodes where node_id={node_id}")
+    def get_node_title(self,node_id):
+        self.db.cur.execute(f"select label from network_nodes where node_id='{node_id}'")
+        self.db.conn.commit()
+        s = self.db.cur.fetchall()
+        if len(s)>0:
+            return s[0][0] 
+
+    def get_edge_titles(self,edge_id):
+        self.db.cur.execute(f"select node_from,node_to from network_edges where edge_id='{edge_id}'")
+        self.db.conn.commit()
+        s = self.db.cur.fetchall()
+        if len(s)>0:
+            return self.get_node_title(s[0][0])+" -> "+self.get_node_title(s[0][1])
         
     def reset_network(self):
         self.db.cur.execute("drop table if exists networks cascade")
         q = """create table networks (network_id serial primary key, name text);"""
+        self.db.cur.execute(q)
+
+        self.db.cur.execute("drop table if exists network_node_layers cascade")
+        q = """create table network_node_layers (id serial primary key, node_id text, layer_name text,
+               constraint fk_node foreign key(node_id) references network_nodes(node_id)
+               );"""
         self.db.cur.execute(q)
 
         self.db.cur.execute("drop table if exists network_node_mapping cascade")
@@ -125,9 +142,7 @@ class network_db:
         self.db.conn.commit()
         check = self.db.cur.fetchall()
         if len(check)>0:
-            print(check)
-            print(node)
-            print("already exists...")
+            return #print("already exists...")
         else:
             self.db.cur.execute("insert into network_nodes (node_id, label, type, tags, description, climate_hazard, disease_injury_wellbeing, icd11, sector, sdg, urban_rural, vulnerabilities) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) returning node_id",
                                 (node["_id"],
@@ -145,29 +160,36 @@ class network_db:
             
             self.db.conn.commit()
 
+        if "layer" in node["attributes"]:
+            for layer in node["attributes"]["layer"]:
+                self.add_node_layer(node["_id"],layer)
+        
         if "reference_id" in node["attributes"]:
             found = 0
             for ref in node["attributes"]["reference_id"]:
                 if self.add_node_article_mapping(node["_id"], ref):
                     found+=1
-            if found!=len(node["attributes"]["reference_id"]):
-                print(str(found)+"/"+str(len(node["attributes"]["reference_id"])))
+            #if found!=len(node["attributes"]["reference_id"]):
+            #    print(str(found)+"/"+str(len(node["attributes"]["reference_id"])))
             
 
+        
+    def add_node_layer(self,node_id,layer_name):               
+        self.db.cur.execute("insert into network_node_layers (node_id, layer_name) values (%s,%s)",
+                            (node_id,layer_name))        
+        self.db.conn.commit()
+        
     def add_network_node_mapping(self,network_id,node_id,x,y):
         self.db.cur.execute("insert into network_node_mapping (network_id, node_id, x, y) values (%s,%s,%s,%s)",
                             (network_id,node_id,x,y))        
         self.db.conn.commit()
                 
     def add_edge(self,edge):
-
         self.db.cur.execute("select edge_id,node_from,node_to from network_edges where edge_id=%s",(edge["_id"],))
         self.db.conn.commit()
         check = self.db.cur.fetchall()
         if len(check)>0:
-            print(check)
-            print(edge)
-            print("already exists...")
+             return #print("already exists...")
         else:
             if not 'connection type' in edge['attributes']:
                 #print("no connection type for edge? "+edge["_id"]+" "+edge["from"]+"->"+edge["to"])
@@ -192,10 +214,10 @@ class network_db:
             for ref in edge["attributes"]["reference_id"]:
                 if self.add_edge_article_mapping(edge["_id"], ref):
                     found+=1
-            if found!=len(edge["attributes"]["reference_id"]):
-                print(str(found)+"/"+str(len(edge["attributes"]["reference_id"])))
+            #if found!=len(edge["attributes"]["reference_id"]):
+            #    print(str(found)+"/"+str(len(edge["attributes"]["reference_id"])))
         else:
-            pass #print("no ref for edge? "+edge["_id"]+" "+edge["from"]+"->"+edge["to"])
+            print("Connection: no reference exists "+edge["_id"]+" "+self.get_edge_titles(edge["_id"]))
         
     def add_network_edge_mapping(self,network_id,edge_id):
         self.db.cur.execute("insert into network_edge_mapping (network_id, edge_id) values (%s,%s)",
@@ -211,6 +233,8 @@ class network_db:
         row_notes = row[5]
         row_title = row[6]
 
+        print(row_id)
+        
         self.db.cur.execute("select article_id,title from articles where article_id=%s",(row[0],))
         self.db.conn.commit()
         check = self.db.cur.fetchall()
@@ -222,13 +246,14 @@ class network_db:
                 if check[0][1]=="":
                     print(row_id+" exists, but no title, retrying...")
                 else:
-                    print(row_id+" exists, but network error, retrying...")
+                    print(row_id+" exists, but network error")
                 # delete the error and try again
-                self.db.cur.execute("delete from articles where article_id=%s",(row[0],))
-                self.db.conn.commit()
+                #self.db.cur.execute("delete from articles where article_id=%s",(row[0],))
+                #self.db.conn.commit()
+                return
         
         ref = False
-        print(row_type)
+        #print(row_type)
         if row_type not in ["Report","Web Page"] and row_doi!="":
             ref = self.doi_lookup.doi2info(row_doi,row_type)
             
@@ -256,28 +281,15 @@ class network_db:
             self.db.conn.commit()
         return row_id
 
-    def add_node_article_mapping_from_doi(self, node_id, doi):
-        self.db.cur.execute("select article_id from articles where doi=%s",(doi,))
-        self.db.conn.commit()
-        found = self.db.cur.fetchall()
-        
-        if (len(found)==0):
-            print("can't find node article no: "+doi+" ("+node_id+")")
-            return False
-
-        self.db.cur.execute(f"""insert into node_article_mapping (node_id, article_id) values
-        ('{node_id}','{found[0][0]}')""")
-        self.db.conn.commit()
-        return True
-    
     def add_node_article_mapping(self, node_id, article_id):
         if not article_id.isnumeric():
-            return self.add_node_article_mapping_from_doi(node_id, article_id)
+            print("Element: article id not numeric: "+article_id+" ("+self.get_node_title(node_id)+")")
+            return 
             
         self.db.cur.execute("select article_id from articles where article_id=%s",(article_id,))
         self.db.conn.commit()
         if (len(self.db.cur.fetchall())==0):
-            print("can't find node article no: "+article_id+" ("+node_id+")")
+            print("Element: article num not in list: "+article_id+" ("+self.get_node_title(node_id)+")")
             return False
 
         self.db.cur.execute(f"""insert into node_article_mapping (node_id, article_id) values
@@ -285,28 +297,15 @@ class network_db:
         self.db.conn.commit()
         return True
 
-    def add_edge_article_mapping_from_doi(self, edge_id, doi):
-        self.db.cur.execute("select article_id from articles where doi=%s",(doi,))
-        self.db.conn.commit()
-        found = self.db.cur.fetchall()
-        
-        if (len(found)==0):
-            print("can't find edge article no: "+doi+" ("+edge_id+")")
-            return False
-
-        self.db.cur.execute(f"""insert into edge_article_mapping (edge_id, article_id) values
-        ('{edge_id}','{found[0][0]}')""")
-        self.db.conn.commit()
-        return True
-
     def add_edge_article_mapping(self, edge_id, article_id):
         if not article_id.isnumeric():
-            return self.add_edge_article_mapping_from_doi(edge_id, article_id)
+            print("Connection: article id not numeric: "+article_id+" ("+self.get_edge_titles(edge_id)+")")
+            return 
         
         self.db.cur.execute("select article_id from articles where article_id=%s",(article_id,))
         self.db.conn.commit()
         if (len(self.db.cur.fetchall())==0):
-            print("can't find edge article no: "+article_id+" ("+edge_id+")")
+            print("Connection: can't find article no: "+article_id+" ("+self.get_edge_titles(edge_id)+")")
             return False
 
         self.db.cur.execute(f"""insert into edge_article_mapping (edge_id, article_id) values
@@ -327,6 +326,66 @@ def find_item(l,id):
         if el["_id"]==id: return el
     print(id+" not found")
     return False
+
+def lookup_item(l,id):
+    for i in l:
+        if i["_id"]==id:
+            return i
+    else:
+        print("could not find "+id)
+        return False
+
+
+def write_adapations_for_debug(net,included_networks):
+    struct = {}
+    for map in net["maps"]:
+        if map["name"] in included_networks:
+            print(map["name"])
+            struct[map["name"]]=[]
+            for node in map["elements"]:
+                el = lookup_item(net['elements'],node['element'])
+                if el['attributes']['element type']=="Action":
+                    struct[map["name"]].append(el)
+
+    f = open("adaptations.json", "w")    
+    f.write(json.dumps(struct,indent=2))
+    f.close()
+
+def write_adapation_hazards_for_debug(net,included_networks):
+    struct = {}
+    for map in net["maps"]:
+        if map["name"] in included_networks:
+            print(map["name"])
+            struct[map["name"]]={}
+            for node in map["elements"]:
+                el = lookup_item(net['elements'],node['element'])
+                if el['attributes']['element type']=="Action":
+                    struct[map["name"]][el['attributes']['label']]=el['attributes']['climate_hazard']
+
+    f = open("adaptation_ch.json", "w")    
+    f.write(json.dumps(struct,indent=2))
+    f.close()
+
+def save_to_db(nd,net,included_networks):
+    for map in net["maps"]:
+        if map["name"] in included_networks:
+            print(map["name"]+" -------------------------------------------------")
+            network_id = nd.add_network(map["name"])
+            for node in map["elements"]:
+                nd.add_node(lookup_item(net['elements'],node['element']))
+                nd.add_network_node_mapping(network_id,
+                                             node["element"],
+                                             node["position"]["x"],
+                                             node["position"]["y"])
+
+            for edge in map["connections"]:
+                conn = lookup_item(net['connections'],edge['connection'])
+                nd.add_node(lookup_item(net['elements'],conn['from']))
+                nd.add_node(lookup_item(net['elements'],conn['to']))
+                nd.add_edge(conn)                
+                nd.add_network_edge_mapping(network_id,edge['connection'])
+            
+
     
 def load(db,path):    
     nd = network_db(db)
@@ -335,22 +394,20 @@ def load(db,path):
     net = json.load(open(path))
 
     # add all the nodes and edges
-    for node in net["elements"]:
-        nd.add_node(node)
-    for edge in net["connections"]:
-        nd.add_edge(edge)
+    #for node in net["elements"]:
+    #    nd.add_node(node)
+    #for edge in net["connections"]:
+    #    nd.add_edge(edge)
 
-    for map in net["maps"]:
-        print(map["name"])
-        network_id = nd.add_network(map["name"])
-        for node in map["elements"]:
-            nd.add_network_node_mapping(network_id,
-                                        node["element"],
-                                        node["position"]["x"],
-                                        node["position"]["y"])
-        for edge in map["connections"]:
-            nd.add_network_edge_mapping(network_id,edge["connection"])
-            
+    included_networks = ["Coastal Security",
+                         "Extreme Storms",
+                         "Flooding and Drought",
+                         "Food and Personal Security",
+                         "Temperature"]
+
+    save_to_db(nd,net,included_networks)
+
+
 
 
 def load_refs(db,refssheet):                
@@ -360,7 +417,7 @@ def load_refs(db,refssheet):
     with open(refssheet) as csvfile:
         reader = csv.reader(csvfile)
         for i,row in enumerate(reader):
-            if i>0:
+            if i>0 and i>900:
                 nd.add_ref(row)
 
         print(nd.doi_lookup.errors)

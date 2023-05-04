@@ -248,16 +248,25 @@ router.get('/network_edges', function (req, res) {
     });
 });
 
+// todo: sanitise these inputs!
 router.get('/network_nodes', function (req, res) {
     var client = new Client(conString);
 	let network_id = req.query.network_id;
+    let layer_name = req.query.layer_name;
     client.connect();
 
     console.log(network_id);
-    
+
     var q=`select e.*, m.x, m.y from network_node_mapping as m 
-           join network_nodes as e on m.node_id=e.node_id
+           join network_nodes as e on m.node_id=e.node_id     
            where m.network_id=`+network_id+`;`
+    
+    if (layer_name!="All") {
+        q=`select e.*, m.x, m.y from network_node_mapping as m 
+           join network_nodes as e on m.node_id=e.node_id
+           join network_node_layers as l on l.node_id=e.node_id
+           where m.network_id=`+network_id+` and l.layer_name='`+layer_name+`';`
+    }
     console.log(q);
 	var query = client.query(new Query(q));
 
