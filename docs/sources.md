@@ -44,6 +44,7 @@ build scripts.
 | Indices of Multiple Deprivation | England                                                   | 2019       | England and Wales   | `<boundary_type>_vulnerabilities` | CSV                        | -          |                            |  
 | Indices of Multiple Deprivation | Scotland                                                  | 2020       | Scotland            | `<boundary_type>_vulnerabilities` | CSV                        | https://simd.scot/#/simd2020/BTTTFTT/12/-4.6223/55.5558/ | scot.gov |  
 | Indices of Multiple Deprivation | Wales                                                     | 2014       | Wales               | `<boundary_type>_vulnerabilities` | CSV                        | https://statswales.gov.wales/Catalogue/Community-Safety-and-Social-Inclusion/Welsh-Index-of-Multiple-Deprivation/WIMD-2019 | Welsh Government |  
+| Indices of Multiple Deprivation | Northern Ireland (Currently missing)                                         | ?? | ?? | ?? | ?? | ?? | ?? |  
     
 ## Impact network data
 
@@ -66,3 +67,4 @@ These will be used to link network adaptations with selected boundaries - need t
 | Extreme storms    | TBD/CRI? | ? | ? | ? | ? | ? | ? | ? |
 | Coastal erosion   | TBD/CRI? | ? | ? | ? | ? | ? | ? | ? |
 | Coastal           | Missing NI                                                              |  2023      | GB                  | `<boundary_type>`_hazards | ESRI shapefile | EPSG 4326         | https://zenodo.org/record/7985671 | Exeter University |     
+| Air Pollution     | Some possible sources but TBD | ? | ? | ? | ? | ? | ? | ? |     
