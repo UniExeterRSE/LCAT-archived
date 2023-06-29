@@ -139,6 +139,8 @@ def multi_inverse(db,geo_table,grid):
                 
 # allows for:
 # * a zone containing multiple climate grid tiles - use a separate mapping table
+
+
 def multi_clever(db,geo_table,grid):
     # get the tile geometry in lat/lng
     db.create_tables({
@@ -149,11 +151,15 @@ def multi_clever(db,geo_table,grid):
     
     print("loading geometry "+geo_table)
     q=f"select gid,ST_AsGeoJSON(ST_Transform(geom,4326))::json from {geo_table}"
-    db.cur.execute(q)
-    geometry = db.cur.fetchall()
-    print("loaded geometry")
+    scur = db.conn.cursor()
+    scur.execute(q)
+    c=0
+    print("executed...")
+    geo_id = scur.fetchone()
+    while geo_id is not None:
 
-    for c,geo_id in enumerate(geometry):
+        #print(geo_id)
+        
         geo = geo_id[1]
         count=0
         
@@ -176,5 +182,7 @@ def multi_clever(db,geo_table,grid):
                 db.cur.execute(q)
                 count+=1
         db.conn.commit()
-        print(geo_table+" "+str(count)+"/"+str(len(location_squares))+": "+str(int((c/len(geometry))*100))+"%")
-                
+        print(geo_table+" "+str(count)+"/"+str(len(location_squares))+": "+str(c))
+        geo_id = scur.fetchone()
+        c+=1        
+        
