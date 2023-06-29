@@ -62,10 +62,10 @@ export function getImage(fn) {
     return iconCache[fn];
 }
 
-export async function loadImage(fn,thunk) {
-    if (iconCache[fn]!=undefined) {            
+export async function loadImage(fn,col) {
+/*    if (iconCache[fn]!=undefined) {            
         return iconCache[fn];
-    }
+    }*/
     
     let prepend="";
     if (process.env.NODE_ENV==="development") {
@@ -82,7 +82,7 @@ export async function loadImage(fn,thunk) {
     //let data = await response.text();
     //iconCache[fn]=data;
 
-    iconCache[fn]=placeholderIcon("#3da274");
+    iconCache[fn]=placeholderIcon(col);
     return iconCache[fn];
 }
 

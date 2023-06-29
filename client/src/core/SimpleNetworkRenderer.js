@@ -45,9 +45,9 @@ class SimpleNetworkRenderer extends CorrelationNetwork {
 		this.iconCacheLoading = false;
         this.nodeColour = {
             "Driver": "#204545",
-            "Pressure": "#204545",
+            "Pressure": "#ff00ff",
             "State": "#3da274",
-            "Exposure": "#3da274",
+            "Exposure": "#00ffff",
             "Effect": "#422137",
             "Action": "#422137"
         };
@@ -182,7 +182,7 @@ class SimpleNetworkRenderer extends CorrelationNetwork {
             image = getImage(imageFilename);
         } else {
             // start loading and call callback when it's here
-            loadImage(imageFilename).then((image) => {
+            loadImage(imageFilename,this.nodeColour[node.type]).then((image) => {
                 image_callback(node,image);
             });
         }
@@ -197,7 +197,7 @@ class SimpleNetworkRenderer extends CorrelationNetwork {
 			size: 30,
 			x: node.x*kumuscale_x,
 			y: node.y*kumuscale_y,
-			fixed: false,
+			fixed: true,
             mDPSEEA: node.type,
             sector: node.sector
 		});

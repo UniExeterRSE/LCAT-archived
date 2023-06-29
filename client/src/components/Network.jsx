@@ -295,7 +295,7 @@ function Network(props) {
           <div className="content"> 
             <h1>Impact details</h1>
             <p>
-              You can explore the network by clicking/tapping on the nodes and connections for more information. Nodes can be moved around by dragging them, and the network can also be zoomed and panned.
+              You can explore the network by clicking/tapping on the nodes and connections for more information. The network can also be zoomed and panned.
 
               View impacts relevant to&nbsp;
               

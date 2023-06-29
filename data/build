@@ -26,6 +26,7 @@ from builder import tiff_loader
 from builder import cache_climate
 from builder import link_geom_lsoa
 from builder import vulnerabilities
+from builder import coastal
 
 def load_config():
     with open('config.yml') as f:
@@ -183,7 +184,10 @@ else:
 
     if sys.argv[1]=="network_refs_nuke":
         network_from_json.reset_refs(db)
-        
+
+    if sys.argv[1]=="coastal":
+        coastal.load(db,"lsoa")
+
     if sys.argv[1]=="all":
         #ukcri.load(db,conf['uk_cri_data_path'])
         #db.load_shp_geom(conf['lsoa_data_shp'],"lsoa","27700")

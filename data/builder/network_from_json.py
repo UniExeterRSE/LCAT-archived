@@ -26,6 +26,18 @@ def sg(el,key):
             return list_to_str(v)
         return v
 
+all_hazards = ['Temperature', 'Sea level rise', 'Coastal', 'Flooding', 'Drought', 'Extreme storms', 'Coastal erosion']
+
+def check_node_attributes(attrib):
+    if attrib["element type"]=="Action":
+        hazards = attrib["climate_hazard"]
+        if len(hazards)==0:
+            print("no hazards")
+        else:
+            for hazard in hazards:
+                if hazard not in all_hazards:
+                    print(hazard+" not expected")
+
 class network_db:
     def __init__(self,db):
         self.db = db
@@ -88,7 +100,8 @@ class network_db:
         sector text,
         sdg text,
         urban_rural text,
-        vulnerabilities text);"""
+        vulnerabilities text,
+        main_impact text);"""
         self.db.cur.execute(q)
         
         self.db.cur.execute("drop table if exists network_edges cascade")
@@ -144,7 +157,8 @@ class network_db:
         if len(check)>0:
             return #print("already exists...")
         else:
-            self.db.cur.execute("insert into network_nodes (node_id, label, type, tags, description, climate_hazard, disease_injury_wellbeing, icd11, sector, sdg, urban_rural, vulnerabilities) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) returning node_id",
+            check_node_attributes(node["attributes"])            
+            self.db.cur.execute("insert into network_nodes (node_id, label, type, tags, description, climate_hazard, disease_injury_wellbeing, icd11, sector, sdg, urban_rural, vulnerabilities, main_impact) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) returning node_id",
                                 (node["_id"],
                                  sg(node["attributes"],"label"),
                                  sg(node["attributes"],"element type"),
@@ -156,7 +170,8 @@ class network_db:
                                  sg(node["attributes"],"sector"),
                                  sg(node["attributes"],"un_sdg"),
                                  sg(node["attributes"],"urban_rural"),
-                                 sg(node["attributes"],"vulnerability")))
+                                 sg(node["attributes"],"vulnerability"),
+                                 sg(node["attributes"],"main impact")))
             
             self.db.conn.commit()
 
@@ -184,13 +199,21 @@ class network_db:
                             (network_id,node_id,x,y))        
         self.db.conn.commit()
                 
-    def add_edge(self,edge):
+    def add_edge(self,edge):        
         self.db.cur.execute("select edge_id,node_from,node_to from network_edges where edge_id=%s",(edge["_id"],))
         self.db.conn.commit()
         check = self.db.cur.fetchall()
         if len(check)>0:
              return #print("already exists...")
         else:
+            # stop if we don't have the nodes in this map (why does kumu do this?)
+            self.db.cur.execute("select node_id from network_nodes where node_id=%s",(edge["from"],))
+            self.db.conn.commit()
+            if len(self.db.cur.fetchall())==0: return
+            self.db.cur.execute("select node_id from network_nodes where node_id=%s",(edge["to"],))
+            self.db.conn.commit()
+            if len(self.db.cur.fetchall())==0: return
+            
             if not 'connection type' in edge['attributes']:
                 #print("no connection type for edge? "+edge["_id"]+" "+edge["from"]+"->"+edge["to"])
                 edge['attributes']['connection type']="?"
@@ -218,6 +241,38 @@ class network_db:
             #    print(str(found)+"/"+str(len(edge["attributes"]["reference_id"])))
         else:
             print("Connection: no reference exists "+edge["_id"]+" "+self.get_edge_titles(edge["_id"]))
+
+            self.db.cur.execute("select edge_id,node_from,node_to from network_edges where node_from=%s and node_to=%s",(edge["from"],edge["to"]))
+            self.db.conn.commit()
+            check = self.db.cur.fetchall()
+            if len(check)>0:
+                print("Duplicate connection(s) found for "+edge["_id"])
+                netnames = ["Coastal Security",
+                            "Extreme Storms",
+                            "Flooding and Drought",
+                            "Food and Personal Security",
+                            "Temperature"]
+          
+                for cedge in check:
+                    if cedge[0]!=edge["_id"]:
+                            
+                        self.db.cur.execute("select network_id from network_edge_mapping where edge_id=%s",
+                                            (cedge[0],))        
+                        self.db.conn.commit()
+                        r = self.db.cur.fetchall()
+                        netname = ""
+                        if len(r)>0:
+                            netname = netnames[r[0][0]-1]
+                    
+                        self.db.cur.execute(f"select article_id from edge_article_mapping where edge_id=%s",(cedge[0],))
+                        self.db.conn.commit()
+                        s=""
+                        for t in self.db.cur.fetchall():
+                            s+=str(t[0])+" "
+                        print(netname+" "+s+" ("+cedge[0]+")")
+
+
+
         
     def add_network_edge_mapping(self,network_id,edge_id):
         self.db.cur.execute("insert into network_edge_mapping (network_id, edge_id) values (%s,%s)",
@@ -233,7 +288,7 @@ class network_db:
         row_notes = row[5]
         row_title = row[6]
 
-        print(row_id)
+        #print(row_id)
         
         self.db.cur.execute("select article_id,title from articles where article_id=%s",(row[0],))
         self.db.conn.commit()
@@ -313,6 +368,60 @@ class network_db:
         self.db.conn.commit()
         return True
 
+    def get_edge_refs(self,edge_id):
+        self.db.cur.execute(f"select article_id from edge_article_mapping where edge_id=%s",(edge_id,))
+        self.db.conn.commit()
+        s=""
+        for t in self.db.cur.fetchall():
+            s+=str(t[0])+" "
+        return s
+    
+    def print_edge_refs(self,edge_id):
+        netnames = ["Coastal Security",
+                    "Extreme Storms",
+                    "Flooding and Drought",
+                    "Food and Personal Security",
+                    "Temperature"]
+        self.db.cur.execute("select network_id from network_edge_mapping where edge_id=%s",
+                            (edge_id,))        
+        self.db.conn.commit()
+        r = self.db.cur.fetchall()
+        netname = ""
+        if len(r)>0:
+            netname = netnames[r[0][0]-1]
+            
+        self.db.cur.execute(f"select article_id from edge_article_mapping where edge_id=%s",(edge_id,))
+        self.db.conn.commit()
+        s=""
+        for t in self.db.cur.fetchall():
+            s+=str(t[0])+" "
+        print("     "+netname+" ["+s+"] ("+edge_id+")")
+
+
+    
+    def check_all_edges_for_dups(self):
+        self.db.cur.execute("select edge_id,node_from,node_to from network_edges")
+        self.db.conn.commit()
+        all_edges = self.db.cur.fetchall()
+        for edge in all_edges:
+            # search for any more        
+            self.db.cur.execute("select edge_id,node_from,node_to from network_edges where node_from=%s and node_to=%s and edge_id!=%s",(edge[1],edge[2],edge[0]))
+            self.db.conn.commit()
+            check = self.db.cur.fetchall()
+            parent_refs = self.get_edge_refs(edge[0])
+            if len(check)>0:
+                problem = False
+                for cedge in check:
+                    if parent_refs!=self.get_edge_refs(cedge[0]):
+                        problem = True
+                if problem:
+                    print(str(len(check))+" duplicate connection(s) found for "+self.get_edge_titles(edge[0])+" ("+edge[0]+")")
+                    self.print_edge_refs(edge[0])          
+                    for cedge in check:
+                        if cedge[0]:
+                            self.print_edge_refs(cedge[0])
+                        
+
 def reset_refs(db):
     nd = network_db(db)
     nd.reset_refs()
@@ -380,11 +489,12 @@ def save_to_db(nd,net,included_networks):
 
             for edge in map["connections"]:
                 conn = lookup_item(net['connections'],edge['connection'])
-                nd.add_node(lookup_item(net['elements'],conn['from']))
-                nd.add_node(lookup_item(net['elements'],conn['to']))
+                #nd.add_node(lookup_item(net['elements'],conn['from']))
+                #nd.add_node(lookup_item(net['elements'],conn['to']))
                 nd.add_edge(conn)                
                 nd.add_network_edge_mapping(network_id,edge['connection'])
-            
+
+        #nd.check_all_edges_for_dups()    
 
     
 def load(db,path):    
@@ -417,7 +527,7 @@ def load_refs(db,refssheet):
     with open(refssheet) as csvfile:
         reader = csv.reader(csvfile)
         for i,row in enumerate(reader):
-            if i>0 and i>900:
+            if i>0:
                 nd.add_ref(row)
 
         print(nd.doi_lookup.errors)
