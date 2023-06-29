@@ -86,6 +86,10 @@ Build all the decade averaged GeoTiff files from the yearly ones:
     
     $ ./build chess_tiff_create_batch
 
+Create the tables with:
+
+    $ ./build chess_tiff_nuke
+
 Put all the generated files in the location specified in `config.yml`
 and run:
 
