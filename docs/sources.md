@@ -51,3 +51,17 @@ build scripts.
 | Impacts network   | Exported from Kumu, contains reference ID numbers                       | 2022       | n/a                 | `network_nodes` & `network_edges` | JSON   | -                 | -          | LCAT Team                  |                         
 | References        | The evidence base for the network conenctions and adaptations           | 2022       | n/a                 | `articles`               | CSV             | -                 | -          | LCAT Team                  |                         
     
+## Hazard data 
+
+These will be used to link network adaptations with selected boundaries - need to be binary on/off for each boundary
+
+| Type              | Notes                                                                   |  Time span | Regions             | LCAT postgres table/col  | Original Format | Coordinate system | Source URL | Authority                  |
+|-------------------|-------------------------------------------------------------------------|------------|---------------------|--------------------------|-----------------|-------------------|------------|----------------------------|
+| Temperature       | TBD/CRI? | ? | ? | ? | ? | ? | ? | ? |
+| Heat              | TBD/CRI? | ? | ? | ? | ? | ? | ? | ? |
+| Drought           | TBD/CRI? | ? | ? | ? | ? | ? | ? | ? |
+| Flooding          | TBD - one of the datasets mentioned by Rhys Hobbs in Feb email | ? | ? | ? | ? | ? | ? | ? |
+| Sea Level Rise    | TBD/CRI? | ? | ? | ? | ? | ? | ? | ? |
+| Extreme storms    | TBD/CRI? | ? | ? | ? | ? | ? | ? | ? |
+| Coastal erosion   | TBD/CRI? | ? | ? | ? | ? | ? | ? | ? |
+| Coastal           | Missing NI                                                              |  2023      | GB                  | `<boundary_type>`_hazards | ESRI shapefile | EPSG 4326         | https://zenodo.org/record/7985671 | Exeter University |     
