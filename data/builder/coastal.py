@@ -10,44 +10,67 @@
 # Common Good Public License Beta 1.0 for more details.
 
 from shapely.geometry import shape, Point
-import fiona
 import geojson
 
-def load(db,boundary):
+def complexity(s):
+    r = 0
+    for ss in s:
+        r+=len(ss.coords)
+    return r
+
+def load(db,boundary,outline_file):
 
     ## in 27700
-    with fiona.open("/home/dave/projects/climate/v2-data/coastal/GB coast clipped.geojson") as src:
-        profile = src.profile
-        print(profile)
-
+    with open(outline_file) as f:
+        src = geojson.load(f)
+        print(src.keys())
         coast = []
-        for feat in src:
-            coast.append(shape(feat.geometry))
-        print("loaded coast outline")
+        for feat in src.features:
+            s = shape(feat.geometry)
+            coast.append([s,s.simplify(tolerance=100000)])
 
-        q=f"""select gid,ST_AsGeoJSON(ST_Transform(geom,27700))::json from boundary_{boundary}
-              where ST_TRANSFORM(geom,4326) && ST_MakeEnvelope(-5.982067675100366,49.947685259857685,-4.430248827444115,50.38400527636708,4326);
-        ;"""
+        print("coasts: "+
+              str(coast[0][0].length)+" vs "+
+              str(coast[0][1].length))
+        
+        print("loaded coast outline ("+str(len(coast))+")")
+
+        q=f"""select gid,ST_AsGeoJSON(ST_Transform(geom,27700))::json from {boundary};"""
 
         db.cur.execute(q)
         r = db.cur.fetchone()
         count = 0
         features = []
-        while r:
-            print(r[0])
+
+        update_cur = db.conn.cursor()
+        
+        while r: # load each boundary shape
             s = shape(r[1])
 
+            coastal = 0
             for c in coast:
-                if s.distance(c)<50:                         
+                if s.distance(c[1])<1000:
+                    #if s.distance(c[0])<50: # are we within 50 meters of the boundary anywhere?
+                    # save geometery for debugging
                     feature = geojson.Feature(geometry=s, properties={})
                     features.append(feature)
+                    coastal = 1
+                    break
+                    
+            table = f"{boundary}_hazards";
             
+            q = f"""update {table} set coastal={coastal} where gid={r[0]};
+                    insert into {table} (gid, coastal)
+                    select {r[0]}, {coastal}
+                    where not exists (select 1 from {table} where gid={r[0]});"""
+            update_cur.execute(q)
+            print("coastal calc for "+boundary+": "+str(r[0])+": "+str(coastal)+" "+str(count))            
             r = db.cur.fetchone()
-
             count +=1
-
+            db.conn.commit()
+            
         fc = geojson.FeatureCollection(features)
-        with open('coastal-cornwall.geojson', 'w') as f:
+        with open('coastal-'+boundary+'.geojson', 'w') as f:
             f.write(geojson.dumps(fc))
 
             
