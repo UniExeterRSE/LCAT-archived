@@ -199,11 +199,11 @@ else:
 
     if sys.argv[1]=="hazards_coastal":
         for boundary in [#"boundary_msoa",
-                         #"boundary_uk_counties",
+                         "boundary_uk_counties",
                          "boundary_la_districts",
-                         #"boundary_sc_dz",
-                         #"boundary_parishes",
-                         #"boundary_lsoa"
+                         "boundary_sc_dz",
+                         "boundary_parishes",
+                         "boundary_lsoa"
         ]:        
             hazards.load_coastal(db,boundary,conf['coastal_outline'])
 

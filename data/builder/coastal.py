@@ -24,10 +24,10 @@ def load(db,boundary,outline_file):
     with open(outline_file) as f:
         src = geojson.load(f)
         print(src.keys())
-        coast = []
+        coast = [] # currently only one outline...
         for feat in src.features:
             s = shape(feat.geometry)
-            coast.append([s,s.simplify(tolerance=100000)])
+            coast.append([s,s.simplify(tolerance=10000)])
 
         print("coasts: "+
               str(coast[0][0].length)+" vs "+
@@ -49,13 +49,14 @@ def load(db,boundary,outline_file):
 
             coastal = 0
             for c in coast:
-                if s.distance(c[1])<1000:
-                    #if s.distance(c[0])<50: # are we within 50 meters of the boundary anywhere?
-                    # save geometery for debugging
-                    feature = geojson.Feature(geometry=s, properties={})
-                    features.append(feature)
-                    coastal = 1
-                    break
+                # 10km check against low res version
+                if s.distance(c[1])<10000:
+                    if s.distance(c[0])<50: # are we within 50 meters of the boundary anywhere?
+                        # save geometery for debugging
+                        feature = geojson.Feature(geometry=s, properties={})
+                        features.append(feature)
+                        coastal = 1
+                        break
                     
             table = f"{boundary}_hazards";
             
@@ -73,4 +74,4 @@ def load(db,boundary,outline_file):
         with open('coastal-'+boundary+'.geojson', 'w') as f:
             f.write(geojson.dumps(fc))
 
-            
+
