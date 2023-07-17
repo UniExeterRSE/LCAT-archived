@@ -58,6 +58,32 @@ class network_db:
             return self.get_node_title(s[0][0])+" -> "+self.get_node_title(s[0][1])
         
     def reset_network(self):
+        self.db.cur.execute("drop table if exists network_nodes cascade")
+        q = """create table network_nodes (node_id text primary key,
+        label text,
+        type text,
+        tags text,
+        description text,
+        climate_hazard text,
+        disease_injury_wellbeing text,
+        icd11 text,
+        sector text,
+        sdg text,
+        urban_rural text,
+        vulnerabilities text,
+        main_impact text);"""
+        self.db.cur.execute(q)
+        
+        self.db.cur.execute("drop table if exists network_edges cascade")
+        q = """create table network_edges (edge_id text primary key, 
+        type text,
+        node_from text, 
+        node_to text,
+        constraint fk_from foreign key(node_from) references network_nodes(node_id),  
+        constraint fk_to foreign key(node_to) references network_nodes(node_id));"""
+        self.db.cur.execute(q)
+
+        
         self.db.cur.execute("drop table if exists networks cascade")
         q = """create table networks (network_id serial primary key, name text);"""
         self.db.cur.execute(q)
@@ -88,30 +114,6 @@ class network_db:
           );"""
         self.db.cur.execute(q)
 
-        self.db.cur.execute("drop table if exists network_nodes cascade")
-        q = """create table network_nodes (node_id text primary key,
-        label text,
-        type text,
-        tags text,
-        description text,
-        climate_hazard text,
-        disease_injury_wellbeing text,
-        icd11 text,
-        sector text,
-        sdg text,
-        urban_rural text,
-        vulnerabilities text,
-        main_impact text);"""
-        self.db.cur.execute(q)
-        
-        self.db.cur.execute("drop table if exists network_edges cascade")
-        q = """create table network_edges (edge_id text primary key, 
-        type text,
-        node_from text, 
-        node_to text,
-        constraint fk_from foreign key(node_from) references network_nodes(node_id),  
-        constraint fk_to foreign key(node_to) references network_nodes(node_id));"""
-        self.db.cur.execute(q)
         
         self.db.cur.execute("drop table if exists node_article_mapping cascade")
         q = """create table node_article_mapping (id serial primary key, 
@@ -204,15 +206,19 @@ class network_db:
         self.db.conn.commit()
         check = self.db.cur.fetchall()
         if len(check)>0:
-             return #print("already exists...")
+            return #print("already exists...")
         else:
             # stop if we don't have the nodes in this map (why does kumu do this?)
             self.db.cur.execute("select node_id from network_nodes where node_id=%s",(edge["from"],))
             self.db.conn.commit()
-            if len(self.db.cur.fetchall())==0: return
+            if len(self.db.cur.fetchall())==0:
+                print("error adding edge: missing from node "+edge["from"])
+                return
             self.db.cur.execute("select node_id from network_nodes where node_id=%s",(edge["to"],))
             self.db.conn.commit()
-            if len(self.db.cur.fetchall())==0: return
+            if len(self.db.cur.fetchall())==0:
+                print("error adding edge: missing to node "+edge["to"])
+                return
             
             if not 'connection type' in edge['attributes']:
                 #print("no connection type for edge? "+edge["_id"]+" "+edge["from"]+"->"+edge["to"])
@@ -222,7 +228,7 @@ class network_db:
             #if edge['attributes']['connection type']!="+" and edge['attributes']['connection type']!="-":
             #print("wrong connection type for edge? ("+edge['attributes']['connection type']+") "+edge["_id"]+" "+edge["from"]+"->"+edge["to"])
             #return
-        
+
             self.db.cur.execute(
                 "insert into network_edges (edge_id, type, node_from, node_to) values (%s, %s, %s, %s)",
                 (edge['_id'],
@@ -489,8 +495,9 @@ def save_to_db(nd,net,included_networks):
 
             for edge in map["connections"]:
                 conn = lookup_item(net['connections'],edge['connection'])
-                #nd.add_node(lookup_item(net['elements'],conn['from']))
-                #nd.add_node(lookup_item(net['elements'],conn['to']))
+                # fix where kumu seems to include nodes not in this network
+                nd.add_node(lookup_item(net['elements'],conn['from']))
+                nd.add_node(lookup_item(net['elements'],conn['to']))
                 nd.add_edge(conn)                
                 nd.add_network_edge_mapping(network_id,edge['connection'])
 
