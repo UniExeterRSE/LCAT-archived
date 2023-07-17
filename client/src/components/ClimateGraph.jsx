@@ -28,6 +28,8 @@ const averageRegionCol = "#48b961";
 
 const labels = {
     "tas": 'Temperature (°C)',
+    "tasmin": 'Min temperature (°C)',
+    "tasmax": 'Max temperature (°C)',
     "pr": 'Rainfall (mm/day)',
     "sfcwind": 'Wind (m/s)',
     "rsds": 'Cloudiness (W/m²)'
@@ -35,6 +37,8 @@ const labels = {
 
 const tickUnits = {
     "tas": 5,
+    "tasmin": 5,
+    "tasmax": 5,
     "pr": 1,
     "sfcwind": 1,
     "rsds": 50
@@ -42,7 +46,9 @@ const tickUnits = {
 
 const maximums = {
     // from build climate_stats - these are max of AVERAGES
-    'tas': 20,
+    'tas': 25,
+    'tasmin': 25,
+    'tasmax': 25,
     'pr': 5,
     'sfcwind': 6,
     'rsds': 250
@@ -94,7 +100,7 @@ function ClimateGraph(props) {
               if (props.showAverage) {
                   let variable=props.variable;
                   if (variable=="sfcwind") variable="sfcWind";
-                  let avkey= "chess_scape_"+props.rcp+"_"+props.season+"_"+variable+"_"+decades[i];
+                  let avkey= "chess_scape_"+props.rcp+"_"+props.season+"_"+variable+"_"+decades[i]+"_avg";
                   let av = climateAverages[avkey];
                   let ah = av*scale;
                   let halfBarWidth = (barWidth-barGap)/2;

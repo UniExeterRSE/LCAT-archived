@@ -54,7 +54,7 @@ const boundary_details = {
 }
 
 const vardec = [];
-for (let variable of ["tas","sfcWind","pr","rsds"]) {
+for (let variable of ["tas","tasmin","tasmax","sfcWind","pr","rsds"]) {
     for (let decade of ["1980","1990","2000","2010","2020","2030","2040","2050","2060","2070"]) {
         vardec.push("avg("+variable+"_"+decade+") as "+variable+"_"+decade);
     }
@@ -121,11 +121,11 @@ router.get('/region', function (req, res) {
 });
 
 router.get('/chess_scape', function (req, res) {
-	let locations = req.query.locations;
-	let rcp = req.query.rcp; 
-	let season = req.query.season; 
-	let boundary = req.query.boundary;
-
+    let locations = req.query.locations;
+    let rcp = req.query.rcp; 
+    let season = req.query.season; 
+    let boundary = req.query.boundary;
+    
     if (locations!=undefined &&
         is_valid_boundary(boundary) &&
         ["summer","winter","annual"].includes(season) &&
@@ -134,12 +134,12 @@ router.get('/chess_scape', function (req, res) {
         if (!Array.isArray(locations)) {
             locations=[locations];
         }
-
-        q="";
+	let d = boundary_details[boundary]
+        let q="";
         // the two different methods of climate data averaging...
-        if (boundary_details[boundary].method=="cell") {
-            // for small boundaries or large cells
-	        let region_grid = boundary+"_grid_mapping";
+        if (d.method=="cell") {
+	    // for small boundaries or large cells
+	    let region_grid = boundary+"_grid_mapping";
             var sq=`(select distinct tile_id from `+region_grid+` where geo_id in (`+locations.join()+`))`;               
             q=`select `+vardec.join()+` from chess_scape_`+rcp+`_`+season+` where id in `+sq+`;`;
         } else {
@@ -147,18 +147,18 @@ router.get('/chess_scape', function (req, res) {
             let cache_table = "cache_"+boundary+"_to_chess_scape_"+rcp+"_"+season;
             q=`select `+vardec.join()+` from `+cache_table+` where boundary_id in (`+locations.join()+`);`;
         }
-        
-	    var client = new Client(conString);
+
+	var client = new Client(conString);
         client.connect();
-	    var query = client.query(new Query(q));
+	var query = client.query(new Query(q));
 	    
-	    query.on("row", function (row, result) {
+	query.on("row", function (row, result) {
             result.addRow(row);
         });
         query.on("end", function (result) {
             res.send(result.rows);
             res.end();
-		    client.end();
+	    client.end();
         });
         query.on("error", function (err, result) {
             console.log("------------------error-------------------------");

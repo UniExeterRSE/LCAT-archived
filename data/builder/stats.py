@@ -57,7 +57,7 @@ def compute(db):
 
     
 def compute_climate(db):
-    variables = ['tas','pr','rsds','sfcWind']
+    variables = ['tas','tasmin','tasmax','pr','rsds','sfcWind']
     gmin = {}
     gmax = {}
 
