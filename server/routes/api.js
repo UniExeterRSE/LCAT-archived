@@ -13,13 +13,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-var express = require('express');
+import express from 'express';
 var router = express.Router();
 
 /* PostgreSQL and PostGIS module and connection setup */
-const { Client, Query } = require('pg')
+import pg from 'pg';
+const { Client, Query } = pg;
 
-require('dotenv').config()
+import dotenv from 'dotenv'
+dotenv.config()
 
 // Setup connection
 var username = process.env.DB_USER
@@ -439,4 +441,4 @@ router.get('/ping', function (req, res) {
     res.end();
 });
 
-module.exports = router;
+export default router;

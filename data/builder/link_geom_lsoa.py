@@ -34,7 +34,7 @@ def centroids(db,geo_table,base,base_epsg):
         geo_shape = shape(geo)
         
         # load centroids of all lsoas within the current boundaries bounding box
-        q=f"""select gid,ST_Centroid(ST_Transform(geom,4326))::json from boundary_{base} 
+        q=f"""select gid,ST_AsGeoJSON(ST_Centroid(ST_Transform(geom,4326)))::json from boundary_{base} 
         where geom && ST_Transform(ST_MakeEnvelope({geo_shape.bounds[0]},{geo_shape.bounds[1]},{geo_shape.bounds[2]},{geo_shape.bounds[3]},4326),{base_epsg});"""
         db.cur.execute(q)
         lsoas = db.cur.fetchall()

@@ -70,4 +70,7 @@ class db:
         # import lsoa from GCS_OSGB_1936 (27700)
         self.delete_tables([table])
         cmd = f"shp2pgsql -I -s {projection} \"{fn}\" {table} | psql postgresql://{self.conf['user']}:{self.conf['password']}@{self.conf['host']}/{self.conf['dbname']}"
+
+        #cmd = f"""ogr2ogr -f "PostgreSQL" PG:"host={self.conf['host']} user={self.conf['user']} dbname={self.conf['dbname']}" -nln {table} -nlt multipolygon {fn}"""
+        
         os.system(cmd)
