@@ -63,7 +63,7 @@ def print_check(t,start,end,skip):
 def avg_slice(start,end,skip,img):
     count=0
     total=0
-    arr=numpy.zeros((img.height,img.width),numpy.float)
+    arr=numpy.zeros((img.height,img.width),float)
     for t in range(start,end,skip):
         print_check(t,start,end,skip)
         image = img.read(t+1)
