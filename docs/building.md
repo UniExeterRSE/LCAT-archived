@@ -28,7 +28,7 @@ at max 25% cpu:
         
 ## Backing up and restoring the whole database:
 
-    pg_dump -h localhost -U climate_geo_data -W climate_geo_data > climate_geo_data_bak.sql
+    sudo -u postgres pg_dump -Fc -c climate_geo_data > climate_geo_data_backup.sql
 
     psql -h localhost -U climate_geo_data -d climate_geo_data <  climate_geo_data_bak.sql
 
