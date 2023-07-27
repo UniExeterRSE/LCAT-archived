@@ -27,6 +27,7 @@ import { SimpleNetworkParser } from './core/SimpleNetworkParser';
 import Vulnerabilities from './components/Vulnerabilities';
 import Adaptations from './components/Adaptations';
 import { loadIcons } from './utils/iconLoader';
+import Hazards from "./components/Hazards";
 
 import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_Primary_RGB.svg';
 
@@ -41,11 +42,11 @@ const meta = {
 
 const network_layers = [
     [""],
-    ["Coastal security In Full", "Coastal security Summary"],
-    ["Extreme storms In Full", "Extreme storms Summary"],
-    ["Flooding and drought in full","Drought summary","Flooding summary"],
-	["Food and personal security in full", "Food and personal security summary"],
-    ["Temperature In Full", "Temperature Summary"],
+    ["Coastal security Summary","Coastal security In Full"],
+    ["Extreme storms Summary","Extreme storms In Full"],
+    ["Drought summary","Flooding summary","Flooding and drought in full"],
+	["Food and personal security summary","Food and personal security in full"],
+    ["Temperature Summary","Temperature In Full",],
 ];
 
 class App extends React.Component {
@@ -66,7 +67,7 @@ class App extends React.Component {
             year: 2070,
             loadingPrediction: false,          
             networkParser: new SimpleNetworkParser([],[]),
-            layerName: "All"
+            layerName: "Coastal security Summary"
         };
     }
 
@@ -186,9 +187,17 @@ class App extends React.Component {
                   }));}}
                 />
               </div>}
-              
+
               {this.state.regions.length>0 &&              
                <div className="white-section">
+                <Hazards
+                  regions = {this.state.regions}
+                  regionType = {this.state.regionType}                
+                />
+               </div>}
+              
+              {this.state.regions.length>0 &&              
+               <div className="grey-section">
 
                  
 		         <p>
@@ -233,7 +242,7 @@ class App extends React.Component {
               </div>}
 
               {this.state.regions.length>0 &&              
-              <div className="grey-section">
+              <div className="white-section">
                 <Vulnerabilities
                   regions = {this.state.regions}
                   regionType = {this.state.regionType}                
@@ -241,7 +250,7 @@ class App extends React.Component {
               </div>}
               
               {this.state.regions.length>0 &&              
-               <div className="white-section">
+               <div className="grey-section">
                  <Adaptations
                    networkParser = {this.state.networkParser}
                    year = {this.state.year}
@@ -253,7 +262,7 @@ class App extends React.Component {
                 />
                </div>}
               
-              <div className="footer grey-section">
+              <div className="footer white-section">
 
                 <p>
                   The Local Climate Adaptation Tool has been developed by

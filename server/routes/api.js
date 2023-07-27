@@ -44,6 +44,10 @@ const vulnerabilities = [
     "t1","t2","m1","m2","m3","c1","l1","e1","n1","n2","n3","s1","s2","s3","s4"
 ]
 
+const hazards = [
+    "coastal"
+]
+
 const boundary_details = {
     "boundary_uk_counties": {name: "name_2", srid: 32630, method: "cache"},
     "boundary_la_districts": {name: "lad22nm", srid: 27700, method: "cache"}, 
@@ -177,12 +181,12 @@ router.get('/vulnerabilities', function (req, res) {
             locations=[locations];
         }
 
-        vulns = []
-        for (v of vulnerabilities) {
+        let vulns = []
+        for (let v of vulnerabilities) {
             vulns.push("avg("+v+") as "+v)
         }
        
-        q=`select `+vulns.join()+` from `+boundary+`_vulnerabilities where boundary_id in (`+locations.join()+`);`;
+        let q=`select `+vulns.join()+` from `+boundary+`_vulnerabilities where boundary_id in (`+locations.join()+`);`;
         
 	    var client = new Client(conString);
         client.connect();
@@ -359,6 +363,42 @@ router.get('/stats', function (req, res) {
     });
 });
 
+router.get('/hazards', function (req, res) {
+	let locations = req.query.locations;
+	let boundary = req.query.boundary;
+
+    if (locations!=undefined && is_valid_boundary(boundary)) {
+        if (!Array.isArray(locations)) {
+            locations=[locations];
+        }
+
+        let haz = []
+        for (let h of hazards) {
+            haz.push("max("+h+") as "+h)
+        }
+
+        let q=`select `+haz.join()+` from `+boundary+`_hazards where gid in (`+locations.join()+`);`;
+	    var client = new Client(conString);
+        client.connect();
+	    var query = client.query(new Query(q));
+	    
+	    query.on("row", function (row, result) {
+            result.addRow(row);
+        });
+        query.on("end", function (result) {
+            res.send(result.rows);
+            res.end();
+		    client.end();
+        });
+        query.on("error", function (err, result) {
+            console.log("------------------error-------------------------");
+            console.log(err);
+        });
+    }
+});
+
+
+
 // general purpose for debugging
 router.get('/geojson', function (req, res) {
     let table = req.query.table;
@@ -392,7 +432,7 @@ router.get('/geojson', function (req, res) {
 		client.end();
     });
 });
- 
+
 // general purpose for debugging
 router.get('/chessscape_debug', function (req, res) {
     let table = req.query.table;

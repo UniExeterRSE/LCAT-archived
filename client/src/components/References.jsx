@@ -45,7 +45,7 @@ function WebPageReference(props) {
                  target="_blank">
                 {props.a.title}
               </a> ({props.a.type})</li>
-          <li><b>Source: </b>{baseURL(props.a.doi)}</li>            
+          <li><b>Source: </b>{props.a.doi}</li>            
         </ul>
     );
 }
@@ -57,7 +57,7 @@ function ReportReference(props) {
                  className="reference-title"
                  target="_blank">{props.a.title}
               </a> ({props.a.type})</li>
-          <li><b>Source: </b>{baseURL(props.a.doi)}</li>
+          <li><b>Source: </b>{props.a.doi}</li>
         </ul>
     );
 }
@@ -97,22 +97,23 @@ function References(props) {
         }
     },[props.id,
        props.api_call]);
-
+// key={r.article_id}
     if (references.length>0) {    
         return (
             <div>          
               <b>References:</b>
               { references.map(r => {
-                  if (r.type=="Journal Article") return (<ArticleReference key={r.article_id} a={r}/>);
-                  if (r.type=="Journal article ") return (<ArticleReference key={r.article_id} a={r}/>);
-                  if (r.type=="Conference Proceedings") return (<ArticleReference key={r.article_id} a={r}/>);
-                  if (r.type=="Book") return (<ArticleReference key={r.article_id} a={r}/>);
-                  if (r.type=="Web Page") return (<WebPageReference key={r.article_id} a={r}/>);
-                  if (r.type=="Web page") return (<WebPageReference key={r.article_id} a={r}/>);
-                  if (r.type=="Report") return (<ReportReference key={r.article_id} a={r}/>);
-                  if (r.type=="Book Section") return (<BookSectionReference key={r.article_id} a={r}/>);
+                  if (r.type=="Journal Article") return (<ArticleReference a={r}/>);
+                  if (r.type=="Journal article ") return (<ArticleReference a={r}/>);
+                  if (r.type=="Journal article") return (<ArticleReference a={r}/>);
+                  if (r.type=="Conference Proceedings") return (<ArticleReference a={r}/>);
+                  if (r.type=="Book") return (<ArticleReference a={r}/>);
+                  if (r.type=="Web Page") return (<WebPageReference a={r}/>);
+                  if (r.type=="Web page") return (<WebPageReference a={r}/>);
+                  if (r.type=="Report") return (<ReportReference a={r}/>);
+                  if (r.type=="Book Section") return (<BookSectionReference a={r}/>);
                   return (<p>{ r.type }: not understood</p>);
-              })}          
+              })}  
             </div>
         );
     } else {

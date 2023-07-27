@@ -1,0 +1,41 @@
+.container-hazards {
+	display: flex;
+	flex-direction: row;
+    overflow-x: auto;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center; 
+}
+
+.icon-container-hazards {
+	display: flex;
+	flex-direction: row;
+    overflow-x: auto;
+    flex-wrap: wrap;
+    width: 50%;
+    justify-content: center;
+    align-items: center;
+}
+
+.hazard-icon {
+	display: flex;
+	flex-direction: column;
+    text-align: center;
+    font-size: 80%;
+    width: 20em;
+    box-sizing: border-box;
+    margin-bottom: 1em;
+    line-height: 1.6;    
+}
+
+.text-container-hazards {
+    display: flex;
+    padding-left: 2em;
+    padding-right: 2em;
+    background: #e6eced;
+    width: 40%;
+}
+
+.text-container-hazards li {
+    list-style-type: none;
+}
