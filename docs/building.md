@@ -28,7 +28,7 @@ at max 25% cpu:
         
 ## Backing up and restoring the whole database:
 
-    pg_dump -h localhost -U climate_geo_data -W climate_geo_data > climate_geo_data_bak.sql
+    sudo -u postgres pg_dump -Fc -c climate_geo_data > climate_geo_data_backup.sql
 
     psql -h localhost -U climate_geo_data -d climate_geo_data <  climate_geo_data_bak.sql
 
@@ -85,6 +85,10 @@ that it is optimised for reading by the online client. First set up
 Build all the decade averaged GeoTiff files from the yearly ones:
     
     $ ./build chess_tiff_create_batch
+
+Create the tables with:
+
+    $ ./build chess_tiff_nuke
 
 Put all the generated files in the location specified in `config.yml`
 and run:
