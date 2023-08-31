@@ -6,9 +6,9 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "@adminjs/express": "^4.1.3",
-    "@adminjs/sequelize": "^2.1.5",
-    "adminjs": "^5.11.0",
+    "@adminjs/express": "^5.1.0",
+    "@adminjs/sequelize": "^3.0.0",
+    "adminjs": "^6.8.7",
     "cookie-parser": "~1.4.4",
     "debug": "^4.3.4",
     "dotenv": "^16.0.3",
@@ -17,10 +17,10 @@
     "express-session": "^1.17.3",
     "http-errors": "^2.0.0",
     "morgan": "^1.10.0",
-    "pg": "^8.8.0",
+    "pg": "^8.10.0",
     "pug": "^3.0.2",
-    "sequelize": "^6.25.3",
+    "sequelize": "^6.31.0",
     "sequelize-auto": "^0.8.8",
-    "tslib": "^2.4.1"
+    "tslib": "^2.5.0"
   }
 }

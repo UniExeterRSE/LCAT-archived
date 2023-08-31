@@ -12,7 +12,7 @@
 import React, { useState, useEffect } from 'react';
 import {XYPlot, XAxis, YAxis, VerticalBarSeries, makeWidthFlexible,
         LabelSeries, ChartLabel} from 'react-vis';
-import useCollapse from 'react-collapsed';
+import { useCollapse } from 'react-collapsed';
 import ClimatePredictionLoader from './ClimatePredictionLoader';
 
 import '../../node_modules/react-vis/dist/style.css';
