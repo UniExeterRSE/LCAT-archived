@@ -110,7 +110,7 @@ function Graph(props) {
             let avlabel = [];
             if (prediction[0][variable+"_1980"]!=null) {            
                 for (let year of [1980,2030,2040,2050,2060,2070]) {
-                    let label_year = year;
+                    let label_year = ""+year;
                     let v = variable;
                     if (v == "sfcwind") v="sfcWind";
                     let avkey= "chess_scape_"+rcp+"_"+season+"_"+v+"_"+year;
@@ -123,7 +123,7 @@ function Graph(props) {
                     label.push({x: label_year, y:prediction[0][variable+"_"+year], xOffset:-offset});
 
                     av.push({x: label_year, y:climateAverages[avkey]});
-                    avlabel.push({x: label_year, y:climateAverages[avkey], xOffset:offset});
+                    avlabel.push({x: label_year, y:climateAverages[avkey], xOffset:offset});                    
                     
                 }
                 setAvg(av);
@@ -226,7 +226,7 @@ function Graph(props) {
               <div className="graph-horiz-container">
                 {/* <div className="graph-y-axis">{getYAxis()}</div> */}
                 <FlexibleXYPlot
-                  height={margin.height}                  
+                  height={margin.height}                                    
                   margin={{bottom: margin.bottom, left: margin.left, right: 0, top: 10}}
                   xType="ordinal">
                   <ChartLabel
