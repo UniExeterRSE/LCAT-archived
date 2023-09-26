@@ -1,4 +1,4 @@
-# Climate tool for ECEHH/Cornwall Council
+# Climate tool for ECEHH/Cornwall Council (Then Try This Legacy Version)
 
 A tool for connecting together scientific information across climate,
 health and policy in the UK. You can try the [prototype version
