@@ -25,7 +25,7 @@ class CorrelationNetwork extends Network {
 
     max_visits = 99;
     override_uncertainties = false;
-    vote_to_remove_uncertainties = true;
+    vote_to_remove_uncertainties = false;
     
     constructor(nodes,edges) {
         super(nodes,edges);        
@@ -59,6 +59,13 @@ class CorrelationNetwork extends Network {
     calcState(votes) {
         let hist = this.votes2Hist(votes);
 
+        if (!this.override_uncertainties) {
+            // any uncertainty gets passed on
+            // not doing this causes instabilities in looped networks
+            if (hist['uncertain']>0) return 'uncertain';
+        }
+
+        
         if (hist['increase']==0 && hist['decrease']>0) {
             return 'decrease';
         }
@@ -76,13 +83,6 @@ class CorrelationNetwork extends Network {
                 return 'decrease';
             }
         }
-
-        if (!this.override_uncertainties) {
-            // any uncertainty gets passed on
-            // not doing this causes instabilities in looped networks
-            if (hist['uncertain']>0) return 'uncertain';
-        }
-
 
         return 'uncertain';
     }

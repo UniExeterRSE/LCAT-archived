@@ -23,7 +23,7 @@ import HealthWellbeing from './components/HealthWellbeing';
 import Network from "./components/Network";
 import NetworkNamesLoader from './components/NetworkNamesLoader';
 import NetworkLoader from './components/NetworkLoader';
-import { SimpleNetworkParser } from './core/SimpleNetworkParser';
+import { NetworkParser } from './core/NetworkParser';
 import Vulnerabilities from './components/Vulnerabilities';
 import Adaptations from './components/Adaptations';
 import { loadIcons } from './utils/iconLoader';
@@ -59,15 +59,15 @@ class App extends React.Component {
         this.state = {
             regions: [],
             regionType: "counties",
-            networks: ["Coastal Security"],
-            networkID: 1,
+            networks: ["Heat version 2"],
+            networkID: 3,
             climatePrediction: [],           
             season: "annual",
             rcp: "rcp60",
             year: 2070,
             loadingPrediction: false,          
-            networkParser: new SimpleNetworkParser([],[]),
-            layerName: "Coastal security Summary"
+            networkParser: new NetworkParser([],[]),
+            layerName: "All"
         };
     }
 
@@ -104,20 +104,20 @@ class App extends React.Component {
 		      </div>
               
               
-              <NetworkNamesLoader                
+              {/*<NetworkNamesLoader                
                 callback={(names) => {
                     this.setState((state) => ({
                         networks: names
                     }));
                 }}
-              />
+                />*/}
                            
               <NetworkLoader
                 id={this.state.networkID}
                 layerName={this.state.layerName}
                 callback={(nodes, edges) => {
                     this.setState((state) => ({
-                        networkParser: new SimpleNetworkParser(nodes,edges)
+                        networkParser: new NetworkParser(nodes,edges)
                     }));}}
               />
 
@@ -200,47 +200,49 @@ class App extends React.Component {
                <div className="grey-section">
 
                  
+                 {/*
 		         <p>
                    Choose network:&nbsp;
                    <select onChange={(e) => {
                        this.setState({
                            networkID: e.target.value,
-                           layerName: network_layers[e.target.value][0],
+                           //layerName: network_layers[e.target.value][0],
                        });}}>
                      {this.state.networks.map((network) => {
                          return <option value={network.network_id}>{network.name}</option>;
                      })}
-                   </select> 
+                   </select>
                    &nbsp;& layer:&nbsp;
                    <select onChange={(e) => this.setState({layerName: e.target.value})}>
                      {network_layers[this.state.networkID].map((layer) => {
                          return <option value={layer}>{layer}</option>;
                      })}
-                   </select>                 
+                   </select>
                  </p>
+                  */}
                  
                  
-                 {/*<HealthWellbeing
-                  networkParser = {this.state.networkParser}
-                  year = {this.state.year}
-                  climatePrediction = {this.state.climatePrediction}
-                  regions = {this.state.regions}
-                  loading = {this.state.loadingPrediction}
-                  season={this.state.season}
-                  rcp={this.state.rcp}
-                  />*/}
+                 <HealthWellbeing
+                   networkParser = {this.state.networkParser}
+                   year = {this.state.year}
+                   climatePrediction = {this.state.climatePrediction}
+                   regions = {this.state.regions}
+                   loading = {this.state.loadingPrediction}
+                   season={this.state.season}
+                   rcp={this.state.rcp}
+                 />
 
-                <Network
-                  networks = {this.state.networks}
-                  year = {this.state.year}
-                  climatePrediction = {this.state.climatePrediction}
-                  regions = {this.state.regions}
-                  networkParser = {this.state.networkParser}
-                  season={this.state.season}
-                  rcp={this.state.rcp}
-                />
-              </div>}
-
+                 <Network
+                   networks = {this.state.networks}
+                   year = {this.state.year}
+                   climatePrediction = {this.state.climatePrediction}
+                   regions = {this.state.regions}
+                   networkParser = {this.state.networkParser}
+                   season={this.state.season}
+                   rcp={this.state.rcp}
+                 />
+               </div>}
+              
               {this.state.regions.length>0 &&              
               <div className="white-section">
                 <Vulnerabilities

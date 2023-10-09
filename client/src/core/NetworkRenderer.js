@@ -103,7 +103,7 @@ class NetworkRenderer extends CorrelationNetwork {
             draw.group().svg(await loadImage("glow")).move(-3,icon_pos-10);
         }
 
-        if (this.votesMixed(node.votes)) {
+        if (false && this.votesMixed(node.votes)) {
             let hist = this.votes2Hist(node.votes);
             let str = hist["increase"]+":"+hist["decrease"]+":"+hist["uncertain"];            
             draw.group().svg(textIcon("#f177f1",str)).move(10,icon_pos);
@@ -172,7 +172,7 @@ class NetworkRenderer extends CorrelationNetwork {
         let highlightColour = "#f5821f";
         if (edge.state=="increase") colour="#afd6e4";
         if (edge.state=="decrease") colour="#f1b9bd";
-        if (edge.state=="uncertain") colour="#ff00ff";
+        if (edge.state=="uncertain") colour="#d6d6d6";
         
         let label=edge.type;
         var labelsize = 15;
@@ -187,7 +187,7 @@ class NetworkRenderer extends CorrelationNetwork {
 			to: edge.node_to,
 			arrows: "to",
             width: 3,
-            label: dir+" ("+edge.type+")",
+            //label: dir+" ("+edge.type+")",
 			//labelHighlightBold: false,
 			//arrowStrikethrough: false,
             smooth: {
@@ -218,7 +218,7 @@ class NetworkRenderer extends CorrelationNetwork {
 		for (let edge of networkParser.edges) {
    			this.addEdge(edge);
 		}
-
+        
         // find causes and propagate upwards (right?) from there
 		for (let node of networkParser.nodes) {            
             if (["Pressure", "Effect", "State", "Exposure"].includes(node.type) &&

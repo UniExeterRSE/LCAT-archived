@@ -195,7 +195,7 @@ else:
                          "boundary_la_districts",
                          "boundary_sc_dz",
                          "boundary_parishes"]:        
-            pass #hazards.reset(db,boundary)
+            hazards.reset(db,boundary)
 
     if sys.argv[1]=="hazards_coastal":
         for boundary in [#"boundary_msoa",

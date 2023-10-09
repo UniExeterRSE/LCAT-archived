@@ -16,7 +16,7 @@ import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import Graph from 'react-graph-vis';
 import { andify, rcpText, seasonText } from '../utils/utils';
 import References from './References';
-import { SimpleNetworkRenderer } from '../core/SimpleNetworkRenderer';
+import { NetworkRenderer } from '../core/NetworkRenderer';
 import { getImage } from '../utils/iconLoader';
 
 import './vis-network.min.css';
@@ -48,7 +48,7 @@ function Network(props) {
     const [ info, setInfo ] = useState(defaultInfo());
     const [ nodeedgeId, setNodeedgeId ] = useState(0);
     const [ apiCall, setApiCall ] = useState("node_references");
-    const [ networkRenderer, setNetworkRenderer] = useState(new SimpleNetworkRenderer);
+    const [ networkRenderer, setNetworkRenderer] = useState(new NetworkRenderer);
     const [ networkAPI, setNetworkAPI ] = useState(null);
     const [ sector, setSector ] = useState("All");
     const [ previouslySelected, setPreviouslySelected] = useState(null);
@@ -66,41 +66,41 @@ function Network(props) {
 	    physics: {
 
             stabilization: {
-                enabled: false,
+                enabled: true,
                 iterations: 500, // maximum number of iteration to stabilize
                 updateInterval: 10,
                 onlyDynamicEdges: false,
                 fit: true
             },
             
-            enabled: false,
+            enabled: true,
 		    //solver: "forceAtlas2Based",
 		    //solver: "repulsion",
 		    solver: "barnesHut",
 		    //solver: "hierarchicalRepulsion",
-		    maxVelocity: 25,
+		    maxVelocity: 50,
             repulsion: {
                 nodeDistance: 40,
                 springLength: 10,
-                centralGravity: 1,
+                centralGravity: 0,
                 //avoidOverlap: 1,
             },
             hierarchicalRepulsion: {
                 nodeDistance: 100,
                 springLength: 100,
-                centralGravity: 1
+                centralGravity: 0
             },
 		    barnesHut: {
 			    avoidOverlap: 0.5,
                 theta: 0.5,
                 springLength: 5,
-                centralGravity: 1
+                centralGravity: 0
 		    },
             forceAtlas2Based : {
                 avoidOverlap: 0,
                 theta: 0.5,
             },
-//		    wind: { x: 0.5, y: 0} 
+		    wind: { x: 0.5, y: 0} 
         },
 	    layout: {
 		    randomSeed: 1,
@@ -339,24 +339,7 @@ function Network(props) {
                     ref={graphRef}
                     key={version}
                     graph={graph}
-                    options={{
-                        physics: {
-                            stabilization: {
-                                enabled: false,
-                                iterations: 500, 
-                                updateInterval: 10,
-                                onlyDynamicEdges: false,
-                                fit: true
-                            },                            
-                            enabled: false, //props.networkParser.nodes.length<50,
-		                    solver: "repulsion",
-                            repulsion: {
-                                nodeDistance: 150,
-                                springLength: 100,
-                                centralGravity: 0,
-                            },
-                        }
-                    }}
+                    options={options}
                     events={events}
                     getNetwork={ network => setNetworkAPI(network) }
                   />

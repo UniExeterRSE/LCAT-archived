@@ -159,7 +159,8 @@ class network_db:
         if len(check)>0:
             return #print("already exists...")
         else:
-            check_node_attributes(node["attributes"])            
+            #print(node["attributes"])
+            #check_node_attributes(node["attributes"])            
             self.db.cur.execute("insert into network_nodes (node_id, label, type, tags, description, climate_hazard, disease_injury_wellbeing, icd11, sector, sdg, urban_rural, vulnerabilities, main_impact) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) returning node_id",
                                 (node["_id"],
                                  sg(node["attributes"],"label"),
@@ -483,7 +484,7 @@ def write_adapation_hazards_for_debug(net,included_networks):
 
 def save_to_db(nd,net,included_networks):
     for map in net["maps"]:
-        if map["name"] in included_networks:
+        #if map["name"] in included_networks:
             print(map["name"]+" -------------------------------------------------")
             network_id = nd.add_network(map["name"])
             for node in map["elements"]:

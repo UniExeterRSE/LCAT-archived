@@ -63,33 +63,32 @@ export function getImage(fn) {
 }
 
 export async function loadImage(fn,col) {
-/*    if (iconCache[fn]!=undefined) {            
+    if (iconCache[fn]!=undefined) {            
         return iconCache[fn];
-    }*/
+    }
     
     let prepend="";
     if (process.env.NODE_ENV==="development") {
         prepend="http://localhost:3000";
     }
     
-    //let response = await fetch(prepend+"/images/"+fn+".svg");
+    let response = await fetch(prepend+"/images/"+fn+".svg");
     
-    //if (!response.ok) {
-    //    console.log(`An error has occured loading ${fn}: ${response.status}`);
-    //    return placeholderIcon("#3da274");
-    //}
+    if (!response.ok) {
+        console.log(`An error has occured loading ${fn}: ${response.status}`);
+        return placeholderIcon("#3da274");
+    }
         
-    //let data = await response.text();
-    //iconCache[fn]=data;
+    let data = await response.text();
+    iconCache[fn]=data;
 
-    iconCache[fn]=placeholderIcon(col);
+    //iconCache[fn]=placeholderIcon(col);
     return iconCache[fn];
 }
 
 
 // preload some icons
 export function loadIcons() {
-    console.log("PRELOADING ICONS");
     loadImage("glow");
     loadImage("increase");
     loadImage("decrease");
