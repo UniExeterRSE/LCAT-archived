@@ -1,5 +1,6 @@
-const AdminJS = require('adminjs')
-const AdminJSExpress = require('@adminjs/express')
+import AdminJS from "adminjs";
+import AdminJSExpress from '@adminjs/express';
+
 const AdminJSSequelize = require('@adminjs/sequelize')
 const Sequelize = require('sequelize');
 
@@ -95,4 +96,4 @@ admin.setup = function(app) {
     //app.listen(3000, () => console.log('AdminJS is under localhost:8080/admin'))
 }
 
-module.exports = admin
+export default admin;

@@ -13,7 +13,7 @@
     line-height: 1.6;
 }
 
-@media (min-width: 1000px) {
+@media (min-widtxh: 1000px) {
     .climate-summary .vert-container {
         width: 25%;
     }
@@ -21,10 +21,10 @@
 
 
 .climate-summary .vert-container .climate-arrow {
-    margin-bottom: 0.5em;
+    margin-bottom: 0.1em;
 }
 
 .summary-text {
     width: 12em;
-    font-size: 75%;
+    font-size: 80%;
 }

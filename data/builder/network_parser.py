@@ -68,7 +68,9 @@ class network_parser:
             for i,row in enumerate(reader):
                 if i>0:
                     doi = row[2]
-                    if doi!="":
+                    reftype = row[1]
+                    print(reftype)
+                    if reftype not in ["Report","Webpage"] and doi!="":
                         print(doi)
                         info = self.doi_lookup.doi2info(doi)
                         print(info)

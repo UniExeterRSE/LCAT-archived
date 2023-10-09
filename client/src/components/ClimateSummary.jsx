@@ -12,6 +12,8 @@
 import LoadingOverlay from "react-loading-overlay";
 
 import TempSvg from '../images/climate/Temperature';
+import TempMinSvg from '../images/climate/TempMin';
+import TempMaxSvg from '../images/climate/TempMax';
 import RainSvg from '../images/climate/Rain';
 import WindSvg from '../images/climate/WindSpeed';
 import CloudSvg from '../images/climate/CloudCover';
@@ -75,6 +77,20 @@ function ClimateSummary(props) {
                 {predict(props.climatePrediction,
                          props.year,"tas","Temperature","°C")}
               </div>
+              {/*
+              <div className="vert-container">
+                {arrow(props.climatePrediction,props.year,"tasmin")}
+                <TempMinSvg className="climate-arrow"/>
+                {predict(props.climatePrediction,
+                         props.year,"tasmin","Min Temperature","°C")}
+              </div>
+              <div className="vert-container">
+                {arrow(props.climatePrediction,props.year,"tasmax")}
+                <TempMaxSvg className="climate-arrow"/>
+                {predict(props.climatePrediction,
+                         props.year,"tasmax","Max Temperature","°C")}
+              </div>
+              */}
               <div className="vert-container">
                 {arrow(props.climatePrediction,props.year,"pr")}
                 <RainSvg className="climate-arrow"/>              

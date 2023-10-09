@@ -28,6 +28,7 @@ from psycopg2.extras import Json
 class db:
     def __init__(self,config):
         self.conf = config
+        print("opening "+config['dbname'])
         self.conn = psycopg2.connect(f"host={config['host']}\
                                       dbname={config['dbname']} \
                                       user={config['user']} \

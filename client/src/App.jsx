@@ -21,10 +21,13 @@ import ClimatePredictionLoader from './components/ClimatePredictionLoader';
 import Graph from "./components/Graph";
 import HealthWellbeing from './components/HealthWellbeing';
 import Network from "./components/Network";
+import NetworkNamesLoader from './components/NetworkNamesLoader';
 import NetworkLoader from './components/NetworkLoader';
-import { NetworkParser } from './core/NetworkParser';
+import { SimpleNetworkParser } from './core/SimpleNetworkParser';
 import Vulnerabilities from './components/Vulnerabilities';
 import Adaptations from './components/Adaptations';
+import { loadIcons } from './utils/iconLoader';
+import Hazards from "./components/Hazards";
 
 import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_Primary_RGB.svg';
 
@@ -37,21 +40,34 @@ const meta = {
     }
 };
 
+const network_layers = [
+    [""],
+    ["Coastal security Summary","Coastal security In Full"],
+    ["Extreme storms Summary","Extreme storms In Full"],
+    ["Drought summary","Flooding summary","Flooding and drought in full"],
+	["Food and personal security summary","Food and personal security in full"],
+    ["Temperature Summary","Temperature In Full",],
+];
+
 class App extends React.Component {
     constructor(props) {
         super(props);
 
+        // preload some icons
+        loadIcons();
+        
         this.state = {
             regions: [],
             regionType: "counties",
-            networks: [],
-            networkID: 3,
+            networks: ["Coastal Security"],
+            networkID: 1,
             climatePrediction: [],           
             season: "annual",
             rcp: "rcp60",
             year: 2070,
             loadingPrediction: false,          
-            networkParser: new NetworkParser([],[])
+            networkParser: new SimpleNetworkParser([],[]),
+            layerName: "Coastal security Summary"
         };
     }
 
@@ -66,8 +82,9 @@ class App extends React.Component {
                 </header>
               </div>
               
-              <div className="grey-section">
-
+              
+		      <div className="grey-section">
+		        <h3>This is the beta version for testing purposes - it may contain unverified information</h3>
                 <p>
                   Use this tool to see what the scientific research is saying about:
                 </p>
@@ -84,25 +101,26 @@ class App extends React.Component {
                 <p>
                   <a href="https://www.ecehh.org/wp/wp-content/uploads/2023/01/Frequently-Asked-Questions-1.pdf"  target="_blank">See our Frequently Asked Questions for more information.</a>
                 </p>
-              </div>
+		      </div>
               
+              
+              <NetworkNamesLoader                
+                callback={(names) => {
+                    this.setState((state) => ({
+                        networks: names
+                    }));
+                }}
+              />
+                           
               <NetworkLoader
-                id={0}
+                id={this.state.networkID}
+                layerName={this.state.layerName}
                 callback={(nodes, edges) => {
                     this.setState((state) => ({
-                        network: { nodes: nodes, edges: edges },
-                        networkParser: new NetworkParser(nodes,edges)
+                        networkParser: new SimpleNetworkParser(nodes,edges)
                     }));}}
               />
 
-              {/*<StatsLoader
-                id={0}
-                callback={(stats) => {
-                    this.setState((state) => ({
-                        stats: stats
-                    }));}}
-              />*/}
-              
               <ClimatePredictionLoader
                 regions = {this.state.regions}
                 season = {this.state.season}
@@ -110,15 +128,15 @@ class App extends React.Component {
                 regionType = {this.state.regionType}
                 callback = {(prediction) => {
                       this.setState((state) => ({
-                        climatePrediction: prediction,
+                          climatePrediction: prediction,
                         loadingPrediction: false,                        
                     }));}}
                 loadingCallback={ loading => { this.setState(() => ({
                     loadingPrediction: true
                 }));}}
               />
-
-               <div className="white-section">
+              
+              <div className="white-section">
                 <ClimateMap
                   regionType = {this.state.regionType}
                   regionsCallback={(regions,regionType) => {
@@ -169,10 +187,40 @@ class App extends React.Component {
                   }));}}
                 />
               </div>}
+
+              {this.state.regions.length>0 &&              
+               <div className="white-section">
+                <Hazards
+                  regions = {this.state.regions}
+                  regionType = {this.state.regionType}                
+                />
+               </div>}
               
               {this.state.regions.length>0 &&              
-              <div className="white-section">
-                <HealthWellbeing
+               <div className="grey-section">
+
+                 
+		         <p>
+                   Choose network:&nbsp;
+                   <select onChange={(e) => {
+                       this.setState({
+                           networkID: e.target.value,
+                           layerName: network_layers[e.target.value][0],
+                       });}}>
+                     {this.state.networks.map((network) => {
+                         return <option value={network.network_id}>{network.name}</option>;
+                     })}
+                   </select> 
+                   &nbsp;& layer:&nbsp;
+                   <select onChange={(e) => this.setState({layerName: e.target.value})}>
+                     {network_layers[this.state.networkID].map((layer) => {
+                         return <option value={layer}>{layer}</option>;
+                     })}
+                   </select>                 
+                 </p>
+                 
+                 
+                 {/*<HealthWellbeing
                   networkParser = {this.state.networkParser}
                   year = {this.state.year}
                   climatePrediction = {this.state.climatePrediction}
@@ -180,10 +228,10 @@ class App extends React.Component {
                   loading = {this.state.loadingPrediction}
                   season={this.state.season}
                   rcp={this.state.rcp}
-                />
+                  />*/}
 
                 <Network
-                  network = {this.state.network}
+                  networks = {this.state.networks}
                   year = {this.state.year}
                   climatePrediction = {this.state.climatePrediction}
                   regions = {this.state.regions}
@@ -194,7 +242,7 @@ class App extends React.Component {
               </div>}
 
               {this.state.regions.length>0 &&              
-              <div className="grey-section">
+              <div className="white-section">
                 <Vulnerabilities
                   regions = {this.state.regions}
                   regionType = {this.state.regionType}                
@@ -202,10 +250,10 @@ class App extends React.Component {
               </div>}
               
               {this.state.regions.length>0 &&              
-               <div className="white-section">
-                <Adaptations
-                  networkParser = {this.state.networkParser}
-                  year = {this.state.year}
+               <div className="grey-section">
+                 <Adaptations
+                   networkParser = {this.state.networkParser}
+                   year = {this.state.year}
                   climatePrediction = {this.state.climatePrediction}
                   season = {this.state.season}
                   rcp={this.state.rcp}
@@ -213,8 +261,8 @@ class App extends React.Component {
                   loading = {this.state.loadingPrediction}
                 />
                </div>}
-
-              <div className="footer">
+              
+              <div className="footer white-section">
 
                 <p>
                   The Local Climate Adaptation Tool has been developed by

@@ -13,14 +13,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-//var admin = require('./admin');
+import createError from 'http-errors';
+import express from 'express';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
+import apiRouter from './routes/api.js';
+//import admin from './admin.js';
 
-var apiRouter = require('./routes/api');
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 var app = express();
 
@@ -63,5 +67,4 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-
-module.exports = app;
+export default app;

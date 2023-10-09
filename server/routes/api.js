@@ -13,13 +13,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-var express = require('express');
+import express from 'express';
 var router = express.Router();
 
 /* PostgreSQL and PostGIS module and connection setup */
-const { Client, Query } = require('pg')
+import pg from 'pg';
+const { Client, Query } = pg;
 
-require('dotenv').config()
+import dotenv from 'dotenv'
+dotenv.config()
 
 // Setup connection
 var username = process.env.DB_USER
@@ -42,6 +44,10 @@ const vulnerabilities = [
     "t1","t2","m1","m2","m3","c1","l1","e1","n1","n2","n3","s1","s2","s3","s4"
 ]
 
+const hazards = [
+    "coastal"
+]
+
 const boundary_details = {
     "boundary_uk_counties": {name: "name_2", srid: 32630, method: "cache"},
     "boundary_la_districts": {name: "lad22nm", srid: 27700, method: "cache"}, 
@@ -52,7 +58,7 @@ const boundary_details = {
 }
 
 const vardec = [];
-for (let variable of ["tas","sfcWind","pr","rsds"]) {
+for (let variable of ["tas",/*"tasmin","tasmax",*/"sfcWind","pr","rsds"]) {
     for (let decade of ["1980","1990","2000","2010","2020","2030","2040","2050","2060","2070"]) {
         vardec.push("avg("+variable+"_"+decade+") as "+variable+"_"+decade);
     }
@@ -96,7 +102,7 @@ router.get('/region', function (req, res) {
                                      ST_Transform(geom,27700),$1),4326))::json
                    ))
               )
-         	  from `+table+` where geom && ST_TRANSFORM(ST_MakeEnvelope($2,$3,$4,$5,4326),`+srid+`);`
+         	  from `+table+` where ST_TRANSFORM(geom,4326) && ST_MakeEnvelope($2,$3,$4,$5,4326);`
 
 	    var query = client.query(new Query(lsoa_query,
                                            [tolerance,
@@ -119,11 +125,11 @@ router.get('/region', function (req, res) {
 });
 
 router.get('/chess_scape', function (req, res) {
-	let locations = req.query.locations;
-	let rcp = req.query.rcp; 
-	let season = req.query.season; 
-	let boundary = req.query.boundary;
-
+    let locations = req.query.locations;
+    let rcp = req.query.rcp; 
+    let season = req.query.season; 
+    let boundary = req.query.boundary;
+    
     if (locations!=undefined &&
         is_valid_boundary(boundary) &&
         ["summer","winter","annual"].includes(season) &&
@@ -132,12 +138,12 @@ router.get('/chess_scape', function (req, res) {
         if (!Array.isArray(locations)) {
             locations=[locations];
         }
-
-        q="";
+	let d = boundary_details[boundary]
+        let q="";
         // the two different methods of climate data averaging...
-        if (boundary_details[boundary].method=="cell") {
-            // for small boundaries or large cells
-	        let region_grid = boundary+"_grid_mapping";
+        if (d.method=="cell") {
+	    // for small boundaries or large cells
+	    let region_grid = boundary+"_grid_mapping";
             var sq=`(select distinct tile_id from `+region_grid+` where geo_id in (`+locations.join()+`))`;               
             q=`select `+vardec.join()+` from chess_scape_`+rcp+`_`+season+` where id in `+sq+`;`;
         } else {
@@ -145,22 +151,22 @@ router.get('/chess_scape', function (req, res) {
             let cache_table = "cache_"+boundary+"_to_chess_scape_"+rcp+"_"+season;
             q=`select `+vardec.join()+` from `+cache_table+` where boundary_id in (`+locations.join()+`);`;
         }
-        
-	    var client = new Client(conString);
+
+	var client = new Client(conString);
         client.connect();
-	    var query = client.query(new Query(q));
+	var query = client.query(new Query(q));
 	    
-	    query.on("row", function (row, result) {
+	query.on("row", function (row, result) {
             result.addRow(row);
         });
         query.on("end", function (result) {
             res.send(result.rows);
             res.end();
-		    client.end();
+	    client.end();
         });
         query.on("error", function (err, result) {
             console.log("------------------error-------------------------");
-            console.log(req);
+            //console.log(req);
             console.log(err);
         });
     }
@@ -175,12 +181,12 @@ router.get('/vulnerabilities', function (req, res) {
             locations=[locations];
         }
 
-        vulns = []
-        for (v of vulnerabilities) {
+        let vulns = []
+        for (let v of vulnerabilities) {
             vulns.push("avg("+v+") as "+v)
         }
        
-        q=`select `+vulns.join()+` from `+boundary+`_vulnerabilities where boundary_id in (`+locations.join()+`);`;
+        let q=`select `+vulns.join()+` from `+boundary+`_vulnerabilities where boundary_id in (`+locations.join()+`);`;
         
 	    var client = new Client(conString);
         client.connect();
@@ -196,18 +202,16 @@ router.get('/vulnerabilities', function (req, res) {
         });
         query.on("error", function (err, result) {
             console.log("------------------error-------------------------");
-            console.log(req);
-            console.log(err);
+            //console.log(req);
         });
     }
 });
 
-
-router.get('/network_edges', function (req, res) {
+router.get('/networks', function (req, res) {
 	var client = new Client(conString);
     client.connect();
 
-    var q=`select * from network_edges;`
+    var q=`select * from networks;`
 	var query = client.query(new Query(q));
 	
 	query.on("row", function (row, result) {
@@ -220,16 +224,20 @@ router.get('/network_edges', function (req, res) {
     });
     query.on("error", function (err, result) {
         console.log("------------------error-------------------------");
-        console.log(req);
         console.log(err);
     });
 });
 
-router.get('/network_nodes', function (req, res) {
+
+router.get('/network_edges', function (req, res) {
+	let network_id = req.query.network_id;
+    
 	var client = new Client(conString);
     client.connect();
 
-    var q=`select * from network_nodes;`
+    var q=`select e.* from network_edge_mapping as m 
+           join network_edges as e on m.edge_id=e.edge_id
+           where m.network_id=`+network_id+`;`
 	var query = client.query(new Query(q));
 	
 	query.on("row", function (row, result) {
@@ -242,8 +250,44 @@ router.get('/network_nodes', function (req, res) {
     });
     query.on("error", function (err, result) {
         console.log("------------------error-------------------------");
-        console.log(req);
         console.log(err);
+    });
+});
+
+// todo: sanitise these inputs!
+router.get('/network_nodes', function (req, res) {
+    var client = new Client(conString);
+	let network_id = req.query.network_id;
+    let layer_name = req.query.layer_name;
+    client.connect();
+
+    console.log(network_id);
+
+    var q=`select e.*, m.x, m.y from network_node_mapping as m 
+           join network_nodes as e on m.node_id=e.node_id     
+           where m.network_id=`+network_id+`;`
+    
+    if (layer_name!="All") {
+        q=`select e.*, m.x, m.y from network_node_mapping as m 
+           join network_nodes as e on m.node_id=e.node_id
+           join network_node_layers as l on l.node_id=e.node_id
+           where m.network_id=`+network_id+` and l.layer_name='`+layer_name+`';`
+    }
+    console.log(q);
+	var query = client.query(new Query(q));
+
+    
+	query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+        res.send(result.rows);
+        res.end();
+		client.end();
+    });
+    query.on("error", function (err, result) {
+        console.log("------------------error-------------------------");
+        //console.log(req);
     });    
 });
 
@@ -319,6 +363,42 @@ router.get('/stats', function (req, res) {
     });
 });
 
+router.get('/hazards', function (req, res) {
+	let locations = req.query.locations;
+	let boundary = req.query.boundary;
+
+    if (locations!=undefined && is_valid_boundary(boundary)) {
+        if (!Array.isArray(locations)) {
+            locations=[locations];
+        }
+
+        let haz = []
+        for (let h of hazards) {
+            haz.push("max("+h+") as "+h)
+        }
+
+        let q=`select `+haz.join()+` from `+boundary+`_hazards where gid in (`+locations.join()+`);`;
+	    var client = new Client(conString);
+        client.connect();
+	    var query = client.query(new Query(q));
+	    
+	    query.on("row", function (row, result) {
+            result.addRow(row);
+        });
+        query.on("end", function (result) {
+            res.send(result.rows);
+            res.end();
+		    client.end();
+        });
+        query.on("error", function (err, result) {
+            console.log("------------------error-------------------------");
+            console.log(err);
+        });
+    }
+});
+
+
+
 // general purpose for debugging
 router.get('/geojson', function (req, res) {
     let table = req.query.table;
@@ -352,7 +432,7 @@ router.get('/geojson', function (req, res) {
 		client.end();
     });
 });
- 
+
 // general purpose for debugging
 router.get('/chessscape_debug', function (req, res) {
     let table = req.query.table;
@@ -401,4 +481,4 @@ router.get('/ping', function (req, res) {
     res.end();
 });
 
-module.exports = router;
+export default router;

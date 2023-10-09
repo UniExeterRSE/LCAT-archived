@@ -9,17 +9,27 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
+// WHY are we writing our own graph in the presence of hundreds of js
+// and react libraries in existence, you ask? Because none (we have
+// yet found) allow precice enough control of labelling of axes,
+// scaling of data, font sizes and device independant viewing in a way
+// that isn't faster to do ourselves directly in SVG
+
 import React, { useState, useEffect } from 'react';
 import { climateAverages } from '../core/climate';
 
 const decades=["1980","2030","2040","2050","2060","2070"];
 const graphWidth = 650;
 const graphHeight = 270;
+const barGap = 20;
+const graphStart = 100;
 const selectedRegionCol = "#216331";
 const averageRegionCol = "#48b961";
 
 const labels = {
     "tas": 'Temperature (°C)',
+    "tasmin": 'Min temperature (°C)',
+    "tasmax": 'Max temperature (°C)',
     "pr": 'Rainfall (mm/day)',
     "sfcwind": 'Wind (m/s)',
     "rsds": 'Cloudiness (W/m²)'
@@ -27,16 +37,21 @@ const labels = {
 
 const tickUnits = {
     "tas": 5,
+    "tasmin": 5,
+    "tasmax": 5,
     "pr": 1,
-    "sfcwind": 2,
+    "sfcwind": 1,
     "rsds": 50
 };
 
 const maximums = {
-    "tas": 30,
-    "pr": 6,
-    "sfcwind": 8,
-    "rsds": 250
+    // from build climate_stats - these are max of AVERAGES
+    'tas': 25,
+    'tasmin': 25,
+    'tasmax': 25,
+    'pr': 5,
+    'sfcwind': 6,
+    'rsds': 250
 };
 
 function ClimateGraph(props) {
@@ -55,14 +70,15 @@ function ClimateGraph(props) {
                 data.push(props.prediction[0][props.variable+"_"+decades[n]]);
             }
             setData(data);
-            let scale = (graphHeight-50)/maximums[props.variable];
+            // use the preset, fixed scales for each variable
+            let scale = (graphHeight-20)/maximums[props.variable];
             setScale(scale);
-
+            
             let ticks=[];
 	        for (let i=0; i<=maximums[props.variable]; i+=tickUnits[props.variable]) {
                 ticks.push({
-                    x:46,
-                    y:(graphHeight-i*scale)+10,
+                    x:graphStart-barGap-10,
+                    y:(graphHeight-i*scale),
                     v:i.toFixed()
                 });
 	        }
@@ -74,41 +90,48 @@ function ClimateGraph(props) {
         <svg
           width="100%"
           height="50%"
-          viewBox="0 0 800 300">         
+          viewBox="0 0 800 320">         
           {data.map((v,i) => {
-              let x=100+i*barWidth;
+              let x=graphStart+i*barWidth;
               let y=graphHeight;
               let h=v*scale;
                             
               if (props.showAverage) {
                   let variable=props.variable;
                   if (variable=="sfcwind") variable="sfcWind";
-                  let avkey= "chess_scape_"+props.rcp+"_"+props.season+"_"+variable+"_"+decades[i];
+                  let avkey= "chess_scape_"+props.rcp+"_"+props.season+"_"+variable+"_"+decades[i]+"_avg";
                   let av = climateAverages[avkey];
-                  let ah = av*scale;                  
+                  let ah = av*scale;
+                  let halfBarWidth = (barWidth-barGap)/2;
                   return (
                       <g>
                         <rect x={x} y={y-h}
-                              width={(barWidth/2)-2} height={h}
-                              fill={averageRegionCol}/>
-                        <text x={x+5} y={y-h+20}
-                              fill="#fff"
-                              fontSize="15">
-                          {v.toFixed(2)}
-                        </text>
-                        
-                        <rect x={x+barWidth/2-2} y={y-ah}
-                              width={(barWidth/2)-2} height={ah}
+                              width={halfBarWidth} height={h}
                               fill={selectedRegionCol}/>
-                        <text x={x+(barWidth/2)+3} y={y-ah+20}
-                              fill="#fff"
-                              fontSize="15">
-                          {av.toFixed(2)}
+                        <text x={x+halfBarWidth/2} y={y-h+15}
+                              fill="#fff"                          
+                              fontSize="15"
+                              dominant-baseline="middle"
+                              text-anchor="middle">
+                          { variable=="rsds" ? v.toFixed() : v.toFixed(2) }
                         </text>
                         
-                        <text x={x+10} y={y+30}
+                        <rect x={x+halfBarWidth} y={y-ah}
+                              width={halfBarWidth} height={ah}
+                              fill={averageRegionCol}/>
+                        <text x={x+halfBarWidth*1.5} y={y-ah+15}
+                              fill="#fff"
+                              fontSize="15"
+                              dominant-baseline="middle"
+                              text-anchor="middle">
+                          { variable=="rsds" ? av.toFixed() : av.toFixed(2) }
+                        </text>
+                        
+                        <text x={x+halfBarWidth} y={y+15}
                               fill="#42273b"
-                              fontSize="25">
+                              fontSize="15"
+                              dominant-baseline="middle"
+                              text-anchor="middle">
                           {decades[i]}
                         </text>                    
                       </g>
@@ -118,16 +141,21 @@ function ClimateGraph(props) {
                   return (
                       <g>
                         <rect x={x} y={y-h}
-                              width={barWidth-2} height={h}
+                              width={barWidth-barGap} height={h}
                               fill={selectedRegionCol}/>
-                        <text x={x+20} y={y-h+20}
+                        <text x={x+(barWidth-barGap)/2} y={y-h+15}
                               fill="#fff"
-                              fontSize="15">
-                          {v.toFixed(2)}
-                        </text>                    
-                        <text x={x+10} y={y+30}
+                              fontSize="15"
+                              dominant-baseline="middle"
+                              text-anchor="middle" >
+                          { props.variable=="rsds" ? v.toFixed() : v.toFixed(2) }
+                        </text>
+                                                
+                        <text x={x+(barWidth-barGap)/2} y={y+15}
                               fill="#42273b"
-                              fontSize="25">
+                              fontSize="15"
+                              dominant-baseline="middle"
+                              text-anchor="middle">
                           {decades[i]}
                         </text>                    
                       </g>
@@ -139,7 +167,9 @@ function ClimateGraph(props) {
               return (
                   <text
                     x={tick.x} y={tick.y}
-                    fontSize="15">
+                    fontSize="15"
+                    dominant-baseline="middle"
+                    text-anchor="end">
                     {tick.v}
                   </text>
               );
@@ -150,24 +180,34 @@ function ClimateGraph(props) {
             x="0" y="0"
             fill="#42273b"
             fontSize="15"
-            transform={"translate(30,"+(graphHeight-50)+") rotate(-90)"}>
+            transform={"translate(30,"+(graphHeight/2)+") rotate(-90)"}
+            dominant-baseline="middle"
+            text-anchor="middle" >
             {labels[props.variable]}
           </text>
           
           <line
-            x1="90"
-            y1={graphHeight+5}
-            x2="790"
-            y2={graphHeight+5}
+            x1={graphStart-barGap}
+            y1={graphHeight}
+            x2={graphStart+graphWidth}
+            y2={graphHeight}
             stroke={"#000"}/>
           
           <line
-            x1="90"
-            y1={graphHeight+5}
-            x2="90"
+            x1={graphStart-barGap}
+            y1={graphHeight}
+            x2={graphStart-barGap}
             y2="5"
             stroke={"#000"}/>
-          
+
+          <text
+            x={graphStart+graphWidth/2} y={graphHeight+40}
+            fill="#42273b"
+            fontSize="15"
+            dominant-baseline="middle"
+            text-anchor="middle" >
+            Decade
+          </text>
         </svg>
     );
 }

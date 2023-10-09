@@ -17,22 +17,32 @@ function NetworkLoader(props) {
             let prepend="";
             if (process.env.NODE_ENV==="development") {
                 prepend="http://localhost:3000";
-            }            
-            fetch(prepend+"/api/network_nodes").then(nodes_response => {
-                nodes_response.json()
-                    .then( nodes => {
-                        fetch(prepend+"/api/network_edges").then(edges_response => {
-                            edges_response.json()
-                                .then( edges => {                         
-                                    props.callback(nodes,edges);
+            }
+
+            let s = new URLSearchParams({network_id: props.id,
+                                         layer_name: props.layerName});
+
+//            console.log("LOADING NETWORK: "+props.id);
+            
+            fetch(prepend+"/api/network_nodes?"+s)
+                .then(nodes_response => {
+                    nodes_response.json()
+                        .then( nodes => {
+                            fetch(prepend+"/api/network_edges?"+s)
+                                .then(edges_response => {
+                                    edges_response.json()
+                                        .then( edges => {
+                                            console.log([nodes,edges]);
+                                            props.callback(nodes,edges);
+                                        });
                                 });
                         });
-                    });
-            });
+                });
         } catch(error) {
             console.error(error);
         }
-    },[props.id]);
+    },[props.id,
+       props.layerName]);
     
     return null;
 }

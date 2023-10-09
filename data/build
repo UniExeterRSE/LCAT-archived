@@ -26,6 +26,7 @@ from builder import tiff_loader
 from builder import cache_climate
 from builder import link_geom_lsoa
 from builder import vulnerabilities
+from builder import hazards
 
 def load_config():
     with open('config.yml') as f:
@@ -81,7 +82,7 @@ else:
         link_geom_climate.multi_clever(db,"boundary_parishes","chess_scape_grid")
         
     if sys.argv[1]=="cache_climate":
-        for boundary in ["boundary_parishes"]: #,"boundary_la_districts","boundary_uk_counties","boundary_msoa","boundary_sc_dz","boundary_lsoa"]:
+        for boundary in ["boundary_la_districts","boundary_uk_counties"]: # not used for these -> ,"boundary_msoa","boundary_sc_dz","boundary_lsoa","boundary_parishes"]:
             for climate in ["chess_scape_rcp85_annual","chess_scape_rcp85_summer","chess_scape_rcp85_winter",
                             "chess_scape_rcp60_annual","chess_scape_rcp60_summer","chess_scape_rcp60_winter"]:
                 cache_climate.cache_climate(db,boundary,climate)
@@ -91,9 +92,9 @@ else:
     # cache containing lsoas for all other boundaries
     if sys.argv[1]=="link_all_to_lsoa":
         link_geom_lsoa.centroids(db,"boundary_uk_counties","lsoa","27700")
-        #link_geom_lsoa.centroids(db,"boundary_la_districts","lsoa","27700")        
-        #link_geom_lsoa.centroids(db,"boundary_msoa","lsoa","27700")
-        #link_geom_lsoa.centroids(db,"boundary_parishes","lsoa","27700")
+        link_geom_lsoa.centroids(db,"boundary_la_districts","lsoa","27700")        
+        link_geom_lsoa.centroids(db,"boundary_msoa","lsoa","27700")
+        link_geom_lsoa.centroids(db,"boundary_parishes","lsoa","27700")
         
     # cache containing datzones for all other boundaries
     if sys.argv[1]=="link_all_to_sc_dz":
@@ -159,26 +160,57 @@ else:
  
     if sys.argv[1]=="chess_tiff_create_batch":    
         for rcp in ['rcp60','rcp85']:
-            for variable in ['tas','pr','rsds','sfcWind']:
+            for variable in ['tas','tasmin','tasmax','pr','rsds','sfcWind']:
                 tiff_loader.create_averages(db,rcp,conf['chess_tiff_path'],variable)
        
     if sys.argv[1]=="chess_tiff_import":    
         for rcp in ['rcp60','rcp85']:
-            for variable in ['tas','pr','rsds','sfcWind']:                
+            #for variable in ['tas','tasmin','tasmax','pr','rsds','sfcWind']:                
+            for variable in ['tasmin','tasmax']:                
                 tiff_loader.import_tiffs(db,conf['chess_tiff_decades_path'],rcp,variable)
 
     # network ----------------------------------------------------------
                 
     if sys.argv[1]=="network_json":
-        network_from_json.load(db,conf['network_json'],"Heat version 2")
+        network_from_json.load(db,conf['network_json'])
+
+    if sys.argv[1]=="network_summary_json":
+        network_from_json.load(db,conf['network_summary_json'])
 
     if sys.argv[1]=="network_refs":
         network_from_json.load_refs(db,conf['refs'])
 
     if sys.argv[1]=="network_nuke":
-        network_from_json.reset(db)
+        network_from_json.reset_network(db)
+
+    if sys.argv[1]=="network_refs_nuke":
+        network_from_json.reset_refs(db)
+
+    # hazards ----------------------------------------------------------
         
+    if sys.argv[1]=="hazards_nuke":
+        for boundary in ["boundary_lsoa",
+                         "boundary_msoa",
+                         "boundary_uk_counties",
+                         "boundary_la_districts",
+                         "boundary_sc_dz",
+                         "boundary_parishes"]:        
+            pass #hazards.reset(db,boundary)
+
+    if sys.argv[1]=="hazards_coastal":
+        for boundary in [#"boundary_msoa",
+                         #"boundary_uk_counties",
+                         #"boundary_la_districts",
+                         #"boundary_sc_dz",
+                         #"boundary_parishes",
+                         "boundary_lsoa"
+        ]:        
+            hazards.load_coastal(db,boundary,conf['coastal_outline'])
+
     if sys.argv[1]=="all":
+
+
+
         #ukcri.load(db,conf['uk_cri_data_path'])
         #db.load_shp_geom(conf['lsoa_data_shp'],"lsoa","27700")
         #db.load_shp_geom(conf['msoa_data_shp'],"msoa","27700")

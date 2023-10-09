@@ -9,6 +9,7 @@
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "colormap": "^2.3.2",
+    "convert-svg-react": "^1.0.0",
     "dotenv": "^16.0.3",
     "leaflet": "^1.9.3",
     "react": "^18.2.0",
@@ -20,10 +21,11 @@
     "react-leaflet": "^4.2.1",
     "react-loading-overlay": "^1.0.1",
     "react-scripts": "5.0.1",
-    "react-svg": "^16.1.1",
+    "react-svg": "^16.1.8",
     "react-vis": "^1.11.7",
-    "uuid": "^8.3.2",
-    "web-vitals": "^2.1.4"
+    "svg-to-jsx": "^1.0.4",
+    "uuid": "^9.0.0",
+    "web-vitals": "^3.3.1"
   },
   "scripts": {
     "start": "react-scripts start",
