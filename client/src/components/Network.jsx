@@ -291,95 +291,100 @@ function Network(props) {
     }
 
     return (
-        <div>
-          <div className="content"> 
-            <h1>Impact details</h1>
-            <p>
-              You can explore the network by clicking/tapping on the nodes and connections for more information. The network can also be zoomed and panned.
+        <div className="collapsible">
+            <div className="header" {...getToggleProps({onClick: handleOnClick})}>
+		{isExpanded ? 'Hide' : 'Explore'} impact details 
+            </div>
+            <div {...getCollapseProps()}>
+		<div className="content"> 
+		    <h1>Impact details</h1>
+		    <p>
+			You can explore the network by clicking/tapping on the nodes and connections for more information. The network can also be zoomed and panned.
 
-              View impacts relevant to&nbsp;
-              
-              <select onChange={(e) => updateSector(e.target.value)} >
-                <option value="All">All sectors</option>
-                <option value="Health & Social Care">Health & Social Care</option>
-                <option value="Biodiversity & Natural Habitats">Biodiversity & Natural Habitats</option>
-                <option value="Water Supply & Quality">Water Supply & Quality</option>
-                <option value="Education Services">Education Services</option>
-                <option value="Transport">Transport</option>
-                <option value="Energy Supply & Demand">Energy Supply & Demand</option>
-                <option value="Business & Industry">Business & Industry</option>
-                <option value="Information & Communication Technology">Information & Communication Technology</option>
-                <option value="International Factors">International Factors</option>
-              </select>              
-            </p>
+			View impacts relevant to&nbsp;
+			
+			<select onChange={(e) => updateSector(e.target.value)} >
+			    <option value="All">All sectors</option>
+			    <option value="Health & Social Care">Health & Social Care</option>
+			    <option value="Biodiversity & Natural Habitats">Biodiversity & Natural Habitats</option>
+			    <option value="Water Supply & Quality">Water Supply & Quality</option>
+			    <option value="Education Services">Education Services</option>
+			    <option value="Transport">Transport</option>
+			    <option value="Energy Supply & Demand">Energy Supply & Demand</option>
+			    <option value="Business & Industry">Business & Industry</option>
+			    <option value="Information & Communication Technology">Information & Communication Technology</option>
+			    <option value="International Factors">International Factors</option>
+			</select>              
+		    </p>
 
-            <FullScreen handle={handle}>
-              <div className="network">
-                <div className="network-holder">                  
-                  <NetworkListener
-                    networkParser = {props.networkParser}
-                    climatePrediction = {props.climatePrediction}
-                    year = {props.year}
-                    sector = {sector}
-                    callback = {() => {
-                        setGraph(networkRenderer.buildGraph(
-                            props.networkParser,
-                            sector,
-                            async (node, image) => {
-                                graphRef.current.nodes.update({
-                                    id: node.node_id,
-                                    image: await networkRenderer.nodeImageURL(node,false,false,image)
-                                });
-                            }));
-                        if (networkAPI!=null) networkAPI.fit();                          
-                        setVersion(version+1);
-                    }}
-                  />
-                  <Graph
-                    ref={graphRef}
-                    key={version}
-                    graph={graph}
-                    options={options}
-                    events={events}
-                    getNetwork={ network => setNetworkAPI(network) }
-                  />
-                </div>
-                <div ref={infoRef} className="network-info">
-                  <button className="fullscreen-button" onClick={() => {
-                      if (handle.active) handle.exit();
-                      else handle.enter();
-                      setVersion(version+1);
-                  }}>
-                    {handle.active ?
-                     <span>Exit fullscreen</span> :
-                     <span>Show fullscreen</span>}
-                  </button>
-                  <h2>{info.title}</h2>
-                  <p>{info.explanation}</p>
-                  <p>{info.text}</p>
-                  <References
-                    id={nodeedgeId}
-                    api_call={apiCall}
-                  />
-                  {/*<div className="metadata">
-                     <h3>Metadata</h3>
-                     <small>
-                     <ul>
-                     {info.metadata.map(el => (<li key={el[0]}><b>{el[0]}</b> : {el[1]}</li>))}
-                     </ul>
-                     </small>
-                     </div>*/} 
-                </div> 
-              </div>
-            </FullScreen>
-          </div>
-          
-          <p className="note">
-            Data source: The impact data is based on published scientific literature and reports. A <a href="https://static.thentrythis.org/data/climate-data/network/LCAT%20impact%20network%20references%20-%20for%20sharing%20-%20Sheet1.csv" target="_blank">full reference list is available here</a>, and the references relevant to particular impacts can be explored by clicking on the nodes and connections in the network above.
-            The <a href="https://static.thentrythis.org/data/climate-data/network/kumu-lcat-project-lcat-edits.json" target="_blank">full network data (exported from Kumu as JSON) can be downloaded here.</a>
-          </p>
-        </div>
-    );
+		    <FullScreen handle={handle}>
+			<div className="network">
+			    <div className="network-holder">                  
+				<NetworkListener
+				    networkParser = {props.networkParser}
+				    climatePrediction = {props.climatePrediction}
+				    year = {props.year}
+				    sector = {sector}
+				    callback = {() => {
+					setGraph(networkRenderer.buildGraph(
+					    props.networkParser,
+					    sector,
+					    async (node, image) => {
+						graphRef.current.nodes.update({
+						    id: node.node_id,
+						    image: await networkRenderer.nodeImageURL(node,false,false,image)
+						});
+					    }));
+					if (networkAPI!=null) networkAPI.fit();                          
+					setVersion(version+1);
+				    }}
+				/>
+				<Graph
+				    ref={graphRef}
+				    key={version}
+				    graph={graph}
+				    options={options}
+				    events={events}
+				    getNetwork={ network => setNetworkAPI(network) }
+				/>
+			    </div>
+			    <div ref={infoRef} className="network-info">
+				<button className="fullscreen-button" onClick={() => {
+					    if (handle.active) handle.exit();
+					    else handle.enter();
+					    setVersion(version+1);
+					}}>
+				    {handle.active ?
+				     <span>Exit fullscreen</span> :
+				     <span>Show fullscreen</span>}
+				</button>
+				<h2>{info.title}</h2>
+				<p>{info.explanation}</p>
+				<p>{info.text}</p>
+				<References
+				    id={nodeedgeId}
+				    api_call={apiCall}
+				/>
+				{/*<div className="metadata">
+				   <h3>Metadata</h3>
+				   <small>
+				   <ul>
+				   {info.metadata.map(el => (<li key={el[0]}><b>{el[0]}</b> : {el[1]}</li>))}
+				   </ul>
+				   </small>
+				   </div>*/} 
+			    </div> 
+			</div>
+		    </FullScreen>
+		</div>
+		
+		<p className="note">
+		    Data source: The impact data is based on published scientific literature and reports. A <a href="https://static.thentrythis.org/data/climate-data/network/LCAT%20impact%20network%20references%20-%20for%20sharing%20-%20Sheet1.csv" target="_blank">full reference list is available here</a>, and the references relevant to particular impacts can be explored by clicking on the nodes and connections in the network above.
+		    The <a href="https://static.thentrythis.org/data/climate-data/network/kumu-lcat-project-lcat-edits.json" target="_blank">full network data (exported from Kumu as JSON) can be downloaded here.</a>
+		</p>
+            </div>
+	</div>
+);
 }
 
 export default Network;

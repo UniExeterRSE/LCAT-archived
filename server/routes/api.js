@@ -58,7 +58,7 @@ const boundary_details = {
 }
 
 const vardec = [];
-for (let variable of ["tas",/*"tasmin","tasmax",*/"sfcWind","pr","rsds"]) {
+for (let variable of ["tas","tasmin","tasmax","sfcWind","pr","rsds"]) {
     for (let decade of ["1980","1990","2000","2010","2020","2030","2040","2050","2060","2070"]) {
         vardec.push("avg("+variable+"_"+decade+") as "+variable+"_"+decade);
     }

@@ -30,7 +30,6 @@ import HealthSvg from '../images/icons/Public health & wellbeing.svg';
 // Driver, Pressure, State, Exposure, Effect, Action
 
 import { CorrelationNetwork } from './CorrelationNetwork';
-//import { CorrelationNetwork } from './CorrelationNetwork';
 import { NetworkParser } from './NetworkParser';
 import { formatTextWrap } from '../utils/utils';
 import { loadImage, placeholderIcon, imageLoaded, getImage, textIcon } from '../utils/iconLoader';
@@ -40,9 +39,9 @@ const preview_font_size=6;
 
 class NetworkRenderer extends CorrelationNetwork {
 
-	constructor() {
+    constructor() {
         super([],[]);
-		this.iconCacheLoading = false;
+	this.iconCacheLoading = false;
         this.nodeColour = {
             "Driver": "#204545",
             "Pressure": "#204545",
@@ -57,11 +56,11 @@ class NetworkRenderer extends CorrelationNetwork {
             "Wind speed": 300,
             "Cloud cover": 450
         };      
-	}
+    }
 
-	printable(str) {
-		return str.replace("&","&amp;");
-	}
+    printable(str) {
+	return str.replace("&","&amp;");
+    }
 
     capLength(str) {
         if (str.length>49) {
@@ -73,7 +72,7 @@ class NetworkRenderer extends CorrelationNetwork {
     // this function needs tidying up - image management could
     // be better dealt with, but at least currently works with
     // async loading for slow connections etc.
-	async nodeImageURL(node,glow,transparent,image) {
+    async nodeImageURL(node,glow,transparent,image) {
         // icons are 117x117 pixels
         let icon_height=117;        
         let image_height = 300;
@@ -118,16 +117,16 @@ class NetworkRenderer extends CorrelationNetwork {
             draw.group().svg(await loadImage(node.state)).move(54,60);
         }
 
-		return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(draw.svg());
-	}
+	return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(draw.svg());
+    }
 
-	getRnd(min, max) {
-		return (Math.random() * (max - min) ) + min;
-	}
-	
-///////////////////////////////////////
+    getRnd(min, max) {
+	return (Math.random() * (max - min) ) + min;
+    }
+    
+    ///////////////////////////////////////
 
-	async addNode(node,image_callback) {
+    async addNode(node,image_callback) {
         // start with a placeholder version
         let image = placeholderIcon(this.nodeColour[node.type]);
         let imageFilename = "icons/"+node.label;
@@ -144,35 +143,35 @@ class NetworkRenderer extends CorrelationNetwork {
         }
         
         if (node.type=="Pressure") {
-        	this.nodes.push({
-			    id: node.node_id,
-			    shape: "image",
-			    image: await this.nodeImageURL(node,false,false,image),
-			    size: 30,
-				x: -500,
-				y: this.nodePositions[node.label],
-				fixed: true,
+            this.nodes.push({
+		id: node.node_id,
+		shape: "image",
+		image: await this.nodeImageURL(node,false,false,image),
+		size: 30,
+		x: -500,
+		y: this.nodePositions[node.label],
+		fixed: true,
                 mDPSEEA: node.type,
                 sector: node.sector
-		    });
+	    });
         } else {        
             this.nodes.push({
-			    id: node.node_id,
-			    shape: "image",
-			    image: await this.nodeImageURL(node,false,false,image),
-			    size: 30,
+		id: node.node_id,
+		shape: "image",
+		image: await this.nodeImageURL(node,false,false,image),
+		size: 30,
                 mDPSEEA: node.type,
                 sector: node.sector
-		    });
+	    });
         }
-	}
+    }
 
-	addEdge(edge) {
+    addEdge(edge) {
         let colour = "#115158" ;
         let highlightColour = "#f5821f";
-        if (edge.state=="increase") colour="#afd6e4";
-        if (edge.state=="decrease") colour="#f1b9bd";
-        if (edge.state=="uncertain") colour="#d6d6d6";
+        //if (edge.state=="increase") colour="#afd6e4";
+        //if (edge.state=="decrease") colour="#f1b9bd";
+        //if (edge.state=="uncertain") colour="#d6d6d6";
         
         let label=edge.type;
         var labelsize = 15;
@@ -182,59 +181,59 @@ class NetworkRenderer extends CorrelationNetwork {
         if (edge.state=="uncertain") dir="?";
         
         this.edges.push({
-			id: edge.edge_id,
-			from: edge.node_from,
-			to: edge.node_to,
-			arrows: "to",
+	    id: edge.edge_id,
+	    from: edge.node_from,
+	    to: edge.node_to,
+	    arrows: "",
             width: 3,
             //label: dir+" ("+edge.type+")",
-			//labelHighlightBold: false,
-			//arrowStrikethrough: false,
+	    //labelHighlightBold: false,
+	    //arrowStrikethrough: false,
             smooth: {
                 type: "dynamic",
                 enabled: true,
                 roundness: 0.5,
             },
-			font: {
-				color: colour,
-				size: labelsize,
-				//vadjust: 10,
-				//align: "bottom"
-			},
-			color: {
-				color: colour,
-				highlight: highlightColour,
-			},
+	    font: {
+		color: colour,
+		size: labelsize,
+		//vadjust: 10,
+		//align: "bottom"
+	    },
+	    color: {
+		color: colour,
+		highlight: highlightColour,
+	    },
             endPointOffset: { to: 1.2 }
-		});
-	}
+	});
+    }
     
-	buildGraph(networkParser, sector, image_callback) {               
+    buildGraph(networkParser, sector, image_callback) {               
         this.nodes = [];
-		this.edges = [];
+	this.edges = [];
 
         // do we want a straight copy of the edges, or apply
         // same filtering as below?
-		for (let edge of networkParser.edges) {
-   			this.addEdge(edge);
-		}
+	for (let edge of networkParser.edges) {
+   	    this.addEdge(edge);
+	}
         
         // find causes and propagate upwards (right?) from there
-		for (let node of networkParser.nodes) {            
+	for (let node of networkParser.nodes) {            
             if (["Pressure", "Effect", "State", "Exposure"].includes(node.type) &&
                 node.state!="uncalculated" && node.state!="disabled") {
                 if (sector!="All" && !node.sector.includes(sector)) {
                     node.transparent=true;
                 }
-   			    this.addNode(node,image_callback);
+   		this.addNode(node,image_callback);
             }
-		}
+	}
 
         return {
             nodes: this.nodes,
             edges: this.edges
         };
-	}
+    }
 }
 
 export { NetworkRenderer }

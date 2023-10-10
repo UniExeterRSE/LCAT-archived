@@ -98,8 +98,8 @@ function Graph(props) {
 
                 <select onChange={(e) => { setVariable(e.target.value); }}>
                   <option value="tas">temperature</option>
-                  {/*<option value="tasmin">min temperature</option>
-                     <option value="tasmax">max temperature</option>*/}
+                  <option value="tasmin">min temperature</option>
+                  <option value="tasmax">max temperature</option>
                   <option value="pr">rain</option>
                   <option value="sfcwind">wind</option>
                   <option value="rsds">cloudiness</option>
