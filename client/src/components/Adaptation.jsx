@@ -35,7 +35,6 @@ function Adaptation(props) {
               <b>Description:</b>
               <p>{props.a.action.description}</p>
 
-              {/*
               { props.a.parents.length>0 &&
                 <div>
                   <b>Direct effects:</b>
@@ -66,7 +65,7 @@ function Adaptation(props) {
                   </ul>
                 </div>
               }
-               */}
+
               <References
                 id={props.a.action.node_id}
                 api_call={"node_references"}
