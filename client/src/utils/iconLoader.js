@@ -81,6 +81,7 @@ export async function loadImage(fn,col) {
         
     let data = await response.text();
     iconCache[fn]=data;
+    console.log("loaded "+fn);
 
     //iconCache[fn]=placeholderIcon(col);
     return iconCache[fn];

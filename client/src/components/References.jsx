@@ -56,7 +56,7 @@ function ReportReference(props) {
           <li><a href={props.a.link}
                  className="reference-title"
                  target="_blank">{props.a.title}
-              </a> ({props.a.type})</li>
+              </a> ({props.a.type}) {props.a.title}</li>
           <li><b>Source: </b>{props.a.doi}</li>
         </ul>
     );

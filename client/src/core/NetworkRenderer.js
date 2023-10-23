@@ -83,6 +83,8 @@ class NetworkRenderer extends CorrelationNetwork {
         if (transparent) {
             draw.attr('filter','grayscale(1.0) contrast(0.25) brightness(2)');
         }
+
+        console.log("drawing...");
         
         // draw the text as a foreign object so we don't need to line wrap etc
         let fobj = draw.foreignObject(117,300).move(10,220);
