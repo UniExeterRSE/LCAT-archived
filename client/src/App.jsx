@@ -274,6 +274,10 @@ class App extends React.Component {
                 </p>
 
                 <p>
+                  This has been co-funded through the BlueAdapt project. BlueAdapt has received funding from the European Union’s Horizon Europe research and innovation programme under grant agreement No 101057764 and by the UKRI/HM Government.                  
+                </p>
+                
+                <p>
                   The LCAT project team (University of Exeter, Then Try This,
                   Cornwall Council and The Alan Turing Institute) and their
                   agents, take no responsibility for decisions taken as a
@@ -295,12 +299,12 @@ class App extends React.Component {
                   Copyright © 2022 Then Try This and University of Exeter
                 </p>
                 
-                <p>
-                  <a className="email-button" href="mailto:lcat@exeter.ac.uk"/>
-                </p>                
-
                 <div className="logo-block">
                   <img className="logos"/>
+                </div>
+
+                <div className="logo-block">
+                  <img className="funder-logos"/>
                 </div>
 
               </div>

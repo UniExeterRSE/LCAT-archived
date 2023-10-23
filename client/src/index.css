@@ -174,10 +174,17 @@ button:hover {
 
 .logo-block {
     width: 100%;
+    margin-bottom: 2em;
 }
 
 .logos {
     content: url("images/logos/v2_new.png");
+    width: 100%;
+    max-width: 1000px;
+}
+
+.funder-logos {
+    content: url("images/logos/funder logos.png");
     width: 100%;
     max-width: 1000px;
 }
