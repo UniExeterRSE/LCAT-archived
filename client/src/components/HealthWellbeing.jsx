@@ -97,7 +97,7 @@ function HealthWellbeing(props) {
               { andify(props.regions.map(e => e.name)) }
             </span>
 
-            &nbsp;under the <b>{rcpText[props.rcp]}</b> when considering <b>{seasonText[props.season]}</b> averages, is expected to result in these health and wellbeing impacts:
+            &nbsp;under the <b>{rcpText[props.rcp]}</b> when considering <b>{seasonText[props.season]}</b> averages, is expected to result in these undesirable health and wellbeing impacts:
           </p>
           
           <div className={"horiz-container-health"}>        
