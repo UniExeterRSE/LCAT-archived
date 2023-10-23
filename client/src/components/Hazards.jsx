@@ -79,7 +79,15 @@ function Hazards(props) {
           spinner
           text={'Loading hazard data'}>
 
-          <h1>Climate related risks</h1>
+          <div className={'title'}>              
+            <h1>Environmental Vulnerabilities</h1>
+            <div className="dropdown">
+              <span className="caveat">Data quality</span>
+	          <div className="dropdown-content">
+                This data is proof of concept, only including whether an area is coastal or not, but it is up to date and reliable.
+              </div>
+            </div>
+          </div>
 
           <p>
             Everywhere will be exposed to the impacts of climate change & extreme weather events but not everywhere will be effected equally.

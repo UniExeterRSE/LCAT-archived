@@ -27,7 +27,17 @@ function ClimateSettings(props) {
 
     return (
         <div>
-          <h1>Climate Summary</h1>
+
+            <div className={'title'}>
+              <h1>Climate Summary</h1> 
+              <div className="dropdown">
+                <span className="caveat">Data quality</span>
+	            <div className="dropdown-content">
+                  This data is up to date and reliable
+                </div>
+              </div>
+            </div>
+
           <p>
             For&nbsp;
 

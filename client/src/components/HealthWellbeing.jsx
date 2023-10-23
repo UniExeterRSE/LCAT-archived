@@ -79,9 +79,17 @@ function HealthWellbeing(props) {
           active={props.loading}
           spinner
           text={'Loading climate data'}>
-
-          <h1>Health Impact Summary</h1>
-
+          
+          <div className={'title'}>              
+            <h1>Health Impact Summary</h1>
+            <div className="dropdown">
+              <span className="caveat">Data quality</span>
+	          <div className="dropdown-content">
+                This data is proof of concept and not reliable
+              </div>
+            </div>
+          </div>
+          
           <p>
             The climate change in&nbsp;
             

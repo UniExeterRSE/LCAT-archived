@@ -90,7 +90,7 @@ class App extends React.Component {
                 <p>The tool is a prototype, and only considers some heat impacts. The version you are looking at was developed by Then Try This. The tool continues to be developed by the University of Exeter, so you may find a more recent version at <a href="https://lcat.uk/">https://lcat.uk/</a></p>
                 
                 <p>
-                  <a href="https://www.ecehh.org/wp/wp-content/uploads/2023/01/Frequently-Asked-Questions-1.pdf"  target="_blank">See our Frequently Asked Questions for more information.</a>
+                  <a href="https://web.archive.org/web/20231017162308/https://www.ecehh.org/wp/wp-content/uploads/2023/01/Frequently-Asked-Questions-1.pdf"  target="_blank">See our Frequently Asked Questions for more information.</a>
                 </p>
 		      </div>
               

@@ -209,3 +209,37 @@ button:hover {
         padding-right: 50px;
     }
 }*/
+
+.title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.dropdown {
+/*    font-size: 75%;
+    margin-top: 0.67em;     */
+}
+
+.caveat {
+    padding: 2px;
+    border-radius: 5px;
+    background: #b2e1bc;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    color: black;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 0.5em;
+    z-index: 1;
+    font-size: 75%;
+    line-height: 1.2em;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+

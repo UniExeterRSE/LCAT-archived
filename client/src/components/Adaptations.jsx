@@ -38,7 +38,15 @@ function Adaptations(props) {
 
     return (
         <div>
-          <h1>Adaptations</h1>
+          <div className={'title'}>              
+            <h1>Adaptations</h1>
+            <div className="dropdown">
+              <span className="caveat">Data quality</span>
+	          <div className="dropdown-content">
+                This data is ok to use, but the adaptations may not be the best for your area
+              </div>
+            </div>
+          </div>
           <p>
             Based on the expected climate change and the resulting impacts in&nbsp;
 

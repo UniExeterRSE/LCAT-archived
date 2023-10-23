@@ -98,7 +98,15 @@ function Vulnerabilities(props) {
             active={loading}
             spinner
             text={'Loading...'}>
-            <h1>Vulnerabilities</h1>
+            <div className={'title'}>
+              <h1>Social Vulnerabilities</h1>
+              <div className="dropdown">
+                <span className="caveat">Data quality</span>
+	            <div className="dropdown-content">
+                  This data is out of date and not reliable
+                </div>
+              </div>
+            </div>
             <p>
               The following vulnerabilities are particularly important in your selected area of&nbsp;              
 
