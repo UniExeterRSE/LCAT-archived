@@ -174,7 +174,7 @@ button:hover {
 
 .logo-block {
     width: 100%;
-    margin-bottom: 2em;
+    margin-top: 2em;
 }
 
 .logos {
@@ -219,15 +219,14 @@ button:hover {
 
 .title {
     display: flex;
-    justify-content: space-between;
 }
 
 .dropdown {
-/*    font-size: 75%;
-    margin-top: 0.67em;     */
+    margin-top: 1.5em;
+    margin-left: 1em;
 }
 
-.caveat {
+.caveat {    
     padding: 2px;
     border-radius: 5px;
     background: #b2e1bc;

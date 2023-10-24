@@ -262,7 +262,12 @@ class App extends React.Component {
                   the <a href="https://www.ecehh.org/" target="_blank">University of Exeter’s European Centre for Human Health</a>, <a href="https://www.cornwall.gov.uk/" target="_blank">Cornwall Council</a>, <a href="https://thentrythis.org" target="_blank">Then Try This</a> and <a href="https://www.turing.ac.uk/" target="_blank">The Alan Turing Institute</a> with
                   co-design partners from Local Government, the National
                   Health Service, emergency services, and voluntary and private
-                  sectors. Funding for the project has been provided by Research
+                  sectors. This project has been co-funded through the BlueAdapt project.
+                  BlueAdapt has received funding from the European Union’s
+                  Horizon Europe research and innovation programme under grant
+                  agreement No 101057764 and by the UKRI/HM Government.
+
+                  Other funding includes Research
                   England’s Collaboration Fund, Strategic Priorities Fund and
                   Policy Support Fund, as part of the Policy@Exeter initiative,
                   The Schroder Foundation, and the Net Zero Innovation
@@ -273,10 +278,6 @@ class App extends React.Component {
                   Alan Turing Institute.
                 </p>
 
-                <p>
-                  This has been co-funded through the BlueAdapt project. BlueAdapt has received funding from the European Union’s Horizon Europe research and innovation programme under grant agreement No 101057764 and by the UKRI/HM Government.                  
-                </p>
-                
                 <p>
                   The LCAT project team (University of Exeter, Then Try This,
                   Cornwall Council and The Alan Turing Institute) and their
