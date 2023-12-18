@@ -9,3 +9,8 @@ yarn-error.log
 node_modules
 *.pyc
 
+# Ignore .sql files
+*.sql
+
+# Ignore Python .venv folder
+data/venv
