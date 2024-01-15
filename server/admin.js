@@ -76,7 +76,7 @@ admin.setup = function(app) {
     const adminRouter = AdminJSExpress.buildRouter(adminJs)
 
     app.use(adminJs.options.rootPath, (req, res, next) => {
-        const auth = {login: 'admin', password: process.env.ADMIN_PASS} // change this        
+        const auth = {login: process.env.ADMIN_LOGIN, password: process.env.ADMIN_PASS} // change this        
         // parse login and password from headers
         const b64auth = (req.headers.authorization || '').split(' ')[1] || ''
         const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':')
