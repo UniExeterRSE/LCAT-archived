@@ -19,7 +19,7 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import apiRouter from './routes/api.js';
-//import admin from './admin.js';
+// import admin from './admin.js';
 
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -49,7 +49,7 @@ app.use(function(req, res, next) {
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', apiRouter);
 
-admin.setup(app);
+// admin.setup(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

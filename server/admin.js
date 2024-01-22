@@ -1,8 +1,13 @@
 import AdminJS from "adminjs";
 import AdminJSExpress from '@adminjs/express';
 
+// commonjs
 const AdminJSSequelize = require('@adminjs/sequelize')
 const Sequelize = require('sequelize');
+
+// esm
+// import AdminJSSequelize from '@adminjs/sequelize';
+// import { Sequelize } from 'sequelize';
 
 admin = {}
 
