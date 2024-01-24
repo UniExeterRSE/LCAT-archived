@@ -18,3 +18,6 @@ data/venv
 
 # Ignore AdminJS build files
 .adminjs/
+
+# Ignore data store
+data/store
