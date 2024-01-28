@@ -24,3 +24,6 @@ data/venv
 
 # Ignore data store
 data/store
+
+# Ignore data scripts
+data/scripts
