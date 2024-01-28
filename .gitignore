@@ -10,3 +10,11 @@ node_modules
 *.pyc
 __pycache__
 
+# Ignore .sql files
+*.sql
+
+# Ignore Python .venv folder
+data/venv
+
+# Ignore AdminJS build files
+.adminjs/
