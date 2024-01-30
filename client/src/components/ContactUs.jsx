@@ -10,7 +10,7 @@ const ContactUs = () => {
                 </p>
                 <p>
                     Email us at:&nbsp; 
-                    <a>lcat@exeter.ac.uk</a>
+                    <a href="mailto:lcat@exeter.ac.uk">lcat@exeter.ac.uk</a>
                 </p>
             </div>
         </div>
