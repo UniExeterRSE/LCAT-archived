@@ -27,6 +27,7 @@ import Vulnerabilities from './components/Vulnerabilities';
 import Adaptations from './components/Adaptations';
 
 import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_Primary_RGB.svg';
+import ContactUs from './components/ContactUs';
 
 const meta = {
     title: 'Local Climate Adaptation Tool',
@@ -213,6 +214,10 @@ class App extends React.Component {
                 />
                </div>}
 
+              <div className="contact-us">
+                <ContactUs />
+              </div>
+
               <div className="footer">
 
                 <p>
@@ -255,7 +260,7 @@ class App extends React.Component {
 
                 <p>
                   Copyright © 2022 Then Try This and University of Exeter
-                </p>
+                </p>                
                 
                 <div className="logo-block">
                   <img className="logos"/>
