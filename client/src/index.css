@@ -153,7 +153,7 @@ button:hover {
     text-align: center;
 }
 
-.contact-us {
+.contact-footer {
     padding-top: 0.5em;
     padding-bottom: 1.5em;
     background: #f7f7f7;
@@ -161,16 +161,24 @@ button:hover {
     text-align: center;
 }
 
-.contact-us-flex-container {
+.footer-flex-container {
     display: flex;
     flex-direction: column;
-    align-items: center
+    align-items: center;
 }
 
-.contact-us-flex-content {
+.footer-flex-content {
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+.footer-heading {
+    font-family: "Montserrat-Black", Arial, Helvetica, sans-serif;
+    font-size: 200%;
+    margin: 0em;
+    color: #115158ff;
+    text-transform: uppercase;
 }
 
 .email-button {
@@ -179,11 +187,29 @@ button:hover {
     height: 50px;
     background: url("images/email_button.png") no-repeat;
     background-size: 100% 100%;
+    margin-top: 0.6em;
     margin-right: 1em;
+    margin-left: 1em;
 }
 
 .email-button:hover {
     background: url("images/email_button_selected_yellow.png") no-repeat;
+    background-size: 100% 100%;
+}
+
+.faq-button {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    background: url("images/faq_button.png") no-repeat;
+    background-size: 100% 100%;
+    margin-top: 0.6em;
+    margin-right: 1em;
+    margin-left: 1em;
+}
+
+.faq-button:hover {
+    background: url("images/faq_button_selected_yellow.png") no-repeat;
     background-size: 100% 100%;
 }
 

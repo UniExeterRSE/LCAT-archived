@@ -2,15 +2,17 @@ import React from "react";
 
 const ContactUs = () => {
     return (
-        <div className="contact-us-flex-container">
+        <div className="footer-flex-container">
             <h1>Need help? Contact us.</h1>
-            <div class="contact-us-flex-content">
+            <div class="footer-flex-content">
                 <p>
-                    <a class="email-button" href="mailto:lcat@exeter.ac.uk"></a>
+                    <a className="email-button" href="mailto:lcat@exeter.ac.uk" target="_blank" rel="noreferrer"></a>
                 </p>
                 <p>
-                    Email us at:&nbsp; 
-                    <a href="mailto:lcat@exeter.ac.uk">lcat@exeter.ac.uk</a>
+                    Email us at:&nbsp;
+                    <a href="mailto:lcat@exeter.ac.uk" target="_blank" rel="noreferrer">
+                        lcat@exeter.ac.uk
+                    </a>
                 </p>
             </div>
         </div>
