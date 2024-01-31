@@ -187,6 +187,7 @@ button:hover {
     height: 50px;
     background: url("images/email_button.png") no-repeat;
     background-size: 100% 100%;
+    margin-top: 0.6em;
     margin-right: 1em;
     margin-left: 1em;
 }
@@ -202,6 +203,7 @@ button:hover {
     height: 50px;
     background: url("images/faq_button.png") no-repeat;
     background-size: 100% 100%;
+    margin-top: 0.6em;
     margin-right: 1em;
     margin-left: 1em;
 }
