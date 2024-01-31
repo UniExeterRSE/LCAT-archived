@@ -29,6 +29,7 @@ import Adaptations from './components/Adaptations';
 import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_Primary_RGB.svg';
 import ContactUs from './components/ContactUs';
 import FAQFooter from './components/FAQFooter';
+import Feedback from './components/Feedback';
 
 const meta = {
     title: 'Local Climate Adaptation Tool',
@@ -214,6 +215,10 @@ class App extends React.Component {
                   loading = {this.state.loadingPrediction}
                 />
                </div>}
+
+              <div className="grey-section">
+                <Feedback />
+              </div> 
 
               <div className="contact-footer">
                 <ContactUs />
