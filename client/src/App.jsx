@@ -28,6 +28,7 @@ import Adaptations from './components/Adaptations';
 
 import { ReactComponent as LCATLogoSvg } from './images/logos/LCAT_Logo_Primary_RGB.svg';
 import ContactUs from './components/ContactUs';
+import FAQFooter from './components/FAQFooter';
 
 const meta = {
     title: 'Local Climate Adaptation Tool',
@@ -82,7 +83,7 @@ class App extends React.Component {
                 </p>
                 
                 <p>
-                  <a href="https://www.ecehh.org/wp/wp-content/uploads/2023/01/Frequently-Asked-Questions-1.pdf"  target="_blank">See our Frequently Asked Questions for more information.</a>
+                  <a href="https://www.ecehh.org/wp/wp-content/uploads/2023/01/Frequently-Asked-Questions-1.pdf" target="_blank">See our Frequently Asked Questions for more information.</a>
                 </p>
               </div>
               
@@ -214,8 +215,9 @@ class App extends React.Component {
                 />
                </div>}
 
-              <div className="contact-us">
+              <div className="contact-footer">
                 <ContactUs />
+                <FAQFooter />
               </div>
 
               <div className="footer">
