@@ -36,23 +36,23 @@ function ClimateHazardRisk(props) {
                 <div className="horiz-container">
                     <div className="vert-container">
                         <p>Heatwaves</p>
-                        <HeatwaveSvg className="climate-arrow"/>
+                        <HeatwaveSvg className="hazard-img"/>
                     </div>
                     <div className="vert-container">
                         <p>Wildfires</p>
-                        <WildfiresSvg className="climate-arrow" />
+                        <WildfiresSvg className="hazard-img" />
                     </div>
                     <div className="vert-container">
                         <p>Air Quality</p>
-                        <AirPollutionSvg className="climate-arrow" />
+                        <AirPollutionSvg className="hazard-img" />
                     </div>
                     <div className="vert-container">
                         <p>Flooding</p>
-                        <FloodSvg className="climate-arrow" />
+                        <FloodSvg className="hazard-img" />
                     </div>
                     <div className="vert-container">
                         <p>Coastal Erosion</p>
-                        <CoastalErosionSvg className="climate-arrow" />
+                        <CoastalErosionSvg className="hazard-img" />
                     </div>
                 </div>
             </div>
