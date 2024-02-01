@@ -1,5 +1,5 @@
 import * as React from "react";
-const SvgAirPollution = (props) => (
+const AirPollutionSvg = (props) => (
 <svg height="116.62866" id="svg1933" width="116.62866" version="1.1" viewBox="0 0 30.858 30.858" xmlns="http://www.w3.org/2000/svg">
 	<defs id="defs1927">
 		<mask id="mask2260" maskUnits="userSpaceOnUse">
@@ -18,4 +18,4 @@ const SvgAirPollution = (props) => (
 	</g>
 </svg>
 );
-export default SvgAirPollution;
+export default AirPollutionSvg;

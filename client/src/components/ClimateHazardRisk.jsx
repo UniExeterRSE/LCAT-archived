@@ -12,6 +12,13 @@
 import React from "react";
 import LoadingOverlay from "react-loading-overlay";
 
+import HeatwaveSvg from '../images/hazards/Heatwave.js'
+import WildfiresSvg from '../images/hazards/Wildfires.js'
+import FloodSvg from '../images/hazards/Flood.js'
+import AirPollutionSvg from '../images/hazards/AirPollution.js'
+import CoastalErosionSvg from '../images/hazards/CoastalErosion.js'
+
+
 import "./ClimateHazardRisk.css";
 
 function ClimateHazardRisk(props) {
@@ -24,6 +31,31 @@ function ClimateHazardRisk(props) {
                 than others. Exploring each icon will provide information about that climate hazard and links to
                 relevant localised datasets.
             </p>
+
+            <div className="climate-hazard">
+                <div className="horiz-container">
+                    <div className="vert-container">
+                        <p>Heatwaves</p>
+                        <HeatwaveSvg className="climate-arrow"/>
+                    </div>
+                    <div className="vert-container">
+                        <p>Wildfires</p>
+                        <WildfiresSvg className="climate-arrow" />
+                    </div>
+                    <div className="vert-container">
+                        <p>Air Quality</p>
+                        <AirPollutionSvg className="climate-arrow" />
+                    </div>
+                    <div className="vert-container">
+                        <p>Flooding</p>
+                        <FloodSvg className="climate-arrow" />
+                    </div>
+                    <div className="vert-container">
+                        <p>Coastal Erosion</p>
+                        <CoastalErosionSvg className="climate-arrow" />
+                    </div>
+                </div>
+            </div>
         </LoadingOverlay>
     );
 }
