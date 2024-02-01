@@ -9,19 +9,24 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
-import React from "react";
+import React, { useState } from "react";
 import LoadingOverlay from "react-loading-overlay";
 
-import HeatwaveSvg from '../images/hazards/Heatwave.js'
-import WildfiresSvg from '../images/hazards/Wildfires.js'
-import FloodSvg from '../images/hazards/Flood.js'
-import AirPollutionSvg from '../images/hazards/AirPollution.js'
-import CoastalErosionSvg from '../images/hazards/CoastalErosion.js'
-
+import HeatwaveSvg from "../images/hazards/Heatwave.js";
+import WildfiresSvg from "../images/hazards/Wildfires.js";
+import FloodSvg from "../images/hazards/Flood.js";
+import AirPollutionSvg from "../images/hazards/AirPollution.js";
+import CoastalErosionSvg from "../images/hazards/CoastalErosion.js";
 
 import "./ClimateHazardRisk.css";
 
 function ClimateHazardRisk(props) {
+    const [selectedHazard, setSelectedHazard] = useState(null);
+
+    const handleHazardClick = (hazard) => {
+        setSelectedHazard(hazard);
+    };
+
     return (
         <LoadingOverlay active={props.loading} spinner text={"Loading climate data"}>
             <h1>Climate Hazard Risk</h1>
@@ -35,26 +40,39 @@ function ClimateHazardRisk(props) {
             <div className="climate-hazard">
                 <div className="horiz-container">
                     <div className="vert-container">
-                        <p>Heatwaves</p>
-                        <HeatwaveSvg className="hazard-img"/>
+                        <p className="hazard-name">Heatwaves</p>
+                        <HeatwaveSvg className="hazard-img" onClick={() => handleHazardClick("Heatwaves")} />
                     </div>
                     <div className="vert-container">
-                        <p>Wildfires</p>
-                        <WildfiresSvg className="hazard-img" />
+                        <p className="hazard-name">Wildfires</p>
+                        <WildfiresSvg className="hazard-img" onClick={() => handleHazardClick("Wildfires")} />
                     </div>
                     <div className="vert-container">
-                        <p>Air Quality</p>
-                        <AirPollutionSvg className="hazard-img" />
+                        <p className="hazard-name">Air Quality</p>
+                        <AirPollutionSvg className="hazard-img" onClick={() => handleHazardClick("Air Quality")} />
                     </div>
                     <div className="vert-container">
-                        <p>Flooding</p>
-                        <FloodSvg className="hazard-img" />
+                        <p className="hazard-name">Flooding</p>
+                        <FloodSvg className="hazard-img" onClick={() => handleHazardClick("Flooding")} />
                     </div>
                     <div className="vert-container">
-                        <p>Coastal Erosion</p>
-                        <CoastalErosionSvg className="hazard-img" />
+                        <p className="hazard-name">Coastal Erosion</p>
+                        <CoastalErosionSvg
+                            className="hazard-img"
+                            onClick={() => handleHazardClick("Coastal Erosion")}
+                        />
                     </div>
                 </div>
+                {selectedHazard ? (
+                    <div className="selected-hazard-details">
+                        <h2>{selectedHazard}</h2>
+                        <p>Additional text for {selectedHazard}</p>
+                    </div>
+                ) : (
+                    <div className="details-placeholder">
+                        <p>Please click a climate hazard risk icon to view details.</p>
+                    </div>
+                )}
             </div>
         </LoadingOverlay>
     );

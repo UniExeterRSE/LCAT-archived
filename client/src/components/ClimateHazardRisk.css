@@ -31,3 +31,12 @@
     justify-content: center;
     padding-bottom: 0.5em;
 }
+
+.climate-hazard .details-placeholder {
+    text-align: center;
+    font-size: 100%;
+}
+
+.climate-hazard .vert-container .hazard-name {
+    font-size: 120%;
+}
