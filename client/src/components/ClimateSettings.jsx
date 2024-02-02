@@ -30,7 +30,7 @@ function ClimateSettings(props) {
 
     return (
         <div>
-            <h1>Climate Summary</h1>
+            <h1>Explore your local climate</h1>
             <p>
                 For&nbsp;
                 <span className={"projected-regions"}>{andify(props.regions.map((e) => e.name))}</span>
