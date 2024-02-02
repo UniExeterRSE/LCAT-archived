@@ -84,7 +84,7 @@ class App extends React.Component {
                             <strong>Which</strong> adaptations to consider
                         </li>
                     </ul>
-                    <p>LCAT is evidence-based and designed with and for local decision makers</p>
+                    <p>LCAT is evidence-based and designed with and for local decision makers.</p>
 
                     <p>
                         <a
