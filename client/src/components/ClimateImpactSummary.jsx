@@ -46,11 +46,19 @@ function ClimateImpactSummary(props) {
 
             <h2>Health impact summary</h2>
             <p>
+                You are viewing the climate impacts for <strong className="projected-regions">{selectedPathway}</strong>
+                .
+            </p>
+            <p>
                 The health impact summary shows the health effects for each climate impact pathway and is adapted from
                 the WHO climate-sensitive health risks guidelines.
             </p>
 
             <h2>Community Impact Summary</h2>
+            <p>
+                You are viewing the climate impacts for <strong className="projected-regions">{selectedPathway}</strong>
+                .
+            </p>
             <p>
                 The community impact summary displays the main impacts from climate change in the UK based on your
                 selected climate impact pathway.
