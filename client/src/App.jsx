@@ -30,6 +30,7 @@ import { ReactComponent as LCATLogoSvg } from "./images/logos/LCAT_Logo_Primary_
 import ContactUs from "./components/ContactUs";
 import FAQFooter from "./components/FAQFooter";
 import ClimateHazardRisk from "./components/ClimateHazardRisk";
+import ClimateImpactSummary from "./components/ClimateImpactSummary";
 
 const meta = {
     title: "Local Climate Adaptation Tool",
@@ -61,13 +62,11 @@ class App extends React.Component {
         return (
             <div className="App">
                 <DocumentMeta {...meta} />
-
                 <div className="white-section">
                     <header className="App-header">
                         <LCATLogoSvg width={300} />
                     </header>
                 </div>
-
                 <div className="grey-section">
                     <p>Use this tool to see what the scientific research is saying about:</p>
                     <ul>
@@ -75,7 +74,8 @@ class App extends React.Component {
                             <strong className="projected-regions">How</strong> local climates will change
                         </li>
                         <li>
-                            <strong className="projected-regions">What</strong> health and community impacts may occur as a result
+                            <strong className="projected-regions">What</strong> health and community impacts may occur
+                            as a result
                         </li>
                         <li>
                             <strong className="projected-regions">Who</strong> will be most vulnerable and why
@@ -96,7 +96,6 @@ class App extends React.Component {
                         </a>
                     </p>
                 </div>
-
                 <NetworkLoader
                     id={0}
                     callback={(nodes, edges) => {
@@ -106,7 +105,6 @@ class App extends React.Component {
                         }));
                     }}
                 />
-
                 {/*<StatsLoader
                 id={0}
                 callback={(stats) => {
@@ -114,7 +112,6 @@ class App extends React.Component {
                         stats: stats
                     }));}}
               />*/}
-
                 <ClimatePredictionLoader
                     regions={this.state.regions}
                     season={this.state.season}
@@ -132,7 +129,6 @@ class App extends React.Component {
                         }));
                     }}
                 />
-
                 <div className="white-section">
                     <ClimateMap
                         regionType={this.state.regionType}
@@ -144,7 +140,6 @@ class App extends React.Component {
                         }}
                     />
                 </div>
-
                 {this.state.regions.length > 0 && (
                     <div className="grey-section">
                         <ClimateSettings
@@ -193,13 +188,18 @@ class App extends React.Component {
                         />
                     </div>
                 )}
-
                 {this.state.regions.length > 0 && (
                     <div className="white-section">
                         <ClimateHazardRisk loading={this.state.loadingPrediction} />
                     </div>
                 )}
 
+                {this.state.regions.length > 0 && (
+                    <div className="grey-section">
+                        <ClimateImpactSummary loading={this.state.loadingPrediction} />
+                    </div>
+                )}
+                
                 {this.state.regions.length > 0 && (
                     <div className="grey-section">
                         <HealthWellbeing
@@ -223,13 +223,11 @@ class App extends React.Component {
                         />
                     </div>
                 )}
-
                 {this.state.regions.length > 0 && (
                     <div className="white-section">
                         <Vulnerabilities regions={this.state.regions} regionType={this.state.regionType} />
                     </div>
                 )}
-
                 {this.state.regions.length > 0 && (
                     <div className="grey-section">
                         <Adaptations
@@ -243,12 +241,10 @@ class App extends React.Component {
                         />
                     </div>
                 )}
-
                 <div className="contact-footer">
                     <ContactUs />
                     <FAQFooter />
                 </div>
-
                 <div className="footer">
                     <p>
                         The Local Climate Adaptation Tool has been developed by the{" "}
