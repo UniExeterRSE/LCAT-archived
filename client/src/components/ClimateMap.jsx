@@ -176,10 +176,10 @@ class ClimateMap extends React.Component {
     render() {
         return (
             <div>
-                <h1>Select Zones</h1>
+                <h1>Select your area</h1>
                 <p>
-                    Select the area/s you are interested in by clicking/tapping on the map. You are currently
-                    viewing&nbsp;
+                    To begin, select the area/s you are interested in by clicking on the map. The map units can be
+                    changed and are currently displaying&nbsp;
                     <select
                         onChange={(e) => {
                             this.setState(() => ({
@@ -197,7 +197,7 @@ class ClimateMap extends React.Component {
                         <option value="boundary_sc_dz">Data Zones (Scotland)</option>
                         <option value="boundary_lsoa">LSOA (Eng/Wales)</option>
                     </select>
-                    &nbsp;Data for your local area/s will appear below the map.
+                    &nbsp;Data for your chosen area/s will appear below.
                     {/*The Index of Multiple Deprivation score 
 
 		  <select onChange={(e) => { this.setState(() => ({
@@ -259,7 +259,11 @@ class ClimateMap extends React.Component {
 
                 <p className="note">
                     Data source: The boundaries are from{" "}
-                    <a href="https://github.com/UniExeterRSE/LCAT/blob/main/docs/sources.md" target="_blank" rel="noreferrer">
+                    <a
+                        href="https://github.com/UniExeterRSE/LCAT/blob/main/docs/sources.md"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
                         various governmental sources listed here
                     </a>
                     .
