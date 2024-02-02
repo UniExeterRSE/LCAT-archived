@@ -72,16 +72,16 @@ class App extends React.Component {
                     <p>Use this tool to see what the scientific research is saying about:</p>
                     <ul>
                         <li>
-                            <strong>How</strong> local climates will change
+                            <strong className="projected-regions">How</strong> local climates will change
                         </li>
                         <li>
-                            <strong>What</strong> health and community impacts may occur as a result
+                            <strong className="projected-regions">What</strong> health and community impacts may occur as a result
                         </li>
                         <li>
-                            <strong>Who</strong> will be most vulnerable and why
+                            <strong className="projected-regions">Who</strong> will be most vulnerable and why
                         </li>
                         <li>
-                            <strong>Which</strong> adaptations to consider
+                            <strong className="projected-regions">Which</strong> adaptations to consider
                         </li>
                     </ul>
                     <p>LCAT is evidence-based and designed with and for local decision makers.</p>
