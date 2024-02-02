@@ -12,16 +12,9 @@
 import React, { useState } from "react";
 import LoadingOverlay from "react-loading-overlay";
 
-function ClimateImpactSummary(props) {
-    const pathways = [
-        { id: 0, name: "Extreme Storms" },
-        { id: 1, name: "Coastal Security" },
-        { id: 2, name: "Flooding and Drought" },
-        { id: 3, name: "Food and Personal Security" },
-        { id: 4, name: "Pathogenic Marine Microorganisms" },
-        { id: 5, name: "Temperature" },
-    ];
+import { impacts, pathways } from "./ClimateImpactSummaryData";
 
+function ClimateImpactSummary(props) {
     const [selectedPathway, setSelectedPathway] = useState(pathways[0].name);
 
     return (
