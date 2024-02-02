@@ -71,14 +71,20 @@ class App extends React.Component {
                 <div className="grey-section">
                     <p>Use this tool to see what the scientific research is saying about:</p>
                     <ul>
-                        <li>How your local climate will change</li>
-                        <li>The impacts on public health, and which groups are most vulnerable locally</li>
-                        <li>Adaptations most appropriate to your local area</li>
+                        <li>
+                            <strong>How</strong> local climates will change
+                        </li>
+                        <li>
+                            <strong>What</strong> health and community impacts may occur as a result
+                        </li>
+                        <li>
+                            <strong>Who</strong> will be most vulnerable and why
+                        </li>
+                        <li>
+                            <strong>Which</strong> adaptations to consider
+                        </li>
                     </ul>
-                    <p>
-                        LCAT is evidence based and designed with and for local decision makers. The tool is a prototype
-                        and under continued development, and currently only considers some heat impacts.
-                    </p>
+                    <p>LCAT is evidence-based and designed with and for local decision makers</p>
 
                     <p>
                         <a
@@ -246,19 +252,19 @@ class App extends React.Component {
                 <div className="footer">
                     <p>
                         The Local Climate Adaptation Tool has been developed by the{" "}
-                        <a href="https://www.ecehh.org/" target="_blank">
+                        <a href="https://www.ecehh.org/" target="_blank" rel="noreferrer">
                             University of Exeter’s European Centre for Human Health
                         </a>
                         ,{" "}
-                        <a href="https://www.cornwall.gov.uk/" target="_blank">
+                        <a href="https://www.cornwall.gov.uk/" target="_blank" rel="noreferrer">
                             Cornwall Council
                         </a>
                         ,{" "}
-                        <a href="https://thentrythis.org" target="_blank">
+                        <a href="https://thentrythis.org" target="_blank" rel="noreferrer">
                             Then Try This
                         </a>{" "}
                         and{" "}
-                        <a href="https://www.turing.ac.uk/" target="_blank">
+                        <a href="https://www.turing.ac.uk/" target="_blank" rel="noreferrer">
                             The Alan Turing Institute
                         </a>{" "}
                         with co-design partners from Local Government, the National Health Service, emergency services,
@@ -287,11 +293,11 @@ class App extends React.Component {
                     </p>
 
                     <p>
-                        <a href="https://github.com/UniExeterRSE/LCAT" target="_blank">
+                        <a href="https://github.com/UniExeterRSE/LCAT" target="_blank" rel="noreferrer">
                             Source code published
                         </a>{" "}
                         open source under the{" "}
-                        <a href="http://www.cgpl.org/" target="_blank">
+                        <a href="http://www.cgpl.org/" target="_blank" rel="noreferrer">
                             Common Good Public Licence Beta 1.0
                         </a>
                     </p>
@@ -299,11 +305,17 @@ class App extends React.Component {
                     <p>Copyright © 2022 Then Try This and University of Exeter</p>
 
                     <div className="logo-block">
-                        <img className="logos" />
+                        <img
+                            className="logos"
+                            alt="Partner logos: University of Exeter, European Centre for Environment for Environment and Human Health, Cornwall Council"
+                        />
                     </div>
 
                     <div className="logo-block">
-                        <img className="funder-logos" />
+                        <img
+                            className="funder-logos"
+                            alt="Funder logos: Co-funded by the European Union, UK Research and Innovation, and BlueAdapt"
+                        />
                     </div>
                 </div>
             </div>
