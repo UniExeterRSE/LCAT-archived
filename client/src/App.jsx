@@ -71,14 +71,20 @@ class App extends React.Component {
                 <div className="grey-section">
                     <p>Use this tool to see what the scientific research is saying about:</p>
                     <ul>
-                        <li>How your local climate will change</li>
-                        <li>The impacts on public health, and which groups are most vulnerable locally</li>
-                        <li>Adaptations most appropriate to your local area</li>
+                        <li>
+                            <strong>How</strong> local climates will change
+                        </li>
+                        <li>
+                            <strong>What</strong> health and community impacts may occur as a result
+                        </li>
+                        <li>
+                            <strong>Who</strong> will be most vulnerable and why
+                        </li>
+                        <li>
+                            <strong>Which</strong> adaptations to consider
+                        </li>
                     </ul>
-                    <p>
-                        LCAT is evidence based and designed with and for local decision makers. The tool is a prototype
-                        and under continued development, and currently only considers some heat impacts.
-                    </p>
+                    <p>LCAT is evidence-based and designed with and for local decision makers</p>
 
                     <p>
                         <a
