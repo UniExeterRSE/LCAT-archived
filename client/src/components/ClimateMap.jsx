@@ -259,7 +259,7 @@ class ClimateMap extends React.Component {
 
                 <p className="note">
                     Data source: The boundaries are from{" "}
-                    <a href="https://gitlab.com/then-try-this/climate-tool/-/blob/main/docs/sources.md" target="_blank">
+                    <a href="https://github.com/UniExeterRSE/LCAT/blob/main/docs/sources.md" target="_blank" rel="noreferrer">
                         various governmental sources listed here
                     </a>
                     .
