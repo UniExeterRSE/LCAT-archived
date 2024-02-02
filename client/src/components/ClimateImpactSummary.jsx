@@ -13,7 +13,16 @@ import React, { useState } from "react";
 import LoadingOverlay from "react-loading-overlay";
 
 function ClimateImpactSummary(props) {
-    const [selectedPathway, setSelectedPathway] = useState(null);
+    const pathways = [
+        { id: 0, name: "Extreme Storms" },
+        { id: 1, name: "Coastal Security" },
+        { id: 2, name: "Flooding and Drought" },
+        { id: 3, name: "Food and Personal Security" },
+        { id: 4, name: "Pathogenic Marine Microorganisms" },
+        { id: 5, name: "Temperature" },
+    ];
+
+    const [selectedPathway, setSelectedPathway] = useState(pathways[0].name);
 
     return (
         <LoadingOverlay active={props.loading} spinner text={"Loading impact summaries"}>
@@ -27,12 +36,11 @@ function ClimateImpactSummary(props) {
             <p>
                 You are viewing the climate impacts for&nbsp;
                 <select onChange={(e) => setSelectedPathway(e.target.value)}>
-                    <option value="Extreme Storms">Extreme Storms</option>
-                    <option value="Coastal Security">Coastal Security</option>
-                    <option value="Flooding and Drought">Flooding and Drought</option>
-                    <option value="Food and Personal Security">Food and Personal Security</option>
-                    <option value="Pathogenic Marine Microorganisms">Pathogenic Marine Microorganisms</option>
-                    <option value="Temperature">Temperature</option>
+                    {pathways.map((pathway) => (
+                        <option key={pathway.id} value={pathway.name}>
+                            {pathway.name}
+                        </option>
+                    ))}
                 </select>
             </p>
 
