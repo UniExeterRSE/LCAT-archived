@@ -16,7 +16,7 @@ function ClimateImpactSummary(props) {
     const [selectedPathway, setSelectedPathway] = useState(null);
 
     return (
-        <LoadingOverlay active={props.loading} spinner text={"Loading climate data"}>
+        <LoadingOverlay active={props.loading} spinner text={"Loading impact summaries"}>
             <h1>Climate Impact Summary</h1>
 
             <p>
@@ -25,7 +25,7 @@ function ClimateImpactSummary(props) {
             </p>
 
             <p>
-                You are viewing the impacts for&nbsp;
+                You are viewing the climate impacts for&nbsp;
                 <select onChange={(e) => setSelectedPathway(e.target.value)}>
                     <option value="Extreme Storms">Extreme Storms</option>
                     <option value="Coastal Security">Coastal Security</option>
@@ -34,6 +34,18 @@ function ClimateImpactSummary(props) {
                     <option value="Pathogenic Marine Microorganisms">Pathogenic Marine Microorganisms</option>
                     <option value="Temperature">Temperature</option>
                 </select>
+            </p>
+
+            <h2>Health impact summary</h2>
+            <p>
+                The health impact summary shows the health effects for each climate impact pathway and is adapted from
+                the WHO climate-sensitive health risks guidelines.
+            </p>
+
+            <h2>Community Impact Summary</h2>
+            <p>
+                The community impact summary displays the main impacts from climate change in the UK based on your
+                selected climate impact pathway.
             </p>
         </LoadingOverlay>
     );
