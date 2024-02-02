@@ -294,7 +294,7 @@ function Network(props) {
             </div>
             <div {...getCollapseProps()}>
                 <div className="content">
-                    <h1>Health impact details</h1>
+                    <h1>Climate impact details</h1>
                     <p>
                         The network below shows how climate change will impact health in &nbsp;
                         <span className={"projected-regions"}>{andify(props.regions.map((e) => e.name))}</span>
