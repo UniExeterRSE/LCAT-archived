@@ -33,8 +33,7 @@ function Adaptations(props) {
             <p>
                 Based on the expected climate change and the resulting impacts in&nbsp;
                 <span className={"projected-regions"}>{andify(props.regions.map((e) => e.name))}</span>
-                ,&nbsp;under the <b>{rcpText[props.rcp]}</b> when considering <b>{seasonText[props.season]}</b>{" "}
-                averages, the following adaptations should be considered. You are currently viewing adaptations
+                ,&nbsp;the following adaptations should be considered. You are currently viewing adaptations
                 for&nbsp;
                 <select onChange={(e) => setSector(e.target.value)}>
                     <option value="All">All sectors</option>
