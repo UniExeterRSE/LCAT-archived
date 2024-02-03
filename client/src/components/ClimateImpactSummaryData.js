@@ -23,7 +23,7 @@ export const impacts = [
     {
         id: 2,
         name: "Wellbeing",
-        inPathway: [0, 1, 2, 3, 4, 5, 6],
+        inPathway: [0, 1, 2, 3, 4, 5],
         icon: "",
     },
     {
@@ -47,7 +47,7 @@ export const impacts = [
     {
         id: 6,
         name: "Chronic health conditions",
-        inPathway: [0, 1],
+        inPathway: [0, 1, 3, 4],
         icon: "",
     },
     {
