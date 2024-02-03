@@ -12,10 +12,16 @@
 import React, { useState } from "react";
 import LoadingOverlay from "react-loading-overlay";
 
-import { impacts, pathways } from "./ClimateImpactSummaryData";
+import { impacts, communityImpacts, pathways } from "./ClimateImpactSummaryData";
 
 function ClimateImpactSummary(props) {
-    const [selectedPathway, setSelectedPathway] = useState(pathways[0].name);
+    const initialPathwayName = "Extreme Storms";
+    const initialPathway = pathways.find((item) => item.name === initialPathwayName);
+
+    const [selectedPathwayName, setSelectedPathway] = useState(initialPathway.name);
+    const selectedPathway = pathways.find((item) => item.name === selectedPathwayName);
+    const filteredImpacts = impacts.filter((item) => item.inPathway.includes(selectedPathway.id));
+    const filteredCommunityImpacts = communityImpacts.filter((item) => item.inPathway.includes(selectedPathway.id));
 
     return (
         <LoadingOverlay active={props.loading} spinner text={"Loading impact summaries"}>
@@ -42,16 +48,37 @@ function ClimateImpactSummary(props) {
             <p>
                 The health impact summary shows the health effects for each climate impact pathway and is adapted from
                 the WHO climate-sensitive health risks guidelines. You are viewing the climate impacts for{" "}
-                <strong className="projected-regions">{selectedPathway}</strong>.
+                <strong className="projected-regions">{selectedPathwayName}</strong>.
             </p>
+
+            <div className="climate-hazard">
+                <div className="horiz-container">
+                    {filteredImpacts.map((impact) => (
+                        <div className="vert-container">
+                            <p className="impact-name">{impact.name}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
 
             <h2>Community Impact Summary</h2>
 
             <p>
                 The community impact summary displays the main impacts from climate change in the UK based on your
                 selected climate impact pathway. You are viewing the climate impacts for{" "}
-                <strong className="projected-regions">{selectedPathway}</strong>.
+                <strong className="projected-regions">{selectedPathwayName}</strong>.
             </p>
+
+            <div className="climate-hazard">
+                <div className="horiz-container">
+                    {filteredCommunityImpacts.map((impact) => (
+                        <div className="vert-container">
+                            <p className="impact-name">{impact.name}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
         </LoadingOverlay>
     );
 }

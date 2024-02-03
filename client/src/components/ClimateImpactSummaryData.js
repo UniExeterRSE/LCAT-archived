@@ -41,7 +41,7 @@ export const impacts = [
     {
         id: 5,
         name: "Injury",
-        inPathway: [0, 1, 2],
+        inPathway: [0, 1, 2, 5],
         icon: "",
     },
     {
