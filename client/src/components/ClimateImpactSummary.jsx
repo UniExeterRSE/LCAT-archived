@@ -13,6 +13,7 @@ import React, { useState } from "react";
 import LoadingOverlay from "react-loading-overlay";
 
 import { impacts, communityImpacts, pathways } from "./ClimateImpactSummaryData";
+import "./ClimateImpactSummary.css";
 
 function ClimateImpactSummary(props) {
     const initialPathwayName = "Extreme Storms";
@@ -51,7 +52,7 @@ function ClimateImpactSummary(props) {
                 <strong className="projected-regions">{selectedPathwayName}</strong>.
             </p>
 
-            <div className="climate-hazard">
+            <div className="climate-impact">
                 <div className="horiz-container">
                     {filteredImpacts.map((impact) => (
                         <div className="vert-container">
@@ -69,7 +70,7 @@ function ClimateImpactSummary(props) {
                 <strong className="projected-regions">{selectedPathwayName}</strong>.
             </p>
 
-            <div className="climate-hazard">
+            <div className="climate-impact">
                 <div className="horiz-container">
                     {filteredCommunityImpacts.map((impact) => (
                         <div className="vert-container">
@@ -78,7 +79,6 @@ function ClimateImpactSummary(props) {
                     ))}
                 </div>
             </div>
-
         </LoadingOverlay>
     );
 }
