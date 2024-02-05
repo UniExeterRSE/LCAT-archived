@@ -39,6 +39,10 @@
     padding-right: 2em;
 }
 
+.details-placeholder {
+    text-align: center;
+}
+
 @media (min-width: 1000px) {
     .vert-container-impact {
         width: 20%;
