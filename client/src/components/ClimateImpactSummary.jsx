@@ -52,14 +52,12 @@ function ClimateImpactSummary(props) {
                 <strong className="projected-regions">{selectedPathwayName}</strong>.
             </p>
 
-            <div className="climate-impact">
-                <div className="horiz-container">
-                    {filteredImpacts.map((impact) => (
-                        <div className="vert-container">
-                            <p className="impact-name">{impact.name}</p>
-                        </div>
-                    ))}
-                </div>
+            <div className="horiz-container-impact">
+                {filteredImpacts.map((impact) => (
+                    <div className="vert-container-impact">
+                        <p className="impact-name">{impact.name}</p>
+                    </div>
+                ))}
             </div>
 
             <h2>Community Impact Summary</h2>
@@ -70,14 +68,13 @@ function ClimateImpactSummary(props) {
                 <strong className="projected-regions">{selectedPathwayName}</strong>.
             </p>
 
-            <div className="climate-impact">
-                <div className="horiz-container">
-                    {filteredCommunityImpacts.map((impact) => (
-                        <div className="vert-container">
-                            <p className="impact-name">{impact.name}</p>
-                        </div>
-                    ))}
-                </div>
+            <div className="horiz-container-impact">
+                {filteredCommunityImpacts.map((impact) => (
+                    <div className="vert-container-impact">
+                        <div className="impact-img">{impact.icon}</div>
+                        <div className="impact-text">{impact.name}</div>
+                    </div>
+                ))}
             </div>
         </LoadingOverlay>
     );
