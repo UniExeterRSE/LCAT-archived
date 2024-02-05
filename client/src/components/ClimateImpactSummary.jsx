@@ -44,7 +44,7 @@ function ClimateImpactSummary(props) {
                 </select>
             </p>
 
-            <h2>Health impact summary</h2>
+            <h2 className="health-impact-summary">Health impact summary</h2>
 
             <p>
                 The health impact summary shows the health effects for each climate impact pathway and is adapted from
@@ -61,7 +61,7 @@ function ClimateImpactSummary(props) {
                 ))}
             </div>
 
-            <h2>Community Impact Summary</h2>
+            <h2 className="community-impact-summary">Community Impact Summary</h2>
 
             <p>
                 The community impact summary displays the main impacts from climate change in the UK based on your

@@ -6,6 +6,16 @@
     width: 100%;
 }
 
+.health-impact-summary {
+    border-bottom-color: #351431;
+    border-bottom-width: 4px;
+}
+
+.community-impact-summary {
+    border-bottom-color: #266334;
+    border-bottom-width: 4px;
+}
+
 .impact-img {
 	display: flex;
 	flex-direction: row;    
