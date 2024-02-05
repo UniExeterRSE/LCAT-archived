@@ -1,3 +1,20 @@
+// General impact icons for impacts data structure
+import SvgAdverseHealthOutcomesAndMalnutritionAssociatedWithAnUnhealthyDiet from "../images/impacts/general/AdverseHealthOutcomesAndMalnutritionAssociatedWithAnUnhealthyDiet";
+import SvgAdverseHealthOutcomesAssociatedWithExposureToChemicalsHeavyMetalsAndMicroplastics from "../images/impacts/general/AdverseHealthOutcomesAssociatedWithExposureToChemicals,HeavyMetals,AndMicroplastics";
+import SvgAdversePregnancyOutcomes from "../images/impacts/general/AdversePregnancyOutcomes";
+import SvgAntimicrobialResistance from "../images/impacts/general/AntimicrobialResistance";
+import SvgCardiovascularDiseases from "../images/impacts/general/CardiovascularDiseases";
+import SvgChronicHealthConditions from "../images/impacts/general/ChronicHealthConditions";
+import SvgIllnessAndMortalityDueToDampBuildingFabrics from "../images/impacts/general/IllnessAndMortalityDueToDampBuildingFabrics";
+import SvgInfectionsCausedByPathogenicOrganisms from "../images/impacts/general/InfectionsCausedByPathogenicOrganisms";
+import SvgInjuries from "../images/impacts/general/Injuries";
+import SvgMentalHealthDisorders from "../images/impacts/general/MentalHealthDisorders";
+import SvgPandemicsAndZoonoticDiseases from "../images/impacts/general/PandemicsAndZoonoticDiseases";
+import SvgRespiratoryDiseases from "../images/impacts/general/RespiratoryDiseases";
+import SvgVectorBorneDiseases from "../images/impacts/general/VectorBorneDiseases";
+import SvgWellbeing from "../images/impacts/general/Wellbeing";
+
+// Community impact icons for communityImpacts data structure
 import SvgBiodiversityAndEcologicalBalanceDisruption from "../images/impacts/community/BiodiversityAndEcologicalBalanceDisruption";
 import SvgBuildingAndStructuralDamage from "../images/impacts/community/BuildingAndStructuralDamage";
 import SvgBuildingPerformance from "../images/impacts/community/BuildingPerformance";
@@ -19,6 +36,7 @@ import SvgTransportDisruption from "../images/impacts/community/TransportDisrupt
 import SvgUrbanHeatIslandEffect from "../images/impacts/community/UrbanHeatIslandEffect";
 import SvgCascadingInfrastructureFailure from "../images/impacts/community/CascadingInfrastructureFailure";
 
+// Impact pathway names, IDs used in inPathway field
 export const pathways = [
     { id: 0, name: "Extreme Storms" },
     { id: 1, name: "Coastal Security" },
@@ -33,67 +51,69 @@ export const impacts = [
         id: 0,
         name: "Illness and mortality due to damp building fabrics",
         inPathway: [0, 1],
-        icon: "",
+        icon: <SvgIllnessAndMortalityDueToDampBuildingFabrics className="impact-img" />,
     },
     {
         id: 1,
         name: "Respiratory diseases",
         inPathway: [0, 2, 3, 4, 5],
-        icon: "",
+        icon: <SvgRespiratoryDiseases className="impact-img" />,
     },
     {
         id: 2,
         name: "Wellbeing",
         inPathway: [0, 1, 2, 3, 4, 5],
-        icon: "",
+        icon: <SvgWellbeing className="impact-img" />,
     },
     {
         id: 3,
-        name: "Mental disorders",
+        name: "Mental health disorders",
         inPathway: [0, 1, 2, 3, 5],
-        icon: "",
+        icon: <SvgMentalHealthDisorders className="impact-img" />,
     },
     {
         id: 4,
         name: "Vector-borne diseases",
         inPathway: [0, 1, 2, 3, 5],
-        icon: "",
+        icon: <SvgVectorBorneDiseases className="impact-img" />,
     },
     {
         id: 5,
         name: "Injury",
         inPathway: [0, 1, 2, 5],
-        icon: "",
+        icon: <SvgInjuries className="impact-img" />,
     },
     {
         id: 6,
         name: "Chronic health conditions",
         inPathway: [0, 1, 3, 4],
-        icon: "",
+        icon: <SvgChronicHealthConditions className="impact-img" />,
     },
     {
         id: 7,
         name: "Infections caused by pathogenic organisms",
         inPathway: [0, 1, 2, 3, 4, 5],
-        icon: "",
+        icon: <SvgInfectionsCausedByPathogenicOrganisms className="impact-img" />,
     },
     {
         id: 8,
         name: "Adverse health outcomes associated with exposure to chemicals, heavy metals, and microplastics",
         inPathway: [0, 1, 2, 3, 4],
-        icon: "",
+        icon: (
+            <SvgAdverseHealthOutcomesAssociatedWithExposureToChemicalsHeavyMetalsAndMicroplastics className="impact-img" />
+        ),
     },
     {
         id: 9,
         name: "Adverse health outcomes and malnutrition associated with an unhealthy diet",
         inPathway: [3],
-        icon: "",
+        icon: <SvgAdverseHealthOutcomesAndMalnutritionAssociatedWithAnUnhealthyDiet className="impact-img" />,
     },
     {
         id: 10,
         name: "Antimicrobial resistance",
         inPathway: [4],
-        icon: "",
+        icon: <SvgAntimicrobialResistance className="impact-img" />,
     },
     {
         id: 11,
@@ -105,19 +125,19 @@ export const impacts = [
         id: 12,
         name: "Pandemic and zoonotic diseases",
         inPathway: [4],
-        icon: "",
+        icon: <SvgPandemicsAndZoonoticDiseases className="impact-img" />,
     },
     {
         id: 13,
         name: "Fertility and endocrine function",
         inPathway: [4],
-        icon: "",
+        icon: <SvgAdversePregnancyOutcomes className="impact-img" />,
     },
     {
         id: 14,
         name: "Cardiovascular diseases",
         inPathway: [5],
-        icon: "",
+        icon: <SvgCardiovascularDiseases className="impact-img" />,
     },
 ];
 
@@ -126,73 +146,73 @@ export const communityImpacts = [
         id: 0,
         name: "Cascading infrastructure failure",
         inPathway: [0, 1, 3],
-        icon: <SvgCascadingInfrastructureFailure className="impact-img"/>,
+        icon: <SvgCascadingInfrastructureFailure className="impact-img" />,
     },
     {
         id: 1,
         name: "Damage or loss of possessions and/or home",
         inPathway: [0],
-        icon: <SvgDamageOrLossOfPossessionsOrHome className="impact-img"/>,
+        icon: <SvgDamageOrLossOfPossessionsOrHome className="impact-img" />,
     },
     {
         id: 2,
         name: "Functionality of hospitals and healthcare services",
         inPathway: [0, 2, 3, 4, 5],
-        icon: <SvgFunctionalityOfHospitalsAndHealthcareServices className="impact-img"/>,
+        icon: <SvgFunctionalityOfHospitalsAndHealthcareServices className="impact-img" />,
     },
     {
         id: 3,
         name: "Damage or loss of coastal defences",
         inPathway: [0],
-        icon: <SvgDamageOrLossOfCoastalDefences className="impact-img"/>,
+        icon: <SvgDamageOrLossOfCoastalDefences className="impact-img" />,
     },
     {
         id: 4,
         name: "Damage or loss of the built and natural environment",
         inPathway: [0, 1],
-        icon: <SvgDamageOrLossOfTheBuiltAndNaturalEnvironment className="impact-img"/>,
+        icon: <SvgDamageOrLossOfTheBuiltAndNaturalEnvironment className="impact-img" />,
     },
     {
         id: 5,
         name: "People requiring care to maintain wellbeing",
         inPathway: [0],
-        icon: <SvgPeopleRequiringCare className="impact-img"/>,
+        icon: <SvgPeopleRequiringCare className="impact-img" />,
     },
     {
         id: 6,
         name: "Marine and coastal biodiversity and ecological balance disruption",
         inPathway: [1, 4],
-        icon: <SvgMarineAndCoastalBiodiversityAndEcologicalBalanceDisruption className="impact-img"/>,
+        icon: <SvgMarineAndCoastalBiodiversityAndEcologicalBalanceDisruption className="impact-img" />,
     },
     {
         id: 7,
         name: "Damage to local economy",
         inPathway: [1, 4],
-        icon: <SvgDamageToLocalEconomy className="impact-img"/>,
+        icon: <SvgDamageToLocalEconomy className="impact-img" />,
     },
     {
         id: 8,
         name: "Reduction in water availability",
         inPathway: [2],
-        icon: <SvgReducedWaterAvailability className="impact-img"/>,
+        icon: <SvgReducedWaterAvailability className="impact-img" />,
     },
     {
         id: 9,
         name: "Reduction in water quality",
         inPathway: [2, 3, 4],
-        icon: <SvgReductionInWaterQuality className="impact-img"/>,
+        icon: <SvgReductionInWaterQuality className="impact-img" />,
     },
     {
         id: 10,
         name: "Outdoor air quality",
         inPathway: [2, 4, 5],
-        icon: <SvgOutdoorAirQuality className="impact-img"/>,
+        icon: <SvgOutdoorAirQuality className="impact-img" />,
     },
     {
         id: 11,
         name: "Transport disruption",
         inPathway: [2],
-        icon: <SvgTransportDisruption className="impact-img"/>,
+        icon: <SvgTransportDisruption className="impact-img" />,
     },
     {
         id: 12,
@@ -210,19 +230,19 @@ export const communityImpacts = [
         id: 14,
         name: "Food security",
         inPathway: [3],
-        icon: <SvgFoodSecurity className="impact-img"/>,
+        icon: <SvgFoodSecurity className="impact-img" />,
     },
     {
         id: 15,
         name: "Negative impacts on the fishing industry",
         inPathway: [3],
-        icon: <SvgNegativeImpactOnTheFishingIndustry className="impact-img"/>,
+        icon: <SvgNegativeImpactOnTheFishingIndustry className="impact-img" />,
     },
     {
         id: 16,
         name: "Negative impacts on agricultural and livestock production",
         inPathway: [3],
-        icon: <SvgNegativeImpactsOnAgriculturalAndLivestockProduction className="impact-img"/>,
+        icon: <SvgNegativeImpactsOnAgriculturalAndLivestockProduction className="impact-img" />,
     },
     {
         id: 17,
@@ -234,13 +254,13 @@ export const communityImpacts = [
         id: 18,
         name: "Public transport disruption",
         inPathway: [5],
-        icon: <SvgPublicTransportDisruption className="impact-img"/>,
+        icon: <SvgPublicTransportDisruption className="impact-img" />,
     },
     {
         id: 19,
         name: "Urban Heat Island effect",
         inPathway: [5],
-        icon: <SvgUrbanHeatIslandEffect classname="impact-img"/>,
+        icon: <SvgUrbanHeatIslandEffect classname="impact-img" />,
     },
     {
         id: 20,
