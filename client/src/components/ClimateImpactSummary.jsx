@@ -55,7 +55,8 @@ function ClimateImpactSummary(props) {
             <div className="horiz-container-impact">
                 {filteredImpacts.map((impact) => (
                     <div className="vert-container-impact">
-                        <p className="impact-name">{impact.name}</p>
+                        <div className="impact-img">{impact.icon}</div>
+                        <div className="impact-text">{impact.name}</div>
                     </div>
                 ))}
             </div>

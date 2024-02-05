@@ -1,6 +1,6 @@
 // General impact icons for impacts data structure
 import SvgAdverseHealthOutcomesAndMalnutritionAssociatedWithAnUnhealthyDiet from "../images/impacts/general/AdverseHealthOutcomesAndMalnutritionAssociatedWithAnUnhealthyDiet";
-import SvgAdverseHealthOutcomesAssociatedWithExposureToChemicalsHeavyMetalsAndMicroplastics from "../images/impacts/general/AdverseHealthOutcomesAssociatedWithExposureToChemicals,HeavyMetals,AndMicroplastics";
+import SvgAdverseHealthOutcomesAssociatedWithExposureToChemicalsHeavyMetalsAndMicroplastics from "../images/impacts/general/AdverseHealthOutcomesAssociatedWithExposureToChemicalsHeavyMetalsAndMicroplastics";
 import SvgAdversePregnancyOutcomes from "../images/impacts/general/AdversePregnancyOutcomes";
 import SvgAntimicrobialResistance from "../images/impacts/general/AntimicrobialResistance";
 import SvgCardiovascularDiseases from "../images/impacts/general/CardiovascularDiseases";
