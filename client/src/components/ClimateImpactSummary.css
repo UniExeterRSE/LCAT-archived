@@ -4,7 +4,7 @@
     overflow-x: auto;
     flex-wrap: wrap;
     width: 100%;
-    /* justify-content: center; */
+    justify-content: flex-start;
 }
 
 .climate-impact .vert-container {
@@ -19,20 +19,20 @@
     width: 20%;
 }
 
-/* @media (min-width: 1000px) {
+@media (min-width: 1000px) {
     .climate-impact .vert-container {
         width: 20%;
     }
-} */
+}
 
-/* .climate-impact .vert-container .impact-img {
+.climate-impact .vert-container .impact-img {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
     padding-bottom: 0.5em;
-} */
+}
 
 .climate-impact .vert-container .impact-name {
-    font-size: 100%;
+    font-size: 75%;
 }
