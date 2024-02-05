@@ -1,9 +1,5 @@
 export { default as AdverseHealthOutcomesAndMalnutritionAssociatedWithAnUnhealthyDiet } from "./AdverseHealthOutcomesAndMalnutritionAssociatedWithAnUnhealthyDiet";
-export {
-  default as AdverseHealthOutcomesAssociatedWithExposureToChemicals,
-  heavyMetals,
-  andMicroplastics,
-} from "./AdverseHealthOutcomesAssociatedWithExposureToChemicals,HeavyMetals,AndMicroplastics";
+export { default as AdverseHealthOutcomesAssociatedWithExposureToChemicalsheavyMetalsandMicroplastics } from "./AdverseHealthOutcomesAssociatedWithExposureToChemicalsHeavyMetalsAndMicroplastics";
 export { default as AdversePregnancyOutcomes } from "./AdversePregnancyOutcomes";
 export { default as AntimicrobialResistance } from "./AntimicrobialResistance";
 export { default as CardiovascularDiseases } from "./CardiovascularDiseases";
