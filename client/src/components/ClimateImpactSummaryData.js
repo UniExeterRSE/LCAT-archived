@@ -1,3 +1,24 @@
+import SvgBiodiversityAndEcologicalBalanceDisruption from "../images/impacts/community/BiodiversityAndEcologicalBalanceDisruption";
+import SvgBuildingAndStructuralDamage from "../images/impacts/community/BuildingAndStructuralDamage";
+import SvgBuildingPerformance from "../images/impacts/community/BuildingPerformance";
+import SvgDamageOrLossOfCoastalDefences from "../images/impacts/community/DamageOrLossOfCoastalDefences";
+import SvgDamageOrLossOfPossessionsOrHome from "../images/impacts/community/DamageOrLossOfPossessionsOrHome";
+import SvgDamageOrLossOfTheBuiltAndNaturalEnvironment from "../images/impacts/community/DamageOrLossOfTheBuiltAndNaturalEnvironment";
+import SvgDamageToLocalEconomy from "../images/impacts/community/DamageToLocalEconomy";
+import SvgFoodSecurity from "../images/impacts/community/FoodSecurity";
+import SvgFunctionalityOfHospitalsAndHealthcareServices from "../images/impacts/community/FunctionalityOfHospitalsAndHealthcareServices";
+import SvgMarineAndCoastalBiodiversityAndEcologicalBalanceDisruption from "../images/impacts/community/MarineAndCoastalBiodiversityAndEcologicalBalanceDisruption";
+import SvgNegativeImpactOnTheFishingIndustry from "../images/impacts/community/NegativeImpactOnTheFishingIndustry";
+import SvgNegativeImpactsOnAgriculturalAndLivestockProduction from "../images/impacts/community/NegativeImpactsOnAgriculturalAndLivestockProduction";
+import SvgOutdoorAirQuality from "../images/impacts/community/OutdoorAirQuality";
+import SvgPeopleRequiringCare from "../images/impacts/community/PeopleRequiringCare";
+import SvgPublicTransportDisruption from "../images/impacts/community/PublicTransportDisruption";
+import SvgReducedWaterAvailability from "../images/impacts/community/ReducedWaterAvailability";
+import SvgReductionInWaterQuality from "../images/impacts/community/ReductionInWaterQuality";
+import SvgTransportDisruption from "../images/impacts/community/TransportDisruption";
+import SvgUrbanHeatIslandEffect from "../images/impacts/community/UrbanHeatIslandEffect";
+import SvgCascadingInfrastructureFailure from "../images/impacts/community/CascadingInfrastructureFailure";
+
 export const pathways = [
     { id: 0, name: "Extreme Storms" },
     { id: 1, name: "Coastal Security" },
@@ -105,103 +126,103 @@ export const communityImpacts = [
         id: 0,
         name: "Cascading infrastructure failure",
         inPathway: [0, 1, 3],
-        icon: "",
+        icon: <SvgCascadingInfrastructureFailure className="impact-img"/>,
     },
     {
         id: 1,
         name: "Damage or loss of possessions and/or home",
         inPathway: [0],
-        icon: "",
+        icon: <SvgDamageOrLossOfPossessionsOrHome className="impact-img"/>,
     },
     {
         id: 2,
         name: "Functionality of hospitals and healthcare services",
         inPathway: [0, 2, 3, 4, 5],
-        icon: "",
+        icon: <SvgFunctionalityOfHospitalsAndHealthcareServices className="impact-img"/>,
     },
     {
         id: 3,
         name: "Damage or loss of coastal defences",
         inPathway: [0],
-        icon: "",
+        icon: <SvgDamageOrLossOfCoastalDefences className="impact-img"/>,
     },
     {
         id: 4,
         name: "Damage or loss of the built and natural environment",
         inPathway: [0, 1],
-        icon: "",
+        icon: <SvgDamageOrLossOfTheBuiltAndNaturalEnvironment className="impact-img"/>,
     },
     {
         id: 5,
         name: "People requiring care to maintain wellbeing",
         inPathway: [0],
-        icon: "",
+        icon: <SvgPeopleRequiringCare className="impact-img"/>,
     },
     {
         id: 6,
         name: "Marine and coastal biodiversity and ecological balance disruption",
         inPathway: [1, 4],
-        icon: "",
+        icon: <SvgMarineAndCoastalBiodiversityAndEcologicalBalanceDisruption className="impact-img"/>,
     },
     {
         id: 7,
         name: "Damage to local economy",
         inPathway: [1, 4],
-        icon: "",
+        icon: <SvgDamageToLocalEconomy className="impact-img"/>,
     },
     {
         id: 8,
         name: "Reduction in water availability",
         inPathway: [2],
-        icon: "",
+        icon: <SvgReducedWaterAvailability className="impact-img"/>,
     },
     {
         id: 9,
         name: "Reduction in water quality",
         inPathway: [2, 3, 4],
-        icon: "",
+        icon: <SvgReductionInWaterQuality className="impact-img"/>,
     },
     {
         id: 10,
         name: "Outdoor air quality",
         inPathway: [2, 4, 5],
-        icon: "",
+        icon: <SvgOutdoorAirQuality className="impact-img"/>,
     },
     {
         id: 11,
         name: "Transport disruption",
         inPathway: [2],
-        icon: "",
+        icon: <SvgTransportDisruption className="impact-img"/>,
     },
     {
         id: 12,
         name: "Building and structural damage",
         inPathway: [2],
-        icon: "",
+        icon: <SvgBuildingAndStructuralDamage className="impact-img" />,
     },
     {
         id: 13,
         name: "Biodiversity and ecological balance disruption",
         inPathway: [2],
-        icon: "",
+        icon: <SvgBiodiversityAndEcologicalBalanceDisruption className="impact-img" />,
     },
     {
         id: 14,
         name: "Food security",
         inPathway: [3],
-        icon: "",
+        icon: <SvgFoodSecurity className="impact-img"/>,
     },
     {
         id: 15,
         name: "Negative impacts on the fishing industry",
         inPathway: [3],
-        icon: "",
+        icon: <SvgNegativeImpactOnTheFishingIndustry className="impact-img"/>,
     },
     {
         id: 16,
         name: "Negative impacts on agricultural and livestock production",
         inPathway: [3],
-        icon: "",
+        icon: <SvgNegativeImpactsOnAgriculturalAndLivestockProduction className="impact-img"/>,
     },
     {
         id: 17,
@@ -213,18 +234,18 @@ export const communityImpacts = [
         id: 18,
         name: "Public transport disruption",
         inPathway: [5],
-        icon: "",
+        icon: <SvgPublicTransportDisruption className="impact-img"/>,
     },
     {
         id: 19,
         name: "Urban Heat Island effect",
         inPathway: [5],
-        icon: "",
+        icon: <SvgUrbanHeatIslandEffect classname="impact-img"/>,
     },
     {
         id: 20,
         name: "Building performance",
         inPathway: [5],
-        icon: "",
+        icon: <SvgBuildingPerformance className="impact-img" />,
     },
 ];
