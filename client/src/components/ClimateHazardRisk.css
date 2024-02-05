@@ -1,10 +1,10 @@
-.climate-hazard .horiz-container {
+.climate-hazard .horiz-climate-container {
     display: flex;
     flex-direction: row;
     overflow-x: auto;
     flex-wrap: wrap;
     width: 100%;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 .climate-hazard .vert-container {
@@ -25,7 +25,6 @@
 }
 
 .climate-hazard .vert-container .hazard-img {
-    display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;

@@ -33,7 +33,7 @@ function ClimateHazardRisk(props) {
             </p>
 
             <div className="climate-hazard">
-                <div className="horiz-container">
+                <div className="horiz-climate-container">
                     {climateHazardsData.map((hazard, index) => (
                         <div className="vert-container" key={index} onClick={() => handleHazardClick(hazard.name)}>
                             <p className="hazard-name">{hazard.name}</p>
