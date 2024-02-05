@@ -1,4 +1,5 @@
 // General impact icons for impacts data structure
+import SvgAdaptationAndOrMutationOfMicroorganisms from "../images/impacts/community/AdaptationAndOrMutationOfMicroorganisms";
 import SvgAdverseHealthOutcomesAndMalnutritionAssociatedWithAnUnhealthyDiet from "../images/impacts/general/AdverseHealthOutcomesAndMalnutritionAssociatedWithAnUnhealthyDiet";
 import SvgAdverseHealthOutcomesAssociatedWithExposureToChemicalsHeavyMetalsAndMicroplastics from "../images/impacts/general/AdverseHealthOutcomesAssociatedWithExposureToChemicalsHeavyMetalsAndMicroplastics";
 import SvgAdversePregnancyOutcomes from "../images/impacts/general/AdversePregnancyOutcomes";
@@ -18,12 +19,14 @@ import SvgWellbeing from "../images/impacts/general/Wellbeing";
 import SvgBiodiversityAndEcologicalBalanceDisruption from "../images/impacts/community/BiodiversityAndEcologicalBalanceDisruption";
 import SvgBuildingAndStructuralDamage from "../images/impacts/community/BuildingAndStructuralDamage";
 import SvgBuildingPerformance from "../images/impacts/community/BuildingPerformance";
+import SvgCascadingInfrastructureFailure from "../images/impacts/community/CascadingInfrastructureFailure";
 import SvgDamageOrLossOfCoastalDefences from "../images/impacts/community/DamageOrLossOfCoastalDefences";
 import SvgDamageOrLossOfPossessionsOrHome from "../images/impacts/community/DamageOrLossOfPossessionsOrHome";
 import SvgDamageOrLossOfTheBuiltAndNaturalEnvironment from "../images/impacts/community/DamageOrLossOfTheBuiltAndNaturalEnvironment";
 import SvgDamageToLocalEconomy from "../images/impacts/community/DamageToLocalEconomy";
 import SvgFoodSecurity from "../images/impacts/community/FoodSecurity";
 import SvgFunctionalityOfHospitalsAndHealthcareServices from "../images/impacts/community/FunctionalityOfHospitalsAndHealthcareServices";
+import SvgIllnessFromBiologicalContaminants from "../images/impacts/general/IllnessFromBiologicalContaminants";
 import SvgMarineAndCoastalBiodiversityAndEcologicalBalanceDisruption from "../images/impacts/community/MarineAndCoastalBiodiversityAndEcologicalBalanceDisruption";
 import SvgNegativeImpactOnTheFishingIndustry from "../images/impacts/community/NegativeImpactOnTheFishingIndustry";
 import SvgNegativeImpactsOnAgriculturalAndLivestockProduction from "../images/impacts/community/NegativeImpactsOnAgriculturalAndLivestockProduction";
@@ -34,7 +37,6 @@ import SvgReducedWaterAvailability from "../images/impacts/community/ReducedWate
 import SvgReductionInWaterQuality from "../images/impacts/community/ReductionInWaterQuality";
 import SvgTransportDisruption from "../images/impacts/community/TransportDisruption";
 import SvgUrbanHeatIslandEffect from "../images/impacts/community/UrbanHeatIslandEffect";
-import SvgCascadingInfrastructureFailure from "../images/impacts/community/CascadingInfrastructureFailure";
 
 // Impact pathway names, IDs used in inPathway field
 export const pathways = [
@@ -119,7 +121,7 @@ export const impacts = [
         id: 11,
         name: "Adverse health outcomes associated with naturally produced toxins in marine environments",
         inPathway: [4],
-        icon: "",
+        icon: <SvgIllnessFromBiologicalContaminants className="impact=img" />,
     },
     {
         id: 12,
@@ -248,7 +250,7 @@ export const communityImpacts = [
         id: 17,
         name: "Adaptation and/or mutation of microorganisms to antibiotics, chemicals and environmental stressors",
         inPathway: [4],
-        icon: "",
+        icon: <SvgAdaptationAndOrMutationOfMicroorganisms className="impact-img" />,
     },
     {
         id: 18,
