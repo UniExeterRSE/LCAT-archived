@@ -32,15 +32,15 @@ function ClimateHazardRisk(props) {
                 relevant localised datasets.
             </p>
 
-            <div className="climate-hazard">
-                <div className="horiz-climate-container">
-                    {climateHazardsData.map((hazard, index) => (
-                        <div className="vert-container" key={index} onClick={() => handleHazardClick(hazard.name)}>
-                            <p className="hazard-name">{hazard.name}</p>
-                            {hazard.icon}
+            <div className="horiz-container-hazard">
+                {climateHazardsData.map((hazard, index) => (
+                    <div className="vert-container-hazard" key={index} onClick={() => handleHazardClick(hazard.name)}>
+                        <div className="hazard-text">
+                            <strong>{hazard.name}</strong>
                         </div>
-                    ))}
-                </div>
+                        <div className="hazard-img">{hazard.icon}</div>
+                    </div>
+                ))}
             </div>
 
             {selectedHazard ? (
