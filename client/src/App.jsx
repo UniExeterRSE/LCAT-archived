@@ -31,6 +31,7 @@ import ContactUs from "./components/ContactUs";
 import FAQFooter from "./components/FAQFooter";
 import ClimateHazardRisk from "./components/ClimateHazardRisk";
 import ClimateImpactSummary from "./components/ClimateImpactSummary";
+import KumuImpactPathway from "./components/KumuImpactPathway";
 
 const meta = {
     title: "Local Climate Adaptation Tool",
@@ -55,6 +56,7 @@ class App extends React.Component {
             year: 2070,
             loadingPrediction: false,
             networkParser: new NetworkParser([], []),
+            selectedHazard: null,
         };
     }
 
@@ -197,9 +199,10 @@ class App extends React.Component {
                 {this.state.regions.length > 0 && (
                     <div className="grey-section">
                         <ClimateImpactSummary loading={this.state.loadingPrediction} />
+                        <KumuImpactPathway regions={this.state.regions} selectedHazard={this.state.selectedHazard} />
                     </div>
                 )}
-                
+
                 {this.state.regions.length > 0 && (
                     <div className="grey-section">
                         <HealthWellbeing
