@@ -38,14 +38,80 @@ import SvgReductionInWaterQuality from "../images/impacts/community/ReductionInW
 import SvgTransportDisruption from "../images/impacts/community/TransportDisruption";
 import SvgUrbanHeatIslandEffect from "../images/impacts/community/UrbanHeatIslandEffect";
 
-// Impact pathway names, IDs used in inPathway field
+// Impact pathway names, pathway IDs used in inPathway field, and Kumu map Iframe embeds
 export const pathways = [
-    { id: 0, name: "Extreme Storms" },
-    { id: 1, name: "Coastal Security" },
-    { id: 2, name: "Flooding and Drought" },
-    { id: 3, name: "Food and Personal Security" },
-    { id: 4, name: "Pathogenic Marine Microorganisms" },
-    { id: 5, name: "Temperature" },
+    {
+        id: 0,
+        name: "Extreme Storms",
+        pathwayMap: (
+            <iframe
+                title="Extreme Storms Pathway Map"
+                src="https://embed.kumu.io/3683734f4020d08acb030585bdae770e"
+                width="940"
+                height="600"
+            />
+        ),
+    },
+    {
+        id: 1,
+        name: "Coastal Security",
+        pathwayMap: (
+            <iframe
+                title="Coastal Security Pathway Map"
+                src="https://embed.kumu.io/c0a8b922b40e9bb388bcf7fa9779716b"
+                width="940"
+                height="600"
+            />
+        ),
+    },
+    {
+        id: 2,
+        name: "Flooding and Drought",
+        pathwayMap: (
+            <iframe
+                title="Flooding and Drought Pathway Map"
+                src="https://embed.kumu.io/f51857488c18671ccfecc5ad357e5f39"
+                width="940"
+                height="600"
+            />
+        ),
+    },
+    {
+        id: 3,
+        name: "Food and Personal Security",
+        pathwayMap: (
+            <iframe
+                title="Food and Personal Security Pathway Map"
+                src="https://embed.kumu.io/447f80093ef1d4abeb045eadfe4f9e8e"
+                width="940"
+                height="600"
+            />
+        ),
+    },
+    {
+        id: 4,
+        name: "Pathogenic Marine Microorganisms",
+        pathwayMap: (
+            <iframe
+                title="Pathogenic Marine Microorganisms Pathway Map"
+                src="https://embed.kumu.io/fe7135b0d3ac15e7b8a385620644ff8d"
+                width="940"
+                height="600"
+            />
+        ),
+    },
+    {
+        id: 5,
+        name: "Temperature",
+        pathwayMap: (
+            <iframe
+                title="Temperature Pathway Map"
+                src="https://embed.kumu.io/40819c4ab663b9c823469cdab57c5fed"
+                width="940"
+                height="600"
+            />
+        ),
+    },
 ];
 
 export const impacts = [
