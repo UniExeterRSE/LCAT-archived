@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useCollapse } from "react-collapsed";
+import { pathways } from "./ClimateImpactSummaryData";
+
+import "./KumuImpactPathway.css"
 
 const KumuImpactPathway = (props) => {
     const [isExpanded, setExpanded] = useState(false);
     const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded });
+    const pathwayMap = pathways.find((item) => item.name === props.selectedHazard).pathwayMap;
 
     useEffect(() => setExpanded(false), [props.regions]);
 
@@ -36,6 +40,7 @@ const KumuImpactPathway = (props) => {
                         You are viewing the impacts for{" "}
                         <strong className="projected-regions">{props.selectedHazard}</strong>.
                     </p>
+                    <div className="iframe-container">{pathwayMap}</div>
                 </div>
             </div>
         </div>
