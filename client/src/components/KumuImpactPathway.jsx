@@ -32,8 +32,10 @@ const KumuImpactPathway = (props) => {
                         Both the nodes and the connections between them contain information. Clicking on the nodes will
                         show details for an impact. Clicking on the lines will show the relationship between impacts.
                     </p>
-                    <p>You are viewing the impacts for <strong>{props.selectedHazard}</strong></p>
-
+                    <p>
+                        You are viewing the impacts for{" "}
+                        <strong className="projected-regions">{props.selectedHazard}</strong>.
+                    </p>
                 </div>
             </div>
         </div>

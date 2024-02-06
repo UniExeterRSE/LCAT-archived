@@ -16,7 +16,7 @@ import { impacts, communityImpacts, pathways } from "./ClimateImpactSummaryData"
 import "./ClimateImpactSummary.css";
 
 function ClimateImpactSummary(props) {
-    const initialPathwayName = "Extreme Storms";
+    const initialPathwayName = props.selectedHazard;
     const initialPathway = pathways.find((item) => item.name === initialPathwayName);
 
     const [selectedPathwayName, setSelectedPathway] = useState(initialPathway.name);
@@ -35,7 +35,12 @@ function ClimateImpactSummary(props) {
 
             <p>
                 You are viewing the climate impacts for&nbsp;
-                <select onChange={(e) => setSelectedPathway(e.target.value)}>
+                <select
+                    onChange={(e) => {
+                        setSelectedPathway(e.target.value);
+                        props.hazardCallback(e.target.value);
+                    }}
+                >
                     {pathways.map((pathway) => (
                         <option key={pathway.id} value={pathway.name}>
                             {pathway.name}
