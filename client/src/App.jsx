@@ -212,29 +212,6 @@ class App extends React.Component {
                 )}
 
                 {this.state.regions.length > 0 && (
-                    <div className="grey-section">
-                        <HealthWellbeing
-                            networkParser={this.state.networkParser}
-                            year={this.state.year}
-                            climatePrediction={this.state.climatePrediction}
-                            regions={this.state.regions}
-                            loading={this.state.loadingPrediction}
-                            season={this.state.season}
-                            rcp={this.state.rcp}
-                        />
-
-                        <Network
-                            network={this.state.network}
-                            year={this.state.year}
-                            climatePrediction={this.state.climatePrediction}
-                            regions={this.state.regions}
-                            networkParser={this.state.networkParser}
-                            season={this.state.season}
-                            rcp={this.state.rcp}
-                        />
-                    </div>
-                )}
-                {this.state.regions.length > 0 && (
                     <div className="white-section">
                         <Vulnerabilities regions={this.state.regions} regionType={this.state.regionType} />
                     </div>
