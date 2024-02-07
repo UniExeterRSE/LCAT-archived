@@ -45,7 +45,7 @@ const KumuImpactPathway = (props) => {
                             }}
                         >
                             {pathways.map((pathway) => (
-                                <option key={pathway.id} value={pathway.name}>
+                                <option value={pathway.name} key={pathway.id}>
                                     {pathway.name}
                                 </option>
                             ))}

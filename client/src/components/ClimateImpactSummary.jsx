@@ -38,7 +38,7 @@ function ClimateImpactSummary(props) {
                     }}
                 >
                     {pathways.map((pathway) => (
-                        <option key={pathway.id} value={pathway.name}>
+                        <option value={pathway.name} key={pathway.id}>
                             {pathway.name}
                         </option>
                     ))}
@@ -55,7 +55,7 @@ function ClimateImpactSummary(props) {
 
             <div className="horiz-container-impact">
                 {filteredImpacts.map((impact) => (
-                    <div className="vert-container-impact">
+                    <div className="vert-container-impact" key={impact.id}>
                         <div className="impact-img">{impact.icon}</div>
                         <div className="impact-text">{impact.name}</div>
                     </div>
@@ -72,7 +72,7 @@ function ClimateImpactSummary(props) {
 
             <div className="horiz-container-impact">
                 {filteredCommunityImpacts.map((impact) => (
-                    <div className="vert-container-impact">
+                    <div className="vert-container-impact" key={impact.id}>
                         <div className="impact-img">{impact.icon}</div>
                         <div className="impact-text">{impact.name}</div>
                     </div>
