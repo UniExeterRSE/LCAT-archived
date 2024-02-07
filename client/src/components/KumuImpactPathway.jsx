@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useCollapse } from "react-collapsed";
 import { pathways } from "./ClimateImpactSummaryData";
 
-import "./KumuImpactPathway.css"
+import "./KumuImpactPathway.css";
 
 const KumuImpactPathway = (props) => {
     const [isExpanded, setExpanded] = useState(false);
     const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded });
-    const pathwayMap = pathways.find((item) => item.name === props.selectedHazard).pathwayMap;
+    const pathwayMap = pathways.find((item) => item.name === props.selectedHazardName).pathwayMap;
 
     useEffect(() => setExpanded(false), [props.regions]);
 
@@ -37,8 +37,19 @@ const KumuImpactPathway = (props) => {
                         show details for an impact. Clicking on the lines will show the relationship between impacts.
                     </p>
                     <p>
-                        You are viewing the impacts for{" "}
-                        <strong className="projected-regions">{props.selectedHazard}</strong>.
+                        You are viewing the climate impacts for&nbsp;
+                        <select
+                            value={props.selectedHazardName}
+                            onChange={(e) => {
+                                props.hazardCallback(e.target.value);
+                            }}
+                        >
+                            {pathways.map((pathway) => (
+                                <option key={pathway.id} value={pathway.name}>
+                                    {pathway.name}
+                                </option>
+                            ))}
+                        </select>
                     </p>
                     <div className="iframe-container">{pathwayMap}</div>
                 </div>

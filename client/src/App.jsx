@@ -56,7 +56,7 @@ class App extends React.Component {
             year: 2070,
             loadingPrediction: false,
             networkParser: new NetworkParser([], []),
-            selectedHazard: "Extreme Storms",
+            selectedHazardName: "Extreme Storms",
         };
     }
 
@@ -200,14 +200,22 @@ class App extends React.Component {
                     <div className="grey-section">
                         <ClimateImpactSummary
                             loading={this.state.loadingPrediction}
-                            selectedHazard={this.state.selectedHazard}
+                            selectedHazardName={this.state.selectedHazardName}
                             hazardCallback={(hazard) => {
                                 this.setState(() => ({
-                                    selectedHazard: hazard,
+                                    selectedHazardName: hazard,
                                 }));
                             }}
                         />
-                        <KumuImpactPathway regions={this.state.regions} selectedHazard={this.state.selectedHazard} />
+                        <KumuImpactPathway
+                            regions={this.state.regions}
+                            selectedHazardName={this.state.selectedHazardName}
+                            hazardCallback={(hazard) => {
+                                this.setState(() => ({
+                                    selectedHazardName: hazard,
+                                }));
+                            }}
+                        />
                     </div>
                 )}
 
@@ -216,6 +224,7 @@ class App extends React.Component {
                         <Vulnerabilities regions={this.state.regions} regionType={this.state.regionType} />
                     </div>
                 )}
+
                 {this.state.regions.length > 0 && (
                     <div className="grey-section">
                         <Adaptations
