@@ -4,7 +4,7 @@ const FAQFooter = () => {
     return (
         <div className="footer-flex-container">
             <div className="footer-heading">Frequently Asked Questions</div>
-            <div clasName="footer-flex-content">
+            <div className="footer-flex-content">
                 <p>
                     <a
                         className="faq-button"
