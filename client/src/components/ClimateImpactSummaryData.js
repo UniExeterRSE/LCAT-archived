@@ -316,7 +316,7 @@ export const communityImpacts = [
         id: 19,
         name: "Urban Heat Island effect",
         inPathway: [5],
-        icon: <SvgUrbanHeatIslandEffect classname="impact-img" />,
+        icon: <SvgUrbanHeatIslandEffect className="impact-img" />,
     },
     {
         id: 20,
