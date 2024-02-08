@@ -365,7 +365,7 @@ export const vulnerabilityData = [
                         <li>
                             Climate Just's insight & advice:{" "}
                             <a href="" target="_blank" rel="noreferrer">
-                                 | Climate Just
+                                | Climate Just
                             </a>
                         </li>
                     </ul>
