@@ -7,7 +7,13 @@ import "./KumuImpactPathway.css";
 const KumuImpactPathway = (props) => {
     const [isExpanded, setExpanded] = useState(false);
     const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded });
-    const pathwayMap = pathways.find((item) => item.name === props.selectedHazardName).pathwayMap;
+    const [whichPathway, setWhichPathway] = useState("summary");
+    const pathway = pathways.find((item) => item.name === props.selectedHazardName);
+    const pathwayMap = whichPathway === "summary" ? pathway.summaryPathwayMap : pathway.completePathwayMap;
+
+    const togglePathway = () => {
+        setWhichPathway(whichPathway === "summary" ? "complete" : "summary");
+    };
 
     useEffect(() => setExpanded(false), [props.regions]);
 
@@ -37,7 +43,12 @@ const KumuImpactPathway = (props) => {
                         show details for an impact. Clicking on the lines will show the relationship between impacts.
                     </p>
                     <p>
-                        You are viewing the climate impacts for&nbsp;
+                        You are viewing the{" "}
+                        <select value={whichPathway} onChange={togglePathway}>
+                            <option value="summary">summary</option>
+                            <option value="complete">complete</option>
+                        </select>{" "}
+                        climate impacts for{" "}
                         <select
                             value={props.selectedHazardName}
                             onChange={(e) => {
