@@ -44,9 +44,31 @@ function PersonalSocialVulnerabilities(props) {
                 vulnerabilities.
             </p>
 
-            <div className="details-placeholder">
-                <p>Please click a vulnerability icon to view details.</p>
+            <div className="horiz-container-vulnerability">
+                {vulnerabilityData.map((vulnerability, index) => (
+                    <div
+                        className="vert-container-vulnerability"
+                        key={index}
+                        onClick={() => handleVulnerabilityClick(vulnerability.name)}
+                    >
+                        <div className="vulnerability-text">
+                            <strong>{vulnerability.name}</strong>
+                        </div>
+                        <div className="vulnerability-img">{vulnerability.icon}</div>
+                    </div>
+                ))}
             </div>
+
+            {selectedVulnerability ? (
+                <div className="selected-vulnerability-details">
+                    <h2 className="vulnerability-information">{selectedVulnerability}</h2>
+                    {vulnerabilityData.find((vulnerability) => vulnerability.name === selectedVulnerability)?.details}
+                </div>
+            ) : (
+                <div className="details-placeholder">
+                    <p>Please click a vulnerability icon to view details.</p>
+                </div>
+            )}
 
             <p></p>
             <p className="note">
