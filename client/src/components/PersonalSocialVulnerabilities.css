@@ -1,4 +1,4 @@
-.horiz-container-hazard {
+.horiz-container-vulnerability {
     display: flex;
     flex-direction: row;
     overflow-x: auto;
@@ -6,14 +6,19 @@
     width: 100%;
 }
 
-.hazard-img {
+.vulnerability-information {
+    border-bottom-color: #031d44;
+    border-bottom-width: 4px;
+}
+
+.vulnerability-img {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
 }
 
-.vert-container-hazard {
+.vert-container-vulnerability {
     display: flex;
     flex-direction: column;
     text-align: center;
@@ -25,13 +30,13 @@
     justify-content: space-between;
 }
 
-.hazard-text {
+.vulnerability-text {
     padding: 1em;
     font-size: 120%;
 }
 
 @media (min-width: 1000px) {
-    .vert-container-hazard {
+    .vert-container-vulnerability {
         width: 20%;
     }
 }

@@ -23,7 +23,6 @@ import HealthWellbeing from "./components/HealthWellbeing";
 import Network from "./components/Network";
 import NetworkLoader from "./components/NetworkLoader";
 import { NetworkParser } from "./core/NetworkParser";
-import Vulnerabilities from "./components/Vulnerabilities";
 import Adaptations from "./components/Adaptations";
 
 import { ReactComponent as LCATLogoSvg } from "./images/logos/LCAT_Logo_Primary_RGB.svg";
@@ -32,6 +31,7 @@ import FAQFooter from "./components/FAQFooter";
 import ClimateHazardRisk from "./components/ClimateHazardRisk";
 import ClimateImpactSummary from "./components/ClimateImpactSummary";
 import KumuImpactPathway from "./components/KumuImpactPathway";
+import PersonalSocialVulnerabilities from "./components/PersonalSocialVulnerabilities";
 
 const meta = {
     title: "Local Climate Adaptation Tool",
@@ -221,7 +221,7 @@ class App extends React.Component {
 
                 {this.state.regions.length > 0 && (
                     <div className="white-section">
-                        <Vulnerabilities regions={this.state.regions} regionType={this.state.regionType} />
+                        <PersonalSocialVulnerabilities loading={this.state.loadingPrediction} />
                     </div>
                 )}
 
