@@ -9,20 +9,16 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
-import React, { useState } from "react";
+import React from "react";
 import LoadingOverlay from "react-loading-overlay";
-
 import { impacts, communityImpacts, pathways } from "./ClimateImpactSummaryData";
+
 import "./ClimateImpactSummary.css";
 
 function ClimateImpactSummary(props) {
-    const initialPathwayName = "Extreme Storms";
-    const initialPathway = pathways.find((item) => item.name === initialPathwayName);
-
-    const [selectedPathwayName, setSelectedPathway] = useState(initialPathway.name);
-    const selectedPathway = pathways.find((item) => item.name === selectedPathwayName);
-    const filteredImpacts = impacts.filter((item) => item.inPathway.includes(selectedPathway.id));
-    const filteredCommunityImpacts = communityImpacts.filter((item) => item.inPathway.includes(selectedPathway.id));
+    const selectedPathwayData = pathways.find((item) => item.name === props.selectedHazardName);
+    const filteredImpacts = impacts.filter((item) => item.inPathway.includes(selectedPathwayData.id));
+    const filteredCommunityImpacts = communityImpacts.filter((item) => item.inPathway.includes(selectedPathwayData.id));
 
     return (
         <LoadingOverlay active={props.loading} spinner text={"Loading impact summaries"}>
@@ -35,9 +31,14 @@ function ClimateImpactSummary(props) {
 
             <p>
                 You are viewing the climate impacts for&nbsp;
-                <select onChange={(e) => setSelectedPathway(e.target.value)}>
+                <select
+                    value={props.selectedHazardName}
+                    onChange={(e) => {
+                        props.hazardCallback(e.target.value);
+                    }}
+                >
                     {pathways.map((pathway) => (
-                        <option key={pathway.id} value={pathway.name}>
+                        <option value={pathway.name} key={pathway.id}>
                             {pathway.name}
                         </option>
                     ))}
@@ -49,12 +50,12 @@ function ClimateImpactSummary(props) {
             <p>
                 The health impact summary shows the health effects for each climate impact pathway and is adapted from
                 the WHO climate-sensitive health risks guidelines. You are viewing the climate impacts for{" "}
-                <strong className="projected-regions">{selectedPathwayName}</strong>.
+                <strong className="projected-regions">{props.selectedHazardName}</strong>.
             </p>
 
             <div className="horiz-container-impact">
                 {filteredImpacts.map((impact) => (
-                    <div className="vert-container-impact">
+                    <div className="vert-container-impact" key={impact.id}>
                         <div className="impact-img">{impact.icon}</div>
                         <div className="impact-text">{impact.name}</div>
                     </div>
@@ -66,12 +67,12 @@ function ClimateImpactSummary(props) {
             <p>
                 The community impact summary displays the main impacts from climate change in the UK based on your
                 selected climate impact pathway. You are viewing the climate impacts for{" "}
-                <strong className="projected-regions">{selectedPathwayName}</strong>.
+                <strong className="projected-regions">{props.selectedHazardName}</strong>.
             </p>
 
             <div className="horiz-container-impact">
                 {filteredCommunityImpacts.map((impact) => (
-                    <div className="vert-container-impact">
+                    <div className="vert-container-impact" key={impact.id}>
                         <div className="impact-img">{impact.icon}</div>
                         <div className="impact-text">{impact.name}</div>
                     </div>

@@ -4,7 +4,7 @@ const ContactUs = () => {
     return (
         <div className="footer-flex-container">
             <h1>Need help? Contact us.</h1>
-            <div class="footer-flex-content">
+            <div className="footer-flex-content">
                 <p>
                     <a className="email-button" href="mailto:lcat@exeter.ac.uk" target="_blank" rel="noreferrer"></a>
                 </p>

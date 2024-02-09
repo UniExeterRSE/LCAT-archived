@@ -19,8 +19,6 @@ import ClimateSettings from "./components/ClimateSettings";
 import ClimateSummary from "./components/ClimateSummary";
 import ClimatePredictionLoader from "./components/ClimatePredictionLoader";
 import Graph from "./components/Graph";
-import HealthWellbeing from "./components/HealthWellbeing";
-import Network from "./components/Network";
 import NetworkLoader from "./components/NetworkLoader";
 import { NetworkParser } from "./core/NetworkParser";
 import Adaptations from "./components/Adaptations";
@@ -30,6 +28,7 @@ import ContactUs from "./components/ContactUs";
 import FAQFooter from "./components/FAQFooter";
 import ClimateHazardRisk from "./components/ClimateHazardRisk";
 import ClimateImpactSummary from "./components/ClimateImpactSummary";
+import KumuImpactPathway from "./components/KumuImpactPathway";
 import PersonalSocialVulnerabilities from "./components/PersonalSocialVulnerabilities";
 
 const meta = {
@@ -55,6 +54,7 @@ class App extends React.Component {
             year: 2070,
             loadingPrediction: false,
             networkParser: new NetworkParser([], []),
+            selectedHazardName: "Extreme Storms",
         };
     }
 
@@ -196,30 +196,23 @@ class App extends React.Component {
 
                 {this.state.regions.length > 0 && (
                     <div className="grey-section">
-                        <ClimateImpactSummary loading={this.state.loadingPrediction} />
-                    </div>
-                )}
-
-                {this.state.regions.length > 0 && (
-                    <div className="grey-section">
-                        <HealthWellbeing
-                            networkParser={this.state.networkParser}
-                            year={this.state.year}
-                            climatePrediction={this.state.climatePrediction}
-                            regions={this.state.regions}
+                        <ClimateImpactSummary
                             loading={this.state.loadingPrediction}
-                            season={this.state.season}
-                            rcp={this.state.rcp}
+                            selectedHazardName={this.state.selectedHazardName}
+                            hazardCallback={(hazard) => {
+                                this.setState(() => ({
+                                    selectedHazardName: hazard,
+                                }));
+                            }}
                         />
-
-                        <Network
-                            network={this.state.network}
-                            year={this.state.year}
-                            climatePrediction={this.state.climatePrediction}
+                        <KumuImpactPathway
                             regions={this.state.regions}
-                            networkParser={this.state.networkParser}
-                            season={this.state.season}
-                            rcp={this.state.rcp}
+                            selectedHazardName={this.state.selectedHazardName}
+                            hazardCallback={(hazard) => {
+                                this.setState(() => ({
+                                    selectedHazardName: hazard,
+                                }));
+                            }}
                         />
                     </div>
                 )}

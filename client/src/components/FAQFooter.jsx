@@ -3,8 +3,8 @@ import React from "react";
 const FAQFooter = () => {
     return (
         <div className="footer-flex-container">
-            <div class="footer-heading">Frequently Asked Questions</div>
-            <div class="footer-flex-content">
+            <div className="footer-heading">Frequently Asked Questions</div>
+            <div className="footer-flex-content">
                 <p>
                     <a
                         className="faq-button"
