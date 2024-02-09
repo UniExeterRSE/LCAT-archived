@@ -1,10 +1,18 @@
-import HeatwaveSvg from "../images/hazards/Heatwave.js";
+import SvgLowEnglishProficiency from "../images/personalSocialVulnerabilities/LowEnglishProficiency.js";
+import SvgLowIncomes from "../images/personalSocialVulnerabilities/LowIncomes.js";
+import SvgLowLocalKnowledge from "../images/personalSocialVulnerabilities/LowLocalKnowledge.js";
+import SvgLowMobility from "../images/personalSocialVulnerabilities/LowMobility.js";
+import SvgOlderPeople from "../images/personalSocialVulnerabilities/OlderPeople.js";
+import SvgPoorHealth from "../images/personalSocialVulnerabilities/PoorHealth.js";
+import SvgPrivateSocialHousing from "../images/personalSocialVulnerabilities/PrivateSocialHousing.js";
+import SvgSociallyIsolated from "../images/personalSocialVulnerabilities/SociallyIsolated.js";
+import SvgUnderFives from "../images/personalSocialVulnerabilities/UnderFives.js";
 
 // This map contains the rendered content in the PersonalSocialVulnerabilities component
 export const vulnerabilityData = [
     {
         name: "Older people",
-        icon: <HeatwaveSvg className="vulnerability-img" />,
+        icon: <SvgOlderPeople className="vulnerability-img" />,
         details: (
             <div>
                 <p>
@@ -70,7 +78,7 @@ export const vulnerabilityData = [
     },
     {
         name: "Under 5s",
-        icon: <HeatwaveSvg className="vulnerability-img" />,
+        icon: <SvgUnderFives className="vulnerability-img" />,
         details: (
             <div>
                 <p>
@@ -128,7 +136,7 @@ export const vulnerabilityData = [
     },
     {
         name: "People in poor health",
-        icon: <HeatwaveSvg className="vulnerability-img" />,
+        icon: <SvgPoorHealth className="vulnerability-img" />,
         details: (
             <div>
                 <p>
@@ -191,7 +199,7 @@ export const vulnerabilityData = [
     },
     {
         name: "People on low incomes",
-        icon: <HeatwaveSvg className="vulnerability-img" />,
+        icon: <SvgLowIncomes className="vulnerability-img" />,
         details: (
             <div>
                 <p>
@@ -258,7 +266,7 @@ export const vulnerabilityData = [
     },
     {
         name: "Tenants in private or social housing",
-        icon: <HeatwaveSvg className="vulnerability-img" />,
+        icon: <SvgPrivateSocialHousing className="vulnerability-img" />,
         details: (
             <div>
                 <p>
@@ -337,7 +345,7 @@ export const vulnerabilityData = [
     },
     {
         name: "People with low/no English proficiency",
-        icon: <HeatwaveSvg className="vulnerability-img" />,
+        icon: <SvgLowEnglishProficiency className="vulnerability-img" />,
         details: (
             <div>
                 <p>
@@ -386,7 +394,7 @@ export const vulnerabilityData = [
     },
     {
         name: "People with low/no local knowledge",
-        icon: <HeatwaveSvg className="vulnerability-img" />,
+        icon: <SvgLowLocalKnowledge className="vulnerability-img" />,
         details: (
             <div>
                 <p>
@@ -435,7 +443,7 @@ export const vulnerabilityData = [
     },
     {
         name: "People who are socially isolated",
-        icon: <HeatwaveSvg className="vulnerability-img" />,
+        icon: <SvgSociallyIsolated className="vulnerability-img" />,
         details: (
             <div>
                 <p>
@@ -506,7 +514,7 @@ export const vulnerabilityData = [
     },
     {
         name: "People with low personal mobility",
-        icon: <HeatwaveSvg className="vulnerability-img" />,
+        icon: <SvgLowMobility className="vulnerability-img" />,
         details: (
             <div>
                 <p>
