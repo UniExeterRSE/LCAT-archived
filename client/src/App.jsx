@@ -19,8 +19,6 @@ import ClimateSettings from "./components/ClimateSettings";
 import ClimateSummary from "./components/ClimateSummary";
 import ClimatePredictionLoader from "./components/ClimatePredictionLoader";
 import Graph from "./components/Graph";
-import HealthWellbeing from "./components/HealthWellbeing";
-import Network from "./components/Network";
 import NetworkLoader from "./components/NetworkLoader";
 import { NetworkParser } from "./core/NetworkParser";
 import Adaptations from "./components/Adaptations";
