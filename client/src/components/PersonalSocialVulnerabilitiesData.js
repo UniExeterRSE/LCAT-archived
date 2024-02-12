@@ -328,67 +328,35 @@ export const vulnerabilityData = [
         ),
     },
     {
-        name: "People with low/no English proficiency",
-        icon: <SvgLowEnglishProficiency className="vulnerability-img" />,
-        details: (
-            <div>
-                <p>
-                    <strong>Who: </strong>People with low/no English proficiency
-                </p>
-                <p>
-                    <strong>Why are they vulnerable?</strong>
-                </p>
-                <ul>
-                    <li>Less likely to be able to access information and guidance.</li>
-                    <li>
-                        Less able to understand information on risk, adaptation measures and keeping themselves well and
-                        safe.
-                    </li>
-                    <li>
-                        If newly arrived or lived a short time in an area, they may additionally be lacking in knowledge
-                        on the local area and local services and support.
-                    </li>
-                </ul>
-                <p>
-                    <strong>How can I find more information?</strong>
-                </p>
-                <ul>
-                    <li>
-                        Climate Just's insight & advice:{" "}
-                        <a href="" target="_blank" rel="noreferrer">
-                            | Climate Just
-                        </a>
-                    </li>
-                </ul>
-                <p>
-                    <strong>How can I find local data?</strong>
-                </p>
-                <ul>
-                    <li>
-                        Climate Just's mapping tool:{" "}
-                        <a href="https://www.climatejust.org.uk/map" target="_blank" rel="noreferrer">
-                            Mapping tool page | Climate Just
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        ),
-    },
-    {
-        name: "People with low/no local knowledge",
+        name: "People living in area for a short time",
         icon: <SvgLowLocalKnowledge className="vulnerability-img" />,
         details: (
             <div>
                 <p>
-                    <strong>Who: </strong>People lacking local knowledge due to short residency in an area
+                    <strong>Who: </strong>People who have lived in an area for a short time/areas with highly transient
+                    populations
                 </p>
                 <p>
                     <strong>Why are they vulnerable?</strong>
                 </p>
                 <ul>
-                    <li>Less aware of localised risks such as flood risk.</li>
-                    <li>Less aware of where to get help and how to take action during an extreme weather event.</li>
-                    <li>Less familiar with local support structures and services.</li>
+                    <li>
+                        Lack local knowledge about:
+                        <ul>
+                            <li>Localised risks (e.g flood risk)</li>
+                            <li>Local support structure and services</li>
+                            <li>How to take action during an extreme weather event</li>
+                        </ul>
+                    </li>
+                    <li>Lack of social networks and support structures.</li>
+                    <li>
+                        Areas with high rates of population transience are associated with compounding vulnerability
+                        factors such as poor-quality housing, insecure, low-paid work and physical and social isolation.
+                    </li>
+                    <li>
+                        For people who have come from other countries, low or no English proficiency may impact people's
+                        understanding of, and access to, local information on climate impacts.
+                    </li>
                 </ul>
                 <p>
                     <strong>How can I find more information?</strong>
@@ -410,7 +378,8 @@ export const vulnerabilityData = [
                 </p>
                 <ul>
                     <li>
-                        Climate Just's mapping tool:{" "}
+                        Climate Just's mapping tool provides a range of data including length of residency & English
+                        proficiency:{" "}
                         <a href="https://www.climatejust.org.uk/map" target="_blank" rel="noreferrer">
                             Mapping tool page | Climate Just
                         </a>
