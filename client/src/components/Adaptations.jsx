@@ -1,4 +1,6 @@
-// Copyright (C) 2022 Then Try This
+// Development before 2024 Copyright (C) Then Try This and University of Exeter
+// Development from 2024 Copyright (C) University of Exeter
+
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the Common Good Public License Beta 1.0 as

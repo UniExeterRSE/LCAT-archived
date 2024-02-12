@@ -1,9 +1,10 @@
-# Copyright (C) 2022 Then Try This
-# 
+# Development before 2024 Copyright (C) Then Try This and University of Exeter
+# Development from 2024 Copyright (C) University of Exeter
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Common Good Public License Beta 1.0 as
 # published at http://www.cgpl.org
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -16,39 +17,39 @@
 # be able to make use of in future.
 
 
-def cache_climate(db,boundary_table,climate_table):
-    table = "cache_"+boundary_table+"_to_"+climate_table
-    variables = ["tas","sfcWind","pr","rsds"]
-    decades = ["1980","1990","2000","2010","2020","2030","2040","2050","2060","2070"]
+def cache_climate(db, boundary_table, climate_table):
+    table = "cache_" + boundary_table + "_to_" + climate_table
+    variables = ["tas", "sfcWind", "pr", "rsds"]
+    decades = ["1980", "1990", "2000", "2010", "2020", "2030", "2040", "2050", "2060", "2070"]
 
-    data_cols={table: [["boundary_id","int primary key"]]}
+    data_cols = {table: [["boundary_id", "int primary key"]]}
 
-    vardec=[]
-    ivardec=[]
-    quotes=[]
+    vardec = []
+    ivardec = []
+    quotes = []
     for decade in decades:
         for variable in variables:
-            data_cols[table].append([variable+"_"+decade,"real"])
-            vardec.append("avg ("+variable+"_"+decade+") as "+variable+"_"+decade)
-            ivardec.append(variable+"_"+decade)
+            data_cols[table].append([variable + "_" + decade, "real"])
+            vardec.append("avg (" + variable + "_" + decade + ") as " + variable + "_" + decade)
+            ivardec.append(variable + "_" + decade)
             quotes.append("%s")
     vardec_str = ",".join(vardec)
     ivardec_str = ",".join(ivardec)
-    quotes_str = ",".join(quotes) 
+    quotes_str = ",".join(quotes)
 
     db.create_tables(data_cols)
 
-    q=f"select gid from {boundary_table}"
+    q = f"select gid from {boundary_table}"
     db.cur.execute(q)
     for geo_id in db.cur.fetchall():
-        print(table+" "+str(geo_id[0]))
-        s=f"(select distinct tile_id from {boundary_table}_grid_mapping where geo_id={geo_id[0]})"
-        q=f"select {vardec_str} from {climate_table} where id in {s}"
+        print(table + " " + str(geo_id[0]))
+        s = f"(select distinct tile_id from {boundary_table}_grid_mapping where geo_id={geo_id[0]})"
+        q = f"select {vardec_str} from {climate_table} where id in {s}"
         db.cur.execute(q)
         values = db.cur.fetchall()
-        q=f"insert into {table} (boundary_id,{ivardec_str}) values (%s,{quotes_str})"
-        v = (geo_id[0],)+values[0]
-        db.cur.execute(q,v)
+        q = f"insert into {table} (boundary_id,{ivardec_str}) values (%s,{quotes_str})"
+        v = (geo_id[0],) + values[0]
+        db.cur.execute(q, v)
         db.conn.commit()
 
 
