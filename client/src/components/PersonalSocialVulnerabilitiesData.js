@@ -1,4 +1,3 @@
-import SvgLowEnglishProficiency from "../images/personalSocialVulnerabilities/LowEnglishProficiency.js";
 import SvgLowIncomes from "../images/personalSocialVulnerabilities/LowIncomes.js";
 import SvgLowLocalKnowledge from "../images/personalSocialVulnerabilities/LowLocalKnowledge.js";
 import SvgLowMobility from "../images/personalSocialVulnerabilities/LowMobility.js";
@@ -16,10 +15,11 @@ export const vulnerabilityData = [
         details: (
             <div>
                 <p>
-                    <strong>Who: </strong>Older people over 65, but particularly over 75
+                    <strong className="vulnerability-emphasis">Who? </strong>Older people over 65, but particularly over
+                    75
                 </p>
                 <p>
-                    <strong>Why are they vulnerable?</strong>
+                    <strong className="vulnerability-emphasis">Why are they vulnerable?</strong>
                 </p>
                 <ul>
                     <li>
@@ -50,7 +50,7 @@ export const vulnerabilityData = [
                     </li>
                 </ul>
                 <p>
-                    <strong>How can I find more information?</strong>
+                    <strong className="vulnerability-emphasis">How can I find more information?</strong>
                 </p>
                 <ul>
                     <li>
@@ -61,7 +61,7 @@ export const vulnerabilityData = [
                     </li>
                 </ul>
                 <p>
-                    <strong>How can I find local data?</strong>
+                    <strong className="vulnerability-emphasis">How can I find local data?</strong>
                 </p>
                 <ul>
                     <li>
@@ -80,10 +80,10 @@ export const vulnerabilityData = [
         details: (
             <div>
                 <p>
-                    <strong>Who: </strong>Very young children & babies (under 5s)
+                    <strong className="vulnerability-emphasis">Who? </strong>Very young children & babies (under 5s)
                 </p>
                 <p>
-                    <strong>Why are they vulnerable?</strong>
+                    <strong className="vulnerability-emphasis">Why are they vulnerable?</strong>
                 </p>
                 <ul>
                     <li>
@@ -102,7 +102,7 @@ export const vulnerabilityData = [
                     </li>
                 </ul>
                 <p>
-                    <strong>How can I find more information?</strong>
+                    <strong className="vulnerability-emphasis">How can I find more information?</strong>
                 </p>
                 <ul>
                     <li>
@@ -117,7 +117,7 @@ export const vulnerabilityData = [
                     </li>
                 </ul>
                 <p>
-                    <strong>How can I find local data?</strong>
+                    <strong className="vulnerability-emphasis">How can I find local data?</strong>
                 </p>
                 <ul>
                     <li>
@@ -136,10 +136,11 @@ export const vulnerabilityData = [
         details: (
             <div>
                 <p>
-                    <strong>Who: </strong>People in poor health - those with existing physical and mental illness
+                    <strong className="vulnerability-emphasis">Who? </strong>People in poor health - those with existing
+                    physical and mental illness
                 </p>
                 <p>
-                    <strong>Why are they vulnerable?</strong>
+                    <strong className="vulnerability-emphasis">Why are they vulnerable?</strong>
                 </p>
                 <p>
                     Health conditions and disabilities are diverse and different and so impact and harm will differ
@@ -165,7 +166,7 @@ export const vulnerabilityData = [
                     </li>
                 </ul>
                 <p>
-                    <strong>How can I find more information?</strong>
+                    <strong className="vulnerability-emphasis">How can I find more information?</strong>
                 </p>
                 <ul>
                     <li>
@@ -180,7 +181,7 @@ export const vulnerabilityData = [
                     </li>
                 </ul>
                 <p>
-                    <strong>How can I find local data?</strong>
+                    <strong className="vulnerability-emphasis">How can I find local data?</strong>
                 </p>
                 <ul>
                     <li>
@@ -199,10 +200,10 @@ export const vulnerabilityData = [
         details: (
             <div>
                 <p>
-                    <strong>Who: </strong>People on low incomes
+                    <strong className="vulnerability-emphasis">Who? </strong>People on low incomes
                 </p>
                 <p>
-                    <strong>Why are they vulnerable?</strong>
+                    <strong className="vulnerability-emphasis">Why are they vulnerable?</strong>
                 </p>
                 <ul>
                     <li>
@@ -229,7 +230,7 @@ export const vulnerabilityData = [
                     <li>Less likely to seek help or be involved in political processes giving them a voice.</li>
                 </ul>
                 <p>
-                    <strong>How can I find more information?</strong>
+                    <strong className="vulnerability-emphasis">How can I find more information?</strong>
                 </p>
                 <ul>
                     <li>
@@ -244,7 +245,7 @@ export const vulnerabilityData = [
                     </li>
                 </ul>
                 <p>
-                    <strong>How can I find local data?</strong>
+                    <strong className="vulnerability-emphasis">How can I find local data?</strong>
                 </p>
                 <ul>
                     <li>
@@ -263,10 +264,10 @@ export const vulnerabilityData = [
         details: (
             <div>
                 <p>
-                    <strong>Who: </strong>Tenants in private or social housing
+                    <strong className="vulnerability-emphasis">Who? </strong>Tenants in private or social housing
                 </p>
                 <p>
-                    <strong>Why are they vulnerable?</strong>
+                    <strong className="vulnerability-emphasis">Why are they vulnerable?</strong>
                 </p>
                 <ul>
                     <li>
@@ -291,7 +292,7 @@ export const vulnerabilityData = [
                     </li>
                 </ul>
                 <p>
-                    <strong>How can I find more information?</strong>
+                    <strong className="vulnerability-emphasis">How can I find more information?</strong>
                 </p>
                 <ul>
                     <li>
@@ -314,7 +315,7 @@ export const vulnerabilityData = [
                     </li>
                 </ul>
                 <p>
-                    <strong>How can I find local data?</strong>
+                    <strong className="vulnerability-emphasis">How can I find local data?</strong>
                 </p>
                 <ul>
                     <li>
@@ -328,70 +329,38 @@ export const vulnerabilityData = [
         ),
     },
     {
-        name: "People with low/no English proficiency",
-        icon: <SvgLowEnglishProficiency className="vulnerability-img" />,
-        details: (
-            <div>
-                <p>
-                    <strong>Who: </strong>People with low/no English proficiency
-                </p>
-                <p>
-                    <strong>Why are they vulnerable?</strong>
-                </p>
-                <ul>
-                    <li>Less likely to be able to access information and guidance.</li>
-                    <li>
-                        Less able to understand information on risk, adaptation measures and keeping themselves well and
-                        safe.
-                    </li>
-                    <li>
-                        If newly arrived or lived a short time in an area, they may additionally be lacking in knowledge
-                        on the local area and local services and support.
-                    </li>
-                </ul>
-                <p>
-                    <strong>How can I find more information?</strong>
-                </p>
-                <ul>
-                    <li>
-                        Climate Just's insight & advice:{" "}
-                        <a href="" target="_blank" rel="noreferrer">
-                            | Climate Just
-                        </a>
-                    </li>
-                </ul>
-                <p>
-                    <strong>How can I find local data?</strong>
-                </p>
-                <ul>
-                    <li>
-                        Climate Just's mapping tool:{" "}
-                        <a href="https://www.climatejust.org.uk/map" target="_blank" rel="noreferrer">
-                            Mapping tool page | Climate Just
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        ),
-    },
-    {
-        name: "People with low/no local knowledge",
+        name: "People living in area for a short time",
         icon: <SvgLowLocalKnowledge className="vulnerability-img" />,
         details: (
             <div>
                 <p>
-                    <strong>Who: </strong>People lacking local knowledge due to short residency in an area
+                    <strong className="vulnerability-emphasis">Who? </strong>People who have lived in an area for a
+                    short time/areas with highly transient populations
                 </p>
                 <p>
-                    <strong>Why are they vulnerable?</strong>
+                    <strong className="vulnerability-emphasis">Why are they vulnerable?</strong>
                 </p>
                 <ul>
-                    <li>Less aware of localised risks such as flood risk.</li>
-                    <li>Less aware of where to get help and how to take action during an extreme weather event.</li>
-                    <li>Less familiar with local support structures and services.</li>
+                    <li>
+                        Lack local knowledge about:
+                        <ul>
+                            <li>Localised risks (e.g flood risk)</li>
+                            <li>Local support structure and services</li>
+                            <li>How to take action during an extreme weather event</li>
+                        </ul>
+                    </li>
+                    <li>Lack of social networks and support structures.</li>
+                    <li>
+                        Areas with high rates of population transience are associated with compounding vulnerability
+                        factors such as poor-quality housing, insecure, low-paid work and physical and social isolation.
+                    </li>
+                    <li>
+                        For people who have come from other countries, low or no English proficiency may impact people's
+                        understanding of, and access to, local information on climate impacts.
+                    </li>
                 </ul>
                 <p>
-                    <strong>How can I find more information?</strong>
+                    <strong className="vulnerability-emphasis">How can I find more information?</strong>
                 </p>
                 <ul>
                     <li>
@@ -406,11 +375,12 @@ export const vulnerabilityData = [
                     </li>
                 </ul>
                 <p>
-                    <strong>How can I find local data?</strong>
+                    <strong className="vulnerability-emphasis">How can I find local data?</strong>
                 </p>
                 <ul>
                     <li>
-                        Climate Just's mapping tool:{" "}
+                        Climate Just's mapping tool provides a range of data including length of residency & English
+                        proficiency:{" "}
                         <a href="https://www.climatejust.org.uk/map" target="_blank" rel="noreferrer">
                             Mapping tool page | Climate Just
                         </a>
@@ -425,7 +395,7 @@ export const vulnerabilityData = [
         details: (
             <div>
                 <p>
-                    <strong>Who: </strong>People who are socially isolated
+                    <strong className="vulnerability-emphasis">Who? </strong>People who are socially isolated
                 </p>
                 <p>This can include, but is not limited to:</p>
                 <ul>
@@ -434,7 +404,7 @@ export const vulnerabilityData = [
                     <li>Transient populations with little access to friends and family.</li>
                 </ul>
                 <p>
-                    <strong>Why are they vulnerable?</strong>
+                    <strong className="vulnerability-emphasis">Why are they vulnerable?</strong>
                 </p>
                 <ul>
                     <li>
@@ -454,7 +424,7 @@ export const vulnerabilityData = [
                     <li>Social isolation, coupled with rural/ coastal isolation, can exacerbate vulnerability.</li>
                 </ul>
                 <p>
-                    <strong>How can I find more information?</strong>
+                    <strong className="vulnerability-emphasis">How can I find more information?</strong>
                 </p>
                 <ul>
                     <li>
@@ -469,7 +439,7 @@ export const vulnerabilityData = [
                     </li>
                 </ul>
                 <p>
-                    <strong>How can I find local data?</strong>
+                    <strong className="vulnerability-emphasis">How can I find local data?</strong>
                 </p>
                 <ul>
                     <li>
@@ -488,10 +458,11 @@ export const vulnerabilityData = [
         details: (
             <div>
                 <p>
-                    <strong>Who: </strong>Those with low personal mobility & low access to services
+                    <strong className="vulnerability-emphasis">Who? </strong>Those with low personal mobility & low
+                    access to services
                 </p>
                 <p>
-                    <strong>Why are they vulnerable?</strong>
+                    <strong className="vulnerability-emphasis">Why are they vulnerable?</strong>
                 </p>
                 <ul>
                     <li>
@@ -527,7 +498,7 @@ export const vulnerabilityData = [
                     </li>
                 </ul>
                 <p>
-                    <strong>How can I find more information?</strong>
+                    <strong className="vulnerability-emphasis">How can I find more information?</strong>
                 </p>
                 <ul>
                     <li>
@@ -542,7 +513,7 @@ export const vulnerabilityData = [
                     </li>
                 </ul>
                 <p>
-                    <strong>How can I find local data?</strong>
+                    <strong className="vulnerability-emphasis">How can I find local data?</strong>
                 </p>
                 <ul>
                     <li>

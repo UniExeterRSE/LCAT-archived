@@ -11,6 +11,11 @@
     border-bottom-width: 4px;
 }
 
+.vulnerability-emphasis {
+    font-weight: bold;
+    font-size: 1.4em;
+}
+
 .vulnerability-img {
     display: flex;
     flex-direction: row;
