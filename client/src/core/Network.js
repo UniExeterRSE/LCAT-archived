@@ -1,5 +1,6 @@
 // -*- mode: rjsx;  -*-
-// Copyright (C) 2021 Then Try This
+// Development before 2024 Copyright (C) Then Try This and University of Exeter
+// Development from 2024 Copyright (C) University of Exeter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
