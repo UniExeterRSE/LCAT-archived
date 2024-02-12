@@ -296,7 +296,8 @@ class App extends React.Component {
                     </p>
 
                     <p>
-                        Development before 2024 Copyright © Then Try This & University of Exeter<br></br>
+                        Development before 2024 Copyright © Then Try This & University of Exeter
+                        <br />
                         Development from 2024 Copyright © University of Exeter
                     </p>
 
