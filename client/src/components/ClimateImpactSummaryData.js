@@ -5,6 +5,7 @@ import SvgAdverseHealthOutcomesAssociatedWithExposureToChemicalsHeavyMetalsAndMi
 import SvgAdversePregnancyOutcomes from "../images/impacts/general/AdversePregnancyOutcomes";
 import SvgAntimicrobialResistance from "../images/impacts/general/AntimicrobialResistance";
 import SvgCardiovascularDiseases from "../images/impacts/general/CardiovascularDiseases";
+import SvgDrowningOrFloodRelatedAccidents from "../images/impacts/general/DrowningOrFloodRelatedAccidents";
 import SvgIllnessAndMortalityDueToDampBuildingFabrics from "../images/impacts/general/IllnessAndMortalityDueToDampBuildingFabrics";
 import SvgInfectionsCausedByPathogenicOrganisms from "../images/impacts/general/InfectionsCausedByPathogenicOrganisms";
 import SvgInjuries from "../images/impacts/general/Injuries";
@@ -186,7 +187,7 @@ export const impacts = [
         id: 6,
         name: "Drowning or flood-related accidents",
         inPathway: [2],
-        icon: "",
+        icon: <SvgDrowningOrFloodRelatedAccidents className="impact-img" />,
     },
     {
         id: 7,
