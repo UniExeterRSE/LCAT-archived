@@ -36,9 +36,10 @@ export const climateHazardsData = [
                 <p className="climate-hazard-emphasis">Where can I find localised heatwave risk data?</p>
 
                 <p>
-                    Heatwave data is within the climate indicator category of 'Temperature extremes':{"  "}
+                    Heatwave data is within the climate indicator category of{" "}
+                    <strong className="text-emphasis">'Temperature extremes'</strong>:{"  "}
                     <a href="https://uk-cri.org/" target="_blank" rel="noreferrer">
-                        Climate Risk Indicators | uk-cri.org.
+                        Climate Risk Indicators | uk-cri.org
                     </a>
                 </p>
             </div>
@@ -51,20 +52,22 @@ export const climateHazardsData = [
             <div>
                 <p>
                     Globally, hotter, drier weather in many regions has increased the frequency, intensity, and scale of
-                    wildfires. Climate change increases the risk of wildfires through a combination of factors including
-                    low humidity and rainfall (making it drier), and elevated temperatures and winds.
+                    wildfires. This includes in the UK.
                 </p>
+                <p>Climate change increases the risk of wildfires through a combination of factors including:</p>
+                <ul>
+                    <li>Low humidity and low rainfall making it drier.</li>
+                    <li>
+                        <strong className="text-emphasis">Higher temperatures.</strong>
+                    </li>
+                    <li>Higher wind speeds.</li>
+                </ul>
+                <p className="climate-hazard-emphasis">Where can I find localised heatwave risk data?</p>
                 <p>
-                    The increase in dry vegetation and reduced soil moisture due to heatwaves and drought increases the
-                    spread of wildfires. An increase in the likelihood of UK wildfires is projected as temperatures
-                    continue to increase and exacerbate other factors such as heatwaves and drought, which in turn
-                    increase fuel for fires to spread.
-                </p>
-                <p>
-                    Find out your localised wildfire risk data within the climate indicator category of ‘Wildfire’,
-                    using the{" "}
+                    Wildfire risk data is within the climate indicator category of{" "}
+                    <strong className="text-emphasis">'Wildfire'</strong>:{"  "}
                     <a href="https://uk-cri.org/" target="_blank" rel="noreferrer">
-                        Climate Risk Indicator Explorer here.
+                        Climate Risk Indicators | uk-cri.org
                     </a>
                 </p>
             </div>
