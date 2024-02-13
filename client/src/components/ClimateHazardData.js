@@ -136,24 +136,34 @@ export const climateHazardsData = [
         details: (
             <div>
                 <p>
-                    The UK has become wetter over the last few decades, with an increase in frequency and intensity of
-                    rainfall and flooding.
+                    The UK has become wetter over the recent decades, with an increase in frequency and intensity of
+                    rainfall and flooding. Flooding is affected by:
                 </p>
-                <p>
-                    Flooding is affected by numerous factors such as the landscape, local soil type, river flow rates
-                    and flood management techniques, which impact the likelihood of river or surface water flooding.
-                    Urban development can also increase flood risk by restricting natural drainage or building in flood
-                    risk locations.
-                </p>
+                
+                <ul>The landscape.</ul>
+                <ul>
+                    <strong className="text-emphasis">Flood management practices.</strong>
+                </ul>
+                <ul>Local soil type.</ul>
+                <ul>River flow rates.</ul>
+                <ul>
+                    <strong className="text-emphasis">Building in flood risk locations.</strong>
+                </ul>
+                <ul>Urban development and its impact on natural drainage.</ul>
+
                 <p>
                     Warmer and wetter winters are projected in the future, with increased potential for flooding. The UK
                     is expected to experience drier summers, although the rain that does fall is also likely to be more
-                    intense.
+                    intense, also impacting flood risk.
                 </p>
+
+                <p className="climate-hazard-emphasis">Where can I find localised flood data?</p>
+
                 <p>
-                    Future flood risk datasets are not comprehensive or standardised across the UK, however a future
+                    Future flood risk datasets are not yet comprehensive or standardised across the UK, however a future
                     flood risk dataset can be found for your local area here:
                 </p>
+
                 <ul>
                     <li>
                         England{" - "}
