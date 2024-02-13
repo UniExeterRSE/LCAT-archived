@@ -29,8 +29,8 @@ function ClimateHazardRisk(props) {
             <h1>Climate Hazard Risk</h1>
 
             <p>
-                The hazards of climate change will occur in many forms. These hazards pose higher risks in some areas
-                than others. Exploring each icon will provide information about that climate hazard and links to
+                The hazards of climate change will occur in many forms. These hazards pose higher risks in some local
+                areas than others. Exploring each icon will provide information about that climate hazard and links to
                 relevant localised datasets.
             </p>
 
