@@ -62,7 +62,7 @@ export const climateHazardsData = [
                     </li>
                     <li>Higher wind speeds.</li>
                 </ul>
-                <p className="climate-hazard-emphasis">Where can I find localised heatwave risk data?</p>
+                <p className="climate-hazard-emphasis">Where can I find localised wildfire risk data?</p>
                 <p>
                     Wildfire risk data is within the climate indicator category of{" "}
                     <strong className="text-emphasis">'Wildfire'</strong>:{"  "}
@@ -79,22 +79,40 @@ export const climateHazardsData = [
         details: (
             <div>
                 <p>
-                    Indoor and outdoor air quality in the UK will be affected by climate change. Indoor air quality is
-                    dependent on individual building performance, emissions from indoor sources like fireplaces or damp,
-                    ventilation, and external air quality.
+                    Indoor and outdoor air quality in the UK are affected by climate change. Indoor air quality is
+                    dependent on:
                 </p>
+                <ul>
+                    <li>
+                        Individual <strong className="text-emphasis">building performance.</strong>
+                    </li>
+                    <li>Emissions from indoor sources like air fresheners and cookers.</li>
+                    <li>
+                        <strong className="text-emphasis">Damp and mould.</strong>
+                    </li>
+                    <li>External air quality.</li>
+                </ul>
+                <p>Outdoor air quality is impacted by:</p>
+                <ul>
+                    <li>
+                        <strong className="text-emphasis">Higher temperatures</strong> which can exacerbate the build-up
+                        of <strong className="text-emphasis">air pollution.</strong>
+                    </li>
+                    <li>Drought can increase the amount of dust particles.</li>
+                    <li>
+                        <strong className="text-emphasis">Wildfire smoke.</strong>
+                    </li>
+                    <li>Thunderstorms and windstorms can increase allergens like pollen and fungal spores.</li>
+                </ul>
+
+                <p className="climate-hazard-emphasis">Where can I find localised outdoor air quality data?</p>
+
                 <p>
-                    Outdoor air quality will be impacted by several climate pressures. Higher temperatures can
-                    exacerbate the build-up of air pollution especially in urban areas. Emissions also contribute to
-                    poorer air quality. Droughts can increase the amount of dust particles in the air as well as
-                    contributing to wildfire risk. Thunderstorms and wind storms can increase allergens in the air like
-                    pollen and fungal spores.
+                    Future air quality cannot be modelled yet. However, the first link below provides historical air
+                    pollutant data for your area over time and the second link provides a five-day air pollution
+                    forecast for your area.
                 </p>
-                <p>
-                    Although future air quality cannot be modelled yet, the first link below provides ambient air
-                    quality data for your area over time and the second link provides a five-day air pollution forecast
-                    for your area:
-                </p>
+
                 <ul>
                     <li>
                         <a href="https://uk-air.defra.gov.uk/data/gis-mapping/" target="_blank" rel="noreferrer">
