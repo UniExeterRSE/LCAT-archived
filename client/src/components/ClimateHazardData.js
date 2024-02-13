@@ -12,20 +12,34 @@ export const climateHazardsData = [
         details: (
             <div>
                 <p>
-                    Climate projections suggest that all UK regions will become warmer, with hotter and drier summers,
-                    although regional variations will exist. As such, the number of heatwaves has increased in frequency
-                    and intensity due to these rising average temperatures.
+                    The UK’s climate is warming. Our warmest years on record have occurred in the last 10 years. One
+                    consequence of this is an increase in <strong className="text-emphasis">frequency</strong> and{" "}
+                    <strong className="text-emphasis">intensity</strong> of heatwaves.
                 </p>
+                <p>
+                    As warming continues in the future, UK summers are predicted to become hotter and drier on average
+                    with regional variations existing. As a result, heatwaves will become:
+                </p>
+                <ul>
+                    <li>More severe.</li>
+                    <li>More frequent.</li>
+                    <li>Longer.</li>
+                </ul>
+
                 <p>
                     Urban environments (e.g. cities) are likely to experience even greater heatwave intensity due to the
-                    urban heat island effect. Heatwaves will continue to become more severe in the future, with more
-                    frequent and longer hot periods.
+                    <strong className="text-emphasis"> urban heat island effect</strong>. Urban heat island effect
+                    describes urban areas being a lot warmer than the rural areas around them because of denser
+                    populations and infrastructure.
                 </p>
+
+                <p className="climate-hazard-emphasis">Where can I find localised heatwave risk data?</p>
+
                 <p>
-                    Find out your localised heatwave data, as well as other heat-related datasets within the climate
-                    indicator category of ‘Temperature extremes’, using the{" "}
+                    Heatwave data is within the climate indicator category of{" "}
+                    <strong className="text-emphasis">Temperature extremes</strong>:{"  "}
                     <a href="https://uk-cri.org/" target="_blank" rel="noreferrer">
-                        Climate Risk Indicator Explorer here.
+                        Climate Risk Indicators | uk-cri.org
                     </a>
                 </p>
             </div>
@@ -38,20 +52,22 @@ export const climateHazardsData = [
             <div>
                 <p>
                     Globally, hotter, drier weather in many regions has increased the frequency, intensity, and scale of
-                    wildfires. Climate change increases the risk of wildfires through a combination of factors including
-                    low humidity and rainfall (making it drier), and elevated temperatures and winds.
+                    wildfires. This includes in the UK.
                 </p>
+                <p>Climate change increases the risk of wildfires through a combination of factors including:</p>
+                <ul>
+                    <li>Low humidity and low rainfall making it drier.</li>
+                    <li>
+                        <strong className="text-emphasis">Higher temperatures.</strong>
+                    </li>
+                    <li>Higher wind speeds.</li>
+                </ul>
+                <p className="climate-hazard-emphasis">Where can I find localised wildfire risk data?</p>
                 <p>
-                    The increase in dry vegetation and reduced soil moisture due to heatwaves and drought increases the
-                    spread of wildfires. An increase in the likelihood of UK wildfires is projected as temperatures
-                    continue to increase and exacerbate other factors such as heatwaves and drought, which in turn
-                    increase fuel for fires to spread.
-                </p>
-                <p>
-                    Find out your localised wildfire risk data within the climate indicator category of ‘Wildfire’,
-                    using the{" "}
+                    Wildfire risk data is within the climate indicator category of{" "}
+                    <strong className="text-emphasis">Wildfire</strong>:{"  "}
                     <a href="https://uk-cri.org/" target="_blank" rel="noreferrer">
-                        Climate Risk Indicator Explorer here.
+                        Climate Risk Indicators | uk-cri.org
                     </a>
                 </p>
             </div>
@@ -62,23 +78,39 @@ export const climateHazardsData = [
         icon: <AirPollutionSvg className="hazard-img" />,
         details: (
             <div>
+                <p>Indoor and outdoor air quality in the UK are affected by climate change.</p>
+                <p>Indoor air quality is dependent on:</p>
+                <ul>
+                    <li>
+                        Individual <strong className="text-emphasis">building performance.</strong>
+                    </li>
+                    <li>Emissions from indoor sources like air fresheners and cookers.</li>
+                    <li>
+                        <strong className="text-emphasis">Damp and mould.</strong>
+                    </li>
+                    <li>External air quality.</li>
+                </ul>
+                <p>Outdoor air quality is impacted by:</p>
+                <ul>
+                    <li>
+                        <strong className="text-emphasis">Higher temperatures</strong> which can exacerbate the build-up
+                        of <strong className="text-emphasis">air pollution.</strong>
+                    </li>
+                    <li>Drought can increase the amount of dust particles.</li>
+                    <li>
+                        <strong className="text-emphasis">Wildfire smoke.</strong>
+                    </li>
+                    <li>Thunderstorms and windstorms can increase allergens like pollen and fungal spores.</li>
+                </ul>
+
+                <p className="climate-hazard-emphasis">Where can I find localised outdoor air quality data?</p>
+
                 <p>
-                    Indoor and outdoor air quality in the UK will be affected by climate change. Indoor air quality is
-                    dependent on individual building performance, emissions from indoor sources like fireplaces or damp,
-                    ventilation, and external air quality.
+                    Future air quality cannot be modelled yet. However, the first link below provides historical air
+                    pollutant data for your area over time and the second link provides a five-day air pollution
+                    forecast for your area.
                 </p>
-                <p>
-                    Outdoor air quality will be impacted by several climate pressures. Higher temperatures can
-                    exacerbate the build-up of air pollution especially in urban areas. Emissions also contribute to
-                    poorer air quality. Droughts can increase the amount of dust particles in the air as well as
-                    contributing to wildfire risk. Thunderstorms and wind storms can increase allergens in the air like
-                    pollen and fungal spores.
-                </p>
-                <p>
-                    Although future air quality cannot be modelled yet, the first link below provides ambient air
-                    quality data for your area over time and the second link provides a five-day air pollution forecast
-                    for your area:
-                </p>
+
                 <ul>
                     <li>
                         <a href="https://uk-air.defra.gov.uk/data/gis-mapping/" target="_blank" rel="noreferrer">
@@ -102,24 +134,36 @@ export const climateHazardsData = [
         details: (
             <div>
                 <p>
-                    The UK has become wetter over the last few decades, with an increase in frequency and intensity of
-                    rainfall and flooding.
+                    The UK has become wetter over the recent decades, with an increase in frequency and intensity of
+                    rainfall and flooding. Flooding is affected by:
                 </p>
-                <p>
-                    Flooding is affected by numerous factors such as the landscape, local soil type, river flow rates
-                    and flood management techniques, which impact the likelihood of river or surface water flooding.
-                    Urban development can also increase flood risk by restricting natural drainage or building in flood
-                    risk locations.
-                </p>
+
+                <ul>
+                    <li>The landscape.</li>
+                    <li>
+                        <strong className="text-emphasis">Flood management practices.</strong>
+                    </li>
+                    <li>Local soil type.</li>
+                    <li>River flow rates.</li>
+                    <li>
+                        <strong className="text-emphasis">Building in flood risk locations.</strong>
+                    </li>
+                    <li>Urban development and its impact on natural drainage.</li>
+                </ul>
+
                 <p>
                     Warmer and wetter winters are projected in the future, with increased potential for flooding. The UK
                     is expected to experience drier summers, although the rain that does fall is also likely to be more
-                    intense.
+                    intense, also impacting flood risk.
                 </p>
+
+                <p className="climate-hazard-emphasis">Where can I find localised flood data?</p>
+
                 <p>
-                    Future flood risk datasets are not comprehensive or standardised across the UK, however a future
+                    Future flood risk datasets are not yet comprehensive or standardised across the UK, however a future
                     flood risk dataset can be found for your local area here:
                 </p>
+
                 <ul>
                     <li>
                         England{" - "}
@@ -156,25 +200,31 @@ export const climateHazardsData = [
         icon: <CoastalErosionSvg className="hazard-img" />,
         details: (
             <div>
-                <p>
-                    Coastal erosion is increasing across the UK due to several interacting pressures. Sea level rise,
-                    increased storm activity or severity, and heavier rainfall significantly contribute to coastal
-                    erosion rates.
-                </p>
-                <p>
-                    Human activity is another source of pressures on coastal erosion rates. The expansion of
-                    infrastructure to meet population demands and the alteration of natural coastal environments as a
-                    result of urbanisation disrupt coastal ecosystem functioning and services. This makes coastal areas
-                    vulnerable to the environmental pressures above.
-                </p>
+                <p>Coastal erosion is increasing across the UK due to several interacting issues:</p>
+
+                <ul>
+                    <li>
+                        <strong className="text-emphasis"> Sea level rise.</strong>
+                    </li>
+                    <li>Increase storm activity and severity.</li>
+                    <li>Heavier rainfall.</li>
+                    <li>
+                        <strong className="text-emphasis">Human activity</strong> such as alteration of natural coastal
+                        environments due to urbanisation.
+                    </li>
+                </ul>
+
                 <p>
                     Increased coastal erosion risks leads to the damage and loss of natural or built coastal
-                    infrastructure and defences further increasing the risk to people and the environment in those areas
-                    from climate change impacts.
+                    infrastructure and defences, further increasing the risk to people and the environment in those
+                    areas from climate change impacts.
                 </p>
+
+                <p className="climate-hazard-emphasis">Where can I find localised coastal erosion data?</p>
+
                 <p>
-                    Future coastal erosion risk datasets are not comprehensive or standardised across the UK, however a
-                    future coastal erosion risk dataset can be found for your local area here:
+                    Future coastal erosion risk datasets are not yet comprehensive or standardised across the UK,
+                    however a future coastal erosion risk dataset can be found for your local area here:
                 </p>
                 <ul>
                     <li>

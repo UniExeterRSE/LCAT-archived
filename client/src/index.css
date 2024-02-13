@@ -277,3 +277,7 @@ button:hover {
         padding-right: 50px;
     }
 }
+
+.text-emphasis {
+    font-family: "Montserrat-SemiBold", Arial, Helvetica, sans-serif;
+}

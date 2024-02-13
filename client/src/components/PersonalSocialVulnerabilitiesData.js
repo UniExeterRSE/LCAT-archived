@@ -1,8 +1,8 @@
+import SvgHealthConditions from "../images/personalSocialVulnerabilities/HealthConditions.js";
 import SvgLowIncomes from "../images/personalSocialVulnerabilities/LowIncomes.js";
 import SvgLowLocalKnowledge from "../images/personalSocialVulnerabilities/LowLocalKnowledge.js";
 import SvgLowMobility from "../images/personalSocialVulnerabilities/LowMobility.js";
 import SvgOlderPeople from "../images/personalSocialVulnerabilities/OlderPeople.js";
-import SvgPoorHealth from "../images/personalSocialVulnerabilities/PoorHealth.js";
 import SvgPrivateSocialHousing from "../images/personalSocialVulnerabilities/PrivateSocialHousing.js";
 import SvgSociallyIsolated from "../images/personalSocialVulnerabilities/SociallyIsolated.js";
 import SvgUnderFives from "../images/personalSocialVulnerabilities/UnderFives.js";
@@ -131,21 +131,21 @@ export const vulnerabilityData = [
         ),
     },
     {
-        name: "People in poor health",
-        icon: <SvgPoorHealth className="vulnerability-img" />,
+        name: "People with health conditions",
+        icon: <SvgHealthConditions className="vulnerability-img" />,
         details: (
             <div>
                 <p>
-                    <strong className="vulnerability-emphasis">Who? </strong>People in poor health - those with existing
-                    physical and mental illness
+                    <strong className="vulnerability-emphasis">Who? </strong>People with health conditions/in poor
+                    health/with existing physical and mental illness
                 </p>
                 <p>
                     <strong className="vulnerability-emphasis">Why are they vulnerable?</strong>
                 </p>
                 <p>
                     Health conditions and disabilities are diverse and different and so impact and harm will differ
-                    depending on the condition(s). As such there are multiple reasons as to why people in poor health
-                    can be more vulnerable including, but not limited to:
+                    depending on the condition(s). As such there are multiple reasons as to why people with health
+                    conditions can be more vulnerable including, but not limited to:
                 </p>
                 <ul>
                     <li>Health conditions being exacerbated or worsened by climate change.</li>
@@ -468,8 +468,15 @@ export const vulnerabilityData = [
                     <li>
                         <strong>Low personal mobility:</strong>
                         <ul>
-                            <li>Can take longer to help themselves during an extreme weather event.</li>
-                            <li>More reliant on care givers or support network to help them.</li>
+                            <li>May not be able to respond quickly during an extreme weather event.</li>
+                            <li>
+                                More reliant on care givers or support network to help them. This support network could
+                                be reduced during extreme weather events.
+                            </li>
+                            <li>
+                                Services, support and equipment that usually support people may be affected, or even
+                                stopped during extreme weather events.
+                            </li>
                             <li>
                                 May have associated vulnerabilities which makes them more vulnerable overall such as
                                 those related to poor health or age.
@@ -502,7 +509,8 @@ export const vulnerabilityData = [
                 </p>
                 <ul>
                     <li>
-                        Climate Just's insight & advice:{" "}
+                        Climate Just's insight & advice, ensuring principles of social justice are included in
+                        adaptation planning:{" "}
                         <a
                             href="https://climatejust.org.uk/messages/people-low-personal-mobility"
                             target="_blank"
