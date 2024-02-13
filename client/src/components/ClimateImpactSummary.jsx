@@ -28,11 +28,11 @@ function ClimateImpactSummary(props) {
 
             <p>
                 Below are summaries of the impacts expected from the identified climate change impact pathways. These
-                impacts will vary by area; however, the UK is likely to experience the following.
+                impacts will vary by area, but the UK is likely to experience the following.
             </p>
 
             <p>
-                You are viewing the climate impacts for&nbsp;
+                You are viewing the <strong className="text-emphasis">climate</strong> impacts for&nbsp;
                 <select
                     value={props.selectedHazardName}
                     onChange={(e) => {
@@ -50,9 +50,13 @@ function ClimateImpactSummary(props) {
             <h2 className="health-impact-summary">Health impact summary</h2>
 
             <p>
-                The health impact summary shows the health effects for each climate impact pathway and is adapted from
-                the WHO climate-sensitive health risks guidelines. You are viewing the climate impacts for{" "}
-                <strong className="projected-regions">{props.selectedHazardName}</strong>.
+                Climate change will have an overall negative impact on health, like mental health disorders, wellbeing,
+                and chronic health conditions. See below for additional health impacts for each pathway.{" "}
+            </p>
+
+            <p>
+                You are viewing the climate impacts for{" "}
+                <strong className="text-emphasis">{props.selectedHazardName}</strong>.
             </p>
 
             <div className="horiz-container-impact">
@@ -69,7 +73,7 @@ function ClimateImpactSummary(props) {
             <p>
                 The community impact summary displays the main impacts from climate change in the UK based on your
                 selected climate impact pathway. You are viewing the climate impacts for{" "}
-                <strong className="projected-regions">{props.selectedHazardName}</strong>.
+                <strong className="text-emphasis">{props.selectedHazardName}</strong>.
             </p>
 
             <div className="horiz-container-impact">
