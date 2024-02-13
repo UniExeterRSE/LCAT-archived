@@ -50,8 +50,12 @@ function ClimateImpactSummary(props) {
             <h2 className="health-impact-summary">Health impact summary</h2>
 
             <p>
-                Climate change will have an overall negative impact on health, like mental health disorders, wellbeing,
-                and chronic health conditions. See below for additional health impacts for each pathway.{" "}
+                Climate change will have an overall <strong className="text-emphasis">negative impact</strong> on
+                health, including{" "}
+                <strong className="text-emphasis">
+                    mental health disorders, wellbeing, and chronic health conditions.
+                </strong>{" "}
+                See below for additional health impacts for each pathway.{" "}
             </p>
 
             <p>
@@ -71,8 +75,16 @@ function ClimateImpactSummary(props) {
             <h2 className="community-impact-summary">Community Impact Summary</h2>
 
             <p>
-                The community impact summary displays the main impacts from climate change in the UK based on your
-                selected climate impact pathway. You are viewing the climate impacts for{" "}
+                Climate change will have a <strong className="text-emphasis">negative impact</strong> on essential
+                community infrastructures and services like
+                <strong className="text-emphasis">
+                    systems failures of hospitals, transport, water, and energy.
+                </strong>{" "}
+                See below for additional community impacts for each pathway.
+            </p>
+
+            <p>
+                You are viewing the climate impacts for{" "}
                 <strong className="text-emphasis">{props.selectedHazardName}</strong>.
             </p>
 
