@@ -86,7 +86,15 @@ class App extends React.Component {
                             <strong className="projected-regions">Which</strong> adaptations to consider
                         </li>
                     </ul>
-                    <p>LCAT is evidence-based and designed with and for local decision makers.</p>
+                    <p>
+                        LCAT is <b>evidence-based</b> and designed with and for <b>local decision makers.</b>
+                    </p>
+                    <p>
+                        With apologies to our users in Northern Ireland, unfortunately the dataset we are using to model
+                        local future climate does not cover Northern Ireland. We have identified an alternative dataset
+                        that will allow us to provide climate models for the region, this will be added as soon as
+                        possible.
+                    </p>
 
                     <p>
                         <a
