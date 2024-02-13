@@ -1,8 +1,8 @@
+import SvgHealthConditions from "../images/personalSocialVulnerabilities/HealthConditions.js";
 import SvgLowIncomes from "../images/personalSocialVulnerabilities/LowIncomes.js";
 import SvgLowLocalKnowledge from "../images/personalSocialVulnerabilities/LowLocalKnowledge.js";
 import SvgLowMobility from "../images/personalSocialVulnerabilities/LowMobility.js";
 import SvgOlderPeople from "../images/personalSocialVulnerabilities/OlderPeople.js";
-import SvgPoorHealth from "../images/personalSocialVulnerabilities/PoorHealth.js";
 import SvgPrivateSocialHousing from "../images/personalSocialVulnerabilities/PrivateSocialHousing.js";
 import SvgSociallyIsolated from "../images/personalSocialVulnerabilities/SociallyIsolated.js";
 import SvgUnderFives from "../images/personalSocialVulnerabilities/UnderFives.js";
@@ -132,7 +132,7 @@ export const vulnerabilityData = [
     },
     {
         name: "People with health conditions",
-        icon: <SvgPoorHealth className="vulnerability-img" />,
+        icon: <SvgHealthConditions className="vulnerability-img" />,
         details: (
             <div>
                 <p>
