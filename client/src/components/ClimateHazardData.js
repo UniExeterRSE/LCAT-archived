@@ -139,7 +139,7 @@ export const climateHazardsData = [
                     The UK has become wetter over the recent decades, with an increase in frequency and intensity of
                     rainfall and flooding. Flooding is affected by:
                 </p>
-                
+
                 <ul>The landscape.</ul>
                 <ul>
                     <strong className="text-emphasis">Flood management practices.</strong>
@@ -200,25 +200,31 @@ export const climateHazardsData = [
         icon: <CoastalErosionSvg className="hazard-img" />,
         details: (
             <div>
-                <p>
-                    Coastal erosion is increasing across the UK due to several interacting pressures. Sea level rise,
-                    increased storm activity or severity, and heavier rainfall significantly contribute to coastal
-                    erosion rates.
-                </p>
-                <p>
-                    Human activity is another source of pressures on coastal erosion rates. The expansion of
-                    infrastructure to meet population demands and the alteration of natural coastal environments as a
-                    result of urbanisation disrupt coastal ecosystem functioning and services. This makes coastal areas
-                    vulnerable to the environmental pressures above.
-                </p>
+                <p>Coastal erosion is increasing across the UK due to several interacting issues:</p>
+
+                <ul>
+                    <li>
+                        <strong className="text-emphasis"> Sea level rise.</strong>
+                    </li>
+                    <li>Increase storm activity and severity.</li>
+                    <li>Heavier rainfall.</li>
+                    <li>
+                        <strong className="text-emphasis">Human activity</strong> such as alteration of natural coastal
+                        environments due to urbanisation.
+                    </li>
+                </ul>
+
                 <p>
                     Increased coastal erosion risks leads to the damage and loss of natural or built coastal
-                    infrastructure and defences further increasing the risk to people and the environment in those areas
-                    from climate change impacts.
+                    infrastructure and defences, further increasing the risk to people and the environment in those
+                    areas from climate change impacts.
                 </p>
+
+                <p className="climate-hazard-emphasis">Where can I find localised coastal erosion data?</p>
+
                 <p>
-                    Future coastal erosion risk datasets are not comprehensive or standardised across the UK, however a
-                    future coastal erosion risk dataset can be found for your local area here:
+                    Future coastal erosion risk datasets are not yet comprehensive or standardised across the UK,
+                    however a future coastal erosion risk dataset can be found for your local area here:
                 </p>
                 <ul>
                     <li>
