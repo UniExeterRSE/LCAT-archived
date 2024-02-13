@@ -76,8 +76,8 @@ class App extends React.Component {
                             <strong className="text-emphasis">How</strong> local climates will change
                         </li>
                         <li>
-                            <strong className="text-emphasis">What</strong> health and community impacts may occur
-                            as a result
+                            <strong className="text-emphasis">What</strong> health and community impacts may occur as a
+                            result
                         </li>
                         <li>
                             <strong className="text-emphasis">Who</strong> will be most vulnerable and why
@@ -87,7 +87,8 @@ class App extends React.Component {
                         </li>
                     </ul>
                     <p>
-                        LCAT is <strong className="text-emphasis">evidence-based</strong> and designed with and for <strong className="text-emphasis"> local decision makers.</strong>
+                        LCAT is <strong className="text-emphasis">evidence-based</strong> and designed with and for{" "}
+                        <strong className="text-emphasis"> local decision makers.</strong>
                     </p>
                     <p>
                         With apologies to our users in Northern Ireland, unfortunately the dataset we are using to model

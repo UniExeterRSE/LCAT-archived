@@ -37,7 +37,7 @@ export const climateHazardsData = [
 
                 <p>
                     Heatwave data is within the climate indicator category of{" "}
-                    <strong className="text-emphasis">'Temperature extremes'</strong>:{"  "}
+                    <strong className="text-emphasis">Temperature extremes</strong>:{"  "}
                     <a href="https://uk-cri.org/" target="_blank" rel="noreferrer">
                         Climate Risk Indicators | uk-cri.org
                     </a>
@@ -140,16 +140,18 @@ export const climateHazardsData = [
                     rainfall and flooding. Flooding is affected by:
                 </p>
 
-                <ul>The landscape.</ul>
                 <ul>
-                    <strong className="text-emphasis">Flood management practices.</strong>
+                    <li>The landscape.</li>
+                    <li>
+                        <strong className="text-emphasis">Flood management practices.</strong>
+                    </li>
+                    <li>Local soil type.</li>
+                    <li>River flow rates.</li>
+                    <li>
+                        <strong className="text-emphasis">Building in flood risk locations.</strong>
+                    </li>
+                    <li>Urban development and its impact on natural drainage.</li>
                 </ul>
-                <ul>Local soil type.</ul>
-                <ul>River flow rates.</ul>
-                <ul>
-                    <strong className="text-emphasis">Building in flood risk locations.</strong>
-                </ul>
-                <ul>Urban development and its impact on natural drainage.</ul>
 
                 <p>
                     Warmer and wetter winters are projected in the future, with increased potential for flooding. The UK
