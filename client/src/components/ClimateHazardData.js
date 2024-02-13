@@ -12,20 +12,33 @@ export const climateHazardsData = [
         details: (
             <div>
                 <p>
-                    Climate projections suggest that all UK regions will become warmer, with hotter and drier summers,
-                    although regional variations will exist. As such, the number of heatwaves has increased in frequency
-                    and intensity due to these rising average temperatures.
+                    The UK’s climate is warming. Our warmest years on record have occurred in the last 10 years. One
+                    consequence of this is an increase in <strong className="text-emphasis">frequency</strong> and{" "}
+                    <strong className="text-emphasis">intensity</strong> of heatwaves.
                 </p>
+                <p>
+                    As warming continues in the future, UK summers are predicted to become hotter and drier on average
+                    with regional variations existing. As a result, heatwaves will become:
+                </p>
+                <ul>
+                    <li>More severe.</li>
+                    <li>More frequent.</li>
+                    <li>Longer.</li>
+                </ul>
+
                 <p>
                     Urban environments (e.g. cities) are likely to experience even greater heatwave intensity due to the
-                    urban heat island effect. Heatwaves will continue to become more severe in the future, with more
-                    frequent and longer hot periods.
+                    <strong className="text-emphasis"> urban heat island effect</strong>. Urban heat island effect
+                    describes urban areas being a lot warmer than the rural areas around them because of denser
+                    populations and infrastructure.
                 </p>
+
+                <p className="climate-hazard-emphasis">Where can I find localised heatwave risk data?</p>
+
                 <p>
-                    Find out your localised heatwave data, as well as other heat-related datasets within the climate
-                    indicator category of ‘Temperature extremes’, using the{" "}
+                    Heatwave data is within the climate indicator category of 'Temperature extremes':{"  "}
                     <a href="https://uk-cri.org/" target="_blank" rel="noreferrer">
-                        Climate Risk Indicator Explorer here.
+                        Climate Risk Indicators | uk-cri.org.
                     </a>
                 </p>
             </div>
