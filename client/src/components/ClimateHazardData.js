@@ -65,7 +65,7 @@ export const climateHazardsData = [
                 <p className="climate-hazard-emphasis">Where can I find localised wildfire risk data?</p>
                 <p>
                     Wildfire risk data is within the climate indicator category of{" "}
-                    <strong className="text-emphasis">'Wildfire'</strong>:{"  "}
+                    <strong className="text-emphasis">Wildfire</strong>:{"  "}
                     <a href="https://uk-cri.org/" target="_blank" rel="noreferrer">
                         Climate Risk Indicators | uk-cri.org
                     </a>
@@ -78,10 +78,8 @@ export const climateHazardsData = [
         icon: <AirPollutionSvg className="hazard-img" />,
         details: (
             <div>
-                <p>
-                    Indoor and outdoor air quality in the UK are affected by climate change. Indoor air quality is
-                    dependent on:
-                </p>
+                <p>Indoor and outdoor air quality in the UK are affected by climate change.</p>
+                <p>Indoor air quality is dependent on:</p>
                 <ul>
                     <li>
                         Individual <strong className="text-emphasis">building performance.</strong>
