@@ -53,7 +53,7 @@ function StaticAdaptations(props) {
         <LoadingOverlay active={props.loading} spinner text={"Loading adaptations"}>
             <h1>Adaptations</h1>
             <p>
-                You are viewing the{" "}
+                You are viewing {" "}
                 <strong className="text-emphasis">{filteredAdaptations.length} climate adaptations </strong> for&nbsp;
                 <select
                     value={props.selectedHazardName}
