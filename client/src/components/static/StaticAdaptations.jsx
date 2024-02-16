@@ -11,17 +11,31 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
-import React from "react";
+import React, { useState } from "react";
 import LoadingOverlay from "react-loading-overlay";
 import StaticAdaptation from "./StaticAdaptation";
 import { pathways } from "../ClimateImpactSummaryData";
+import { CCCAdaptationThemes, IPCCCategories } from "./AdaptationCategories";
 
 import adaptationData from "../../kumu/parsed/adaptation_data.json";
 
 function StaticAdaptations(props) {
+    const [CCCAdaptationTheme, setCCCAdaptationTheme] = useState("No filter applied");
+    const [IPPCCategory, setIPPCCategory] = useState("No filter applied");
+
     const filteredAdaptations = adaptationData.filter((adaptation) => {
+        const hazardName = props.selectedHazardName.toLowerCase();
         const layers = adaptation.attributes.layer.map((layer) => layer.toLowerCase());
-        return layers.some((layer) => layer.includes(props.selectedHazardName.toLowerCase() + " in full"));
+        const cccThemes = adaptation.attributes["ccc adaptation theme"];
+
+        if (CCCAdaptationTheme === "No filter applied") {
+            return layers.some((layer) => layer.includes(hazardName + " in full"));
+        } else {
+            return (
+                layers.some((layer) => layer.includes(hazardName + " in full")) &&
+                cccThemes.includes(CCCAdaptationTheme)
+            );
+        }
     });
 
     if (!adaptationData) {
@@ -48,6 +62,46 @@ function StaticAdaptations(props) {
                     ))}
                 </select>
             </p>
+
+            <p>Filter these adaptations further using the options below:</p>
+
+            <ul>
+                <li>
+                    By the <strong className="text-emphasis"> Cornwall County Council </strong> adaptation themes:{" "}
+                    <select
+                        value={CCCAdaptationTheme}
+                        onChange={(e) => {
+                            setCCCAdaptationTheme(e.target.value);
+                        }}
+                    >
+                        <option value="No filter applied">No filter applied</option>
+                        {CCCAdaptationThemes.map((theme, index) => (
+                            <option value={theme} key={index}>
+                                {theme}
+                            </option>
+                        ))}
+                    </select>
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    By the <strong className="text-emphasis"> Intergovernmental Panel on Climate Change </strong>{" "}
+                    categories:{" "}
+                    <select
+                        value={IPPCCategory}
+                        onChange={(e) => {
+                            setIPPCCategory(e.target.value);
+                        }}
+                    >
+                        <option value="No filter applied">No filter applied</option>
+                        {IPCCCategories.map((theme, index) => (
+                            <option value={theme} key={index}>
+                                {theme}
+                            </option>
+                        ))}
+                    </select>
+                </li>
+            </ul>
 
             <div>
                 {filteredAdaptations.length ? (
