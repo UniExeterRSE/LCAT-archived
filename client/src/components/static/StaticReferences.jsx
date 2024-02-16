@@ -16,7 +16,7 @@ import "./StaticReferences.css";
 
 function formatAuthors(authorsString) {
     if (!authorsString) {
-        return ""; // or any default value you prefer
+        return "";
     }
     let authors = authorsString.split(",");
     if (authors.length > 3) {
