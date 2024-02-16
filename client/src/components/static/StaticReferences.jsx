@@ -14,6 +14,18 @@ import React from "react";
 import adaptationRefs from "../../kumu/parsed/processed_references.json";
 import "./StaticReferences.css";
 
+function formatAuthors(authorsString) {
+    if (!authorsString) {
+        return ""; // or any default value you prefer
+    }
+    let authors = authorsString.split(",");
+    if (authors.length > 3) {
+        return authors.slice(0, 2).join(", ") + " et al.";
+    } else {
+        return authorsString;
+    }
+}
+
 function baseURL(url) {
     let domain = new URL(url);
     return domain.hostname;
@@ -27,20 +39,14 @@ function ArticleReference(props) {
                     {props.a.title}
                 </a>
             </p>
-            <ul>
-                <li>
-                    <b>Type: </b>
-                    {props.a.type}
-                </li>
-                <li>
-                    <b>Authors: </b>
-                    {props.a.authors}
-                </li>
-                <li>
-                    <b>Journal/Issue: </b>
-                    {props.a.journal} {props.a.issue} {props.a.date}
-                </li>
-            </ul>
+            <p>
+                <b>Type: </b>
+                {props.a.type} <br />
+                <b>Authors: </b>
+                {formatAuthors(props.a.authors)} <br />
+                <b>Journal/Issue: </b>
+                {props.a.journal} {props.a.issue} {props.a.date}
+            </p>
         </div>
     );
 }
@@ -53,16 +59,13 @@ function WebPageReference(props) {
                     {props.a.title}
                 </a>
             </p>
-            <ul>
-                <li>
-                    <b>Type: </b>
-                    {props.a.type}
-                </li>
-                <li>
-                    <b>Source: </b>
-                    {baseURL(props.a.link)}
-                </li>
-            </ul>
+            <p>
+                <b>Type: </b>
+                {props.a.type}
+                <br />
+                <b>Source: </b>
+                {baseURL(props.a.link)}
+            </p>
         </div>
     );
 }
@@ -75,16 +78,13 @@ function ReportReference(props) {
                     {props.a.title}
                 </a>
             </p>
-            <ul>
-                <li>
-                    <b>Type: </b>
-                    {props.a.type}
-                </li>
-                <li>
-                    <b>Source: </b>
-                    {baseURL(props.a.link)}
-                </li>
-            </ul>
+            <p>
+                <b>Type: </b>
+                {props.a.type}
+                <br />
+                <b>Source: </b>
+                {baseURL(props.a.link)}
+            </p>
         </div>
     );
 }
@@ -97,16 +97,13 @@ function BookSectionReference(props) {
                     {props.a.title}
                 </a>
             </p>
-            <ul>
-                <li>
-                    <b>Type: </b>
-                    {props.a.type}
-                </li>
-                <li>
-                    <b>Source: </b>
-                    {baseURL(props.a.link)}
-                </li>
-            </ul>
+            <p>
+                <b>Type: </b>
+                {props.a.type}
+                <br />
+                <b>Source: </b>
+                {baseURL(props.a.link)}
+            </p>
         </div>
     );
 }
@@ -121,9 +118,11 @@ function StaticReferences(props) {
                 {filteredRefs.map((r) => {
                     if (r.type === "Journal Article") return <ArticleReference key={r.article_id} a={r} />;
                     if (r.type === "Conference Proceedings") return <ArticleReference key={r.article_id} a={r} />;
-                    if (r.type === "Book") return <ArticleReference key={r.article_id} a={r} />;
+                    if (r.type === "Book" || r.type === "Book Chapter")
+                        return <ArticleReference key={r.article_id} a={r} />;
                     if (r.type === "Web Page") return <WebPageReference key={r.article_id} a={r} />;
-                    if (r.type === "Report") return <ReportReference key={r.article_id} a={r} />;
+                    if (r.type === "Report" || r.type === "Research Report" || r.type === "Report Section")
+                        return <ReportReference key={r.article_id} a={r} />;
                     if (r.type === "Book Section") return <BookSectionReference key={r.article_id} a={r} />;
                     // return <p>{r.type}: not understood</p>;
                 })}
