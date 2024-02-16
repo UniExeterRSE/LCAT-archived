@@ -1,3 +1,9 @@
+// Adaptation categories are indexed by key in adaptation_data.json
+export const adaptationBodyKeys = {
+    "CCC": "ccc adaptation theme",
+    "IPCC": "ipcc adaptation category",
+};
+
 export const CCCAdaptationThemes = [
     "Nature",
     "Working lands and seas",
