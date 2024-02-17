@@ -32,7 +32,7 @@ function StaticAdaptations(props) {
         setFilterState("No filter applied");
     }, [selectedBody]);
 
-    // Filter adaptation list based on selectedBody and filterState
+    // Filter adaptation list based on selectedBody (i.e. CCC or IPCC) and filterState
     const filteredAdaptations = adaptationData.filter((adaptation) => {
         const hazardName = props.selectedHazardName.toLowerCase();
         const layers = adaptation.attributes.layer.map((layer) => layer.toLowerCase());

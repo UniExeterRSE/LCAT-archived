@@ -40,12 +40,27 @@ function ArticleReference(props) {
                 </a>
             </p>
             <p>
-                <b>Type: </b>
-                {props.a.type} <br />
-                <b>Authors: </b>
-                {formatAuthors(props.a.authors)} <br />
-                <b>Journal/Issue: </b>
-                {props.a.journal} {props.a.issue} {props.a.date}
+                {props.a.type && (
+                    <>
+                        <b>Type: </b>
+                        {props.a.type}
+                        <br />
+                    </>
+                )}
+                {props.a.authors && (
+                    <>
+                        <b>Authors: </b>
+                        {formatAuthors(props.a.authors)}
+                        <br />
+                    </>
+                )}
+                {props.a.journal && props.a.journal !== "" && (
+                    <>
+                        <b>Journal/Issue: </b>
+                        {props.a.journal} {props.a.issue} {props.a.date}
+                        <br />
+                    </>
+                )}
             </p>
         </div>
     );
@@ -60,9 +75,13 @@ function WebPageReference(props) {
                 </a>
             </p>
             <p>
-                <b>Type: </b>
-                {props.a.type}
-                <br />
+                {props.a.type && (
+                    <>
+                        <b>Type: </b>
+                        {props.a.type}
+                        <br />
+                    </>
+                )}
                 <b>Source: </b>
                 {baseURL(props.a.link)}
             </p>
@@ -79,9 +98,13 @@ function ReportReference(props) {
                 </a>
             </p>
             <p>
-                <b>Type: </b>
-                {props.a.type}
-                <br />
+                {props.a.type && (
+                    <>
+                        <b>Type: </b>
+                        {props.a.type}
+                        <br />
+                    </>
+                )}
                 <b>Source: </b>
                 {baseURL(props.a.link)}
             </p>
@@ -98,9 +121,13 @@ function BookSectionReference(props) {
                 </a>
             </p>
             <p>
-                <b>Type: </b>
-                {props.a.type}
-                <br />
+                {props.a.type && (
+                    <>
+                        <b>Type: </b>
+                        {props.a.type}
+                        <br />
+                    </>
+                )}
                 <b>Source: </b>
                 {baseURL(props.a.link)}
             </p>
