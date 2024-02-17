@@ -12,14 +12,14 @@
 
 import LoadingOverlay from "react-loading-overlay";
 
-import TempSvg from '../images/climate/Temperature';
-import RainSvg from '../images/climate/Rain';
-import WindSvg from '../images/climate/WindSpeed';
-import CloudSvg from '../images/climate/CloudCover';
-import IncreaseSvg from '../images/increase';
-import DecreaseSvg from '../images/decrease';
+import TempSvg from '../../images/climate/Temperature';
+import RainSvg from '../../images/climate/Rain';
+import WindSvg from '../../images/climate/WindSpeed';
+import CloudSvg from '../../images/climate/CloudCover';
+import IncreaseSvg from '../../images/increase';
+import DecreaseSvg from '../../images/decrease';
 
-import { andify } from '../utils/utils';
+import { andify } from '../../utils/utils';
 
 import './ClimateSummary.css';
 

@@ -13,7 +13,7 @@
 import React, { useEffect, useState } from "react";
 import LoadingOverlay from "react-loading-overlay";
 import StaticAdaptation from "./StaticAdaptation";
-import { pathways } from "../ClimateImpactSummaryData";
+import { pathways } from "../climateImpacts/ClimateImpactSummaryData";
 import { adaptationBodyKeys, CCCAdaptationThemes, IPCCCategories } from "./AdaptationCategories";
 
 import adaptationData from "../../kumu/parsed/adaptation_data.json";

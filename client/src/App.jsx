@@ -13,19 +13,19 @@
 import React from "react";
 import DocumentMeta from "react-document-meta";
 
-import ClimateHazardRisk from "./components/ClimateHazardRisk";
-import ClimateImpactSummary from "./components/ClimateImpactSummary";
-import ClimateMap from "./components/ClimateMap";
-import ClimatePredictionLoader from "./components/ClimatePredictionLoader";
-import ClimateSettings from "./components/ClimateSettings";
-import ClimateSummary from "./components/ClimateSummary";
+import ClimateHazardRisk from "./components/climateHazard/ClimateHazardRisk";
+import ClimateImpactSummary from "./components/climateImpacts/ClimateImpactSummary";
+import ClimateMap from "./components/climateMap/ClimateMap";
+import ClimatePredictionLoader from "./components/loaders/ClimatePredictionLoader";
+import ClimateSettings from "./components/climatePrediction/ClimateSettings";
+import ClimateSummary from "./components/climatePrediction/ClimateSummary";
 import Footer from "./components/footer/Footer";
-import Graph from "./components/Graph";
+import Graph from "./components/climatePrediction/Graph";
 import Introduction from "./components/header/Introduction";
-import KumuImpactPathway from "./components/KumuImpactPathway";
+import KumuImpactPathway from "./components/climateImpacts/KumuImpactPathway";
 import LCATHeader from "./components/header/Header";
-import NetworkLoader from "./components/NetworkLoader";
-import PersonalSocialVulnerabilities from "./components/PersonalSocialVulnerabilities";
+import NetworkLoader from "./components/loaders/NetworkLoader";
+import PersonalSocialVulnerabilities from "./components/vulnerabilities/PersonalSocialVulnerabilities";
 import StaticAdaptations from "./components/adaptations/StaticAdaptations";
 
 import { NetworkParser } from "./core/NetworkParser";

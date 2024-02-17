@@ -11,7 +11,7 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import React, { useEffect, useState } from "react";
-import { andify } from "../utils/utils";
+import { andify } from "../../utils/utils";
 
 function ClimateSettings(props) {
     const [rcp, setRcp] = useState("rcp60");

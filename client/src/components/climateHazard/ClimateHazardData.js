@@ -1,8 +1,8 @@
-import HeatwaveSvg from "../images/hazards/Heatwave.js";
-import WildfiresSvg from "../images/hazards/Wildfires.js";
-import FloodSvg from "../images/hazards/Flood.js";
-import AirPollutionSvg from "../images/hazards/AirPollution.js";
-import CoastalErosionSvg from "../images/hazards/CoastalErosion.js";
+import HeatwaveSvg from "../../images/hazards/Heatwave.js";
+import WildfiresSvg from "../../images/hazards/Wildfires.js";
+import FloodSvg from "../../images/hazards/Flood.js";
+import AirPollutionSvg from "../../images/hazards/AirPollution.js";
+import CoastalErosionSvg from "../../images/hazards/CoastalErosion.js";
 
 // This map contains the rendered content in the ClimateHazardRisk component
 export const climateHazardsData = [
@@ -12,7 +12,7 @@ export const climateHazardsData = [
         details: (
             <div>
                 <p>
-                    The UK’s climate is warming. Our warmest years on record have occurred in the last 10 years. One
+                    The UK's climate is warming. Our warmest years on record have occurred in the last 10 years. One
                     consequence of this is an increase in <strong className="text-emphasis">frequency</strong> and{" "}
                     <strong className="text-emphasis">intensity</strong> of heatwaves.
                 </p>

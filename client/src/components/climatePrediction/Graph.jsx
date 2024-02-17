@@ -13,13 +13,13 @@
 import React, { useState, useEffect } from "react";
 import { XYPlot, XAxis, YAxis, VerticalBarSeries, makeWidthFlexible, LabelSeries, ChartLabel } from "react-vis";
 import { useCollapse } from "react-collapsed";
-import ClimatePredictionLoader from "./ClimatePredictionLoader";
+import ClimatePredictionLoader from "../loaders/ClimatePredictionLoader";
 
-import "../../node_modules/react-vis/dist/style.css";
-import ModelLoader from "./ModelLoader";
+import "../../../node_modules/react-vis/dist/style.css";
+import ModelLoader from "../loaders/ModelLoader";
 import "./Graph.css";
-import { andify } from "../utils/utils";
-import { climateAverages } from "../core/climate";
+import { andify } from "../../utils/utils";
+import { climateAverages } from "../../core/climate";
 
 const FlexibleXYPlot = makeWidthFlexible(XYPlot);
 const winterCol = "#a4f9c8";

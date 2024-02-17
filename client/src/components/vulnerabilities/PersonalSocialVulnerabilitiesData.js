@@ -1,11 +1,11 @@
-import SvgHealthConditions from "../images/personalSocialVulnerabilities/HealthConditions.js";
-import SvgLowIncomes from "../images/personalSocialVulnerabilities/LowIncomes.js";
-import SvgLowLocalKnowledge from "../images/personalSocialVulnerabilities/LowLocalKnowledge.js";
-import SvgLowMobility from "../images/personalSocialVulnerabilities/LowMobility.js";
-import SvgOlderPeople from "../images/personalSocialVulnerabilities/OlderPeople.js";
-import SvgPrivateSocialHousing from "../images/personalSocialVulnerabilities/PrivateSocialHousing.js";
-import SvgSociallyIsolated from "../images/personalSocialVulnerabilities/SociallyIsolated.js";
-import SvgUnderFives from "../images/personalSocialVulnerabilities/UnderFives.js";
+import SvgHealthConditions from "../../images/personalSocialVulnerabilities/HealthConditions.js";
+import SvgLowIncomes from "../../images/personalSocialVulnerabilities/LowIncomes.js";
+import SvgLowLocalKnowledge from "../../images/personalSocialVulnerabilities/LowLocalKnowledge.js";
+import SvgLowMobility from "../../images/personalSocialVulnerabilities/LowMobility.js";
+import SvgOlderPeople from "../../images/personalSocialVulnerabilities/OlderPeople.js";
+import SvgPrivateSocialHousing from "../../images/personalSocialVulnerabilities/PrivateSocialHousing.js";
+import SvgSociallyIsolated from "../../images/personalSocialVulnerabilities/SociallyIsolated.js";
+import SvgUnderFives from "../../images/personalSocialVulnerabilities/UnderFives.js";
 
 // This map contains the rendered content in the PersonalSocialVulnerabilities component
 export const vulnerabilityData = [

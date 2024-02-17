@@ -12,10 +12,10 @@
 
 import React, { useEffect } from "react";
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
-import GeoJSONLoader from "./GeoJSONLoader";
+import GeoJSONLoader from "./GeoJSONLoader.jsx";
 import "./ClimateMap.css";
 import LoadingOverlay from "react-loading-overlay";
-import { nfviColumns } from "../core/climatejust.js";
+import { nfviColumns } from "../../core/climatejust.js";
 
 // Fixes console warning caused by react-loading-overlay
 LoadingOverlay.propTypes = undefined;
