@@ -222,6 +222,7 @@ button:hover {
 }
 
 .logos {
+    margin-top: 1em;
     content: url("images/logos/new-footer-logos.png");
     max-width: min(100%, 1000px);
     height: auto;
