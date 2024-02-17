@@ -150,7 +150,7 @@ function Graph(props) {
     return (
         <div>
             <div className="collapsible">
-                <div className="header" {...getToggleProps({ onClick: handleOnClick })}>
+                <div className="header" style={{ margin: '1em' }} {...getToggleProps({ onClick: handleOnClick })}>
                     {isExpanded ? "Hide" : "Explore"} climate details
                 </div>
                 <div {...getCollapseProps()}>

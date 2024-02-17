@@ -23,7 +23,7 @@ import ClimatePredictionLoader from "./components/ClimatePredictionLoader";
 import Graph from "./components/Graph";
 import NetworkLoader from "./components/NetworkLoader";
 import { NetworkParser } from "./core/NetworkParser";
-import Adaptations from "./components/Adaptations";
+import StaticAdaptations from "./components/static/StaticAdaptations";
 
 import { ReactComponent as LCATLogoSvg } from "./images/logos/LCAT_Logo_Primary_RGB.svg";
 import ContactUs from "./components/ContactUs";
@@ -236,17 +236,18 @@ class App extends React.Component {
 
                 {this.state.regions.length > 0 && (
                     <div className="grey-section">
-                        <Adaptations
-                            networkParser={this.state.networkParser}
-                            year={this.state.year}
-                            climatePrediction={this.state.climatePrediction}
-                            season={this.state.season}
-                            rcp={this.state.rcp}
+                        <StaticAdaptations
                             regions={this.state.regions}
-                            loading={this.state.loadingPrediction}
+                            selectedHazardName={this.state.selectedHazardName}
+                            hazardCallback={(hazard) => {
+                                this.setState(() => ({
+                                    selectedHazardName: hazard,
+                                }));
+                            }}
                         />
                     </div>
                 )}
+
                 <div className="contact-footer">
                     <ContactUs />
                     <FAQFooter />
