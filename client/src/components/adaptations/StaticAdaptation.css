@@ -1,14 +1,11 @@
-
 .adaptation .content {
     background-color: #e6eced;
     padding: 1em;
 }
 
 .adaptation .metadata {
-    color: #d6dcddff;	
+    color: #d6dcddff;
 }
-
-
 
 .adaptation.collapsible {
     padding-bottom: 0.5em;
@@ -22,7 +19,7 @@
 .arrow {
     position: absolute;
     right: 1em;
-    top: 1em;    
+    top: 1em;
     border: solid black;
     border-width: 0 3px 3px 0;
     display: inline-block;
