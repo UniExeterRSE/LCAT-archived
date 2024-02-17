@@ -9,14 +9,16 @@ const FAQ = () => {
                     <a
                         className="faq-button"
                         href="https://www.ecehh.org/wp/wp-content/uploads/2023/01/Frequently-Asked-Questions-1.pdf"
-                        target="_blank" rel="noreferrer"
+                        target="_blank"
+                        rel="noreferrer"
                     ></a>
                 </p>
                 <p>
                     View&nbsp;
                     <a
                         href="https://www.ecehh.org/wp/wp-content/uploads/2023/01/Frequently-Asked-Questions-1.pdf"
-                        target="_blank" rel="noreferrer"
+                        target="_blank"
+                        rel="noreferrer"
                     >
                         Frequently Asked Questions at: ecehh.org
                     </a>
