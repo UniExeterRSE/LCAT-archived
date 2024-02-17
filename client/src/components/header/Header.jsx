@@ -1,4 +1,4 @@
-import { ReactComponent as LCATLogoSvg } from "../images/logos/LCAT_Logo_Primary_RGB.svg";
+import { ReactComponent as LCATLogoSvg } from "../../images/logos/LCAT_Logo_Primary_RGB.svg";
 
 function LCATHeader() {
     return (

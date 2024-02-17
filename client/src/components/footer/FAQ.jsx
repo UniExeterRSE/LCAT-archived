@@ -1,6 +1,6 @@
 import React from "react";
 
-const FAQFooter = () => {
+const FAQ = () => {
     return (
         <div className="footer-flex-container">
             <div className="footer-heading">Frequently Asked Questions</div>
@@ -26,4 +26,4 @@ const FAQFooter = () => {
     );
 };
 
-export default FAQFooter;
+export default FAQ;

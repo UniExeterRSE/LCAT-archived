@@ -1,5 +1,5 @@
 import ContactUs from "./ContactUs";
-import FAQFooter from "./FAQFooter";
+import FAQ from "./FAQ";
 import FooterLogos from "./FooterLogos";
 import FooterText from "./FooterText";
 
@@ -8,7 +8,7 @@ function Footer() {
         <div>
             <div className="contact-footer">
                 <ContactUs />
-                <FAQFooter />
+                <FAQ />
             </div>
 
             <FooterText />

@@ -19,14 +19,14 @@ import ClimateMap from "./components/ClimateMap";
 import ClimatePredictionLoader from "./components/ClimatePredictionLoader";
 import ClimateSettings from "./components/ClimateSettings";
 import ClimateSummary from "./components/ClimateSummary";
-import Footer from "./components/Footer";
+import Footer from "./components/footer/Footer";
 import Graph from "./components/Graph";
-import Introduction from "./components/Introduction";
+import Introduction from "./components/header/Introduction";
 import KumuImpactPathway from "./components/KumuImpactPathway";
-import LCATHeader from "./components/Header";
+import LCATHeader from "./components/header/Header";
 import NetworkLoader from "./components/NetworkLoader";
 import PersonalSocialVulnerabilities from "./components/PersonalSocialVulnerabilities";
-import StaticAdaptations from "./components/static/StaticAdaptations";
+import StaticAdaptations from "./components/adaptations/StaticAdaptations";
 
 import { NetworkParser } from "./core/NetworkParser";
 
