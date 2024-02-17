@@ -1,4 +1,3 @@
-
 // -*- mode: rjsx;  -*-
 // Development before 2024 Copyright (C) Then Try This and University of Exeter
 // Development from 2024 Copyright (C) University of Exeter
@@ -21,91 +20,83 @@
 
 class NetworkState {
     constructor(value) {
-        this.validStates = ["deactivated",
-                            "uncertain",
-                            "increase",
-                            "decrease",
-                            "nochange",
-                            "unknown"];
-        
+        this.validStates = ["deactivated", "uncertain", "increase", "decrease", "nochange", "unknown"];
+
         // map of edge_id -> state
         this.votes = {};
-        
+
         this.set(value);
     }
 
     set(value) {
         if (this.validStates.includes(value)) {
-            this.value=value;
+            this.value = value;
         } else {
-            console.log("invalid state setting: "+value);
+            console.log("invalid state setting: " + value);
         }
     }
 
     vote(edge) {
-        this.votes[edge.edge_id]=this.value;        
+        this.votes[edge.edge_id] = this.value;
     }
-    
+
     apply(edge) {
         // temp while we wait for climate variables
-        if (this.value=="unknown") {
+        if (this.value == "unknown") {
             this.set("unknown");
             return;
         } else {
             // we start as copy of parent state so + stays the same...
-           
-            if (edge.type=="-") {
-                if (this.value==="increase") {
-                    this.value="decrease";
-                } else {       
-                    if (this.value==="decrease") {
-                        this.value="increase";
+
+            if (edge.type == "-") {
+                if (this.value === "increase") {
+                    this.value = "decrease";
+                } else {
+                    if (this.value === "decrease") {
+                        this.value = "increase";
                     }
                 }
-                // no change if disabled, uncertain etc                
+                // no change if disabled, uncertain etc
             }
         }
         this.vote(edge);
     }
 
-    isOppositeTo = (other) => (
-        (this.value==="increase" && other.value==="decrease") ||
-        (this.value==="decrease" && other.value==="increase")
-    )
+    isOppositeTo = (other) =>
+        (this.value === "increase" && other.value === "decrease") ||
+        (this.value === "decrease" && other.value === "increase");
 
-    isDifferentTo = (other) => (
-        (this.value!=other.value)
-    )
-    
+    isDifferentTo = (other) => this.value != other.value;
+
     composite = (other) => {
-        if (this.value===other.value) return false;
+        if (this.value === other.value) return false;
 
-        if (this.isOppositeTo(other)) this.value="uncertain";
+        if (this.isOppositeTo(other)) this.value = "uncertain";
         //if (this.value==="uncertain" || other.value==="uncertain") this.value="uncertain";
-        if (this.value==="uncertain" || other.value==="uncertain") this.value="uncertain";
+        if (this.value === "uncertain" || other.value === "uncertain") this.value = "uncertain";
 
         // just disregard these values asap
-        if (this.value==="unknown") this.value=other.value;
-        if (this.value==="deactivated") this.value=other.value;
+        if (this.value === "unknown") this.value = other.value;
+        if (this.value === "deactivated") this.value = other.value;
 
         //if (other.value==="unknown") return;
         //if (other.value==="deactivated") return;
 
-        return true;        
-    }
-    
+        return true;
+    };
+
     asText() {
-        if (this.uncertaintyCause && this.value==="uncertain") {
+        if (this.uncertaintyCause && this.value === "uncertain") {
             return "UNCERTAINTY CAUSE";
-        }        
-        if (this.value==="deactivated") return "Deactivated";
-        if (this.value==="uncertain") return "Uncertain";
-        if (this.value==="increase") return "Increases";
-        if (this.value==="decrease") return "Decreases";
-        if (this.value==="unknown") return "Unknown";
+        }
+        if (this.value === "deactivated") return "Deactivated";
+        if (this.value === "uncertain") return "Uncertain";
+        if (this.value === "increase") return "Increases";
+        if (this.value === "decrease") return "Decreases";
+        if (this.value === "unknown") return "Unknown";
         console.log(this.value);
         return "Error";
     }
 }
 
-export { NetworkState }
+export { NetworkState };

@@ -16,10 +16,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Network {
-
-	constructor(nodes,edges) {
-		this.nodes = nodes;
-		this.edges = edges;        
+    constructor(nodes, edges) {
+        this.nodes = nodes;
+        this.edges = edges;
     }
 
     getNode(id) {
@@ -38,11 +37,11 @@ class Network {
 
     // generic functionality
     searchNode(id) {
-        let node = this.nodes.find(node => node.node_id===id);
-        if (node===undefined) {
-            console.log("could not find node: "+id);
+        let node = this.nodes.find((node) => node.node_id === id);
+        if (node === undefined) {
+            console.log("could not find node: " + id);
             return null;
-        } 
+        }
         return node;
     }
 
@@ -50,7 +49,7 @@ class Network {
         let ret = [];
         for (let edge of this.edges) {
             if (edge.node_to == node.node_id) {
-                ret.push(this.searchNode(edge.node_from));                
+                ret.push(this.searchNode(edge.node_from));
             }
         }
         return ret;
@@ -58,9 +57,9 @@ class Network {
 
     getOutgoingNodes(node) {
         let ret = [];
-        for (let edge of this.edges) {            
+        for (let edge of this.edges) {
             if (edge.node_from == node.node_id) {
-                ret.push(this.searchNode(edge.node_to));                
+                ret.push(this.searchNode(edge.node_to));
             }
         }
         return ret;
@@ -70,7 +69,7 @@ class Network {
         let ret = [];
         for (let edge of this.edges) {
             if (edge.node_to == node.node_id) {
-                ret.push(edge);                
+                ret.push(edge);
             }
         }
         return ret;
@@ -80,7 +79,7 @@ class Network {
         let ret = [];
         for (let edge of this.edges) {
             if (edge.node_from == node.node_id) {
-                ret.push(edge);                
+                ret.push(edge);
             }
         }
         return ret;
@@ -89,14 +88,12 @@ class Network {
     getEdges(node) {
         let ret = [];
         for (let edge of this.edges) {
-            if (edge.node_from == node.node_id ||
-                edge.node_from == node.node_id) {
-                ret.push(edge);                
+            if (edge.node_from == node.node_id || edge.node_from == node.node_id) {
+                ret.push(edge);
             }
         }
         return ret;
     }
-    
 }
 
-export { Network }
+export { Network };

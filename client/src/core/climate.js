@@ -239,6 +239,6 @@ const climateAverages = {
     chess_scape_rcp60_winter_sfcWind_2050: 4.858150083548132,
     chess_scape_rcp60_winter_sfcWind_2060: 5.101381558343258,
     chess_scape_rcp60_winter_sfcWind_2070: 4.874105864530164,
-}
+};
 
-export { climateAverages }
+export { climateAverages };

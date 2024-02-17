@@ -1,355 +1,163 @@
 // Development before 2024 Copyright (C) Then Try This and University of Exeter
 // Development from 2024 Copyright (C) University of Exeter
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the Common Good Public License Beta 1.0 as
 // published at http://www.cgpl.org
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // Common Good Public License Beta 1.0 for more details.
 
 const nfviColumns = {
-    
-// AGE	"Age composite Indicator"
-// HEALTH	"Health composite Indicator"
-// INCOME	"Income composite Indicator"
-// INFO	Information use composite Indicator
-// LOC_KNOW	Local knowledge composite Indicator
-// TENURE	Property tenure composite Indicator
-// MOBILITY	Mobility composite Indicator
-// CRIME	Crime composite Indicator
-// HOUSE_TYP	Housing characteristics composite Indicator
-// FLOOD_EXP	Flood experience composite Indicator
-// SERVICE	Service availability composite Indicator
-// SOC_NET	Social networks composite Indicator
+    // AGE	"Age composite Indicator"
+    // HEALTH	"Health composite Indicator"
+    // INCOME	"Income composite Indicator"
+    // INFO	Information use composite Indicator
+    // LOC_KNOW	Local knowledge composite Indicator
+    // TENURE	Property tenure composite Indicator
+    // MOBILITY	Mobility composite Indicator
+    // CRIME	Crime composite Indicator
+    // HOUSE_TYP	Housing characteristics composite Indicator
+    // FLOOD_EXP	Flood experience composite Indicator
+    // SERVICE	Service availability composite Indicator
+    // SOC_NET	Social networks composite Indicator
 
-
-    a1:	{
+    a1: {
         name: "Young children (% people under 5 years)",
         units: "percent",
         direction: "greater-than",
         average: 6.0680407487598553,
-        deciles: [
-            8.85122000000,
-            7.69741000000,
-            6.94098000000,
-            6.33214000000,
-            5.80000000000,
-            5.30344000000,
-            4.81523000000,
-            4.30622000000,
-            3.64683000000,
-        ],        
-    },    
-    a2:	{
+        deciles: [8.85122, 7.69741, 6.94098, 6.33214, 5.8, 5.30344, 4.81523, 4.30622, 3.64683],
+    },
+    a2: {
         name: "Older people (% people over 75 years)",
         units: "percent",
         direction: "greater-than",
         average: 7.8977026019842316,
-        deciles: [
-            13.1527000000,
-            10.9386000000,
-            9.55556000000,
-            8.41727000000,
-            7.42202000000,
-            6.45995000000,
-            5.45836000000,
-            4.38001000000,
-            3.10078000000,
-        ],
+        deciles: [13.1527, 10.9386, 9.55556, 8.41727, 7.42202, 6.45995, 5.45836, 4.38001, 3.10078],
     },
     h1: {
         name: "Disability / people in ill- health (% people whose day- to-day activities are limited)",
         units: "percent",
         direction: "greater-than",
         average: 18.3847966464569005,
-        deciles: [
-            26.0694000000,
-            23.0769000000,
-            21.0757000000,
-            19.4203000000,
-            17.9365000000,
-            16.5344000000,
-            15.0909000000,
-            13.4824000000,
-            11.3987000000,
-        ],
+        deciles: [26.0694, 23.0769, 21.0757, 19.4203, 17.9365, 16.5344, 15.0909, 13.4824, 11.3987],
     },
     h2: {
         name: "% households with at least one person with long term limiting illness",
         units: "percent",
         direction: "greater-than",
         average: 27.3258376869802775,
-        deciles: [
-            37.1078000000,
-            33.0391000000,
-            30.4281000000,
-            28.3784000000,
-            26.6154000000,
-            24.9581000000,
-            23.2053000000,
-            21.2585000000,
-            18.5259000000,
-        ],
+        deciles: [37.1078, 33.0391, 30.4281, 28.3784, 26.6154, 24.9581, 23.2053, 21.2585, 18.5259],
     },
     i1: {
         name: "Unemployed (% unemployed)",
         units: "percent",
         direction: "greater-than",
         average: 4.4616382746051906,
-        deciles: [
-            8.02348000000,
-            6.38528000000,
-            5.26316000000,
-            4.42238000000,
-            3.74823000000,
-            3.23034000000,
-            2.79028000000,
-            2.38880000000,
-            1.95412000000,
-        ],
+        deciles: [8.02348, 6.38528, 5.26316, 4.42238, 3.74823, 3.23034, 2.79028, 2.3888, 1.95412],
     },
     i2: {
         name: "Long-term unemployed (% who are LTU or who have never worked)",
         units: "percent",
         direction: "greater-than",
         average: 5.4768049245129287,
-        deciles: [
-            11.4574000000,
-            8.23009000000,
-            6.27090000000,
-            4.90654000000,
-            3.93574000000,
-            3.21324000000,
-            2.64550000000,
-            2.17186000000,
-            1.69972000000,
-        ],
+        deciles: [11.4574, 8.23009, 6.2709, 4.90654, 3.93574, 3.21324, 2.6455, 2.17186, 1.69972],
     },
     i3: {
         name: "Low income occupations (% in routine or semi- routine occupations)",
         units: "percent",
         direction: "greater-than",
         average: 26.1556301787725563,
-        deciles: [
-            41.0151000000,
-            36.1274000000,
-            31.9521000000,
-            28.4985000000,
-            25.3465000000,
-            22.4265000000,
-            19.5261000000,
-            16.4484000000,
-            12.7576000000,
-        ],
+        deciles: [41.0151, 36.1274, 31.9521, 28.4985, 25.3465, 22.4265, 19.5261, 16.4484, 12.7576],
     },
     i4: {
         name: "Households with dependent children and no adults in employment (%)",
         units: "percent",
         direction: "greater-than",
         average: 4.1739971166095521,
-        deciles: [
-            9.49285000000,
-            6.65796000000,
-            4.94071000000,
-            3.72671000000,
-            2.85714000000,
-            2.22222000000,
-            1.73797000000,
-            1.32827000000,
-            0.917431000000,
-        ],
+        deciles: [9.49285, 6.65796, 4.94071, 3.72671, 2.85714, 2.22222, 1.73797, 1.32827, 0.917431],
     },
     i5: {
         name: "People income deprived (%)",
         units: "percent",
         direction: "greater-than",
         average: 0.49851894528749311031,
-        deciles: [
-            0.900012000000,
-            0.795610000000,
-            0.699214000000,
-            0.599044000000,
-            0.496316000000,
-            0.397637000000,
-            0.297650000000,
-            0.200037000000,
-            0.0996834000000,
-        ],
+        deciles: [0.900012, 0.79561, 0.699214, 0.599044, 0.496316, 0.397637, 0.29765, 0.200037, 0.0996834],
     },
     f1: {
         name: "Recent arrivals to UK (% people with <1 yr residency coming from outside UK)",
         units: "percent",
         direction: "greater-than",
         average: 0.99672459692779601716,
-        deciles: [
-            2.70270000000,
-            1.36054000000,
-            0.764951000000,
-            0.488102000000,
-            0.326584000000,
-            0.217077000000,
-            0.136054000000,
-            0.0682594000000,
-            0,
-        ],        
+        deciles: [2.7027, 1.36054, 0.764951, 0.488102, 0.326584, 0.217077, 0.136054, 0.0682594, 0],
     },
     f2: {
         name: "Level of proficiency in English",
         units: "percent",
         direction: "greater-than",
         average: 1.4975662879723933,
-        deciles: [
-            3.89755000000,
-            2.00501000000,
-            1.27688000000,
-            0.880282000000,
-            0.606980000000,
-            0.416667000000,
-            0.276625000000,
-            0.162602000000,
-            0.0693962000000,
-        ],
+        deciles: [3.89755, 2.00501, 1.27688, 0.880282, 0.60698, 0.416667, 0.276625, 0.162602, 0.0693962],
     },
     k1: {
         name: "New migrants from outside the local area",
         units: "percent",
         direction: "greater-than",
         average: 5.3172674935176975,
-        deciles: [
-            9.25690000000,
-            6.92592000000,
-            5.83720000000,
-            5.02513000000,
-            4.40222000000,
-            3.79747000000,
-            3.22657000000,
-            2.63987000000,
-            2.04808000000,
-        ],
+        deciles: [9.2569, 6.92592, 5.8372, 5.02513, 4.40222, 3.79747, 3.22657, 2.63987, 2.04808],
     },
     t1: {
         name: "Private renters (% Households)",
         units: "percent",
         direction: "greater-than",
         average: 15.3633258510867742,
-        deciles: [
-            31.4565000000,
-            22.1687000000,
-            16.9725000000,
-            13.7542000000,
-            11.5385000000,
-            9.79228000000,
-            8.29103000000,
-            6.87398000000,
-            5.25060000000,
-        ],
+        deciles: [31.4565, 22.1687, 16.9725, 13.7542, 11.5385, 9.79228, 8.29103, 6.87398, 5.2506],
     },
     t2: {
         name: "Social renters (% Households renting from Social or Council landlords)",
         units: "percent",
         direction: "greater-than",
         average: 18.3203755282177862,
-        deciles: [
-            45.5426000000,
-            32.6338000000,
-            23.7560000000,
-            16.9492000000,
-            11.9912000000,
-            8.34951000000,
-            5.41935000000,
-            3.05556000000,
-            1.41176000000,
-        ],
+        deciles: [45.5426, 32.6338, 23.756, 16.9492, 11.9912, 8.34951, 5.41935, 3.05556, 1.41176],
     },
     m1: {
         name: "High levels of disability (% of population who are disabled)",
         units: "percent",
         direction: "greater-than",
         average: 8.7672377574348774,
-        deciles: [
-            13.9248000000,
-            11.7161000000,
-            10.2497000000,
-            9.12698000000,
-            8.18444000000,
-            7.30689000000,
-            6.45768000000,
-            5.55556000000,
-            4.41008000000,
-        ],
+        deciles: [13.9248, 11.7161, 10.2497, 9.12698, 8.18444, 7.30689, 6.45768, 5.55556, 4.41008],
     },
     m2: {
         name: "% people living in medical and care establishments",
         units: "percent",
         direction: "greater-than",
         average: 0.75154989639579189532,
-        deciles: [
-            2.71862000000,
-            1.19792000000,
-            0.316656000000,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-        ],
+        deciles: [2.71862, 1.19792, 0.316656, 0, 0, 0, 0, 0, 0],
     },
     m3: {
         name: "Lack of private transport (% households with no car or van)",
         units: "percent",
         direction: "greater-than",
         average: 25.5717231685159002,
-        deciles: [
-            50.1672000000,
-            39.9582000000,
-            32.8341000000,
-            27.0085000000,
-            21.8289000000,
-            17.4004000000,
-            13.4831000000,
-            10.1124000000,
-            7.03911000000,
-        ],
+        deciles: [50.1672, 39.9582, 32.8341, 27.0085, 21.8289, 17.4004, 13.4831, 10.1124, 7.03911],
     },
     c1: {
         name: "High levels of crime",
         units: "metric",
         direction: "less-than",
         average: 0.50028658999354885092,
-        deciles: [
-            0.899525000000,
-            0.800207000000,
-            0.700231000000,
-            0.600353000000,
-            0.500786000000,
-            0.400621000000,
-            0.300681000000,
-            0.200463000000,
-            0.100231000000,
-        ],
+        deciles: [0.899525, 0.800207, 0.700231, 0.600353, 0.500786, 0.400621, 0.300681, 0.200463, 0.100231],
     },
     l1: {
         name: "% caravan or other mobile or temporary structures in all households",
         units: "percent",
         direction: "greater-than",
         average: 0.36432017650315128568,
-        deciles: [
-            0.446429000000,
-            0.162338000000,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-        ],
-     },
-/*    e1: {
+        deciles: [0.446429, 0.162338, 0, 0, 0, 0, 0, 0, 0],
+    },
+    /*    e1: {
         name: "% number of properties within historical flood boundary",
         units: "percent",
         direction: "greater-than",
@@ -371,53 +179,23 @@ const nfviColumns = {
         units: "percent",
         direction: "greater-than",
         average: 12.3792068202928419,
-        deciles: [
-            18.9310000000,
-            16.3082000000,
-            14.5631000000,
-            13.2166000000,
-            12.0063000000,
-            10.8309000000,
-            9.60699000000,
-            8.13953000000,
-            6.18847000000,
-        ],
+        deciles: [18.931, 16.3082, 14.5631, 13.2166, 12.0063, 10.8309, 9.60699, 8.13953, 6.18847],
     },
     n2: {
         name: "% lone-parent households with dependent children",
         units: "percent",
         direction: "greater-than",
         average: 7.1356034396462892,
-        deciles: [
-            13.0258000000,
-            10.1587000000,
-            8.45528000000,
-            7.14286000000,
-            6.10278000000,
-            5.20059000000,
-            4.39815000000,
-            3.63224000000,
-            2.80210000000,
-        ],
+        deciles: [13.0258, 10.1587, 8.45528, 7.14286, 6.10278, 5.20059, 4.39815, 3.63224, 2.8021],
     },
     n3: {
         name: "% children of primary school age (4-11) in the population",
         units: "percent",
         direction: "greater-than",
-        average: 8.9017782415442498, 
-        deciles: [
-            12.0468000000,
-            10.7672000000,
-            9.95792000000,
-            9.33398000000,
-            8.78735000000,
-            8.26347000000,
-            7.68725000000,
-            7.00280000000,
-            5.98007000000,
-        ],
+        average: 8.9017782415442498,
+        deciles: [12.0468, 10.7672, 9.95792, 9.33398, 8.78735, 8.26347, 7.68725, 7.0028, 5.98007],
     },
-/*    s1: {
+    /*    s1: {
         name: "% of emergency services exposed to flooding",
         units: "percent",
         direction: "greater-than",
@@ -495,8 +273,8 @@ const nfviColumns = {
         units: "percent",
         direction: "greater-than",
         average: null,
-        deciles: []
+        deciles: [],
     },
-}
+};
 
 export { nfviColumns };
