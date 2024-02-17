@@ -381,16 +381,18 @@ function Network(props) {
                 <p className="note">
                     Data source: The impact data is based on published scientific literature and reports. A{" "}
                     <a
-                        href="https://static.thentrythis.org/data/climate-data/network/LCAT%20impact%20network%20references%20-%20for%20sharing%20-%20Sheet1.csv"
-                        target="_blank" rel="noreferrer"
+                        href="http://data-lcat-uk.s3-website.eu-west-2.amazonaws.com/network/LCAT%20impact%20network%20references%20-%20for%20sharing%20-%20Sheet1.csv"
+                        target="_blank"
+                        rel="noreferrer"
                     >
                         full reference list is available here
                     </a>
                     , and the references relevant to particular impacts can be explored by clicking on the nodes and
                     connections in the network above. The{" "}
                     <a
-                        href="https://static.thentrythis.org/data/climate-data/network/kumu-lcat-project-lcat-edits.json"
-                        target="_blank" rel="noreferrer"
+                        href="http://data-lcat-uk.s3-website.eu-west-2.amazonaws.com/network/kumu-lcat-project-lcat-edits%20(4).json"
+                        target="_blank"
+                        rel="noreferrer"
                     >
                         full network data (exported from Kumu as JSON) can be downloaded here.
                     </a>
