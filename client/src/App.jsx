@@ -36,7 +36,7 @@ import PersonalSocialVulnerabilities from "./components/PersonalSocialVulnerabil
 const meta = {
     title: "Local Climate Adaptation Tool",
     description: "This is a tool for local climate adaptation",
-    canonical: "http://beta-climate-tool.thentrythis.org",
+    canonical: "https://lcat.uk/",
     meta: {
         charset: "utf-8",
     },
