@@ -46,8 +46,8 @@ function ClimateSettings(props) {
                     <option value="rcp85">worst case scenario</option>
                 </select>
                 &nbsp;
-                {rcp == "rcp60" && <span>(equivalent to global warming level of 2.0-3.7C which is RCP 6.0)</span>}
-                {rcp == "rcp85" && <span>(equivalent to global warming level of 3.2-5.4C which is RCP 8.5)</span>}
+                {rcp === "rcp60" && <span>(equivalent to global warming level of 2.0-3.7C which is RCP 6.0)</span>}
+                {rcp === "rcp85" && <span>(equivalent to global warming level of 3.2-5.4C which is RCP 8.5)</span>}
                 &nbsp;the&nbsp;
                 <select
                     value={season}

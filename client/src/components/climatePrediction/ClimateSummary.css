@@ -3,7 +3,7 @@
     flex-direction: row;
     overflow-x: auto;
     flex-wrap: wrap;
-/*    justify-content: center; */
+    /*    justify-content: center; */
 }
 
 .climate-summary .vert-container {
@@ -18,7 +18,6 @@
         width: 25%;
     }
 }
-
 
 .climate-summary .vert-container .climate-arrow {
     margin-bottom: 0.5em;
