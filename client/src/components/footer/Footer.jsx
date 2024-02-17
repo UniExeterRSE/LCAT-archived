@@ -3,6 +3,8 @@ import FAQ from "./FAQ";
 import FooterLogos from "./FooterLogos";
 import FooterText from "./FooterText";
 
+import "./Footer.css"
+
 function Footer() {
     return (
         <div>
