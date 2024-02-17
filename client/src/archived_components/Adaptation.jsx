@@ -11,7 +11,7 @@
 // Common Good Public License Beta 1.0 for more details.
 
 import { useCollapse } from 'react-collapsed';
-import References from './References';
+import References from '../components/References';
 
 import "./Adaptation.css";
 
