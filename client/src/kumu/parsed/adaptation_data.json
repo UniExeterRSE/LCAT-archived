@@ -490,7 +490,9 @@
                 "\u00adBiodiversity & Natural Habitats",
                 "\u00adWater Supply & Quality",
                 "Food Safety & Security"
-            ]
+            ],
+            "ccc adaptation theme": [],
+            "ipcc adaptation category": []
         }
     },
     {
@@ -3174,6 +3176,16 @@
                 "Engineered and built environment",
                 "Government policies and programs"
             ]
+        }
+    },
+    {
+        "_id": "elem-UKW4CZ6B",
+        "attributes": {
+            "label": "Action",
+            "layer": [],
+            "ccc adaptation theme": [],
+            "ipcc adaptation category": [],
+            "reference_id": []
         }
     },
     {
@@ -5924,7 +5936,8 @@
             "ipcc adaptation category": [
                 "Technological ",
                 "Informational"
-            ]
+            ],
+            "ccc adaptation theme": []
         }
     },
     {
@@ -6950,7 +6963,9 @@
             "sector": [
                 "\u00adWater Supply & Quality",
                 "Health & Social Care"
-            ]
+            ],
+            "ccc adaptation theme": [],
+            "ipcc adaptation category": []
         }
     },
     {
