@@ -218,20 +218,20 @@ button:hover {
 }
 
 .logo-block {
-    width: 100%;
     margin-bottom: 2em;
 }
 
 .logos {
+    margin-top: 1em;
     content: url("images/logos/new-footer-logos.png");
-    width: 100%;
-    max-width: 1000px;
+    max-width: min(100%, 1000px);
+    height: auto;
 }
 
 .funder-logos {
     content: url("images/logos/new-funder-logos.png");
-    width: 100%;
-    max-width: 1000px;
+    max-width: min(100%, 1000px);
+    height: auto;
 }
 
 .white-section {
