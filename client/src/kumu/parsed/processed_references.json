@@ -4061,16 +4061,7 @@
         "title": "Environmental Factors Influencing Epidemic Cholera",
         "authors": "Anwar Huq, Nur Hasan, Ali Akanda, Elizabeth Whitcombe, Rita Colwell, Bradd Haley, Munir Alam, Antarpreet Jutla, R. Bradley Sack, ",
         "date": "2013",
-        "journal": {
-            "@xmlns:foaf": "http://xmlns.com/foaf/0.1/",
-            "@xmlns:rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-            "#text": "The American Journal of Tropical Medicine and Hygiene"
-        },
-        "issue": {
-            "@xmlns:foaf": "http://xmlns.com/foaf/0.1/",
-            "@xmlns:rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-            "#text": "3"
-        }
+        "journal": "The American Journal of Tropical Medicine and Hygiene"
     },
     "1357": {
         "article_id": 1357.0,
