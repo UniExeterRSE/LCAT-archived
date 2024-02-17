@@ -17,6 +17,10 @@ import GeoJSONLoader from "./GeoJSONLoader";
 import "./ClimateMap.css";
 import LoadingOverlay from "react-loading-overlay";
 import { nfviColumns } from "../core/climatejust.js";
+
+// Fixes console warning caused by react-loading-overlay
+LoadingOverlay.propTypes = undefined;
+
 const colormap = require("colormap");
 
 const tileLayer = {
