@@ -1,6 +1,5 @@
 // Development before 2024 Copyright (C) Then Try This and University of Exeter
 // Development from 2024 Copyright (C) University of Exeter
-
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the Common Good Public License Beta 1.0 as
@@ -14,29 +13,29 @@
 import React from "react";
 import DocumentMeta from "react-document-meta";
 
-import "./App.css";
+import ClimateHazardRisk from "./components/climateHazard/ClimateHazardRisk";
+import ClimateImpactSummary from "./components/climateImpacts/ClimateImpactSummary";
+import ClimateMap from "./components/climateMap/ClimateMap";
+import ClimatePredictionLoader from "./components/loaders/ClimatePredictionLoader";
+import ClimateSettings from "./components/climatePrediction/ClimateSettings";
+import ClimateSummary from "./components/climatePrediction/ClimateSummary";
+import Footer from "./components/footer/Footer";
+import Graph from "./components/climatePrediction/Graph";
+import Introduction from "./components/header/Introduction";
+import KumuImpactPathway from "./components/climateImpacts/KumuImpactPathway";
+import LCATHeader from "./components/header/Header";
+import NetworkLoader from "./components/loaders/NetworkLoader";
+import PersonalSocialVulnerabilities from "./components/vulnerabilities/PersonalSocialVulnerabilities";
+import StaticAdaptations from "./components/adaptations/StaticAdaptations";
 
-import ClimateMap from "./components/ClimateMap";
-import ClimateSettings from "./components/ClimateSettings";
-import ClimateSummary from "./components/ClimateSummary";
-import ClimatePredictionLoader from "./components/ClimatePredictionLoader";
-import Graph from "./components/Graph";
-import NetworkLoader from "./components/NetworkLoader";
 import { NetworkParser } from "./core/NetworkParser";
-import StaticAdaptations from "./components/static/StaticAdaptations";
 
-import { ReactComponent as LCATLogoSvg } from "./images/logos/LCAT_Logo_Primary_RGB.svg";
-import ContactUs from "./components/ContactUs";
-import FAQFooter from "./components/FAQFooter";
-import ClimateHazardRisk from "./components/ClimateHazardRisk";
-import ClimateImpactSummary from "./components/ClimateImpactSummary";
-import KumuImpactPathway from "./components/KumuImpactPathway";
-import PersonalSocialVulnerabilities from "./components/PersonalSocialVulnerabilities";
+import "./App.css";
 
 const meta = {
     title: "Local Climate Adaptation Tool",
     description: "This is a tool for local climate adaptation",
-    canonical: "http://beta-climate-tool.thentrythis.org",
+    canonical: "https://lcat.uk/",
     meta: {
         charset: "utf-8",
     },
@@ -64,49 +63,10 @@ class App extends React.Component {
         return (
             <div className="App">
                 <DocumentMeta {...meta} />
-                <div className="white-section">
-                    <header className="App-header">
-                        <LCATLogoSvg width={300} />
-                    </header>
-                </div>
-                <div className="grey-section">
-                    <p>Use this tool to see what the scientific research is saying about:</p>
-                    <ul>
-                        <li>
-                            <strong className="text-emphasis">How</strong> local climates will change
-                        </li>
-                        <li>
-                            <strong className="text-emphasis">What</strong> health and community impacts may occur as a
-                            result
-                        </li>
-                        <li>
-                            <strong className="text-emphasis">Who</strong> will be most vulnerable and why
-                        </li>
-                        <li>
-                            <strong className="text-emphasis">Which</strong> adaptations to consider
-                        </li>
-                    </ul>
-                    <p>
-                        LCAT is <strong className="text-emphasis">evidence-based</strong> and designed with and for{" "}
-                        <strong className="text-emphasis"> local decision makers.</strong>
-                    </p>
-                    <p>
-                        With apologies to our users in Northern Ireland, unfortunately the dataset we are using to model
-                        local future climate does not cover Northern Ireland. We have identified an alternative dataset
-                        that will allow us to provide climate models for the region, this will be added as soon as
-                        possible.
-                    </p>
 
-                    <p>
-                        <a
-                            href="https://www.ecehh.org/wp/wp-content/uploads/2023/01/Frequently-Asked-Questions-1.pdf"
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            See our Frequently Asked Questions for more information.
-                        </a>
-                    </p>
-                </div>
+                <LCATHeader />
+                <Introduction />
+
                 <NetworkLoader
                     id={0}
                     callback={(nodes, edges) => {
@@ -116,6 +76,7 @@ class App extends React.Component {
                         }));
                     }}
                 />
+
                 {/*<StatsLoader
                 id={0}
                 callback={(stats) => {
@@ -123,6 +84,7 @@ class App extends React.Component {
                         stats: stats
                     }));}}
               />*/}
+
                 <ClimatePredictionLoader
                     regions={this.state.regions}
                     season={this.state.season}
@@ -140,6 +102,7 @@ class App extends React.Component {
                         }));
                     }}
                 />
+
                 <div className="white-section">
                     <ClimateMap
                         regionType={this.state.regionType}
@@ -151,6 +114,7 @@ class App extends React.Component {
                         }}
                     />
                 </div>
+
                 {this.state.regions.length > 0 && (
                     <div className="grey-section">
                         <ClimateSettings
@@ -248,83 +212,7 @@ class App extends React.Component {
                     </div>
                 )}
 
-                <div className="contact-footer">
-                    <ContactUs />
-                    <FAQFooter />
-                </div>
-                <div className="footer">
-                    <p>
-                        The Local Climate Adaptation Tool has been developed by the{" "}
-                        <a href="https://www.ecehh.org/" target="_blank" rel="noreferrer">
-                            University of Exeter’s European Centre for Human Health
-                        </a>
-                        ,{" "}
-                        <a href="https://www.cornwall.gov.uk/" target="_blank" rel="noreferrer">
-                            Cornwall Council
-                        </a>
-                        ,{" "}
-                        <a href="https://thentrythis.org" target="_blank" rel="noreferrer">
-                            Then Try This
-                        </a>{" "}
-                        and{" "}
-                        <a href="https://www.turing.ac.uk/" target="_blank" rel="noreferrer">
-                            The Alan Turing Institute
-                        </a>{" "}
-                        with co-design partners from Local Government, the National Health Service, emergency services,
-                        and voluntary and private sectors. Funding for the project has been provided by Research
-                        England’s Collaboration Fund, Strategic Priorities Fund and Policy Support Fund, as part of the
-                        Policy@Exeter initiative, The Schroder Foundation, and the Net Zero Innovation Programme; a UCL
-                        and Local Government Association Initiative. This work was also supported by Wave 1 of The UKRI
-                        Strategic Priorities Fund under the EPSRC Grant EP/W006022/1, delivered through the “Environment
-                        and Sustainability” theme within The Alan Turing Institute.
-                    </p>
-
-                    <p>
-                        This has been co-funded through the BlueAdapt project. BlueAdapt has received funding from the
-                        European Union’s Horizon Europe research and innovation programme under grant agreement No
-                        101057764 and by the UKRI/HM Government.
-                    </p>
-
-                    <p>
-                        The LCAT project team (University of Exeter, Then Try This, Cornwall Council and The Alan Turing
-                        Institute) and their agents, take no responsibility for decisions taken as a result of the use
-                        of this tool. While every effort has been made to ensure data represented in the tool are
-                        accurate, no liability is accepted for any inaccuracies in the dataset or for any actions taken
-                        based on the use of this tool. The views expressed in this tool do not reflect the views of the
-                        organisations or the funding bodies. There is no guarantee that the tool will be updated to
-                        reflect changes in the source information.
-                    </p>
-
-                    <p>
-                        <a href="https://github.com/UniExeterRSE/LCAT" target="_blank" rel="noreferrer">
-                            Source code published
-                        </a>{" "}
-                        open source under the{" "}
-                        <a href="http://www.cgpl.org/" target="_blank" rel="noreferrer">
-                            Common Good Public Licence Beta 1.0
-                        </a>
-                    </p>
-
-                    <p>
-                        Development before 2024 Copyright © Then Try This & University of Exeter
-                        <br />
-                        Development from 2024 Copyright © University of Exeter
-                    </p>
-
-                    <div className="logo-block">
-                        <img
-                            className="logos"
-                            alt="Partner logos: University of Exeter, European Centre for Environment for Environment and Human Health, Cornwall Council"
-                        />
-                    </div>
-
-                    <div className="logo-block">
-                        <img
-                            className="funder-logos"
-                            alt="Funder logos: Co-funded by the European Union, UK Research and Innovation, and BlueAdapt"
-                        />
-                    </div>
-                </div>
+                <Footer />
             </div>
         );
     }
