@@ -52,6 +52,12 @@ function StaticAdaptations(props) {
         <LoadingOverlay active={props.loading} spinner text={"Loading adaptations"}>
             <h1>Adaptations</h1>
             <p>
+                Based on the expected climate change and resulting impacts in the UK, the following adaptations should
+                be considered. These adaptations were identified to reduce risk to humans and the environment while
+                providing co-benefits where possible. Use the dropdown options to view adaptations by climate impact
+                pathway, adaptation theme, and activity type.
+            </p>
+            <p>
                 You are viewing{" "}
                 <strong className="text-emphasis">{filteredAdaptations.length} climate adaptations </strong> for&nbsp;
                 <select

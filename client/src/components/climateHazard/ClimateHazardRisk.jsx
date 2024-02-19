@@ -39,7 +39,7 @@ function ClimateHazardRisk(props) {
                         <div className="hazard-text">
                             <strong>{hazard.name}</strong>
                         </div>
-                        <div className="hazard-img">{hazard.icon}</div>
+                        <div className="hazard-img">{React.cloneElement(hazard.icon, { selectedHazard })}</div>
                     </div>
                 ))}
             </div>
