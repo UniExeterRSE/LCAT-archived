@@ -19,6 +19,9 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+
+// Admin panel if required
+// admin.setup(app);
 // var admin = require('./admin');
 
 var apiRouter = require('./routes/api');
@@ -46,7 +49,8 @@ app.use(function(req, res, next) {
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', apiRouter);
 
-// admin.setup(app);
+// Serve static files from the client build directory
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
