@@ -55,7 +55,9 @@ function PersonalSocialVulnerabilities(props) {
                         <div className="vulnerability-text">
                             <strong>{vulnerability.name}</strong>
                         </div>
-                        <div className="vulnerability-img">{vulnerability.icon}</div>
+                        <div className="vulnerability-img">
+                            {React.cloneElement(vulnerability.icon, { selectedVulnerability })}
+                        </div>
                     </div>
                 ))}
             </div>
