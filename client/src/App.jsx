@@ -19,6 +19,7 @@ import ClimateMap from "./components/climateMap/ClimateMap";
 import ClimatePredictionLoader from "./components/loaders/ClimatePredictionLoader";
 import ClimateSettings from "./components/climatePrediction/ClimateSettings";
 import ClimateSummary from "./components/climatePrediction/ClimateSummary";
+import Feedback from "./components/feedback/Feedback";
 import Footer from "./components/footer/Footer";
 import Graph from "./components/climatePrediction/Graph";
 import Introduction from "./components/header/Introduction";
@@ -211,6 +212,8 @@ class App extends React.Component {
                         />
                     </div>
                 )}
+
+                <Feedback />
 
                 <Footer />
             </div>

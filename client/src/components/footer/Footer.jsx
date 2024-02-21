@@ -12,9 +12,8 @@ function Footer() {
                 <ContactUs />
                 <FAQ />
             </div>
-
-            <FooterText />
             <FooterLogos />
+            <FooterText />
         </div>
     );
 }
