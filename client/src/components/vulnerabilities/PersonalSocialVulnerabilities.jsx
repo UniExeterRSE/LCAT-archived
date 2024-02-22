@@ -73,7 +73,6 @@ function PersonalSocialVulnerabilities(props) {
                 </div>
             )}
 
-            <p></p>
             <p className="note">
                 Data source:{" "}
                 <a href="https://climatejust.org.uk" target="_blank" rel="noreferrer">
