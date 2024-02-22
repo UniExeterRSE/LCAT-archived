@@ -75,7 +75,7 @@ function ClimateImpactSummary(props) {
 
             <p>
                 Climate change will have a <strong className="text-emphasis">negative impact</strong> on essential
-                community infrastructures and services like
+                community infrastructures and services like {" "}
                 <strong className="text-emphasis">
                     systems failures of hospitals, transport, water, and energy.
                 </strong>{" "}
