@@ -28,11 +28,11 @@ function Introduction() {
 
             <p>
                 <a
-                    href="https://www.ecehh.org/wp/wp-content/uploads/2023/01/Frequently-Asked-Questions-1.pdf"
+                    href="https://www.ecehh.org/research/local-climate-adaptation-tool/"
                     target="_blank"
                     rel="noreferrer"
                 >
-                    See our Frequently Asked Questions for more information.
+                    See our User Guide for more information.
                 </a>
             </p>
         </div>

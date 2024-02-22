@@ -51,7 +51,7 @@
     background-size: 100% 100%;
 }
 
-.faq-button {
+.user-guide-button {
     display: inline-block;
     width: 50px;
     height: 50px;
@@ -62,7 +62,7 @@
     margin-left: 1em;
 }
 
-.faq-button:hover {
+.user-guide-button:hover {
     background: url("../../images/faq_button_selected_yellow.png") no-repeat;
     background-size: 100% 100%;
 }

@@ -1,26 +1,26 @@
 import React from "react";
 
-const FAQ = () => {
+const UserGuide = () => {
     return (
         <div className="footer-flex-container">
-            <div className="footer-heading">Frequently Asked Questions</div>
+            <div className="footer-heading">Access our User Guide</div>
             <div className="footer-flex-content">
                 <p>
                     <a
-                        className="faq-button"
-                        href="https://www.ecehh.org/wp/wp-content/uploads/2023/01/Frequently-Asked-Questions-1.pdf"
+                        className="user-guide-button"
+                        href="https://www.ecehh.org/research/local-climate-adaptation-tool/"
                         target="_blank"
                         rel="noreferrer"
                     ></a>
                 </p>
                 <p>
-                    View&nbsp;
+                    Find the&nbsp;
                     <a
-                        href="https://www.ecehh.org/wp/wp-content/uploads/2023/01/Frequently-Asked-Questions-1.pdf"
+                        href="https://www.ecehh.org/research/local-climate-adaptation-tool/"
                         target="_blank"
                         rel="noreferrer"
                     >
-                        Frequently Asked Questions at: ecehh.org
+                        LCAT User Guide at: ecehh.org
                     </a>
                 </p>
             </div>
@@ -28,4 +28,4 @@ const FAQ = () => {
     );
 };
 
-export default FAQ;
+export default UserGuide;

@@ -1,7 +1,7 @@
 import ContactUs from "./ContactUs";
-import FAQ from "./FAQ";
 import FooterLogos from "./FooterLogos";
 import FooterText from "./FooterText";
+import UserGuide from "./UserGuide";
 
 import "./Footer.css";
 
@@ -10,7 +10,7 @@ function Footer() {
         <div>
             <div className="contact-footer">
                 <ContactUs />
-                <FAQ />
+                <UserGuide />
             </div>
             <FooterLogos />
             <FooterText />
